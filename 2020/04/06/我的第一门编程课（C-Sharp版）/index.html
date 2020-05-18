@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="C#基本编程原则 程序是如何被计算机执行的 .NET运行原理 怎样构造求解问题的算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="金老师C#课">
+<meta property="og:url" content="http://yoursite.com/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="C#基本编程原则 程序是如何被计算机执行的 .NET运行原理 怎样构造求解问题的算法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/1.png">
+<meta property="article:published_time" content="2020-04-06T15:09:24.000Z">
+<meta property="article:modified_time" content="2020-04-13T12:45:48.266Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>金老师C#课 | Swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--学习笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          金老师C#课
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-06 23:09:24" itemprop="dateCreated datePublished" datetime="2020-04-06T23:09:24+08:00">2020-04-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 20:45:48" itemprop="dateModified" datetime="2020-04-13T20:45:48+08:00">2020-04-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>C#基本编程原则</li>
+<li>程序是如何被计算机执行的</li>
+<li>.NET运行原理</li>
+<li>怎样构造求解问题的算法<a id="more"></a>
+
+</li>
+</ul>
+<h1 id="一-大致了解C-基本编程规则"><a href="#一-大致了解C-基本编程规则" class="headerlink" title="一.大致了解C#基本编程规则"></a>一.大致了解C#基本编程规则</h1><h4 id="1-1-基本规则"><a href="#1-1-基本规则" class="headerlink" title="1.1 基本规则"></a>1.1 基本规则</h4><ul>
+<li>“标识符(identifier:即程序中拥有特殊含义的单词)”区分大小写</li>
+<li>每条语句以分号结尾，多条语句可以使用”{}”组合为一个语句块</li>
+<li>编写的代码放在”类(class)”中，类是C#编程的基本单元</li>
+<li>存放C#类的源代码文件其扩展名为”.cs”,一个”.cs”文件中可以存放多个C#类</li>
+</ul>
+<h4 id="1-2-Visual-Studio中文件的组织方式"><a href="#1-2-Visual-Studio中文件的组织方式" class="headerlink" title="1.2 Visual Studio中文件的组织方式:"></a>1.2 Visual Studio中文件的组织方式:</h4><ul>
+<li>“项目(Project)”是Visual Studio编译的最小单元</li>
+<li>一个”解决方案(solution)”中可以有多个项目，显示为粗体的是启动项目</li>
+<li>一个项目中可以有多个类文件。一个类只有被包括在一个项目中，才可以被Visual Studio编译</li>
+<li>程序入口点是Program类中的Main()方法</li>
+</ul>
+<h4 id="1-3-为什么要学习面向对象程序设计"><a href="#1-3-为什么要学习面向对象程序设计" class="headerlink" title="1.3 为什么要学习面向对象程序设计"></a>1.3 为什么要学习面向对象程序设计</h4><ul>
+<li>面向对象是一种主流的软件开发与设计方法</li>
+<li>当前各种软件系统，基本都是应用面向对象思想与计算开发出来的</li>
+</ul>
+<h4 id="1-4-软件是如何编写的"><a href="#1-4-软件是如何编写的" class="headerlink" title="1.4 软件是如何编写的"></a>1.4 软件是如何编写的</h4><table>
+<thead>
+<tr>
+<th>面临问题</th>
+<th>做出决策</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>如何设计与选中特定的算法处理信息</td>
+<td>可以选择已有的算法，也可以设计新的算法<br>算法:分而治之，动态规划<br>程序控制结构:分支，循环，递归</td>
+</tr>
+<tr>
+<td>如何表达以方便计算机处理</td>
+<td>设计和选用合适的数据结构</td>
+</tr>
+<tr>
+<td>如何编写程序实现算法</td>
+<td>选择合适的技术手段，设计合理的技术方案。软件系统价格，面向对象的分析与设计，编程语言，开发框架，软件平台…</td>
+</tr>
+</tbody></table>
+<h4 id="1-5-需要掌握基础知识"><a href="#1-5-需要掌握基础知识" class="headerlink" title="1.5 需要掌握基础知识"></a>1.5 需要掌握基础知识</h4><p>程序如何被计算机执行–&gt;各种信息是如何用0/1表达的–&gt;计算机是由哪些元件组成，工作原理是什么–&gt;操作系统如何启动一个程序的执行<br/><br>如何编写可以执行的程序–&gt;第一步:编写源代码–&gt;第二步:编译–&gt;第三步:得到可执行的程序<br/><br>增压构造求解问题的算法–&gt;分析问题–&gt;设计算法–&gt;编写程序</p>
+<h1 id="二-程序是如何被计算机执行的"><a href="#二-程序是如何被计算机执行的" class="headerlink" title="二.程序是如何被计算机执行的"></a>二.程序是如何被计算机执行的</h1><h4 id="2-1-计算机能直接执行由0和1构成的机器指令"><a href="#2-1-计算机能直接执行由0和1构成的机器指令" class="headerlink" title="2.1 计算机能直接执行由0和1构成的机器指令"></a>2.1 计算机能直接执行由0和1构成的机器指令</h4><p>计算机中数值信息，直接用二进制”0”和”1”表达，非数值信息，采用”编码”的手段</p>
+<p>“门”是这样的一种电路：它规定各个输入信号之间满足某种逻辑关系时，才有信号输出，通常有下列三种门电路：与门、或门、非门（反相器）。从逻辑关系看，门电路的输入端或输出端只有两种状态，无信号以“0”表示，有信号以“1”表示。</p>
+<ul>
+<li>以”0”和”1”表达的指令，可以由计算机硬件直接执行，因此，将它们称为”机器指令”</li>
+<li>不同体系结构的计算机硬件，能执行的机器指令是不一样的，每种机器能执行的所有机器指令，称为这种机器的”指令集” <h4 id="2-2-计算机的大脑——CPU"><a href="#2-2-计算机的大脑——CPU" class="headerlink" title="2.2 计算机的大脑——CPU"></a>2.2 计算机的大脑——CPU</h4></li>
+<li>CPU可以执行机器指令(“0”和”1”)</li>
+<li>指令与数据通常保存在文件中</li>
+</ul>
+<p>指令&amp;数据-&gt;可执行程序文件(.exe)</p>
+<p>Win平台下可执行文件通常以.exe结尾，另一种扩展名为.dll(动态链接库)需要被.exe装入后才能执行</p>
+<h4 id="2-3-外部存储器-amp-Memory-内存-与内存条"><a href="#2-3-外部存储器-amp-Memory-内存-与内存条" class="headerlink" title="2.3 外部存储器 &amp; Memory(内存)与内存条"></a>2.3 外部存储器 &amp; Memory(内存)与内存条</h4><ul>
+<li>各种程序平常保存在外部存储器中<br>如硬盘，U盘等</li>
+<li>放在外部存储器中的程序并不能直接允许，需要被装入内存后，才能执行<br>内存条中的存储新品包容许多存储单元，用于保存程序指令和数据<br>存储单元的集合，称为”内存”</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>001011…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>011010…</td>
+</tr>
+<tr>
+<td>101011…</td>
+</tr>
+<tr>
+<td></td>
+</tr>
+<tr>
+<td></td>
+</tr>
+<tr>
+<td></td>
+</tr>
+</tbody></table>
+<p>内存存储数据—&gt;分为指令,指令使用的数据</p>
+<table>
+<thead>
+<tr>
+<th align="center"><div align="center">可执行程序.exe文件保存在外部存储器</div></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">在计算机上双击，系统读取文件，把它包容的指令和数据装载到内存</td>
+</tr>
+<tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">CPU直接存取放在内存存储单元的数据，并负责执行这些指令</td>
+</tr>
+</tbody></table>
+<h4 id="2-4-区分两种不同的内存类型"><a href="#2-4-区分两种不同的内存类型" class="headerlink" title="2.4 区分两种不同的内存类型"></a>2.4 区分两种不同的内存类型</h4><ul>
+<li><p>物理内存<br>计算机上的物理芯片</p>
+</li>
+<li><p>虚拟内存<br>操作系统所提供的”虚拟内存”</p>
+</li>
+</ul>
+<p>C#写的.NET程序,无法直接访问物理内存上的特定数据单元,它所访问的上由操作系统负责提供的”虚拟内存”</p>
+<h4 id="2-5-程序开发与运行过程简述"><a href="#2-5-程序开发与运行过程简述" class="headerlink" title="2.5 程序开发与运行过程简述"></a>2.5 程序开发与运行过程简述</h4><table>
+<thead>
+<tr>
+<th align="center"><div align="center">软件工程师用各种编程语言写计算机程序</div></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">编译器把源程序转换为二进制指令与数据，以文件方式保存在外部存储器中</td>
+</tr>
+<tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">操作系统将程序文件从外部存储器读入到内存中</td>
+</tr>
+<tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">CPU从内存中取出指令执行</td>
+</tr>
+</tbody></table>
+<h1 id="三-Dot-Net运行原理"><a href="#三-Dot-Net运行原理" class="headerlink" title="三.Dot Net运行原理"></a>三.Dot Net运行原理</h1><h4 id="3-1-“编译”是怎么回事"><a href="#3-1-“编译”是怎么回事" class="headerlink" title="3.1 “编译”是怎么回事"></a>3.1 “编译”是怎么回事</h4><table>
+<thead>
+<tr>
+<th align="center"><div align="center">纯文本形式的源代码</div></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">⬇提交</td>
+</tr>
+<tr>
+<td align="center">C#编译器编译源码</td>
+</tr>
+<tr>
+<td align="center">⬇生成</td>
+</tr>
+<tr>
+<td align="center">二进制形式的可执行程序文件(HelloWorld.exe)</td>
+</tr>
+</tbody></table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">using System;&#x2F;&#x2F;表示将使用.Net基类库中的System命名空间</span><br><span class="line"></span><br><span class="line">public class Program&#x2F;&#x2F;类名Program</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F;程序入口点Main(数组[] 参数名)</span><br><span class="line">    static void Main(string[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;Hello,World&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;保存为ANSI格式(源代码标准格式)</span><br><span class="line">&#x2F;&#x2F;helloworld.cs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">csc helloworld.cs</span><br><span class="line"></span><br><span class="line">Microsoft (R) Visual C<span class="meta"># Compiler version 3.5.0-beta4-20121-02 (00d6c926)</span></span><br><span class="line">Copyright (C) Microsoft Corporation. All rights reserved.</span><br></pre></td></tr></table></figure>
+<br>
+
+<p><strong>“编译(compile)”,粗略地说,它负责把人编写的源代码”翻译”为计算机可以识别并执行的二进制代码</strong></p>
+<h4 id="3-2-可执行程序也是分类的"><a href="#3-2-可执行程序也是分类的" class="headerlink" title="3.2 可执行程序也是分类的"></a>3.2 可执行程序也是分类的</h4><ul>
+<li>可执行程序也分很多类型，在Windows平台下，可分为</li>
+</ul>
+<table>
+   <tr>
+        <td colspan="2" align="center">可执行程序</td>    
+   </tr>
+   <tr>
+        <td align="center">⬇</td> 
+        <td align="center">⬇</td> 
+   </tr>
+    <tr>
+        <td align="center">托管程序</td>    
+        <td align="center">非托管程序</td>  
+    </tr>
+    <tr>
+        <td align="center">例如:使用C#,VB.NET编写的可执行程序,运行时要求目标计算机上必须安装有.NET Framework</td>    
+        <td align="center">例如:使用C/C++编写的可执行程序,可以不需要安装额外软件，就能直接在操作系统中运行</td>  
+    </tr>
+</table>
+
+<h4 id="3-3-“托管的”应用程序是什么意思"><a href="#3-3-“托管的”应用程序是什么意思" class="headerlink" title="3.3 “托管的”应用程序是什么意思"></a>3.3 “托管的”应用程序是什么意思</h4><p> .NET应用程序是”托管(Managed)”的，意思是它必须在一个独立的运行环境(即CLR)中运行,并收到这个运行环境的管理与控制</p>
+<table>
+<thead>
+<tr>
+<th align="center"><div align="center">.NET应用程序</div></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">⬆管理</td>
+</tr>
+<tr>
+<td align="center"><span style="color: red">.NET虚拟机(CLR) </span> <br/>CLR:通用语言运行时.NET应用程序的运行环境,可以看成是一台专用于运行.NET应用程序的虚拟机(Virtual Machine)</td>
+</tr>
+<tr>
+<td align="center">⬇调用功能</td>
+</tr>
+<tr>
+<td align="center">操作系统(Windows)</td>
+</tr>
+<tr>
+<td align="center">⬇管理</td>
+</tr>
+<tr>
+<td align="center">构成计算机的各种硬件</td>
+</tr>
+</tbody></table>
+<h4 id="3-4-NET程序的开发与运行”全景图”"><a href="#3-4-NET程序的开发与运行”全景图”" class="headerlink" title="3.4 .NET程序的开发与运行”全景图”"></a>3.4 .NET程序的开发与运行”全景图”</h4><p><img src="1.png" alt=""></p>
+<h1 id="四-怎样构造求解问题的算法"><a href="#四-怎样构造求解问题的算法" class="headerlink" title="四.怎样构造求解问题的算法"></a>四.怎样构造求解问题的算法</h1><h4 id="4-1-什么是”算法-algorithm-”"><a href="#4-1-什么是”算法-algorithm-”" class="headerlink" title="4.1 什么是”算法(algorithm)”"></a>4.1 什么是”算法(algorithm)”</h4><p>计算机中的<span style="color:red">算法</span>,主要是指为了解决某个问题而设计的一种解决方案,包容一系列计算机能够执行的有着特定顺序的命令,计算机执行完这些命令，将得到某种结果,意味着某个问题已经有了一个结论</p>
+<ul>
+<li>算法的针对性很强,专用于解决特定的问题<br>算法的设计,通常与数学有很密切的联系，并且是<span style="color:red">独立于</span>特定的编程语言和软件平台的，这就是说:</li>
+</ul>
+<p><strong>可以使用多种编程语言,以多种方式，在不同的平台上实现同一个算法</strong></p>
+<h4 id="4-2-从”结构化”到”面向对象”"><a href="#4-2-从”结构化”到”面向对象”" class="headerlink" title="4.2 从”结构化”到”面向对象”"></a>4.2 从”结构化”到”面向对象”</h4><ul>
+<li>程序是一个”黑盒”,程序=数据结构+算法</li>
+<li>程序设计可以看成是一种”抽象”的艺术<br>使用”抽象”的思维方式,构造软件系统的顶层模型</li>
+</ul>
+<h5 id="4-2-1-数据结构————对数据进行抽象"><a href="#4-2-1-数据结构————对数据进行抽象" class="headerlink" title="4.2.1 数据结构————对数据进行抽象"></a>4.2.1 数据结构————对数据进行抽象</h5><ul>
+<li>先确定一种数据结构，如何基于此数据结构设计算法<br>在程序设计中，依据要解决的特定问题,分析它所设计的相关数据和其中蕴含的各种信息,安装特定编程语言所制成的语法特性，将它们转换为特定的数据结构，往往是整个开发中至关重要的一步<h5 id="4-2-2-基于数据结构确定算法"><a href="#4-2-2-基于数据结构确定算法" class="headerlink" title="4.2.2 基于数据结构确定算法"></a>4.2.2 基于数据结构确定算法</h5></li>
+<li>将人的计算方法转换为计算机算法，每个算法用一个函数实现<br>算法就是一系列的命令,计算机通过执行这些命令，完成特定的数据处理工作<h5 id="4-2-3-进一步细化与调整设计方案"><a href="#4-2-3-进一步细化与调整设计方案" class="headerlink" title="4.2.3 进一步细化与调整设计方案"></a>4.2.3 进一步细化与调整设计方案</h5><h5 id="4-2-4-最终的技术设计方案"><a href="#4-2-4-最终的技术设计方案" class="headerlink" title="4.2.4 最终的技术设计方案"></a>4.2.4 最终的技术设计方案</h5></li>
+<li>“由粗略到详细”,”从上层到下层”地逐层设计<h5 id="4-2-5-确定开发顺序的基本方法"><a href="#4-2-5-确定开发顺序的基本方法" class="headerlink" title="4.2.5 确定开发顺序的基本方法"></a>4.2.5 确定开发顺序的基本方法</h5></li>
+<li>具体开发时,”从 下层 到 上层”地逐层开发，像盖楼一样</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center"><div align="center">开发被别人调用，自己不用调用别人的函数</div></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">开发中间层函数，它需要调用底层已经实现好的函数</td>
+</tr>
+<tr>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td align="center">开发顶层函数，它需要调用中间层已经实现好的函数，通常情况下，避免跨层调用</td>
+</tr>
+</tbody></table>
+ <details>
+<summary style="color:blue"><b>点击展开结构化代码</b></summary>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">namespace Lesson_02_Calculate_1_SP</span><br><span class="line">&#123;</span><br><span class="line">    public class MyDate</span><br><span class="line">    &#123;</span><br><span class="line">        public int Year;</span><br><span class="line">        public int Month;</span><br><span class="line">        public int Day;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">namespace Lesson_02_Calculate_1_SP</span><br><span class="line">&#123;</span><br><span class="line">    internal class Program</span><br><span class="line">    &#123;</span><br><span class="line">        static int[] months &#x3D; &#123;0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31&#125;;</span><br><span class="line"></span><br><span class="line">        public static void Main(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            MyDate d1 &#x3D; new MyDate();</span><br><span class="line">            MyDate d2 &#x3D; new MyDate(); &#x2F;&#x2F;起始日期和结束日期</span><br><span class="line">            &#x2F;&#x2F;1999年5月10日</span><br><span class="line">            d1.Year &#x3D; 1999;</span><br><span class="line">            d1.Month &#x3D; 5;</span><br><span class="line">            d1.Day &#x3D; 10;</span><br><span class="line">            &#x2F;&#x2F;2006年3月8日</span><br><span class="line">            d2.Year &#x3D; 2006;</span><br><span class="line">            d2.Month &#x3D; 3;</span><br><span class="line">            d2.Day &#x3D; 8;</span><br><span class="line">            &#x2F;&#x2F;计算结果</span><br><span class="line">            int days &#x3D; CalculateDaysOfTwoDate(d1, d2);</span><br><span class="line"></span><br><span class="line">            string str &#x3D; &quot;&#123;0&#125;年&#123;1&#125;月&#123;2&#125;日到&#123;3&#125;年&#123;4&#125;月&#123;5&#125;日共有天数：&quot;;</span><br><span class="line">            str &#x3D; String.Format(str, d1.Year, d1.Month, d1.Day, d2.Year, d2.Month, d2.Day);</span><br><span class="line">            Console.WriteLine(str + days);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;暂停,敲任意键结束</span><br><span class="line">            Console.ReadKey();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F;计算两个日期中的整天数</span><br><span class="line">        static int CalculateDaysOfTwoDate(MyDate beginDate, MyDate endDate)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            days &#x3D; CalculateDaysOfTwoYear(beginDate.Year, endDate.Year);</span><br><span class="line">            if (beginDate.Year &#x3D;&#x3D; endDate.Year)</span><br><span class="line">                days +&#x3D; CalculateDaysOfTwoMonth(beginDate, endDate, true);</span><br><span class="line">            else</span><br><span class="line"></span><br><span class="line">                days +&#x3D; CalculateDaysOfTwoMonth(beginDate, endDate, false);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;计算机两年之间整年天数，不足一年的去掉</span><br><span class="line">        static int CalculateDaysOfTwoYear(int beginYear, int endYear)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            for (int i &#x3D; beginYear + 1; i &lt;&#x3D; endYear - 1; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                if (IsLeapYear(i))</span><br><span class="line">                    days +&#x3D; 366;</span><br><span class="line">                else</span><br><span class="line"></span><br><span class="line">                    days +&#x3D; 365;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 根据两个日期，计算机这两个日期之间的天数</span><br><span class="line">        static int CalculateDaysOfTwoMonth(MyDate beginDate, MyDate endDate, bool IsInOneYear)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            &#x2F;&#x2F;对于同一月，天数直接相减</span><br><span class="line">            if (beginDate.Month &#x3D;&#x3D; endDate.Month)</span><br><span class="line">                if (IsInOneYear)</span><br><span class="line">                    return endDate.Day - beginDate.Day;</span><br><span class="line">                else if (IsLeapYear(beginDate.Year))</span><br><span class="line">                    return 366 + (endDate.Day - beginDate.Day);</span><br><span class="line">                else</span><br><span class="line">                    return 365 + (endDate.Day - beginDate.Day);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;不同月</span><br><span class="line">            int i &#x3D; 0;</span><br><span class="line">            if (IsInOneYear)</span><br><span class="line">            &#123;</span><br><span class="line">                &#x2F;&#x2F;同一年</span><br><span class="line">                for (i &#x3D; beginDate.Month; i &lt;&#x3D; endDate.Month; i++)</span><br><span class="line">                &#123;</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line">                    &#x2F;&#x2F;处理闰二月</span><br><span class="line">                    if ((IsLeapYear(beginDate.Year) &amp;&amp; (i &#x3D;&#x3D; 2)))</span><br><span class="line">                        days +&#x3D; 1;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去月初到起始日的天数</span><br><span class="line">                days -&#x3D; beginDate.Day;</span><br><span class="line">                &#x2F;&#x2F;减去结束日到月底的天数</span><br><span class="line">                days -&#x3D; months[endDate.Month] - endDate.Day;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                &#x2F;&#x2F;不同年</span><br><span class="line">                &#x2F;&#x2F;计算到年底的天数</span><br><span class="line">                for (i &#x3D; beginDate.Month; i &lt;&#x3D; 12; i++)</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去月初到起始日的天数</span><br><span class="line">                days -&#x3D; beginDate.Day;</span><br><span class="line">                &#x2F;&#x2F;从年初到结束月的天数</span><br><span class="line">                for (i &#x3D; 1; i &lt;&#x3D; endDate.Month; i++)</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去结束日到月底的天数</span><br><span class="line">                days -&#x3D; months[endDate.Month] - endDate.Day;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        static bool IsLeapYear(int year)</span><br><span class="line">        &#123;</span><br><span class="line">            &#x2F;&#x2F;如果年能被400整除，是闰年</span><br><span class="line">            if (year % 400 &#x3D;&#x3D; 0)</span><br><span class="line">            &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;能被4整除，但不能被100整除，是闰年</span><br><span class="line">            if (year % 4 &#x3D;&#x3D; 0 &amp;&amp; year % 100 !&#x3D; 0)</span><br><span class="line">            &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;其他情况，是平年</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</details>
+
+<h4 id="4-3-转为面向对象实现"><a href="#4-3-转为面向对象实现" class="headerlink" title="4.3 转为面向对象实现"></a>4.3 转为面向对象实现</h4><ul>
+<li><p>给函数搬一个家–类</p>
+</li>
+<li><p>重大变化:<br>1）DateCalculator这个类的<span style="color:red">职责很明确</span>,它负责”计算日期”,除此之外什么都不做<br>2）外界只能”看到”并调用它所定义的唯一一个”<span style="color:red">公有(public)</span>“方法<br>CalculateDaysOfTwoDate(),根本家不知道它内部定义是什么样的</p>
+</li>
+<li><p>面向对象带来的好处:<br>1)从使用者角度，DateCalculator类因为”<span style="color:red">简单</span>“,所以”<span style="color:red">易用</span>“<br>2)具体计算日期的算法被封装道理DateCalculator类的内部，<span style="color:red">在必要时可以修改算法,外部调用者不会收到影响</span>，其调用代码不需要改变</p>
+</li>
+</ul>
+<details>
+<summary style="color:blue"><b>点击展开面向对象代码</b></summary>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">namespace Lesson_02_Calculate_2_OO</span><br><span class="line">&#123;</span><br><span class="line">    public class MyDate</span><br><span class="line">    &#123;</span><br><span class="line">        public int Year;</span><br><span class="line">        public int Month;</span><br><span class="line">        public int Day;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">namespace Lesson_02_Calculate_2_OO</span><br><span class="line">&#123;</span><br><span class="line">    public class DateCalculate</span><br><span class="line">    &#123;</span><br><span class="line">        private int[] months &#x3D; &#123;0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31&#125;;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F; 计算两个日期中的整天数</span><br><span class="line">        public int CalculateDaysOfTwoDate(MyDate beginDate, MyDate endDate)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            days &#x3D; CalculateDaysOfTwoYear(beginDate.Year, endDate.Year);</span><br><span class="line">            if (beginDate.Year &#x3D;&#x3D; endDate.Year)</span><br><span class="line">                days +&#x3D; CalculateDaysOfTwoMonth(beginDate, endDate, true);</span><br><span class="line">            else</span><br><span class="line"></span><br><span class="line">                days +&#x3D; CalculateDaysOfTwoMonth(beginDate, endDate, false);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;计算机两年之间整年天数，不足一年的去掉</span><br><span class="line">        private int CalculateDaysOfTwoYear(int beginYear, int endYear)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            for (int i &#x3D; beginYear + 1; i &lt;&#x3D; endYear - 1; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                if (IsLeapYear(i))</span><br><span class="line">                    days +&#x3D; 366;</span><br><span class="line">                else</span><br><span class="line"></span><br><span class="line">                    days +&#x3D; 365;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 根据两个日期，计算机这两个日期之间的天数</span><br><span class="line">        private int CalculateDaysOfTwoMonth(MyDate beginDate, MyDate endDate, bool IsInOneYear)</span><br><span class="line">        &#123;</span><br><span class="line">            int days &#x3D; 0;</span><br><span class="line">            &#x2F;&#x2F;对于同一月，天数直接相减</span><br><span class="line">            if (beginDate.Month &#x3D;&#x3D; endDate.Month)</span><br><span class="line">                if (IsInOneYear)</span><br><span class="line">                    return endDate.Day - beginDate.Day;</span><br><span class="line">                else if (IsLeapYear(beginDate.Year))</span><br><span class="line">                    return 366 + (endDate.Day - beginDate.Day);</span><br><span class="line">                else</span><br><span class="line">                    return 365 + (endDate.Day - beginDate.Day);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;不同月</span><br><span class="line">            int i &#x3D; 0;</span><br><span class="line">            if (IsInOneYear)</span><br><span class="line">            &#123;</span><br><span class="line">                &#x2F;&#x2F;同一年</span><br><span class="line">                for (i &#x3D; beginDate.Month; i &lt;&#x3D; endDate.Month; i++)</span><br><span class="line">                &#123;</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line">                    &#x2F;&#x2F;处理闰二月</span><br><span class="line">                    if ((IsLeapYear(beginDate.Year) &amp;&amp; (i &#x3D;&#x3D; 2)))</span><br><span class="line">                        days +&#x3D; 1;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去月初到起始日的天数</span><br><span class="line">                days -&#x3D; beginDate.Day;</span><br><span class="line">                &#x2F;&#x2F;减去结束日到月底的天数</span><br><span class="line">                days -&#x3D; months[endDate.Month] - endDate.Day;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                &#x2F;&#x2F;不同年</span><br><span class="line">                &#x2F;&#x2F;计算到年底的天数</span><br><span class="line">                for (i &#x3D; beginDate.Month; i &lt;&#x3D; 12; i++)</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去月初到起始日的天数</span><br><span class="line">                days -&#x3D; beginDate.Day;</span><br><span class="line">                &#x2F;&#x2F;从年初到结束月的天数</span><br><span class="line">                for (i &#x3D; 1; i &lt;&#x3D; endDate.Month; i++)</span><br><span class="line">                    days +&#x3D; months[i];</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;减去结束日到月底的天数</span><br><span class="line">                days -&#x3D; months[endDate.Month] - endDate.Day;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return days;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        private bool IsLeapYear(int year)</span><br><span class="line">        &#123;</span><br><span class="line">            &#x2F;&#x2F;如果年能被400整除，是闰年</span><br><span class="line">            if (year % 400 &#x3D;&#x3D; 0)</span><br><span class="line">            &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;能被4整除，但不能被100整除，是闰年</span><br><span class="line">            if (year % 4 &#x3D;&#x3D; 0 &amp;&amp; year % 100 !&#x3D; 0)</span><br><span class="line">            &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;其他情况，是平年</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">namespace Lesson_02_Calculate_2_OO</span><br><span class="line">&#123;</span><br><span class="line">    public class Program</span><br><span class="line">    &#123;</span><br><span class="line">        public static void Main(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            MyDate d1 &#x3D; new MyDate();</span><br><span class="line">            MyDate d2 &#x3D; new MyDate();</span><br><span class="line">            </span><br><span class="line">            d1.Year &#x3D; 1999;</span><br><span class="line">            d1.Month &#x3D; 5;</span><br><span class="line">            d1.Day &#x3D; 10;</span><br><span class="line">            &#x2F;&#x2F;2006年3月8日</span><br><span class="line">            d2.Year &#x3D; 2006;</span><br><span class="line">            d2.Month &#x3D; 3;</span><br><span class="line">            d2.Day &#x3D; 8;</span><br><span class="line">            &#x2F;&#x2F;计算结果</span><br><span class="line"></span><br><span class="line">            string str &#x3D; &quot;&#123;0&#125;年&#123;1&#125;月&#123;2&#125;日到&#123;3&#125;年&#123;4&#125;月&#123;5&#125;日共有天数：&quot;;</span><br><span class="line">            str &#x3D; String.Format(str, d1.Year, d1.Month, d1.Day, d2.Year, d2.Month, d2.Day);</span><br><span class="line"></span><br><span class="line">            DateCalculate obj &#x3D; new DateCalculate();</span><br><span class="line">            int days &#x3D; obj.CalculateDaysOfTwoDate(d1, d2);</span><br><span class="line">             </span><br><span class="line">            Console.WriteLine(str + days);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;暂停,敲任意键结束</span><br><span class="line">            Console.ReadKey();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</details>
+
+<h4 id="4-4-使用内置库实现"><a href="#4-4-使用内置库实现" class="headerlink" title="4.4 使用内置库实现"></a>4.4 使用内置库实现</h4><ul>
+<li>从如下事例中，可以看到，如果有一个功能强大的组家奴，基于这些组件开发应用程序，可以大大提升软件开发效率,因为可以重用别人的工作，不需要从头开始</li>
+</ul>
+<p>即不要重复发明轮子，尽量重用别人的代码</p>
+<details>
+<summary style="color:blue"><b>点击展开内置库代码</b></summary>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">namespace Lesson_02_Calculate_3_BuiltIn_functions</span><br><span class="line">&#123;</span><br><span class="line">    internal class Program</span><br><span class="line">    &#123;</span><br><span class="line">        public static void Main(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            DateTime d1&#x3D;new DateTime(1999,5,10);</span><br><span class="line">            DateTime d2&#x3D;new DateTime(2006,3,8);</span><br><span class="line"></span><br><span class="line">            double days &#x3D; (d2 - d1).TotalDays;</span><br><span class="line">            </span><br><span class="line">            Console.WriteLine(days);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</details>
+
+<h1 id="五-变量、数据类型和表达式"><a href="#五-变量、数据类型和表达式" class="headerlink" title="五.变量、数据类型和表达式"></a>五.变量、数据类型和表达式</h1><h4 id="5-1-什么是”变量”"><a href="#5-1-什么是”变量”" class="headerlink" title="5.1 什么是”变量”"></a>5.1 什么是”变量”</h4><ul>
+<li>程序运行所需要处理的数据，通常都要放到”变量(variable)”中<br>变量可以看作是一种数据容器</li>
+<li>不同类型的”容器”,适合放置不同类型的数据,这种”类型”,称为”<span style="color:red">变量的数据类型</span>“</li>
+</ul>
+<h5 id="5-1-1-如何在C-中定义变量"><a href="#5-1-1-如何在C-中定义变量" class="headerlink" title="5.1.1 如何在C#中定义变量"></a>5.1.1 如何在C#中定义变量</h5><ul>
+<li>语法格式:<br>数据类型名称 变量名 = 变量初始值;</li>
+<li>示例<br>int value = 100;<br>该语句定义了一个<span style="color:red">int(整型)</span> 变量，可以放<span style="color:red">整数</span> ，初始值为<span style="color:red">100</span>,最后以”分号结束，C#语句结束不能省略分号”</li>
+</ul>
+<h5 id="5-1-2-变量存储与内存中"><a href="#5-1-2-变量存储与内存中" class="headerlink" title="5.1.2 变量存储与内存中"></a>5.1.2 变量存储与内存中</h5><ul>
+<li>内存由多个内存单元构成，每个内存单元都有一个编号，称为”<span style="color:red">内存地址</span>“</li>
+<li>给定一个”内存地址”，就能找到特定的内存单元</li>
+<li>计算机可以从内存单元中写入或读出数据</li>
+</ul>
+<p>使用比较底层的编程语言，如”<span style="color:red">汇编语言(Assembly Language)</span>“,可以直接指定地址去存取特定的内存单元，但是由于硬件或系统不同，都可能需要修改程序，因此会低效</p>
+<ul>
+<li>解决方案<br>1）应用程序需要读取存取数据时，不指定具体的内存地址，只给出一个”名字”，这个”名字”引用某块内存区域<br>2）这个”名字”具体引用哪块内存区域,由OS安排，应用程序不进行管理<br>3）应用程序只需要指定可以按照”名字”找到并读写区域即可</li>
+</ul>
+<p><strong>这个内存区域的”名字”,结束所讲的”变量”</strong></p>
+<h5 id="5-1-3-通过变量名”间接”地存取内存"><a href="#5-1-3-通过变量名”间接”地存取内存" class="headerlink" title="5.1.3 通过变量名”间接”地存取内存"></a>5.1.3 通过变量名”间接”地存取内存</h5><ul>
+<li>变量的名字，可以看出是特定内存区域的”别名”,通过它计算机就能找到特定的内存单元存取数据</li>
+<li>有了变量名，将不再需要显示指定一长串地址数值来访问内存单元了</li>
+</ul>
+<h5 id="5-1-4-什么是”给变量赋值”"><a href="#5-1-4-什么是”给变量赋值”" class="headerlink" title="5.1.4 什么是”给变量赋值”"></a>5.1.4 什么是”给变量赋值”</h5><p>变量定义好后，可以通过赋值语句给他传不同的值</p>
+<ul>
+<li>语法格式:<br>变量名=变量新值;</li>
+</ul>
+<p>给变量赋值，其实就是找到变量所代表的内存区域,把指定的数值写入其中</p>
+<p><strong>注意:写入到内存单元中的数据，都被转换为<span style="color:orange">二进制</span>数值，计算机并不能直接处理十进制数</strong></p>
+<h5 id="5-1-5-什么是变量间的相互赋值"><a href="#5-1-5-什么是变量间的相互赋值" class="headerlink" title="5.1.5 什么是变量间的相互赋值"></a>5.1.5 什么是变量间的相互赋值</h5><ul>
+<li>变量间的相互赋值,本质上是内存单元间的<span style="color:red">值赋值</span></li>
+<li>不同变量直接相互赋值，虽然值一样，但是变量却是相互独立的，不会因赋值而同步变化</li>
+</ul>
+<h4 id="5-2-C-语言数据类型"><a href="#5-2-C-语言数据类型" class="headerlink" title="5.2 C#语言数据类型"></a>5.2 C#语言数据类型</h4><table>
+<thead>
+<tr>
+<th align="center">C#语言内置数据类型</th>
+<th align="center">编译时转变为CLR</th>
+<th align="center">CLR支持的基础数据类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">int</td>
+<td align="center">&lt;—&gt;</td>
+<td align="center">System.Int32</td>
+</tr>
+<tr>
+<td align="center">long</td>
+<td align="center">&lt;—&gt;</td>
+<td align="center">System.Int64</td>
+</tr>
+<tr>
+<td align="center">float</td>
+<td align="center">&lt;—&gt;</td>
+<td align="center">System.Single</td>
+</tr>
+<tr>
+<td align="center">Double</td>
+<td align="center">&lt;—&gt;</td>
+<td align="center">System.Double</td>
+</tr>
+</tbody></table>
+<details>
+<summary>点我展开示例代码</summary>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line">namespace Lesson_03_Type_Of_Data</span><br><span class="line">&#123;</span><br><span class="line">    internal class Program</span><br><span class="line">    &#123;</span><br><span class="line">        public static void Main(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            DefineVariable();</span><br><span class="line">            StringOrstring();</span><br><span class="line">            UseVarKeyWord();</span><br><span class="line">            PrintDataTypeLength();</span><br><span class="line">            Console.ReadKey();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #region &quot;变量与数据类型&quot;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F; 变量的定义与变量的类型</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void DefineVariable()</span><br><span class="line">        &#123;</span><br><span class="line">            int intValue &#x3D; 100;</span><br><span class="line">            long longValue &#x3D; 100l;</span><br><span class="line">            double doubleValue &#x3D; 100.5d;</span><br><span class="line">            float floatValue &#x3D; 100.5f;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            Console.WriteLine(intValue.GetType());</span><br><span class="line">            Console.WriteLine(longValue.GetType());</span><br><span class="line">            Console.WriteLine(doubleValue.GetType());</span><br><span class="line">            Console.WriteLine(floatValue.GetType());</span><br><span class="line"></span><br><span class="line">            Console.WriteLine(intValue.GetType() &#x3D;&#x3D; typeof(int));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        static void StringOrstring()</span><br><span class="line">        &#123;</span><br><span class="line">            String str1 &#x3D; &quot;Hello&quot;;</span><br><span class="line">            string str2 &#x3D; &quot;World&quot;;</span><br><span class="line">            Console.WriteLine(str1.GetType());</span><br><span class="line">            Console.WriteLine(str2.GetType());</span><br><span class="line">            Console.WriteLine(typeof(String) &#x3D;&#x3D; typeof(string));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;隐式类型变量定义 </span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void UseVarKeyWord()</span><br><span class="line">        &#123;</span><br><span class="line">            var value &#x3D; 100;</span><br><span class="line">            Console.WriteLine(value.GetType());</span><br><span class="line"></span><br><span class="line">            var value2 &#x3D; &quot;Hello&quot;;</span><br><span class="line">            Console.WriteLine(value2.GetType());</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F; Dictionary&lt;String,List&lt;int&gt;&gt; dic &#x3D; new Dictionary&lt;string, List&lt;int&gt;&gt;();</span><br><span class="line">            var dic &#x3D; new Dictionary&lt;string, List&lt;int&gt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;了解特定数据类型变量所占内存单元的多少</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void PrintDataTypeLength()</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(&quot;int类型占用&quot; + sizeof(int)); &#x2F;&#x2F;4</span><br><span class="line">            Console.WriteLine(&quot;long类型占用&quot; + sizeof(long)); &#x2F;&#x2F;8</span><br><span class="line">            Console.WriteLine(&quot;float类型占用&quot; + sizeof(float)); &#x2F;&#x2F;4</span><br><span class="line">            Console.WriteLine(&quot;double类型占用&quot; + sizeof(double)); &#x2F;&#x2F;8</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;数值类型直接的状态转换</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void NumberTypeConvert()</span><br><span class="line">        &#123;</span><br><span class="line">            int intValue &#x3D; 100;</span><br><span class="line">            long longValue &#x3D; 100l;</span><br><span class="line">            double doubleValue &#x3D; 100.5d;</span><br><span class="line">            float floatValue &#x3D; 100.5f;</span><br><span class="line"></span><br><span class="line">            longValue &#x3D; intValue;</span><br><span class="line">            doubleValue &#x3D; intValue;</span><br><span class="line">            doubleValue &#x3D; floatValue;</span><br><span class="line"></span><br><span class="line">            intValue &#x3D; (int) longValue;</span><br><span class="line">            intValue &#x3D; (int) doubleValue;</span><br><span class="line"></span><br><span class="line">            floatValue &#x3D; (float) doubleValue;</span><br><span class="line"></span><br><span class="line">            floatValue &#x3D; intValue;</span><br><span class="line"></span><br><span class="line">            intValue &#x3D; (int) floatValue;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;字符串与数值类型间的转换</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void StringAndNumberType()</span><br><span class="line">        &#123;</span><br><span class="line">            string strValue &#x3D; &quot;100&quot;;</span><br><span class="line">            </span><br><span class="line">            &#x2F;&#x2F;字符串转换为数值</span><br><span class="line">            &#x2F;&#x2F;方法一:</span><br><span class="line">            int intValue &#x3D; int.Parse(strValue);</span><br><span class="line">            double doubleValue &#x3D; double.Parse(strValue);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;方法二:</span><br><span class="line">            intValue &#x3D; Convert.ToInt32(strValue);</span><br><span class="line">            doubleValue &#x3D; Convert.ToDouble(strValue);</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F;数值转换为字符串</span><br><span class="line">            &#x2F;&#x2F;方法一:</span><br><span class="line">            strValue &#x3D; intValue.ToString();</span><br><span class="line">            strValue &#x3D; doubleValue.ToString();</span><br><span class="line">            strValue &#x3D; 200.ToString();</span><br><span class="line">            </span><br><span class="line">            &#x2F;&#x2F;方法二:</span><br><span class="line">            strValue &#x3D; intValue + &quot;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #endregion</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</details>
+
+<h5 id="5-2-1-从内存模型角度，C-变量可分为以下两种类型"><a href="#5-2-1-从内存模型角度，C-变量可分为以下两种类型" class="headerlink" title="5.2.1 从内存模型角度，C#变量可分为以下两种类型"></a>5.2.1 从内存模型角度，C#变量可分为以下两种类型</h5><table>
+    <tr>
+        <td rowspan="8">
+        <span style='display:block;width:14px;'>C#数据类型</span>
+        </td>  
+   </tr>
+    <tr>
+        <td rowspan="4">值类型</td>  
+   </tr>
+    <tr>
+        <td >int</td>  
+        <td rowspan="4">值类型变量存活与"线程堆栈"中</td>  
+
+   </tr>    
+   <tr>
+        <td >double</td>  
+   </tr>    
+   <tr>
+        <td >...</td>  
+   </tr>
+       <tr>
+        <td rowspan="3">引用类型</td>  
+   </tr>   
+    <tr>
+        <td >string</td>  
+        <td rowspan="3">引用类型所引用的对象，生存与"堆"中</td>  
+   </tr>    
+   <tr>
+        <td >...</td>  
+   </tr>
+</table>
+
+<h4 id="5-3-运算符与表达式"><a href="#5-3-运算符与表达式" class="headerlink" title="5.3 运算符与表达式"></a>5.3 运算符与表达式</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">namespace Lesson_04_Operators_and_expressions</span><br><span class="line">&#123;</span><br><span class="line">    internal class Program</span><br><span class="line">    &#123;</span><br><span class="line">        public static void Main(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            UseOperator();</span><br><span class="line">            UseExpression();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #region &quot;运算符与表达式&quot;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F;&lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;使用运算符</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void UseOperator()</span><br><span class="line">        &#123;</span><br><span class="line">            &#x2F;&#x2F;+-*&#x2F;,()</span><br><span class="line">            double result &#x3D; ((5 + 3) * 2 - 7) &#x2F; 6d;</span><br><span class="line">            Console.WriteLine(result);</span><br><span class="line"></span><br><span class="line">            int value &#x3D; 9 % 4;</span><br><span class="line">            Console.WriteLine(value);</span><br><span class="line"></span><br><span class="line">            int index &#x3D; 1;</span><br><span class="line">            </span><br><span class="line">            &#x2F;&#x2F;index++ &lt;&#x3D;&#x3D;&gt; index&#x3D;index+1</span><br><span class="line">            Console.WriteLine(index++);</span><br><span class="line">            Console.WriteLine(++index);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;&#x2F;&lt;summary&gt;</span><br><span class="line">        &#x2F;&#x2F;&#x2F;使用表达式</span><br><span class="line">        &#x2F;&#x2F;&#x2F; &lt;&#x2F;summary&gt;</span><br><span class="line">        static void UseExpression()</span><br><span class="line">        &#123;</span><br><span class="line">            int value &#x3D; 100;</span><br><span class="line">            Console.WriteLine(value*2);</span><br><span class="line">        &#125;</span><br><span class="line">        #endregion</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-选择结构与逻辑表达式"><a href="#5-4-选择结构与逻辑表达式" class="headerlink" title="5.4 选择结构与逻辑表达式"></a>5.4 选择结构与逻辑表达式</h4><ul>
+<li>三种典型的程序代码执行流程</li>
+</ul>
+<table>
+    <tr>
+        <td>
+        <span>顺序执行</span>
+        </td>  
+   </tr>
+       <tr>
+        <td>
+        <span>按条件选择一条分支执行</span>
+        </td>         
+        <td>
+            <====>
+        </td>          
+        <td>
+        <span>选择结构</span>
+        </td>  
+   </tr>
+       <tr>
+        <td>
+        <span>在特定场景中反复执行特定语句</span>
+        </td>          
+        <td>
+            <====>
+        </td>          
+        <td>
+        <span>循环结构</span>
+        </td>  
+   </tr>
+</table>
+
+<ul>
+<li><p>程序流程图<br>在结构化程序设计中，经常使用一种称为”<b>程序流程图</b>“的示意图来表示程序的执行流程</p>
+</li>
+<li><p>使用if/else语句实现程序中的选择结构<br>语法:<br>if(条件 == true)<br>{<br>  //执行语句A<br>}else<br>{<br>  //执行语句B<br>}</p>
+</li>
+<li><p>使用逻辑表达式表达条件，”==”是逻辑判断运算符</p>
+</li>
+</ul>
+<ul>
+<li>逻辑表达式通常用于表示某种条件是否得到满足</li>
+<li>当程序运行时,计算机解析逻辑表达式，会得到一个值,在C#中，这个值只有”true”或”false”</li>
+<li>在if语句中,基于逻辑表达式执行的结构执行特定的分支</li>
+</ul>
+<ul>
+<li>用于构建逻辑表达式的运算符</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&gt;</td>
+<td>大于</td>
+</tr>
+<tr>
+<td>&lt;</td>
+<td>小于</td>
+</tr>
+<tr>
+<td>==</td>
+<td>等于</td>
+</tr>
+<tr>
+<td>&gt;=</td>
+<td>大于等于</td>
+</tr>
+<tr>
+<td>&lt;=</td>
+<td>小于等于</td>
+</tr>
+<tr>
+<td>!=</td>
+<td>不等于</td>
+</tr>
+</tbody></table>
+<p><strong>注意:=&gt;不是”等于大于”，而是Lambda表达式</strong></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/06/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%E5%8D%81%E5%85%AB%EF%BC%89/" rel="prev" title="就业班学习笔记（二十八)">
+      <i class="fa fa-chevron-left"></i> 就业班学习笔记（二十八)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/09/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%E5%8D%81%E4%B9%9D%EF%BC%89/" rel="next" title="就业班学习笔记（二十九)">
+      就业班学习笔记（二十九) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一-大致了解C-基本编程规则"><span class="nav-number">1.</span> <span class="nav-text">一.大致了解C#基本编程规则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-基本规则"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 基本规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Visual-Studio中文件的组织方式"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 Visual Studio中文件的组织方式:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-为什么要学习面向对象程序设计"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 为什么要学习面向对象程序设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-软件是如何编写的"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">1.4 软件是如何编写的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-需要掌握基础知识"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">1.5 需要掌握基础知识</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二-程序是如何被计算机执行的"><span class="nav-number">2.</span> <span class="nav-text">二.程序是如何被计算机执行的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-计算机能直接执行由0和1构成的机器指令"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 计算机能直接执行由0和1构成的机器指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-计算机的大脑——CPU"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.2 计算机的大脑——CPU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-外部存储器-amp-Memory-内存-与内存条"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">2.3 外部存储器 &amp; Memory(内存)与内存条</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-区分两种不同的内存类型"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">2.4 区分两种不同的内存类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-程序开发与运行过程简述"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">2.5 程序开发与运行过程简述</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三-Dot-Net运行原理"><span class="nav-number">3.</span> <span class="nav-text">三.Dot Net运行原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-“编译”是怎么回事"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">3.1 “编译”是怎么回事</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-可执行程序也是分类的"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">3.2 可执行程序也是分类的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-“托管的”应用程序是什么意思"><span class="nav-number">3.0.0.3.</span> <span class="nav-text">3.3 “托管的”应用程序是什么意思</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-NET程序的开发与运行”全景图”"><span class="nav-number">3.0.0.4.</span> <span class="nav-text">3.4 .NET程序的开发与运行”全景图”</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四-怎样构造求解问题的算法"><span class="nav-number">4.</span> <span class="nav-text">四.怎样构造求解问题的算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-什么是”算法-algorithm-”"><span class="nav-number">4.0.0.1.</span> <span class="nav-text">4.1 什么是”算法(algorithm)”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-从”结构化”到”面向对象”"><span class="nav-number">4.0.0.2.</span> <span class="nav-text">4.2 从”结构化”到”面向对象”</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-1-数据结构————对数据进行抽象"><span class="nav-number">4.0.0.2.1.</span> <span class="nav-text">4.2.1 数据结构————对数据进行抽象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-2-基于数据结构确定算法"><span class="nav-number">4.0.0.2.2.</span> <span class="nav-text">4.2.2 基于数据结构确定算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-3-进一步细化与调整设计方案"><span class="nav-number">4.0.0.2.3.</span> <span class="nav-text">4.2.3 进一步细化与调整设计方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-4-最终的技术设计方案"><span class="nav-number">4.0.0.2.4.</span> <span class="nav-text">4.2.4 最终的技术设计方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-5-确定开发顺序的基本方法"><span class="nav-number">4.0.0.2.5.</span> <span class="nav-text">4.2.5 确定开发顺序的基本方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-转为面向对象实现"><span class="nav-number">4.0.0.3.</span> <span class="nav-text">4.3 转为面向对象实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-4-使用内置库实现"><span class="nav-number">4.0.0.4.</span> <span class="nav-text">4.4 使用内置库实现</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五-变量、数据类型和表达式"><span class="nav-number">5.</span> <span class="nav-text">五.变量、数据类型和表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-什么是”变量”"><span class="nav-number">5.0.0.1.</span> <span class="nav-text">5.1 什么是”变量”</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-1-如何在C-中定义变量"><span class="nav-number">5.0.0.1.1.</span> <span class="nav-text">5.1.1 如何在C#中定义变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-2-变量存储与内存中"><span class="nav-number">5.0.0.1.2.</span> <span class="nav-text">5.1.2 变量存储与内存中</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-3-通过变量名”间接”地存取内存"><span class="nav-number">5.0.0.1.3.</span> <span class="nav-text">5.1.3 通过变量名”间接”地存取内存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-4-什么是”给变量赋值”"><span class="nav-number">5.0.0.1.4.</span> <span class="nav-text">5.1.4 什么是”给变量赋值”</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-5-什么是变量间的相互赋值"><span class="nav-number">5.0.0.1.5.</span> <span class="nav-text">5.1.5 什么是变量间的相互赋值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-C-语言数据类型"><span class="nav-number">5.0.0.2.</span> <span class="nav-text">5.2 C#语言数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-1-从内存模型角度，C-变量可分为以下两种类型"><span class="nav-number">5.0.0.2.1.</span> <span class="nav-text">5.2.1 从内存模型角度，C#变量可分为以下两种类型</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-运算符与表达式"><span class="nav-number">5.0.0.3.</span> <span class="nav-text">5.3 运算符与表达式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-选择结构与逻辑表达式"><span class="nav-number">5.0.0.4.</span> <span class="nav-text">5.4 选择结构与逻辑表达式</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

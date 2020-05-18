@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.API1.1 API (Application Programming Interface) 概述：应用程序编程接口 Java API：指的就是JDK中提供的各种功能的Java类这些类将底层的实现封装了起来，可以通过帮助文档来学习这些API如何使用 1.2 如何使用帮助文档：①打开使用版本的JDK文档②索引框输入要查询的类③查看类在哪个包下④看类的描述⑤看构造方法⑥看成员方法 注意：调用方法时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基础班学习笔记（八）">
+<meta property="og:url" content="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="一.API1.1 API (Application Programming Interface) 概述：应用程序编程接口 Java API：指的就是JDK中提供的各种功能的Java类这些类将底层的实现封装了起来，可以通过帮助文档来学习这些API如何使用 1.2 如何使用帮助文档：①打开使用版本的JDK文档②索引框输入要查询的类③查看类在哪个包下④看类的描述⑤看构造方法⑥看成员方法 注意：调用方法时">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-26T06:01:15.000Z">
+<meta property="article:modified_time" content="2020-03-28T16:41:12.279Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基础班学习笔记（八） | Swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--学习笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基础班学习笔记（八）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-26 14:01:15" itemprop="dateCreated datePublished" datetime="2020-02-26T14:01:15+08:00">2020-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-29 00:41:12" itemprop="dateModified" datetime="2020-03-29T00:41:12+08:00">2020-03-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.API<br>1.1 API (Application Programming Interface) 概述：应用程序编程接口</p>
+<p>Java API：指的就是JDK中提供的各种功能的Java类<br>这些类将底层的实现封装了起来，可以通过帮助文档来学习这些API如何使用</p>
+<p>1.2 如何使用帮助文档：<br>①打开使用版本的JDK文档<br>②索引框输入要查询的类<br>③查看类在哪个包下<br>④看类的描述<br>⑤看构造方法<br>⑥看成员方法</p>
+<p>注意：调用方法时，如果方法有明确的返回值，可以用变量接收</p>
+<p>二. String<br>2.1 String 概述：<br>String类在java.lang 包下，使用时不需要导入包。</p>
+<p>String类代表字符串，Java程序中所有的字符串文字(例如”abc”)都被实现为此类的实例<br>也就是说，Java程序中所有的双引号字符串，都是String类的对象</p>
+<p>字符串的特点:</p>
+<ul>
+<li>字符串不可变，它们的值在创建后不能被更改</li>
+<li>虽然String值不可变，但是它们可以被共享</li>
+<li>字符串效果上相当于字符数组(char[] ,JDK8及之前是字符数组，JDK9之后是字节数组),但是底层原理是字节数组(byte[] )</li>
+</ul>
+<p>2.2 String的常用构造方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public String()</td>
+<td>创建一个空白字符串对象，不含任何内容</td>
+</tr>
+<tr>
+<td>public String(char[] chs)</td>
+<td>根据字符组的内容，来创建字符串对象</td>
+</tr>
+<tr>
+<td>public String(byte[] bys)</td>
+<td>根据字节组的内容，来创建字符串对象</td>
+</tr>
+<tr>
+<td>String s = “abc”</td>
+<td>直接赋值的方式创建字符串对象，内容就是abc</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AIO_ServerSocketChannel</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        String s1 = <span class="keyword">new</span> String();</span><br><span class="line">        System.out.println(s1);<span class="comment">//无内容，因为未赋值</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span>[] chs = &#123;<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>&#125;;</span><br><span class="line">        String s2 = <span class="keyword">new</span> String(chs);</span><br><span class="line">        System.out.println(s2);<span class="comment">//abc</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">byte</span>[] bys = &#123;<span class="number">97</span>,<span class="number">98</span>,<span class="number">99</span>&#125;;</span><br><span class="line">        String s3 = <span class="keyword">new</span> String(bys);</span><br><span class="line">        System.out.println(s3);<span class="comment">//abc,因为使用的是ASCII码</span></span><br><span class="line"></span><br><span class="line">        String s4 = <span class="string">"abc"</span></span><br><span class="line">        System.out.println(s4);<span class="comment">//abc</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>推荐直接使用赋值方式得到字符串对象</p>
+<p>2.3 String对象的特点<br>1)通过new创建的字符串对象，每一次new都会申请一个内存空间，虽然内容相同，但是地址值不同</p>
+<p>char[] chs ={‘a’,’b’,’c’};<br>String s1 = new String(chs);<br>String s2 = new String(chs);<br>在上述代码中，JVM会熟悉创建一个字符数组，然后每次new的时候都会有一个新的地址，只不过s1和s2参考的字符串内容都是相同的</p>
+<p>2)以 “” 方式给出的字符串，只要字符序列相同(顺序和大小写)，无论在程序代码中出现几次，JVM都只会建立一个String对象，并在字符串池中维护</p>
+<p>String s3 = “abc”;<br>String s4 = “abc”;<br>在上述代码中，针对第一行代码，JVM会建立一个String对象放在字符串池中，并给s3参考；<br>第二行让s4直接参考字符串池中的String对象，也就是说它们本质上还是同一个对象</p>
+<p>内存过程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span>[] chs =&#123;<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>&#125;;</span><br><span class="line">    String s1 = <span class="keyword">new</span> String(chs);</span><br><span class="line">    String s2 = <span class="keyword">new</span> String(chs);</span><br><span class="line">    System.out.println(s1 == s2);<span class="comment">//false</span></span><br><span class="line"></span><br><span class="line">    String s3 = <span class="string">"abc"</span>;</span><br><span class="line">    String s4 = <span class="string">"abc"</span>;</span><br><span class="line">    System.out.println(s3 == s4);<span class="comment">//true</span></span><br><span class="line">    System.out.println(s1 == s3);<span class="comment">//false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>栈内存：<br>方法main<br>char[] chs 假设地址001<br>String s1  假设地址002<br>String s2  假设地址003<br>String s3  假设地址004<br>String s4  假设地址004</p>
+<p>堆内存：<br>new char[3]<br>001<br>0 ‘a’<br>1 ‘b’<br>2 ‘c’</p>
+<p>new String()<br>002<br>ref 001</p>
+<p>new String()<br>003<br>ref 001</p>
+<p>常量池<br>004 abc 赋值给s3与s4</p>
+<p>2.4 字符串的比较<br>使用 == 做比较</p>
+<ul>
+<li>基本类型：比较的是<strong>数据值</strong>是否相同</li>
+<li>引用类型：比较的是<strong>地址值</strong>是否相同</li>
+</ul>
+<p>字符串是对象，它比较内容是否相同，是通过一个方法来实现的，这个方法叫:equals()</p>
+<ul>
+<li>public boolean equals(Object anObject);将此字符串与指定对象进行比较。由于比较的是字符串对象，所以参数直接传递一个字符串</li>
+</ul>
+<p>遍历字符串，首先要能够获取到字符串中的每一个字符</p>
+<ul>
+<li>public char charAt(int index);返回指定索引处的char值，字符串的索引也是从0开始的<br>遍历字符串，获取字符串的长度</li>
+<li>public int length();返回此字符串的长度</li>
+<li>数组的长度：数组名.length</li>
+<li>字符串的长度：字符串对象.length()<br>遍历字符串通用格式：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.length();i++ )&#123;</span><br><span class="line">    s.charAt(i);<span class="comment">//就是指定索引处的字符值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>•大写字母：ch&gt;=’A’ &amp;&amp; ch &lt;= ‘Z’<br>•小写字母：ch&gt;=’a’ &amp;&amp; ch &lt;= ‘z’<br>•数字：ch&gt;=’0’ &amp;&amp; ch &lt;= ‘9’</p>
+<p>2.5 通过帮助文档查看String中的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public boolean equals(Object anObject)</td>
+<td>比较字符串的内容，严格区分大小写(用户名&amp;密码)</td>
+</tr>
+<tr>
+<td>public char charAt(int Index)</td>
+<td>返回索引处的char值</td>
+</tr>
+<tr>
+<td>public int length()</td>
+<td>返回此字符串的长度</td>
+</tr>
+</tbody></table>
+<p>三. StringBuilder<br>3.1 概述<br>StringBuilder是一个可变的字符串类，可以把它当作一个容器。<br>这里的可变指的是StringBuilder对象中的内容是可变的</p>
+<p>String和StringBuilder的区别：</p>
+<ul>
+<li>String：内容是不可变的</li>
+<li>StringBuilder：内容是可变的</li>
+</ul>
+<p>如果对字符串String进行拼接操作，每次拼接都会构建一个新的String对象，耗费时间与内存空间。<br>因此使用StringBuilder可类可以解决这个问题。</p>
+<p>3.2 StringBuilder的构造方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder()</td>
+<td>创建一个空白可变字符串对象，不含任何内容</td>
+</tr>
+<tr>
+<td>public StringBuilder(String str)</td>
+<td>根据字符串内容，创建可变字符串对象</td>
+</tr>
+<tr>
+<td>public StringBuilder(int Capacity)</td>
+<td>构造一个没有字符的字符串构建器，以及由capcacity参数指定的初始容量</td>
+</tr>
+<tr>
+<td>public StringBuilder(CharSequence seq)</td>
+<td>构造一个字符串构建器，其中包含与指定的CharSequence相同的字符</td>
+</tr>
+</tbody></table>
+<p>3.3 StringBuilder的添加和反转方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder append(任意类型)</td>
+<td>添加数据，并返回数据本身</td>
+</tr>
+<tr>
+<td>public StringBuilder reserve()</td>
+<td>返回相反的字符序列</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBDemo01</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">"a"</span>).append(<span class="string">"b"</span>);<span class="comment">//链式编程</span></span><br><span class="line">        System.out.println(sb);<span class="comment">//ab</span></span><br><span class="line"></span><br><span class="line">        sb.reserve();</span><br><span class="line">        System.out.println(sb);<span class="comment">//ba</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.4 StringBuilder 和 String 相互转换<br>a.从StringBuilder转换为String<br>public String toString();通过toString()就可以实现把StringBuilder转换为String</p>
+<p>b.从String转换为StringBuilder<br>public StringBuilder(String s);通过构造方法就可以把String转换为StringBuilder</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBDemo01</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">"abc"</span>);</span><br><span class="line">        String s = sb.toString(s);</span><br><span class="line"></span><br><span class="line">        String t = <span class="string">"hello"</span>;</span><br><span class="line">        StringBuilder new_sb = <span class="keyword">new</span> StringBuilder(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3.5 通过帮助文档查看 StringBuilder 中的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder append(任意类型)</td>
+<td>添加数据，并返回数据本身</td>
+</tr>
+<tr>
+<td>public StringBuilder reserve()</td>
+<td>返回相反的字符序列</td>
+</tr>
+<tr>
+<td>public String toString()</td>
+<td>通过toString()就可以实现把StringBuilder转换为String</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/" rel="prev" title="基础班学习笔记（七）">
+      <i class="fa fa-chevron-left"></i> 基础班学习笔记（七）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" rel="next" title="基础班学习笔记（三）">
+      基础班学习笔记（三） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
