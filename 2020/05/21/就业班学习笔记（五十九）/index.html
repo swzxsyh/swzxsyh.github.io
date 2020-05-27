@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="线路模块分页查询 百度分页栏 搜索条件分页查询 线路详情提示">
+<meta property="og:type" content="article">
+<meta property="og:title" content="就业班学习笔记（五十九）">
+<meta property="og:url" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="线路模块分页查询 百度分页栏 搜索条件分页查询 线路详情提示">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/image-20200521092722911.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/image-20200521094346450.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/image-20200521113719151.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/image-20200521142426127.png">
+<meta property="article:published_time" content="2020-05-21T01:04:35.000Z">
+<meta property="article:modified_time" content="2020-05-21T17:04:38.041Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/image-20200521092722911.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>就业班学习笔记（五十九） | Swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--学习笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/21/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E4%B9%9D%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          就业班学习笔记（五十九）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-21 09:04:35" itemprop="dateCreated datePublished" datetime="2020-05-21T09:04:35+08:00">2020-05-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-22 01:04:38" itemprop="dateModified" datetime="2020-05-22T01:04:38+08:00">2020-05-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>线路模块分页查询</li>
+<li>百度分页栏</li>
+<li>搜索条件分页查询</li>
+<li>线路详情提示</li>
+</ul>
+<a id="more"></a>
+
+<h1 id="一-旅游线路分页功能"><a href="#一-旅游线路分页功能" class="headerlink" title="一.旅游线路分页功能"></a>一.旅游线路分页功能</h1><h4 id="1-1-需求分析"><a href="#1-1-需求分析" class="headerlink" title="1.1 需求分析"></a>1.1 需求分析</h4><p><img src="image-20200521092722911.png" alt=""></p>
+<p><img src="image-20200521094346450.png" alt=""></p>
+<h4 id="1-2-代码实现"><a href="#1-2-代码实现" class="headerlink" title="1.2 代码实现"></a>1.2 代码实现</h4><ul>
+<li><p>PageBean</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//分页对象</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PageBean</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> Integer totalCount;</span><br><span class="line">    <span class="comment">//总页数</span></span><br><span class="line">    <span class="keyword">private</span> Integer totalPage;</span><br><span class="line">    <span class="comment">//结果集</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;E&gt; list;</span><br><span class="line">    <span class="comment">//当前页</span></span><br><span class="line">    <span class="keyword">private</span> Integer currentPage;</span><br><span class="line">    <span class="comment">//每页个数</span></span><br><span class="line">    <span class="keyword">private</span> Integer pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>header.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 头部 end --&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">  $(function () &#123;</span><br><span class="line">    let url = <span class="string">'$&#123;pageContext.request.contextPath&#125;/CategoryServlet?action=findAll'</span>;</span><br><span class="line">    $.get(url, function (resp) &#123;</span><br><span class="line">      <span class="keyword">for</span> (let c of resp) &#123;</span><br><span class="line">        $(<span class="string">'#categoryUI'</span>).append(<span class="string">'&lt;li&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid='</span> + c.cid + <span class="string">'&amp;currentPage=1&amp;pageSize=10"&gt;'</span> + c.cname + <span class="string">'&lt;/a&gt;&lt;/li&gt;'</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteServlet</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet</span>(<span class="string">"/RouteServlet"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouteServlet</span> <span class="keyword">extends</span> <span class="title">BaseServlet</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> RouteService routeService = (RouteService) BeanFactory.getBean(<span class="string">"routeService"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分页查询</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">findByPage</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1.接收请求参数</span></span><br><span class="line">        String currentPageStr = req.getParameter(<span class="string">"currentPage"</span>);</span><br><span class="line">        String pageSizeStr = req.getParameter(<span class="string">"pageSize"</span>);</span><br><span class="line">        String cid = req.getParameter(<span class="string">"cid"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2.类型转换</span></span><br><span class="line">        <span class="keyword">if</span> (currentPageStr == <span class="keyword">null</span> || currentPageStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">            currentPageStr = <span class="string">"1"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> currentPage = Integer.parseInt(currentPageStr);</span><br><span class="line">        <span class="keyword">if</span> (pageSizeStr == <span class="keyword">null</span> || pageSizeStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">            pageSizeStr = <span class="string">"10"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> pageSize = Integer.parseInt(pageSizeStr);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.调用service分页查询</span></span><br><span class="line">        PageBean&lt;Route&gt; pb=routeService.findByPage(currentPage,pageSize,cid);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4.将分页对象设置到request域</span></span><br><span class="line">        req.setAttribute(<span class="string">"pb"</span>,pb);</span><br><span class="line">        req.setAttribute(<span class="string">"cid"</span>,cid);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5.转发到 route_list.jsp</span></span><br><span class="line">        req.getRequestDispatcher(<span class="string">"route_list.jsp"</span>).forward(req,resp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteService</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function">PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouteServiceImpl</span> <span class="keyword">implements</span> <span class="title">RouteService</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid)</span> </span>&#123;</span><br><span class="line">    SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line">    RouteDao routeDao = sqlSession.getMapper(RouteDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">    PageBean&lt;Route&gt; pageBean = <span class="keyword">new</span> PageBean&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    pageBean.setCurrentPage(currentPage);</span><br><span class="line">    pageBean.setPageSize(pageSize);</span><br><span class="line"></span><br><span class="line">    Integer totalCount = routeDao.findCount(cid);</span><br><span class="line">    pageBean.setTotalCount(totalCount);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> totalPage = (<span class="keyword">int</span>) Math.ceil(totalCount * <span class="number">1.0</span> / pageSize);</span><br><span class="line">    pageBean.setTotalPage(totalPage);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> index = (currentPage - <span class="number">1</span>) * pageSize;</span><br><span class="line"></span><br><span class="line">    List&lt;Route&gt; routeList = routeDao.findList(index,pageSize,cid);</span><br><span class="line">    pageBean.setList(routeList);</span><br><span class="line"></span><br><span class="line">    MyBatisUtils.close(sqlSession);</span><br><span class="line">    <span class="keyword">return</span> pageBean;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteDao</span> </span>&#123;</span><br><span class="line">  <span class="function">Integer <span class="title">findCount</span><span class="params">(String cid)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">List&lt;Route&gt; <span class="title">findList</span><span class="params">(@Param(<span class="string">"index"</span>)</span> <span class="keyword">int</span> index, @<span class="title">Param</span><span class="params">(<span class="string">"pageSize"</span>)</span> <span class="keyword">int</span> pageSize, @<span class="title">Param</span><span class="params">(<span class="string">"cid"</span>)</span> String cid)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.RouteDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findCount"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Integer"</span>&gt;</span></span><br><span class="line">        SELECT COUNT(*) FROM tab_route WHERE cid = #&#123;cid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findList"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Route"</span>&gt;</span></span><br><span class="line">        SELECT * FROM tab_route WHERE cid = #&#123;cid&#125; limit #&#123;index&#125;,#&#123;pageSize&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>beans.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"routeService"</span> <span class="attr">class</span>=<span class="string">"com.itheima.service.impl.RouteServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>route_list.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">"text/html;charset=UTF-8"</span> language=<span class="string">"java"</span> %&gt;</span><br><span class="line">&lt;%<span class="meta">@taglib</span> prefix=<span class="string">"c"</span> uri=<span class="string">"http://java.sun.com/jsp/jstl/core"</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line"></span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;meta charset=<span class="string">"UTF-8"</span>&gt;</span><br><span class="line">    &lt;meta name=<span class="string">"viewport"</span> content=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span><br><span class="line">    &lt;meta http-equiv=<span class="string">"X-UA-Compatible"</span> content=<span class="string">"ie=edge"</span>&gt;</span><br><span class="line">    &lt;title&gt;线路列表&lt;/title&gt;</span><br><span class="line">    &lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"$&#123;pageContext.request.contextPath&#125;/css/search.css"</span>&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">    &lt;!--引入头部--&gt;</span><br><span class="line"></span><br><span class="line">    &lt;%<span class="meta">@include</span> file=<span class="string">"header.jsp"</span> %&gt;</span><br><span class="line">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"page_one"</span>&gt;</span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"contant"</span>&gt;</span><br><span class="line">        &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"crumbs"</span>&gt;</span><br><span class="line">          &lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/search.png"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">          &lt;p&gt;黑马旅行&gt;&lt;span&gt;搜索结果&lt;/span&gt;&lt;/p&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">        &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"xinxi clearfix"</span>&gt;</span><br><span class="line">          &lt;%--线路列表 start--%&gt;</span><br><span class="line">          &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;</span><br><span class="line">            &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"header"</span>&gt;</span><br><span class="line">              &lt;span&gt;商品信息&lt;/span&gt;</span><br><span class="line">              &lt;span class="jg"&gt;价格&lt;/span&gt;</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;ul&gt;</span><br><span class="line">              &lt;c:forEach items=<span class="string">"$&#123;pb.list&#125;"</span> <span class="keyword">var</span>=<span class="string">"route"</span>&gt;</span><br><span class="line">                &lt;li&gt;</span><br><span class="line">                  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"img"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/$&#123;route.rimage&#125;"</span></span><br><span class="line">                                        width="300px" alt=""&gt;&lt;/div&gt;</span><br><span class="line">                  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"text1"</span>&gt;</span><br><span class="line">                    &lt;p&gt;$&#123;route.rname&#125;&lt;/p&gt;</span><br><span class="line">                    &lt;br/&gt;</span><br><span class="line">                    &lt;p&gt;$&#123;route.routeIntroduce&#125;&lt;/p&gt;</span><br><span class="line">                  &lt;/div&gt;</span><br><span class="line">                  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"price"</span>&gt;</span><br><span class="line">                    &lt;p <span class="class"><span class="keyword">class</span></span>=<span class="string">"price_num"</span>&gt;</span><br><span class="line">                      &lt;span&gt;&amp;yen;&lt;/span&gt;</span><br><span class="line">                      &lt;span&gt;$&#123;route.price&#125;&lt;/span&gt;</span><br><span class="line">                      &lt;span&gt;起&lt;/span&gt;</span><br><span class="line">                    &lt;/p&gt;</span><br><span class="line">                    &lt;p&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/route_detail.jsp"&gt;查看详情&lt;/a&gt;&lt;/p&gt;</span><br><span class="line">                  &lt;/div&gt;</span><br><span class="line">                &lt;/li&gt;</span><br><span class="line">              &lt;/c:forEach&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            &lt;/ul&gt;</span><br><span class="line">            &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"page_num_inf"</span>&gt;</span><br><span class="line">              &lt;i&gt;&lt;/i&gt; 共</span><br><span class="line">              &lt;span&gt;12&lt;/span&gt;页&lt;span&gt;132&lt;/span&gt;条</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"pageNum"</span>&gt;</span><br><span class="line">              &lt;ul&gt;</span><br><span class="line">                &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;pb.currentPage&gt;1&#125;"</span>&gt;</span><br><span class="line">                  &lt;li&gt;</span><br><span class="line">                    &lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=1"&gt;首页&lt;/a&gt;</span><br><span class="line">                  &lt;/li&gt;</span><br><span class="line">                  &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"threeword"</span>&gt;&lt;a</span><br><span class="line">                                           href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.currentPage-1&#125;"&gt;上一页&lt;/a&gt;</span><br><span class="line">                  &lt;/li&gt;</span><br><span class="line">                &lt;/c:if&gt;</span><br><span class="line">                &lt;c:forEach begin=<span class="string">"1"</span> end=<span class="string">"$&#123;pb.totalPage&#125;"</span> <span class="keyword">var</span>=<span class="string">"page"</span>&gt;</span><br><span class="line">                  &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;page == pb.currentPage&#125;"</span>&gt;</span><br><span class="line">                    &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"curPage"</span>&gt;&lt;a</span><br><span class="line">                                           href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;page&#125;"&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">                    &lt;/li&gt;</span><br><span class="line">                  &lt;/c:if&gt;</span><br><span class="line">                  &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;page != pb.currentPage&#125;"</span>&gt;</span><br><span class="line">                    &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"curPage"</span>&gt;&lt;a</span><br><span class="line">                                           href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;page&#125;"&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">                    &lt;/li&gt;</span><br><span class="line">                  &lt;/c:if&gt;</span><br><span class="line">                &lt;/c:forEach&gt;</span><br><span class="line">                &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;pb.currentPage &lt; pb.totalPage&#125;"</span>&gt;</span><br><span class="line">                  &lt;li class="threeword"&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.currentPage+1&#125;"&gt;下一页&lt;/a&gt;&lt;/li&gt;</span><br><span class="line">                  &lt;li class="threeword"&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.totalPage&#125;"&gt;末页&lt;/a&gt;&lt;/li&gt;</span><br><span class="line">                &lt;/c:if&gt;</span><br><span class="line">              &lt;/ul&gt;</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">          &lt;/div&gt;</span><br><span class="line">          &lt;%--线路列表--%&gt;</span><br><span class="line">          &lt;%--热门推荐 start--%&gt;</span><br><span class="line">          &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line"></span><br><span class="line">            &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"top"</span>&gt;</span><br><span class="line">              &lt;div class="hot"&gt;HOT&lt;/div&gt;</span><br><span class="line">              &lt;span&gt;热门推荐&lt;/span&gt;</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;ul&gt;</span><br><span class="line">              &lt;li&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/04-search_09.jpg"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line">                  &lt;p&gt;清远新银盏温泉度假村酒店/自由行套...&lt;/p&gt;</span><br><span class="line">                  &lt;p&gt;网付价&lt;span&gt;&amp;yen;&lt;span&gt;899&lt;/span&gt;起&lt;/span&gt;</span><br><span class="line">                  &lt;/p&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">              &lt;/li&gt;</span><br><span class="line">              &lt;li&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/04-search_09.jpg"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line">                  &lt;p&gt;清远新银盏温泉度假村酒店/自由行套...&lt;/p&gt;</span><br><span class="line">                  &lt;p&gt;网付价&lt;span&gt;&amp;yen;&lt;span&gt;899&lt;/span&gt;起&lt;/span&gt;</span><br><span class="line">                  &lt;/p&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">              &lt;/li&gt;</span><br><span class="line">              &lt;li&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/04-search_09.jpg"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line">                  &lt;p&gt;清远新银盏温泉度假村酒店/自由行套...&lt;/p&gt;</span><br><span class="line">                  &lt;p&gt;网付价&lt;span&gt;&amp;yen;&lt;span&gt;899&lt;/span&gt;起&lt;/span&gt;</span><br><span class="line">                  &lt;/p&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">              &lt;/li&gt;</span><br><span class="line">              &lt;li&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/04-search_09.jpg"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line">                  &lt;p&gt;清远新银盏温泉度假村酒店/自由行套...&lt;/p&gt;</span><br><span class="line">                  &lt;p&gt;网付价&lt;span&gt;&amp;yen;&lt;span&gt;899&lt;/span&gt;起&lt;/span&gt;</span><br><span class="line">                  &lt;/p&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">              &lt;/li&gt;</span><br><span class="line">              &lt;li&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"left"</span>&gt;&lt;img src=<span class="string">"$&#123;pageContext.request.contextPath&#125;/images/04-search_09.jpg"</span> alt=<span class="string">""</span>&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">                &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"right"</span>&gt;</span><br><span class="line">                  &lt;p&gt;清远新银盏温泉度假村酒店/自由行套...&lt;/p&gt;</span><br><span class="line">                  &lt;p&gt;网付价&lt;span&gt;&amp;yen;&lt;span&gt;899&lt;/span&gt;起&lt;/span&gt;</span><br><span class="line">                  &lt;/p&gt;</span><br><span class="line">                &lt;/div&gt;</span><br><span class="line">              &lt;/li&gt;</span><br><span class="line">            &lt;/ul&gt;</span><br><span class="line">          &lt;/div&gt;</span><br><span class="line">          &lt;%--热门推荐 end--%&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--引入头部--&gt;</span><br><span class="line">    &lt;%<span class="meta">@include</span> file=<span class="string">"footer.jsp"</span> %&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="1-3-百度分页栏"><a href="#1-3-百度分页栏" class="headerlink" title="1.3 百度分页栏"></a>1.3 百度分页栏</h4><ul>
+<li><p>修改PageBean</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PageBean</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">//总记录数</span></span><br><span class="line">  <span class="keyword">private</span> Integer totalCount;</span><br><span class="line">  <span class="comment">//总页数</span></span><br><span class="line">  <span class="keyword">private</span> Integer totalPage;</span><br><span class="line">  <span class="comment">//结果集</span></span><br><span class="line">  <span class="keyword">private</span> List&lt;E&gt; list;</span><br><span class="line">  <span class="comment">//当前页</span></span><br><span class="line">  <span class="keyword">private</span> Integer currentPage;</span><br><span class="line">  <span class="comment">//每页个数</span></span><br><span class="line">  <span class="keyword">private</span> Integer pageSize;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//起始值</span></span><br><span class="line">  <span class="keyword">private</span> Integer begin;</span><br><span class="line">  <span class="comment">//结束值</span></span><br><span class="line">  <span class="keyword">private</span> Integer end;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Integer <span class="title">getBegin</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 先去调用计算的方法</span></span><br><span class="line">    calculateBeginToEnd();</span><br><span class="line">    <span class="keyword">return</span> begin;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setBegin</span><span class="params">(Integer begin)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.begin = begin;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计算方法</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">calculateBeginToEnd</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 不足10个页码</span></span><br><span class="line">    <span class="keyword">if</span> (totalPage &lt; <span class="number">10</span>) &#123;</span><br><span class="line">      begin = <span class="number">1</span>;</span><br><span class="line">      end = totalPage;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 超过10个页码</span></span><br><span class="line">      <span class="comment">// 前五后四规则</span></span><br><span class="line">      begin = currentPage - <span class="number">5</span>;</span><br><span class="line">      end = currentPage + <span class="number">4</span>;</span><br><span class="line">      <span class="comment">// 修正当起始值小于1的情况</span></span><br><span class="line">      <span class="keyword">if</span> (begin &lt; <span class="number">1</span>) &#123;</span><br><span class="line">        begin = <span class="number">1</span>;</span><br><span class="line">        end = begin + <span class="number">9</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// 修正结束值大于总页数的情况</span></span><br><span class="line">      <span class="keyword">if</span> (end &gt; totalPage) &#123;</span><br><span class="line">        end = totalPage;</span><br><span class="line">        begin = end - <span class="number">9</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改route_list.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;c:forEach begin=<span class="string">"$&#123;pb.begin&#125;"</span> end=<span class="string">"$&#123;pb.end&#125;"</span> <span class="keyword">var</span>=<span class="string">"page"</span>&gt;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">  </span><br><span class="line">&lt;/c:forEach&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h1 id="二-搜索旅游线路分页功能"><a href="#二-搜索旅游线路分页功能" class="headerlink" title="二.搜索旅游线路分页功能"></a>二.搜索旅游线路分页功能</h1><h4 id="2-1-需求分析"><a href="#2-1-需求分析" class="headerlink" title="2.1 需求分析"></a>2.1 需求分析</h4><p><img src="image-20200521113719151.png" alt=""></p>
+<h4 id="2-2-代码实现"><a href="#2-2-代码实现" class="headerlink" title="2.2 代码实现"></a>2.2 代码实现</h4><ul>
+<li><p>header.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"search"</span>&gt;</span><br><span class="line">  &lt;input id=<span class="string">"rname"</span> name=<span class="string">"rname"</span> type=<span class="string">"text"</span> placeholder=<span class="string">"请输入路线名称"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"search_input"</span> value=<span class="string">"$&#123;rname&#125;"</span></span><br><span class="line">         autocomplete=<span class="string">"off"</span>&gt;</span><br><span class="line">  &lt;a href="javascript:void(0);" onclick="searchClick()" class="search-button"&gt;搜索&lt;/a&gt;</span><br><span class="line">  &lt;script&gt;</span><br><span class="line">    <span class="function">function <span class="title">searchClick</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="comment">// 获取搜索框value的属性值</span></span><br><span class="line">      let rname = $(<span class="string">'#rname'</span>).val();</span><br><span class="line">      <span class="comment">// 使用js方式发送请求</span></span><br><span class="line">      location.href=<span class="string">'$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;rname='</span>+rname;</span><br><span class="line">    &#125;</span><br><span class="line">  &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteServlet</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet</span>(<span class="string">"/RouteServlet"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouteServlet</span> <span class="keyword">extends</span> <span class="title">BaseServlet</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> RouteService routeService = (RouteService) BeanFactory.getBean(<span class="string">"routeService"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 分页查询</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">findByPage</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1.接收请求参数</span></span><br><span class="line">    String currentPageStr = req.getParameter(<span class="string">"currentPage"</span>);</span><br><span class="line">    String pageSizeStr = req.getParameter(<span class="string">"pageSize"</span>);</span><br><span class="line">    <span class="comment">// 分类cid</span></span><br><span class="line">    String cid = req.getParameter(<span class="string">"cid"</span>);</span><br><span class="line">    <span class="comment">// 线路搜索关键字</span></span><br><span class="line">    String rname = req.getParameter(<span class="string">"rname"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2.类型转换</span></span><br><span class="line">    <span class="keyword">if</span> (currentPageStr == <span class="keyword">null</span> || currentPageStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">      currentPageStr = <span class="string">"1"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> currentPage = Integer.parseInt(currentPageStr);</span><br><span class="line">    <span class="keyword">if</span> (pageSizeStr == <span class="keyword">null</span> || pageSizeStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">      pageSizeStr = <span class="string">"10"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> pageSize = Integer.parseInt(pageSizeStr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3.调用service分页查询</span></span><br><span class="line">    PageBean&lt;Route&gt; pb=routeService.findByPage(currentPage,pageSize,cid,rname);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4.将分页对象设置到request域</span></span><br><span class="line">    req.setAttribute(<span class="string">"pb"</span>,pb);</span><br><span class="line">    <span class="comment">// 回显分类id</span></span><br><span class="line">    req.setAttribute(<span class="string">"cid"</span>,cid);</span><br><span class="line">    <span class="comment">// 回显搜索关键字</span></span><br><span class="line">    req.setAttribute(<span class="string">"rname"</span>,rname);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5.转发到 route_list.jsp</span></span><br><span class="line">    req.getRequestDispatcher(<span class="string">"route_list.jsp"</span>).forward(req,resp);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteService</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteService</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 无搜索条件分页查询</span></span><br><span class="line">    <span class="function">PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有搜索条件分页查询</span></span><br><span class="line">    <span class="function">PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid, String rname)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouteServiceImpl</span> <span class="keyword">implements</span> <span class="title">RouteService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid)</span> </span>&#123;</span><br><span class="line">        SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line">        RouteDao routeDao = sqlSession.getMapper(RouteDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        PageBean&lt;Route&gt; pageBean = <span class="keyword">new</span> PageBean&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> pageBean;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid, String rname)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 创建dao代理对象</span></span><br><span class="line">        SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line">        RouteDao routeDao = sqlSession.getMapper(RouteDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        <span class="comment">// 1.创建PageBean</span></span><br><span class="line">        PageBean&lt;Route&gt; pageBean = <span class="keyword">new</span> PageBean&lt;&gt;();</span><br><span class="line">        <span class="comment">// 2.封装当前页和每页个数</span></span><br><span class="line">        pageBean.setCurrentPage(currentPage);</span><br><span class="line">        pageBean.setPageSize(pageSize);</span><br><span class="line">        <span class="comment">// 3.调用dao查询总记录数，封装</span></span><br><span class="line">        Integer totalCount = routeDao.findCount(cid,rname);</span><br><span class="line">        pageBean.setTotalCount(totalCount);</span><br><span class="line">        <span class="comment">// 4.计算总页数，封装</span></span><br><span class="line">        <span class="keyword">int</span> totalPage = (<span class="keyword">int</span>) Math.ceil(totalCount * <span class="number">1.0</span> / pageSize);</span><br><span class="line">        pageBean.setTotalPage(totalPage);</span><br><span class="line">        <span class="comment">// 5.计算开始索引</span></span><br><span class="line">        <span class="keyword">int</span> index = (currentPage - <span class="number">1</span>) * pageSize;</span><br><span class="line">        <span class="comment">// 6.调用dao查询结果集，封装</span></span><br><span class="line">        List&lt;Route&gt; routeList = routeDao.findList(index,pageSize,cid,rname);</span><br><span class="line">        pageBean.setList(routeList);</span><br><span class="line">        <span class="comment">// 释放资源</span></span><br><span class="line">        MyBatisUtils.close(sqlSession);</span><br><span class="line">        <span class="comment">// 7.返回分页对象</span></span><br><span class="line">        <span class="keyword">return</span> pageBean;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteDao</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//MyBatis框架Dao层禁止使用方法重载，否则会导致数据查询不正确</span></span><br><span class="line"></span><br><span class="line">  <span class="function">Integer <span class="title">findCount</span><span class="params">(@Param(<span class="string">"cid"</span>)</span> String cid, @<span class="title">Param</span><span class="params">(<span class="string">"rname"</span>)</span> String rname)</span>;</span><br><span class="line">  <span class="comment">//    Integer findCount(String cid);</span></span><br><span class="line"></span><br><span class="line">  <span class="function">List&lt;Route&gt; <span class="title">findList</span><span class="params">(@Param(<span class="string">"index"</span>)</span> <span class="keyword">int</span> index, @<span class="title">Param</span><span class="params">(<span class="string">"pageSize"</span>)</span> <span class="keyword">int</span> pageSize, @<span class="title">Param</span><span class="params">(<span class="string">"cid"</span>)</span> String cid, @<span class="title">Param</span><span class="params">(<span class="string">"rname"</span>)</span> String rname)</span>;</span><br><span class="line">  <span class="comment">//    List&lt;Route&gt; findList(@Param("index") int index, @Param("pageSize") int pageSize, @Param("cid") String cid);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.RouteDao"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findCount"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Integer"</span>&gt;</span></span><br><span class="line">    SELECT COUNT(*) FROM tab_route</span><br><span class="line">    <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"cid != null and cid != ''"</span>&gt;</span></span><br><span class="line">        and cid=#&#123;cid&#125;</span><br><span class="line">      <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"rname != null and rname != ''"</span>&gt;</span></span><br><span class="line">        and rname like concat(concat('%',#&#123;rname&#125;),'%')</span><br><span class="line">      <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findList"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Route"</span>&gt;</span></span><br><span class="line">    SELECT * FROM tab_route</span><br><span class="line">    <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"cid != null and cid != ''"</span>&gt;</span></span><br><span class="line">        and cid=#&#123;cid&#125;</span><br><span class="line">      <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"rname != null and rname != ''"</span>&gt;</span></span><br><span class="line">        and rname like concat(concat('%',#&#123;rname&#125;),'%')</span><br><span class="line">      <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">    limit #&#123;index&#125;,#&#123;pageSize&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>route_list.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"page_num_inf"</span>&gt;</span><br><span class="line">  &lt;i&gt;&lt;/i&gt; 共</span><br><span class="line">  &lt;span&gt;12&lt;/span&gt;页&lt;span&gt;132&lt;/span&gt;条</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"pageNum"</span>&gt;</span><br><span class="line">  &lt;ul&gt;</span><br><span class="line">    &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;pb.currentPage&gt;1&#125;"</span>&gt;</span><br><span class="line">      &lt;li&gt;</span><br><span class="line">        &lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=1&amp;rname=$&#123;rname&#125;"&gt;首页&lt;/a&gt;</span><br><span class="line">      &lt;/li&gt;</span><br><span class="line">      &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"threeword"</span>&gt;&lt;a</span><br><span class="line">                               href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.currentPage-1&#125;&amp;rname=$&#123;rname&#125;"&gt;上一页&lt;/a&gt;</span><br><span class="line">      &lt;/li&gt;</span><br><span class="line">    &lt;/c:if&gt;</span><br><span class="line">    &lt;c:forEach begin=<span class="string">"$&#123;pb.begin&#125;"</span> end=<span class="string">"$&#123;pb.end&#125;"</span> <span class="keyword">var</span>=<span class="string">"page"</span>&gt;</span><br><span class="line">      &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;page == pb.currentPage&#125;"</span>&gt;</span><br><span class="line">        &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"curPage"</span>&gt;&lt;a</span><br><span class="line">                               href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;page&#125;&amp;rname=$&#123;rname&#125;"&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">        &lt;/li&gt;</span><br><span class="line">      &lt;/c:if&gt;</span><br><span class="line">      &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;page != pb.currentPage&#125;"</span>&gt;</span><br><span class="line">        &lt;li <span class="class"><span class="keyword">class</span></span>=<span class="string">"curPage"</span>&gt;&lt;a</span><br><span class="line">                               href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;page&#125;&amp;rname=$&#123;rname&#125;"&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">        &lt;/li&gt;</span><br><span class="line">      &lt;/c:if&gt;</span><br><span class="line">    &lt;/c:forEach&gt;</span><br><span class="line">    &lt;c:<span class="keyword">if</span> test=<span class="string">"$&#123;pb.currentPage &lt; pb.totalPage&#125;"</span>&gt;</span><br><span class="line">      &lt;li class="threeword"&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.currentPage+1&#125;&amp;rname=$&#123;rname&#125;"&gt;下一页&lt;/a&gt;&lt;/li&gt;</span><br><span class="line">      &lt;li class="threeword"&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=findByPage&amp;cid=$&#123;cid&#125;&amp;currentPage=$&#123;pb.totalPage&#125;&amp;rname=$&#123;rname&#125;"&gt;末页&lt;/a&gt;&lt;/li&gt;</span><br><span class="line">    &lt;/c:if&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h1 id="三-旅游线路详情展示功能"><a href="#三-旅游线路详情展示功能" class="headerlink" title="三.旅游线路详情展示功能"></a>三.旅游线路详情展示功能</h1><h4 id="3-1-需求分析"><a href="#3-1-需求分析" class="headerlink" title="3.1 需求分析"></a>3.1 需求分析</h4><p><img src="image-20200521142426127.png" alt=""></p>
+<h4 id="3-2-代码实现-使用mybatis的嵌套查询来实现"><a href="#3-2-代码实现-使用mybatis的嵌套查询来实现" class="headerlink" title="3.2 代码实现(使用mybatis的嵌套查询来实现)"></a>3.2 代码实现(使用mybatis的嵌套查询来实现)</h4><ul>
+<li><p>Route_list.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;&lt;a href="$&#123;pageContext.request.contextPath&#125;/RouteServlet?action=routeDetail&amp;rid=$&#123;route.rid&#125;"&gt;查看详情&lt;/a&gt;&lt;/p&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RouteServlet</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet</span>(<span class="string">"/RouteServlet"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouteServlet</span> <span class="keyword">extends</span> <span class="title">BaseServlet</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> RouteService routeService = (RouteService) BeanFactory.getBean(<span class="string">"routeService"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">routeDetail</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1.接收请求参数 rid</span></span><br><span class="line">        String rid = req.getParameter(<span class="string">"rid"</span>);</span><br><span class="line">        <span class="comment">// 2.调用sercie查询</span></span><br><span class="line">        Route route = routeService.findDetail(rid);</span><br><span class="line">        <span class="comment">// 3.设置到reuqest域</span></span><br><span class="line">        req.setAttribute(<span class="string">"route"</span>,route);</span><br><span class="line">        <span class="comment">// 4.转发到 route_detail.jsp</span></span><br><span class="line">        req.getRequestDispatcher(<span class="string">"/route_detail.jsp"</span>).forward(req,resp);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分页查询</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">findByPage</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1.接收请求参数</span></span><br><span class="line">        String currentPageStr = req.getParameter(<span class="string">"currentPage"</span>);</span><br><span class="line">        String pageSizeStr = req.getParameter(<span class="string">"pageSize"</span>);</span><br><span class="line">        <span class="comment">// 分类cid</span></span><br><span class="line">        String cid = req.getParameter(<span class="string">"cid"</span>);</span><br><span class="line">        <span class="comment">// 线路搜索关键字</span></span><br><span class="line">        String rname = req.getParameter(<span class="string">"rname"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2.类型转换</span></span><br><span class="line">        <span class="keyword">if</span> (currentPageStr == <span class="keyword">null</span> || currentPageStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">            currentPageStr = <span class="string">"1"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> currentPage = Integer.parseInt(currentPageStr);</span><br><span class="line">        <span class="keyword">if</span> (pageSizeStr == <span class="keyword">null</span> || pageSizeStr.equals(<span class="string">""</span>)) &#123;</span><br><span class="line">            pageSizeStr = <span class="string">"10"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> pageSize = Integer.parseInt(pageSizeStr);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.调用service分页查询</span></span><br><span class="line">        PageBean&lt;Route&gt; pb=routeService.findByPage(currentPage,pageSize,cid,rname);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4.将分页对象设置到request域</span></span><br><span class="line">        req.setAttribute(<span class="string">"pb"</span>,pb);</span><br><span class="line">        <span class="comment">// 回显分类id</span></span><br><span class="line">        req.setAttribute(<span class="string">"cid"</span>,cid);</span><br><span class="line">        <span class="comment">// 回显搜索关键字</span></span><br><span class="line">        req.setAttribute(<span class="string">"rname"</span>,rname);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5.转发到 route_list.jsp</span></span><br><span class="line">        req.getRequestDispatcher(<span class="string">"/route_list.jsp"</span>).forward(req,resp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>RouteService</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteService</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 无搜索条件分页查询</span></span><br><span class="line">    <span class="function">PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有搜索条件分页查询</span></span><br><span class="line">    <span class="function">PageBean&lt;Route&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage, <span class="keyword">int</span> pageSize, String cid, String rname)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Route <span class="title">findDetail</span><span class="params">(String rid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>RouteDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteDao</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//MyBatis框架Dao层禁止使用方法重载，否则会导致数据查询不正确</span></span><br><span class="line"></span><br><span class="line">    <span class="function">Integer <span class="title">findCount</span><span class="params">(@Param(<span class="string">"cid"</span>)</span> String cid, @<span class="title">Param</span><span class="params">(<span class="string">"rname"</span>)</span> String rname)</span>;</span><br><span class="line"><span class="comment">//    Integer findCount(String cid);</span></span><br><span class="line"></span><br><span class="line">    <span class="function">List&lt;Route&gt; <span class="title">findList</span><span class="params">(@Param(<span class="string">"index"</span>)</span> <span class="keyword">int</span> index, @<span class="title">Param</span><span class="params">(<span class="string">"pageSize"</span>)</span> <span class="keyword">int</span> pageSize, @<span class="title">Param</span><span class="params">(<span class="string">"cid"</span>)</span> String cid, @<span class="title">Param</span><span class="params">(<span class="string">"rname"</span>)</span> String rname)</span>;</span><br><span class="line"><span class="comment">//    List&lt;Route&gt; findList(@Param("index") int index, @Param("pageSize") int pageSize, @Param("cid") String cid);</span></span><br><span class="line"></span><br><span class="line">    <span class="function">Route <span class="title">findByRidWithAll</span><span class="params">(String rid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>RouteDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.RouteDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findCount"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Integer"</span>&gt;</span></span><br><span class="line">        SELECT COUNT(*) FROM tab_route</span><br><span class="line">        <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"cid != null and cid != ''"</span>&gt;</span></span><br><span class="line">                and cid=#&#123;cid&#125;</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"rname != null and rname != ''"</span>&gt;</span></span><br><span class="line">                and rname like concat(concat('%',#&#123;rname&#125;),'%')</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findList"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Route"</span>&gt;</span></span><br><span class="line">            SELECT * FROM tab_route</span><br><span class="line">        <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"cid != null and cid != ''"</span>&gt;</span></span><br><span class="line">                and cid=#&#123;cid&#125;</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"rname != null and rname != ''"</span>&gt;</span></span><br><span class="line">                and rname like concat(concat('%',#&#123;rname&#125;),'%')</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">        limit #&#123;index&#125;,#&#123;pageSize&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">"routeWithAllMap"</span> <span class="attr">type</span>=<span class="string">"com.itheima.domain.Route"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"rid"</span> <span class="attr">property</span>=<span class="string">"rid"</span>&gt;</span><span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"rname"</span> <span class="attr">property</span>=<span class="string">"rname"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"price"</span> <span class="attr">property</span>=<span class="string">"price"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"routeIntroduce"</span> <span class="attr">property</span>=<span class="string">"routeIntroduce"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"rflag"</span> <span class="attr">property</span>=<span class="string">"rflag"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"rdate"</span> <span class="attr">property</span>=<span class="string">"rdate"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"rimage"</span> <span class="attr">property</span>=<span class="string">"rimage"</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--一对一嵌套 分类--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">association</span> <span class="attr">property</span>=<span class="string">"category"</span> <span class="attr">javaType</span>=<span class="string">"com.itheima.domain.Category"</span> <span class="attr">column</span>=<span class="string">"cid"</span> <span class="attr">select</span>=<span class="string">"com.itheima.dao.CategoryDao.findByCid"</span>&gt;</span><span class="tag">&lt;/<span class="name">association</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--一对一嵌套 商家--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">association</span> <span class="attr">property</span>=<span class="string">"seller"</span> <span class="attr">javaType</span>=<span class="string">"com.itheima.domain.Seller"</span> <span class="attr">column</span>=<span class="string">"sid"</span> <span class="attr">select</span>=<span class="string">"com.itheima.dao.SellerDao.findBySid"</span>&gt;</span><span class="tag">&lt;/<span class="name">association</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--一对一嵌套 图册列表--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">collection</span> <span class="attr">property</span>=<span class="string">"routeImgList"</span> <span class="attr">ofType</span>=<span class="string">"com.itheima.domain.RouteImg"</span> <span class="attr">column</span>=<span class="string">"rid"</span> <span class="attr">select</span>=<span class="string">"com.itheima.dao.RouteImgDao.findByRid"</span>&gt;</span><span class="tag">&lt;/<span class="name">collection</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findByRidWithAll"</span> <span class="attr">resultMap</span>=<span class="string">"routeWithAllMap"</span>&gt;</span></span><br><span class="line">        select * from tab_route where rid = #&#123;rid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>CategoryDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CategoryDao</span> </span>&#123;</span><br><span class="line">    <span class="function">List&lt;Category&gt; <span class="title">findAll</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Category <span class="title">findByCid</span><span class="params">(Integer cid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>CategoryDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.CategoryDao"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findAll"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Category"</span>&gt;</span></span><br><span class="line">        SELECT * FROM tab_category ORDER BY cid</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findByCid"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Category"</span>&gt;</span></span><br><span class="line">        SELECT * FROM tab_category WHERE cid = #&#123;cid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>RouteImgDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteImgDao</span> </span>&#123;</span><br><span class="line">    <span class="function">List&lt;RouteImg&gt; <span class="title">findByRid</span><span class="params">(Integer rid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>RouteImgDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.RouteImgDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findByRid"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.RouteImg"</span>&gt;</span></span><br><span class="line">        SELECT * FROM tab_route_img WHERE rid = #&#123;rid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>SellerDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SellerDao</span> </span>&#123;</span><br><span class="line">    <span class="function">Seller <span class="title">findBySid</span><span class="params">(Integer sid)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>SellerDao.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.itheima.dao.SellerDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findBySid"</span> <span class="attr">resultType</span>=<span class="string">"com.itheima.domain.Seller"</span>&gt;</span></span><br><span class="line">        SELECT * FROM tab_seller WHERE sid = #&#123;sid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>route_detail.jsp</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 详情 start --&gt;</span><br><span class="line">&lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"wrap"</span>&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"bread_box"</span>&gt;</span><br><span class="line">    &lt;a href="index.jsp"&gt;首页&lt;/a&gt;</span><br><span class="line">    &lt;span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;a href="#"&gt;$&#123;route.category.cname&#125;&lt;/a&gt;&lt;span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;a href="#"&gt;$&#123;route.rname&#125;&lt;/a&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"prosum_box"</span>&gt;</span><br><span class="line">    &lt;dl <span class="class"><span class="keyword">class</span></span>=<span class="string">"prosum_left"</span>&gt;</span><br><span class="line">      &lt;dt&gt;</span><br><span class="line">        &lt;img alt=<span class="string">""</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"big_img"</span> src=<span class="string">"$&#123;route.rimage&#125;"</span>&gt;</span><br><span class="line">      &lt;/dt&gt;</span><br><span class="line">      &lt;dd&gt;</span><br><span class="line">        &lt;a class="up_img up_img_disable"&gt;&lt;/a&gt;</span><br><span class="line">        &lt;c:forEach items=<span class="string">"$&#123;route.routeImgList&#125;"</span> <span class="keyword">var</span>=<span class="string">"routeImg"</span>&gt;</span><br><span class="line">          &lt;a title=<span class="string">""</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"little_img"</span> data-bigpic=<span class="string">"$&#123;routeImg.bigPic&#125;"</span>&gt;</span><br><span class="line">            &lt;img src=<span class="string">"$&#123;routeImg.smallPic&#125;"</span>&gt;</span><br><span class="line">          &lt;/a&gt;</span><br><span class="line">        &lt;/c:forEach&gt;</span><br><span class="line">        &lt;a class="down_img down_img_disable" style="margin-bottom: 0;"&gt;&lt;/a&gt;</span><br><span class="line">      &lt;/dd&gt;</span><br><span class="line">    &lt;/dl&gt;</span><br><span class="line">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"prosum_right"</span>&gt;</span><br><span class="line">      &lt;p class="pros_title"&gt;$&#123;route.rname&#125;&lt;/p&gt;</span><br><span class="line">      &lt;p class="hot"&gt;$&#123;route.routeIntroduce&#125;&lt;/p&gt;</span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"pros_other"</span>&gt;</span><br><span class="line">        &lt;p&gt;经营商家  ：$&#123;route.seller.sname&#125;&lt;/p&gt;</span><br><span class="line">        &lt;p&gt;咨询电话 : $&#123;route.seller.consphone&#125;&lt;/p&gt;</span><br><span class="line">        &lt;p&gt;地址 ： $&#123;route.seller.address&#125;&lt;/p&gt;</span><br><span class="line">      &lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><strong>## 一 旅游线路分页功能</strong></p>
+<p><strong>### 需求分析</strong></p>
+<p>- 表关系</p>
+<p>- 整体流程</p>
+<p>- 后端代码流程</p>
+<p>- 前端EL表达式</p>
+<p><strong>### 百度分页</strong></p>
+<p><strong>## 二 搜索旅游线路分页功能</strong></p>
+<p><strong>### 需求分析</strong></p>
+<p><strong>## 三 旅游线路详情展示功能</strong></p>
+<p><strong>### 需求分析</strong></p>
+<p>- 表关系</p>
+<p>- 实体类</p>
+<p>- 嵌套查询</p>
+<p>- 页面展示</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/20/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%E5%8D%81%E5%85%AB%EF%BC%89/" rel="prev" title="就业班学习笔记（五十八）">
+      <i class="fa fa-chevron-left"></i> 就业班学习笔记（五十八）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/21/%E5%A4%A7%E8%AF%9D%E9%87%8D%E6%9E%84/" rel="next" title="大话重构">
+      大话重构 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一-旅游线路分页功能"><span class="nav-number">1.</span> <span class="nav-text">一.旅游线路分页功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-需求分析"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 需求分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-代码实现"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 代码实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-百度分页栏"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 百度分页栏</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二-搜索旅游线路分页功能"><span class="nav-number">2.</span> <span class="nav-text">二.搜索旅游线路分页功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-需求分析"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 需求分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-代码实现"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.2 代码实现</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三-旅游线路详情展示功能"><span class="nav-number">3.</span> <span class="nav-text">三.旅游线路详情展示功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-需求分析"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">3.1 需求分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-代码实现-使用mybatis的嵌套查询来实现"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">3.2 代码实现(使用mybatis的嵌套查询来实现)</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
