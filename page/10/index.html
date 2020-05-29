@@ -176,6 +176,98 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/21/My-New-Post-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/03/21/My-New-Post-1/" class="post-title-link" itemprop="url">ThinkPad E450C 旧货利用安装Exsi</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-21 15:20:36" itemprop="dateCreated datePublished" datetime="2019-03-21T15:20:36+08:00">2019-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-04-17 11:14:28" itemprop="dateModified" datetime="2019-04-17T11:14:28+08:00">2019-04-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>处理器：i3 4005U<br>内存：  4G<br>环境：  win10</p>
+<p>需要软件：<br>UltraISO（试用版）、Esxi</p>
+<p>需要硬件：<br>U盘（1G以上），网线连接网络设备</p>
+<p>ESXI下载地址：<br>VM官网：<a href="https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&amp;productId=742">https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&amp;productId=742</a><br>Lenovo官网：<a href="https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/">https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/</a></p>
+<p>这里使用的是联想官网的版本，将ISO文件刻录进U盘后，重启抹盘重装。<br>重启，Enter选择F1进入Bios，关闭安全加载，开启通用加载，在安全选项中开启虚拟化。<br>保存后再次重启，Enter选择F12使用U盘加载。</p>
+<p>接下来菜单中，选择电脑型号——等待加载，直至跳过黄色界面，进入Welcome界面后，由于内存仅有4G，实际仅剩3.75G，所以需要照如下流程操作，若内存大于4G，则跳过此流程</p>
+<ol>
+<li>放入光盘或U盘，开始安装，一直普通流程到Welcome画面，按ALT+F1</li>
+<li>登陆界面账号：root  密码为空</li>
+<li>cd /usr/lib/vmware/weasel/util</li>
+<li>rm upgrade_precheck.pyc（这个我进入时还未编译出来）</li>
+<li>mv upgrade_precheck.py upgrade_precheck.py.old    </li>
+<li>cp upgrade_precheck.py.old upgrade_precheck.py   #如果直接把这个文件备份.old</li>
+<li>chmod 666 upgrade_precheck.py　　　　　　　　　　#增加权限后在原文件修改提示权限不允许</li>
+<li>vi upgrade_precheck.py</li>
+<li>编辑文本界面中查找 MEM_MIN  </li>
+<li>MEM_MIN_SIZE= (4<em>1024) 改成 MEM_MIN_SIZE= (2</em>1024)</li>
+<li>wq! 强制保存退出</li>
+<li>ps -c |grep weasel        #不结束进程，直接适用ALT+F2貌似无效</li>
+<li>kill -9 进程ID</li>
+<li>此时正常情况下会跳回欢迎界面，如不跳回按ALT+F2返回继续安装</li>
+</ol>
+<p>方法来源：<a href="https://www.bbsmax.com/A/RnJW2BbOzq/">https://www.bbsmax.com/A/RnJW2BbOzq/</a></p>
+<p>回到欢迎界面后，Enter——F11——选择你要安装的硬盘——Enter——选择键盘模式（US，Enter）——设置root密码——F11开始安装——安装完毕后Enter重启</p>
+<p>重启后若见到黄色界面则安装成功。</p>
+<p>F2输入账户密码进入控制界面，找到Configure Management Network，进入后，查看Network Adapter是否connect，我的无线网卡换了一块BCM的暂不处理，后期再看<br>//TODO 处理无线网卡</p>
+<p>若connect，配置IPv4 Configuration，将IP和自身网络环境配置进去<br>由此，已可以通过同一网络环境的其他电脑进行访问ESXI</p>
+<p>来源：<a href="http://koolshare.cn/thread-132810-1-1.html">http://koolshare.cn/thread-132810-1-1.html</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/25/My-New-Post/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -376,7 +468,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
