@@ -176,6 +176,423 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/" class="post-title-link" itemprop="url">基础班学习笔记（九）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-26 18:01:15" itemprop="dateCreated datePublished" datetime="2020-02-26T18:01:15+08:00">2020-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-29 01:04:50" itemprop="dateModified" datetime="2020-03-29T01:04:50+08:00">2020-03-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.集合基础<br>1.1 集合概述<br>编程时如果要存储多个数据，使用长度固定的数组存储格式，不一定满足需求，耿适应不了变化的需求，此时应选择集合。</p>
+<p>集合类的特点：提供一种存储空间可变的 存储模型，存储的数据容量可以发生改变<br>集合类非常多，首先学习:ArrayList</p>
+<p>ArrayList<E>:</p>
+<ul>
+<li>可调整大小的数组实现</li>
+<li><E>:是一种特定的数据类型，泛型</li>
+</ul>
+<p>使用：<br>在所有出现<E>的地方可以使用引用数据类型替换<br>例：ArrayList<String>,ArrayList<Student></p>
+<p>1.2 ArrayList构造方法和添加方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public ArrayList()</td>
+<td>创建一个空的集合对象</td>
+</tr>
+<tr>
+<td>public boolean add(E e)</td>
+<td>将指定的元素追加到此集合的末尾</td>
+</tr>
+<tr>
+<td>public void add(int index,E element)</td>
+<td>在此集合中的指定位置插入指定的元素</td>
+</tr>
+</tbody></table>
+<p>1.3 ArrayList集合常用方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public boolean remove(Object o)</td>
+<td>删除指定的元素，返回删除是否成功</td>
+</tr>
+<tr>
+<td>public E remove(int index)</td>
+<td>删除指定索引处的元素，返回被删的元素</td>
+</tr>
+<tr>
+<td>public E set(int index,E element)</td>
+<td>修改指定索引处的元素，返回被修改的元素</td>
+</tr>
+<tr>
+<td>public E get(int index)</td>
+<td>返回指定索引处的元素</td>
+</tr>
+<tr>
+<td>public int size()</td>
+<td>返回集合中的元素的个数</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArrayListDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        ArrayList&lt;String&gt; array = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        Collections.addAll(array,<span class="string">"a"</span>,<span class="string">"b"</span>,<span class="string">"c"</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(array);</span><br><span class="line"></span><br><span class="line">        System.out.println(array.remove(<span class="string">"b"</span>));</span><br><span class="line"></span><br><span class="line">        System.out.println(array.remove(<span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">        System.out.println(array.set(<span class="number">0</span>,<span class="string">"ccc"</span>));</span><br><span class="line"></span><br><span class="line">        System.out.println(array.get(<span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        System.out.println(array.size());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-title-link" itemprop="url">基础班学习笔记（三）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-26 14:57:52" itemprop="dateCreated datePublished" datetime="2020-02-26T14:57:52+08:00">2020-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-27 20:50:56" itemprop="dateModified" datetime="2020-03-27T20:50:56+08:00">2020-03-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.数据输入<br>1.1 Scanner使用基本步骤<br>①导包<br>    import java.util.Scanner;<br>    导包的动作必须出现在定义上面。<br>②创建对象<br>    Scanner sc = new Scanner(System.in);<br>    上面这个格式里，只有变量名sc可以变，其他都不允许变。<br>③接收数据<br>    int i = sc.nextInt();<br>    上面这个格式里，只有变量名i可以变，其他都不允许变。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/" class="post-title-link" itemprop="url">基础班学习笔记（八）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-26 14:01:15" itemprop="dateCreated datePublished" datetime="2020-02-26T14:01:15+08:00">2020-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-29 00:41:12" itemprop="dateModified" datetime="2020-03-29T00:41:12+08:00">2020-03-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.API<br>1.1 API (Application Programming Interface) 概述：应用程序编程接口</p>
+<p>Java API：指的就是JDK中提供的各种功能的Java类<br>这些类将底层的实现封装了起来，可以通过帮助文档来学习这些API如何使用</p>
+<p>1.2 如何使用帮助文档：<br>①打开使用版本的JDK文档<br>②索引框输入要查询的类<br>③查看类在哪个包下<br>④看类的描述<br>⑤看构造方法<br>⑥看成员方法</p>
+<p>注意：调用方法时，如果方法有明确的返回值，可以用变量接收</p>
+<p>二. String<br>2.1 String 概述：<br>String类在java.lang 包下，使用时不需要导入包。</p>
+<p>String类代表字符串，Java程序中所有的字符串文字(例如”abc”)都被实现为此类的实例<br>也就是说，Java程序中所有的双引号字符串，都是String类的对象</p>
+<p>字符串的特点:</p>
+<ul>
+<li>字符串不可变，它们的值在创建后不能被更改</li>
+<li>虽然String值不可变，但是它们可以被共享</li>
+<li>字符串效果上相当于字符数组(char[] ,JDK8及之前是字符数组，JDK9之后是字节数组),但是底层原理是字节数组(byte[] )</li>
+</ul>
+<p>2.2 String的常用构造方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public String()</td>
+<td>创建一个空白字符串对象，不含任何内容</td>
+</tr>
+<tr>
+<td>public String(char[] chs)</td>
+<td>根据字符组的内容，来创建字符串对象</td>
+</tr>
+<tr>
+<td>public String(byte[] bys)</td>
+<td>根据字节组的内容，来创建字符串对象</td>
+</tr>
+<tr>
+<td>String s = “abc”</td>
+<td>直接赋值的方式创建字符串对象，内容就是abc</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AIO_ServerSocketChannel</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        String s1 = <span class="keyword">new</span> String();</span><br><span class="line">        System.out.println(s1);<span class="comment">//无内容，因为未赋值</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span>[] chs = &#123;<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>&#125;;</span><br><span class="line">        String s2 = <span class="keyword">new</span> String(chs);</span><br><span class="line">        System.out.println(s2);<span class="comment">//abc</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">byte</span>[] bys = &#123;<span class="number">97</span>,<span class="number">98</span>,<span class="number">99</span>&#125;;</span><br><span class="line">        String s3 = <span class="keyword">new</span> String(bys);</span><br><span class="line">        System.out.println(s3);<span class="comment">//abc,因为使用的是ASCII码</span></span><br><span class="line"></span><br><span class="line">        String s4 = <span class="string">"abc"</span></span><br><span class="line">        System.out.println(s4);<span class="comment">//abc</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>推荐直接使用赋值方式得到字符串对象</p>
+<p>2.3 String对象的特点<br>1)通过new创建的字符串对象，每一次new都会申请一个内存空间，虽然内容相同，但是地址值不同</p>
+<p>char[] chs ={‘a’,’b’,’c’};<br>String s1 = new String(chs);<br>String s2 = new String(chs);<br>在上述代码中，JVM会熟悉创建一个字符数组，然后每次new的时候都会有一个新的地址，只不过s1和s2参考的字符串内容都是相同的</p>
+<p>2)以 “” 方式给出的字符串，只要字符序列相同(顺序和大小写)，无论在程序代码中出现几次，JVM都只会建立一个String对象，并在字符串池中维护</p>
+<p>String s3 = “abc”;<br>String s4 = “abc”;<br>在上述代码中，针对第一行代码，JVM会建立一个String对象放在字符串池中，并给s3参考；<br>第二行让s4直接参考字符串池中的String对象，也就是说它们本质上还是同一个对象</p>
+<p>内存过程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span>[] chs =&#123;<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>&#125;;</span><br><span class="line">    String s1 = <span class="keyword">new</span> String(chs);</span><br><span class="line">    String s2 = <span class="keyword">new</span> String(chs);</span><br><span class="line">    System.out.println(s1 == s2);<span class="comment">//false</span></span><br><span class="line"></span><br><span class="line">    String s3 = <span class="string">"abc"</span>;</span><br><span class="line">    String s4 = <span class="string">"abc"</span>;</span><br><span class="line">    System.out.println(s3 == s4);<span class="comment">//true</span></span><br><span class="line">    System.out.println(s1 == s3);<span class="comment">//false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>栈内存：<br>方法main<br>char[] chs 假设地址001<br>String s1  假设地址002<br>String s2  假设地址003<br>String s3  假设地址004<br>String s4  假设地址004</p>
+<p>堆内存：<br>new char[3]<br>001<br>0 ‘a’<br>1 ‘b’<br>2 ‘c’</p>
+<p>new String()<br>002<br>ref 001</p>
+<p>new String()<br>003<br>ref 001</p>
+<p>常量池<br>004 abc 赋值给s3与s4</p>
+<p>2.4 字符串的比较<br>使用 == 做比较</p>
+<ul>
+<li>基本类型：比较的是<strong>数据值</strong>是否相同</li>
+<li>引用类型：比较的是<strong>地址值</strong>是否相同</li>
+</ul>
+<p>字符串是对象，它比较内容是否相同，是通过一个方法来实现的，这个方法叫:equals()</p>
+<ul>
+<li>public boolean equals(Object anObject);将此字符串与指定对象进行比较。由于比较的是字符串对象，所以参数直接传递一个字符串</li>
+</ul>
+<p>遍历字符串，首先要能够获取到字符串中的每一个字符</p>
+<ul>
+<li>public char charAt(int index);返回指定索引处的char值，字符串的索引也是从0开始的<br>遍历字符串，获取字符串的长度</li>
+<li>public int length();返回此字符串的长度</li>
+<li>数组的长度：数组名.length</li>
+<li>字符串的长度：字符串对象.length()<br>遍历字符串通用格式：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.length();i++ )&#123;</span><br><span class="line">    s.charAt(i);<span class="comment">//就是指定索引处的字符值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>•大写字母：ch&gt;=’A’ &amp;&amp; ch &lt;= ‘Z’<br>•小写字母：ch&gt;=’a’ &amp;&amp; ch &lt;= ‘z’<br>•数字：ch&gt;=’0’ &amp;&amp; ch &lt;= ‘9’</p>
+<p>2.5 通过帮助文档查看String中的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public boolean equals(Object anObject)</td>
+<td>比较字符串的内容，严格区分大小写(用户名&amp;密码)</td>
+</tr>
+<tr>
+<td>public char charAt(int Index)</td>
+<td>返回索引处的char值</td>
+</tr>
+<tr>
+<td>public int length()</td>
+<td>返回此字符串的长度</td>
+</tr>
+</tbody></table>
+<p>三. StringBuilder<br>3.1 概述<br>StringBuilder是一个可变的字符串类，可以把它当作一个容器。<br>这里的可变指的是StringBuilder对象中的内容是可变的</p>
+<p>String和StringBuilder的区别：</p>
+<ul>
+<li>String：内容是不可变的</li>
+<li>StringBuilder：内容是可变的</li>
+</ul>
+<p>如果对字符串String进行拼接操作，每次拼接都会构建一个新的String对象，耗费时间与内存空间。<br>因此使用StringBuilder可类可以解决这个问题。</p>
+<p>3.2 StringBuilder的构造方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder()</td>
+<td>创建一个空白可变字符串对象，不含任何内容</td>
+</tr>
+<tr>
+<td>public StringBuilder(String str)</td>
+<td>根据字符串内容，创建可变字符串对象</td>
+</tr>
+<tr>
+<td>public StringBuilder(int Capacity)</td>
+<td>构造一个没有字符的字符串构建器，以及由capcacity参数指定的初始容量</td>
+</tr>
+<tr>
+<td>public StringBuilder(CharSequence seq)</td>
+<td>构造一个字符串构建器，其中包含与指定的CharSequence相同的字符</td>
+</tr>
+</tbody></table>
+<p>3.3 StringBuilder的添加和反转方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder append(任意类型)</td>
+<td>添加数据，并返回数据本身</td>
+</tr>
+<tr>
+<td>public StringBuilder reserve()</td>
+<td>返回相反的字符序列</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBDemo01</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">"a"</span>).append(<span class="string">"b"</span>);<span class="comment">//链式编程</span></span><br><span class="line">        System.out.println(sb);<span class="comment">//ab</span></span><br><span class="line"></span><br><span class="line">        sb.reserve();</span><br><span class="line">        System.out.println(sb);<span class="comment">//ba</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.4 StringBuilder 和 String 相互转换<br>a.从StringBuilder转换为String<br>public String toString();通过toString()就可以实现把StringBuilder转换为String</p>
+<p>b.从String转换为StringBuilder<br>public StringBuilder(String s);通过构造方法就可以把String转换为StringBuilder</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SBDemo01</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">"abc"</span>);</span><br><span class="line">        String s = sb.toString(s);</span><br><span class="line"></span><br><span class="line">        String t = <span class="string">"hello"</span>;</span><br><span class="line">        StringBuilder new_sb = <span class="keyword">new</span> StringBuilder(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3.5 通过帮助文档查看 StringBuilder 中的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public StringBuilder append(任意类型)</td>
+<td>添加数据，并返回数据本身</td>
+</tr>
+<tr>
+<td>public StringBuilder reserve()</td>
+<td>返回相反的字符序列</td>
+</tr>
+<tr>
+<td>public String toString()</td>
+<td>通过toString()就可以实现把StringBuilder转换为String</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/%E5%9F%BA%E7%A1%80%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1196,209 +1613,6 @@ digraph G {
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/07/Centos6-SS-ipv6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/07/Centos6-SS-ipv6/" class="post-title-link" itemprop="url">搬瓦工CentOS6 使用IPv6的SS</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2019-10-07 23:35:29 / 修改时间：23:59:43" itemprop="dateCreated datePublished" datetime="2019-10-07T23:35:29+08:00">2019-10-07</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>当前IPv4 IP被封，需要Google查资料，使用v6 IP勉强使用，此方法延迟大约是v4的10倍，原因可能与路由出口以及IP转化有关，但是方法十分简单。</p>
-<p>当前系统环境（均为KVM自带）：<br>centos6-bbr，<br>ss<br>网络环境：<br>电信网，支持IPv6</p>
-<p>首先使用如下教程，获取IPv6的IP，并使其在server自启动<br><a href="https://www.bandwagonhost.net/2144.html">https://www.bandwagonhost.net/2144.html</a></p>
-<p>我这ping通Google但是没有显示IP，不影响使用。<br>可以使用ip -6 route查看一下，自带的内容会error 113，但是自己添加的在最后4条，没有error。</p>
-<p>到此，IPv6已经配置完成，本地也已经可以ping通服务器的IPv6地址。</p>
-<p>但是CentOS的IPv6还有防火墙，会导致即使ping通，服务启动也无法使用ss。可以使用命令开启端口，我这里选择直接关闭。<br>service ip6tables stop<br>chkconfig ip6tables off</p>
-<p>至此，本机可以ping通、telnet通IPv6的主机地址。重启ss服务后，将IPv6地址添加到本地Client，其他配置文件不需修改，即可使用。<br>（若多人账号，需要自行配置json文件并添加自启动）</p>
-<p>相关ip6tables命令：<br>/sbin/ip6tables -A INPUT -m state –state NEW -m tcp -p tcp –dport 8080 -j ACCEPT;<br>/sbin/ip6tables -A INPUT -m state –state NEW -m tcp -p udp –dport 8080 -j ACCEPT;</p>
-<p>ss相关：<br>多人用户自行配置ss.json，并添加至rc.local自启动<br>/usr/bin/ssserver -c /etc/ss.json -d start<br>/usr/bin/ssserver -c /etc/ss.json -d stop</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/04/Centos-8-repo-pd-tools/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/04/Centos-8-repo-pd-tools/" class="post-title-link" itemprop="url">Centos 8 repo & pd_tools</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2019-10-04 14:14:31 / 修改时间：21:08:49" itemprop="dateCreated datePublished" datetime="2019-10-04T14:14:31+08:00">2019-10-04</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>接上篇已配置好本地local.repo，安装好图形界面<br>进入网络设置，打开本地连接开关<br>1.将本地repo取消<br>cd /etc/yum.repo.d/<br>mv local.repo local.repo.bak</p>
-<p>2.备份远程源<br>cp CentOS-AppStream.repo{,.bak}<br>cp CentOS-Base.repo{,.bak}<br>cp CentOS-Extras.repo{,.bak}</p>
-<p>3.添加阿里源，修改如下<br>vi CentOS-AppStream.repo</p>
-<p>[AppStream]<br>name=CentOS-$releasever - AppStream<br><font color=#red><br>#mirrorlist=<a href="http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=AppStream&amp;infra=$infra">http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=AppStream&amp;infra=$infra</a><br>#baseurl=<a href="http://mirror.centos.org/$contentdir/$releasever/AppStream/$basearch/os/">http://mirror.centos.org/$contentdir/$releasever/AppStream/$basearch/os/</a><br>baseurl=<a href="https://mirrors.aliyun.com/centos/$releasever/AppStream/$basearch/os/">https://mirrors.aliyun.com/centos/$releasever/AppStream/$basearch/os/</a><br></font><br>gpgcheck=1<br>enabled=1<br>gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</p>
-<p>vi CentOS-Base.repo</p>
-<p>[BaseOS]<br>name=CentOS-$releasever - Base<br><font color=#FF0000><br>#mirrorlist=<a href="http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=BaseOS&amp;infra=$infra">http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=BaseOS&amp;infra=$infra</a><br>#baseurl=<a href="http://mirror.centos.org/$contentdir/$releasever/BaseOS/$basearch/os/">http://mirror.centos.org/$contentdir/$releasever/BaseOS/$basearch/os/</a><br>baseurl=<a href="https://mirrors.aliyun.com/centos/$releasever/BaseOS/$basearch/os/">https://mirrors.aliyun.com/centos/$releasever/BaseOS/$basearch/os/</a><br></font><br>gpgcheck=1<br>enabled=1<br>gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</p>
-<p>vi CentOS-Extras.repo</p>
-<p>[extras]<br>name=CentOS-$releasever - Extras<br><font color=#FF0000><br>#mirrorlist=<a href="http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras&amp;infra=$infra">http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras&amp;infra=$infra</a><br>#baseurl=<a href="http://mirror.centos.org/$contentdir/$releasever/extras/$basearch/os/">http://mirror.centos.org/$contentdir/$releasever/extras/$basearch/os/</a><br>baseurl=<a href="https://mirrors.aliyun.com/centos/$releasever/extras/$basearch/os/">https://mirrors.aliyun.com/centos/$releasever/extras/$basearch/os/</a><br></font><br>gpgcheck=1<br>enabled=1<br>gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</p>
-<p>4.清理缓存并更新源<br>dnf clean all<br>dnf makecache</p>
-<p>5.安装pd_tools<br>虚拟机光盘挂载prl-tools-lin.iso</p>
-<p>进入terminal<br>mount -t auto /dev/cdrom /mnt/cdrom<br>cd /mnt/cdrom<br>./install<br>如果一切正常则安装完毕，若遇到如下问题<br>dkms<br>hpijs</p>
-<p>dkms<br>pjijs<br>则尝试安装<br>yum install <a href="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm">https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm</a><br>手动安装dkms<br>yum install -y dkms<br>yum install -y hpijs</p>
-<p>再次尝试<br>to be continued<br>//切勿尝试不同版本的prl_tools_lin.iso，会直接导致图形界面宕机</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/My-New-Post-5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/04/17/My-New-Post-5/" class="post-title-link" itemprop="url">Thinkpad E450C 物理机安装黑群晖</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2019-04-17 11:14:07 / 修改时间：14:32:42" itemprop="dateCreated datePublished" datetime="2019-04-17T11:14:07+08:00">2019-04-17</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>安装机型：Thinkpad E450C<br>安装版本：DS3617xs-6.17</p>
-<p>镜像下载地址：<br><a href="http://www.nasyun.com/thread-64575-1-1.html">http://www.nasyun.com/thread-64575-1-1.html</a></p>
-<p>工具：<br>空U盘（16G），img写盘工具，win8 PE盘一块</p>
-<p>步骤：<br>使用二合一包比自行安装少很多步骤，仅需恢复后重置引导即可。</p>
-<p>1.下载3617xs UEFI镜像后解压出约15G文件，存入16G空U盘<br>2.下载img写盘工具，一并存入（若PE已有该工具可跳过。img写盘工具比win32diskimager写入快3倍左右，建议使用）<br>3.使用PE引导Thinkpad进入PE界面<br>4.打开img写盘工具，选择解压后的镜像，目标选择 物理盘 Physical Disk，进行写入。<br>5.写入完成后已有一台可以直接硬盘启动的黑群晖，但是空间仅9G</p>
-<p>接下来按照教程进行：<br><a href="http://www.nasyun.com/forum.php?mod=viewthread&amp;tid=65425&amp;page=1#pid486522">http://www.nasyun.com/forum.php?mod=viewthread&amp;tid=65425&amp;page=1#pid486522</a></p>
-<p>1.删除存储空间和RAID空间，新建硬盘获得所有空间<br>3.重启进入winPE，打开DiskGenius，读取14G镜像<br>4.在刚刚创建的存储空间前有一个127M的小分区，创建63M和64M两个分区后删除63MB的，保存下一步<br>5.将虚拟镜像的EFI分区克隆进64MB分区中，重启<br>6.重启后硬盘自动引导，可以通过群晖安装助手查询该机器IP，登陆后即可操作</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1468,7 +1682,7 @@ digraph G {
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">97</span>
+          <span class="site-state-item-count">100</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
