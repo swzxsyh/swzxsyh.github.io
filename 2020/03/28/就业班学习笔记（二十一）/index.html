@@ -28,7 +28,7 @@
 <meta property="og:description" content="反射 注解">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-28T00:58:03.000Z">
-<meta property="article:modified_time" content="2020-03-29T16:06:03.300Z">
+<meta property="article:modified_time" content="2020-08-03T14:10:12.623Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -209,7 +209,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-30 00:06:03" itemprop="dateModified" datetime="2020-03-30T00:06:03+08:00">2020-03-30</time>
+                <time title="修改时间：2020-08-03 22:10:12" itemprop="dateModified" datetime="2020-08-03T22:10:12+08:00">2020-08-03</time>
               </span>
 
           
@@ -257,11 +257,11 @@
 <p>反射语法与正常语法是反过来的,例如:<br>创建对象:<br>正常语法:new 构造方法(参数);<br>反射语法:构造方法对象.new Instance(参数);</p>
 <p>调用方法:<br>正常语法:对象名.成员方法名(参数);<br>反射语法:成员方法对象.invoke(对象名,参数);</p>
 <p>1.5 反射的第一步获取字节码文件对象(Class对象)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GetClassDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">        <span class="comment">//获取一个类Class对象的三种方式</span></span><br><span class="line">        <span class="comment">//1.通过类的一个静态成员 class</span></span><br><span class="line">        Class clazz1 = Dog<span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line">        System.out.println(clazz1);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.通过该类的一个对象,获取该类的Clazz对象</span></span><br><span class="line">        Dog dd = <span class="keyword">new</span> Dog();</span><br><span class="line">        Class clazz2 = dd.getClass();</span><br><span class="line">        System.out.println(clazz2);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//通过反射强制加载该类,并获取该类的Class对象</span></span><br><span class="line">        Class clazz3 = Class.forName(<span class="string">"com.itheima.Demo02_GetClass.Dog"</span>);</span><br><span class="line">        System.out.println(clazz3);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*以上是三种获取Dog类Class对象的方式,并不是获取三个Class对象,实际上它们获取的是同一个Class对象*/</span></span><br><span class="line">        System.out.println(clazz1 == clazz2);</span><br><span class="line">        System.out.println(clazz2 == clazz3);</span><br><span class="line">        System.out.println(clazz1 == clazz3);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GetClassDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">        <span class="comment">//获取一个类Class对象的三种方式</span></span><br><span class="line">        <span class="comment">//1.通过类的一个静态成员 class</span></span><br><span class="line">        Class clazz1 = Dog<span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line">        System.out.println(clazz1);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.通过该类的一个对象,获取该类的Clazz对象</span></span><br><span class="line">        Dog dd = <span class="keyword">new</span> Dog();</span><br><span class="line">        Class clazz2 = dd.getClass();</span><br><span class="line">        System.out.println(clazz2);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//通过反射强制加载该类,并获取该类的Class对象</span></span><br><span class="line">        Class clazz3 = Class.forName(<span class="string">"com.test.Demo02_GetClass.Dog"</span>);</span><br><span class="line">        System.out.println(clazz3);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*以上是三种获取Dog类Class对象的方式,并不是获取三个Class对象,实际上它们获取的是同一个Class对象*/</span></span><br><span class="line">        System.out.println(clazz1 == clazz2);</span><br><span class="line">        System.out.println(clazz2 == clazz3);</span><br><span class="line">        System.out.println(clazz1 == clazz3);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>1.6 Class对象中的三个常用方法<br>public String getName();//获取全限定类名<br>public String getSimple();//获取类名<br>public Object getInstance();//创建Class对象所代表的那个类的对象,底层实际上使用的是该类的无参构造</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassMethodDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IllegalAccessException, InstantiationException </span>&#123;</span><br><span class="line">        Class clazz = Dog<span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取全限定类名</span></span><br><span class="line">        String name = clazz.getName();</span><br><span class="line">        System.out.println(name);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取类名</span></span><br><span class="line">        String simpleName = clazz.getSimpleName();</span><br><span class="line">        System.out.println(simpleName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建Class对象所代表的那个类的对象,底层实际上使用的是Dog的无参构造</span></span><br><span class="line">        Dog dog = (Dog) clazz.newInstance();</span><br><span class="line">        System.out.println(dog);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出:<br>com.itheima.Demo03_ClassMethod.Dog<br>Dog<br>Dog{name=’null’, legs=0}</p>
+<p>输出:<br>com.test.Demo03_ClassMethod.Dog<br>Dog<br>Dog{name=’null’, legs=0}</p>
 <p>1.7 通过反射获取构造方法 &amp;&amp; 使用构造方法创建对象</p>
 <ul>
 <li>反射获取构造方法</li>
@@ -412,8 +412,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/03/27/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%E5%8D%81%EF%BC%89/" rel="prev" title="就业班学习笔记(二十)">
-      <i class="fa fa-chevron-left"></i> 就业班学习笔记(二十)
+    <a href="/2020/03/27/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-NIO,AIO/" rel="prev" title="Java学习基础-NIO,AIO">
+      <i class="fa fa-chevron-left"></i> Java学习基础-NIO,AIO
     </a></div>
       <div class="post-nav-item">
     <a href="/2020/03/30/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%E5%8D%81%E4%BA%8C%EF%BC%89/" rel="next" title="就业班学习笔记（二十二）">
@@ -490,7 +490,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">112</span>
+          <span class="site-state-item-count">111</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
