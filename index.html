@@ -176,6 +176,236 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/16/Elasticsearch%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/16/Elasticsearch%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Elasticsearch入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-16 10:28:22" itemprop="dateCreated datePublished" datetime="2020-07-16T10:28:22+08:00">2020-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-20 08:39:51" itemprop="dateModified" datetime="2020-07-20T08:39:51+08:00">2020-07-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <a id="more"></a>
+
+
+
+
+
+
+
+<p>Single Node</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">$ docker pull elasticsearch:5.6.8</span><br><span class="line"><span class="comment">#启动，需要配置JVM，否则报OOM</span></span><br><span class="line"><span class="comment"># 9200为  ES节点 和 外部 通讯使用</span></span><br><span class="line"><span class="comment"># 9300是tcp通讯端口，集群间和TCPClient走它</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">"ES_JAVA_OPTS=-Xms512m -Xmx512m"</span> --name es -p 9200:9200 -p 9300:9300 -e <span class="string">"discovery.type=single-node"</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"><span class="comment">#如果要使用kibana，最好先在此开启映射，否则需要更改container内部json数据</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">"ES_JAVA_OPTS=-Xms512m -Xmx512m"</span> --name es -p 9200:9200 -p 9300:9300 -p 5601:5601 -e <span class="string">"discovery.type=single-node"</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 localhost:9200 可以看到JSON格式数据</span></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span> : <span class="string">"wCWV0cR"</span>,</span><br><span class="line">  <span class="string">"cluster_name"</span> : <span class="string">"elasticsearch"</span>,</span><br><span class="line">  <span class="string">"cluster_uuid"</span> : <span class="string">"5krSWTgVQUuxvyQvF8LCTw"</span>,</span><br><span class="line">  <span class="string">"version"</span> : &#123;</span><br><span class="line">    <span class="string">"number"</span> : <span class="string">"5.6.8"</span>,</span><br><span class="line">    <span class="string">"build_hash"</span> : <span class="string">"688ecce"</span>,</span><br><span class="line">    <span class="string">"build_date"</span> : <span class="string">"2018-02-16T16:46:30.010Z"</span>,</span><br><span class="line">    <span class="string">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">"lucene_version"</span> : <span class="string">"6.6.1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器，安装ik</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -it es /bin/bash     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 要安装对应版本 </span></span><br><span class="line">root@b340ba8042f5:/usr/share/elasticsearch<span class="comment"># ./bin/elasticsearch -version</span></span><br><span class="line">Version: 5.6., Build: cfe3d9f/2018-09-10T20:12:43.732Z, JVM: 1.8.0_181</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决跨域问题</span></span><br><span class="line"><span class="comment"># container没有vi，使用echo添加到最后</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch<span class="comment"># cd config/</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo "http.cors.enabled: true"&gt;&gt; elasticsearch.yml </span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo -e "http.cors.allow-origin: \"*\""&gt;&gt; elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决宿主机无法访问问题</span></span><br><span class="line"><span class="comment"># 让所有IP都可访问</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># sed -i 's/^#\(transport.host: 0.0.0.0\)/\1/' elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否写入成功</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># cat elasticsearch.yml </span></span><br><span class="line">http.host: 0.0.0.0</span><br><span class="line"><span class="comment"># Uncomment the following lines for a production cluster deployment</span></span><br><span class="line">transport.host: 0.0.0.0</span><br><span class="line"><span class="comment">#discovery.zen.minimum_master_nodes: 1</span></span><br><span class="line">http.cors.enabled: <span class="literal">true</span></span><br><span class="line">http.cors.allow-origin: <span class="string">"*"</span></span><br><span class="line">network.host: 127.0.0.1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载对应版本的ik</span></span><br><span class="line">./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.6.8/elasticsearch-analysis-ik-5.6.8.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后面分词器用的上，先配置</span></span><br><span class="line"><span class="comment"># 配置自己的扩展字典</span></span><br><span class="line"><span class="comment"># 配置自己设置的停止词字典</span></span><br><span class="line"><span class="comment"># sed 用法 在某个单词后添加某语句</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i 's/&lt;entry key="ext_dict"&gt;/&amp;ext.did/' IKAnalyzer.cfg.xmllocation&lt;/entry&gt; --&gt;</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i 's/&lt;entry key="ext_stopwords"&gt;/&amp;stopword.dic/' IKAnalyzer.cfg.xml</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># cat IKAnalyzer.cfg.xml</span></span><br><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE properties SYSTEM <span class="string">"http://java.sun.com/dtd/properties.dtd"</span>&gt;</span><br><span class="line">&lt;properties&gt;</span><br><span class="line">	&lt;comment&gt;IK Analyzer 扩展配置&lt;/comment&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span><br><span class="line">	&lt;entry key=<span class="string">"ext_dict"</span>&gt;ext.dic&lt;/entry&gt;</span><br><span class="line">	 &lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span><br><span class="line">	&lt;entry key=<span class="string">"ext_stopwords"</span>&gt;stopword.dic&lt;/entry&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">"remote_ext_dict"</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">"remote_ext_stopwords"</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">&lt;/properties&gt;</span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置ik/config/stopword.dic，添加自定义停止词</span></span><br><span class="line"><span class="comment"># 在ik/config/目录下添加ext.dic文件，并自定义扩展词语</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启container</span></span><br><span class="line">$ docker restart es</span><br><span class="line"></span><br><span class="line"><span class="comment"># head图形化界面</span></span><br><span class="line"><span class="comment"># 下载镜像(head属于本地端，可以直接本机安装)</span></span><br><span class="line">$ docker pull mobz/elasticsearch-head:5 </span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">$ docker run -d -p 9100:9100 docker.io/mobz/elasticsearch-head:5   </span><br><span class="line"><span class="comment">#访问 localhost:9100 ，可以连接上9200的es</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># kibana数据显示页面，需要与ES版本匹配</span></span><br><span class="line"><span class="comment"># 注意，此处使用了 --network ，因安全限制无法再暴露端口，若要使用则由es暴露端口，建议在es启动时直接暴露</span></span><br><span class="line">$ docker run -it -d -e ELASTICSEARCH_URL=http://127.0.0.1:9200 --name kibana --network=container:es  kibana:5.6.8  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 若ES未暴露Port，又不想重新经历步骤，只能修改container内部json数据</span></span><br><span class="line"><span class="comment"># 停止容器-&gt;修改两个json文件-&gt;停止docker-&gt;启动docker-&gt;启动容器。否则container会恢复为旧版本</span></span><br><span class="line"><span class="comment"># macOS 需screen进入tty</span></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/hostconfig.json</span><br><span class="line"><span class="comment"># 在PortBindings中添加</span></span><br><span class="line"><span class="string">"5601/tcp"</span>: [&#123;<span class="string">"HostIp"</span>: <span class="string">""</span>,<span class="string">"HostPort"</span>: <span class="string">"5601"</span>&#125;]</span><br><span class="line"></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/config.v2.json</span><br><span class="line"><span class="comment"># 在ExposedPorts中添加</span></span><br><span class="line"><span class="string">"5601/tcp"</span>: &#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">https://shipengliang.com/software-exp/docker-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F.html</span><br><span class="line"></span><br><span class="line">http://www.amd5.cn/atang_4301.html</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/15/RabbitMQ%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/15/RabbitMQ%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">RabbitMQ入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-15 16:23:26" itemprop="dateCreated datePublished" datetime="2020-07-15T16:23:26+08:00">2020-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-16 10:41:33" itemprop="dateModified" datetime="2020-07-16T10:41:33+08:00">2020-07-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>安装mq</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">$ docker pull rabbitmq</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line"><span class="comment"># 设置容器名Myrabbitmq</span></span><br><span class="line"><span class="comment"># 设置 用户名/密码 admin</span></span><br><span class="line"><span class="comment"># 映射网页端口 15672</span></span><br><span class="line"><span class="comment"># 映射 协议端口，基于此协议的客户端与消息中间件之间可以传递消息</span></span><br><span class="line">$ docker run -dit --name Myrabbitmq -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin -p 15672:15672 -p 5672:5672 rabbitmq</span><br><span class="line"></span><br><span class="line"><span class="comment">#未开启网页端口，需要进入容器开启</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -ti 75d79fb9dc6f /bin/bash </span><br><span class="line"></span><br><span class="line"><span class="comment">#开启网页端</span></span><br><span class="line">root@75d79fb9dc6f:/<span class="comment"># rabbitmq-plugins enable rabbitmq_management</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#访问 http://localhost:15672 即可</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">SpringCloud入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-13 23:23:07" itemprop="dateCreated datePublished" datetime="2020-07-13T23:23:07+08:00">2020-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-15 16:22:52" itemprop="dateModified" datetime="2020-07-15T16:22:52+08:00">2020-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>SpringCloud介绍：微服务架构</li>
+<li>使用RestTemplate【httpclient】发送请求：feign</li>
+<li>搭建Eureka注册中心</li>
+<li>使用Ribbon实现Loading Balance</li>
+<li>使用Hystrix熔断器【服务降级】</li>
+<li>使用Feign进行远程调用</li>
+<li>搭建Spring Cloud Gateway网关</li>
+<li>搭建Spring Cloud Config配置中心</li>
+<li>使用Spring Cloud Bus消息总线</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/11/SpringBoot%E5%85%A5%E9%97%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -725,233 +955,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/08/%E9%BB%91%E9%A9%AC%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8VUE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/08/%E9%BB%91%E9%A9%AC%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8VUE/" class="post-title-link" itemprop="url">黑马快速入门VUE</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-08 03:08:19" itemprop="dateCreated datePublished" datetime="2020-06-08T03:08:19+08:00">2020-06-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-10 20:15:22" itemprop="dateModified" datetime="2020-06-10T20:15:22+08:00">2020-06-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>Vue基础</li>
-<li>本地应用</li>
-<li>网络应用</li>
-<li>综合应用</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/08/%E9%BB%91%E9%A9%AC%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8VUE/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/04/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E4%B9%9D%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/04/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E4%B9%9D%EF%BC%89/" class="post-title-link" itemprop="url">就业班学习笔记（六十九）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-04 17:29:00" itemprop="dateCreated datePublished" datetime="2020-06-04T17:29:00+08:00">2020-06-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-05 21:15:14" itemprop="dateModified" datetime="2020-06-05T21:15:14+08:00">2020-06-05</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>SpringMVC接收请求</li>
-<li>文件上传</li>
-<li>静态资源访问开启功能</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/04/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E4%B9%9D%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/03/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E5%85%AB%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/03/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E5%85%AB%EF%BC%89/" class="post-title-link" itemprop="url">就业班学习笔记（六十八）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-06-03 09:03:57 / 修改时间：22:15:42" itemprop="dateCreated datePublished" datetime="2020-06-03T09:03:57+08:00">2020-06-03</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>声明式事务</li>
-<li>Servlet整合Spring</li>
-<li>SpringMVC</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/03/%E5%B0%B1%E4%B8%9A%E7%8F%AD%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%E5%8D%81%E5%85%AB%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1017,7 +1024,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">112</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
