@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="注解开发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis注解">
+<meta property="og:url" content="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="注解开发">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/1589342693907.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/1589350595261.png">
+<meta property="article:published_time" content="2020-05-13T00:58:41.000Z">
+<meta property="article:modified_time" content="2020-08-03T15:01:23.372Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/1589342693907.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MyBatis注解 | Swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--学习笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MyBatis注解
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>注解开发</li>
+</ul>
+<a id="more"></a>
+
+<h1 id="一-MyBatis注解"><a href="#一-MyBatis注解" class="headerlink" title="一.MyBatis注解"></a>一.MyBatis注解</h1><h4 id="1-1-MyBatis常用注解"><a href="#1-1-MyBatis常用注解" class="headerlink" title="1.1 MyBatis常用注解"></a>1.1 MyBatis常用注解</h4><table>
+<thead>
+<tr>
+<th>注解</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@Insert</td>
+<td>实现新增，代替了&lt;insert&gt;&lt;/insert&gt;</td>
+</tr>
+<tr>
+<td>@Update</td>
+<td>实现更新，代替了&lt;update&gt;&lt;/update&gt;</td>
+</tr>
+<tr>
+<td>@Delete</td>
+<td>实现删除，代替了&lt;delete&gt;&lt;/delete&gt;</td>
+</tr>
+<tr>
+<td>@Select</td>
+<td>实现查询，代替了&lt;select&gt;&lt;/select&gt;</td>
+</tr>
+<tr>
+<td>@Result</td>
+<td>实现结果集封装，代替了&lt;result&gt;&lt;/result&gt;</td>
+</tr>
+<tr>
+<td>@Results</td>
+<td>可以与@Result 一起使用，封装多个结果集，代替了&lt;resultMap&gt;&lt;/resultMap&gt;</td>
+</tr>
+<tr>
+<td>@One</td>
+<td>实现一对一结果集封装，代替了&lt;association&gt;&lt;/association&gt;</td>
+</tr>
+<tr>
+<td>@Many</td>
+<td>实现一对多结果集封装，代替了&lt;collection&gt;&lt;/collection&gt;</td>
+</tr>
+</tbody></table>
+<h4 id="1-2-MyBatis-单表操作"><a href="#1-2-MyBatis-单表操作" class="headerlink" title="1.2 MyBatis 单表操作"></a>1.2 MyBatis 单表操作</h4><ul>
+<li><p>需求</p>
+<p>基于user模块通过注解实现，增删改查</p>
+</li>
+<li><p>UserMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//查询所有</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT id AS uid,username AS uname,birthday AS bir,sex AS gender,address AS addr FROM user"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(value = &#123;</span><br><span class="line">            <span class="comment">//resultMap标签手动映射封装</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uid"</span>, property = <span class="string">"id"</span>, id = <span class="keyword">true</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uname"</span>, property = <span class="string">"username"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"bir"</span>, property = <span class="string">"birthday"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"gender"</span>, property = <span class="string">"sex"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"addr"</span>, property = <span class="string">"address"</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">findAll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//id查询</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">findById</span><span class="params">(Integer id)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//新增</span></span><br><span class="line">    <span class="meta">@Insert</span>(<span class="string">"INSERT INTO user (username,birthday,sex,address) VALUES(#&#123;username&#125;,#&#123;birthday&#125;,#&#123;sex&#125;,#&#123;address&#125;)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">save</span><span class="params">(User user)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改(动态sql推荐使用xml)</span></span><br><span class="line">    <span class="meta">@Update</span>(<span class="string">"UPDATE user SET username=#&#123;username&#125;,birthday=#&#123;birthday&#125;,sex=#&#123;sex&#125;,address=#&#123;address&#125; WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(User user)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//删除</span></span><br><span class="line">    <span class="meta">@Delete</span>(<span class="string">"DELETE FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserMapperTest</span> <span class="keyword">extends</span> <span class="title">BaseMapperTest</span> </span>&#123;</span><br><span class="line">    <span class="comment">//单表测试</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFindAll</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        List&lt;User&gt; list = userMapper.findAll();</span><br><span class="line">        System.out.println(list);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//单表测试,查询一个</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFindById</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        User user = userMapper.findById(<span class="number">41</span>);</span><br><span class="line">        System.out.println(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//新增</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInsert</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        user.setUsername(<span class="string">"A"</span>);</span><br><span class="line">        user.setBirthday(<span class="keyword">new</span> Date());</span><br><span class="line">        user.setAddress(<span class="string">"GZ"</span>);</span><br><span class="line">        user.setSex(<span class="string">"Male"</span>);</span><br><span class="line">        userMapper.save(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testUpdate</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        user.setId(<span class="number">58</span>);</span><br><span class="line">        user.setUsername(<span class="string">"B"</span>);</span><br><span class="line">        userMapper.save(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//删除</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDelete</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        userMapper.delete(<span class="number">58</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-3-MyBatis多表操作"><a href="#1-3-MyBatis多表操作" class="headerlink" title="1.3 MyBatis多表操作"></a>1.3 MyBatis多表操作</h4><p>注解多表操作是基于嵌套查询来实现</p>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@Results</td>
+<td>结果映射的列表，包含了一个特别结果列如何被映射到属性或字段的详情。属性有：value, id。value 属性是 Result 注解的数组。这个 id 的属性是结果映射的名称。</td>
+</tr>
+<tr>
+<td>@Result</td>
+<td>在列和属性或字段之间的单独结果映射。属性有：id, column, javaType, jdbcType, typeHandler, one, many。id 属性是一个布尔值，来标识应该被用于比较（和在 XML 映射中的<id>相似）的属性。one 属性是单独的联系，和 <association> 相似，而 many 属性是对集合而言的，和<collection>相似。它们这样命名是为了避免名称冲突。</td>
+</tr>
+<tr>
+<td>@One</td>
+<td>复杂类型的单独属性值映射。属性有：select，已映射语句（也就是映射器方法）的全限定名，它可以加载合适类型的实例。fetchType会覆盖全局的配置参数 lazyLoadingEnabled。注意 联合映射在注解 API中是不支持的。这是因为 Java 注解的限制,不允许循环引用。</td>
+</tr>
+<tr>
+<td>@Many</td>
+<td>映射到复杂类型的集合属性。属性有：select，已映射语句（也就是映射器方法）的全限定名，它可以加载合适类型的实例的集合，fetchType 会覆盖全局的配置参数 lazyLoadingEnabled。注意 联合映射在注解 API中是不支持的。这是因为 Java 注解的限制，不允许循环引用</td>
+</tr>
+</tbody></table>
+<h5 id="1-3-1-一对一查询"><a href="#1-3-1-一对一查询" class="headerlink" title="1.3.1 一对一查询"></a>1.3.1 一对一查询</h5><ul>
+<li><p>需求</p>
+<p>查询一个订单，与此同时查询出该订单所属的用户</p>
+</li>
+<li><p>一对一查询语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders <span class="keyword">where</span> <span class="keyword">id</span> = <span class="comment">#&#123;id&#125;;</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`user`</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="comment">#&#123;订单的uid&#125;;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>OrderMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//一对一嵌套注解</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM orders WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(value = &#123;</span><br><span class="line">            <span class="comment">//resultMap标签手动映射封装</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uid"</span>, property = <span class="string">"id"</span>, id = <span class="keyword">true</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uname"</span>, property = <span class="string">"username"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"bir"</span>, property = <span class="string">"birthday"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"gender"</span>, property = <span class="string">"sex"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"addr"</span>, property = <span class="string">"address"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(property = <span class="string">"user"</span>, javaType = User<span class="class">.<span class="keyword">class</span>, <span class="title">column</span> </span>= <span class="string">"uid"</span>, one = <span class="meta">@One</span>(select = <span class="string">"com.test.dao.UserMapper.findById"</span>,fetchType = FetchType.EAGER))</span><br><span class="line"></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Order <span class="title">findByIdWithUsers</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>UserMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//id查询</span></span><br><span class="line"><span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findById</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注解嵌套</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//一对一嵌套注解</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM orders WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(value = &#123;</span><br><span class="line">            <span class="comment">//resultMap标签手动映射封装</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uid"</span>, property = <span class="string">"id"</span>, id = <span class="keyword">true</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"uname"</span>, property = <span class="string">"username"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"bir"</span>, property = <span class="string">"birthday"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"gender"</span>, property = <span class="string">"sex"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"addr"</span>, property = <span class="string">"address"</span>),</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//注解嵌套</span></span><br><span class="line">      <span class="meta">@Result</span>(property = <span class="string">"user"</span>, javaType = User<span class="class">.<span class="keyword">class</span>, <span class="title">column</span> </span>= <span class="string">"uid"</span>, one = <span class="meta">@One</span>(select = <span class="string">"com.test.dao.UserMapper.findById"</span>,fetchType = FetchType.EAGER))</span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Order <span class="title">findByIdWithUsers</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderMapperTest</span> <span class="keyword">extends</span> <span class="title">BaseMapperTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//一对一嵌套注解测试</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFindByIdWithUsers</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        Order order = orderMapper.findByIdWithUsers(<span class="number">1</span>);</span><br><span class="line">        System.out.println(order);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="1-3-2-一对多查询"><a href="#1-3-2-一对多查询" class="headerlink" title="1.3.2 一对多查询"></a>1.3.2 一对多查询</h5><ul>
+<li><p>需求</p>
+<p>查询一个用户，与此同时查询出该用户具有的订单</p>
+</li>
+<li><p>一对多查询语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`user`</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="comment">#&#123;id&#125;;</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders <span class="keyword">where</span> uid = <span class="comment">#&#123;用户id&#125;;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>UserMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一对多注解嵌套查询</span></span><br><span class="line"><span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line"><span class="meta">@Results</span>(&#123; <span class="comment">// resultMap标签手动映射</span></span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"id"</span>,property = <span class="string">"id"</span>,id=<span class="keyword">true</span>), <span class="comment">// result标签映射封装</span></span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"username"</span>,property = <span class="string">"username"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"birthday"</span>,property = <span class="string">"birthday"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"sex"</span>,property = <span class="string">"sex"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"address"</span>,property = <span class="string">"address"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(property = <span class="string">"orderList"</span>,javaType = List<span class="class">.<span class="keyword">class</span>,<span class="title">column</span> </span>= <span class="string">"id"</span>,many = <span class="meta">@Many</span>(select = <span class="string">"com.test.dao.OrderMapper.findByUid"</span>))</span><br><span class="line">&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findByIdWithOrders</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>OrderMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Select</span>(<span class="string">"SELECT * FROM orders WHERE uid = #&#123;id&#125;"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Order&gt; <span class="title">findByUid</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注解嵌套</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">//一对多注解嵌套查询</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(&#123; <span class="comment">// resultMap标签手动映射</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"id"</span>,property = <span class="string">"id"</span>,id=<span class="keyword">true</span>), <span class="comment">// result标签映射封装</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"username"</span>,property = <span class="string">"username"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"birthday"</span>,property = <span class="string">"birthday"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"sex"</span>,property = <span class="string">"sex"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"address"</span>,property = <span class="string">"address"</span>),</span><br><span class="line">            </span><br><span class="line"><span class="meta">@Result</span>(property = <span class="string">"orderList"</span>,javaType = List<span class="class">.<span class="keyword">class</span>,<span class="title">column</span> </span>= <span class="string">"id"</span>,many = <span class="meta">@Many</span>(select = <span class="string">"com.test.dao.OrderMapper.findByUid"</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">findByIdWithOrders</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一对多注解测试</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFindByIdWithOrders</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    User user = userMapper.findByIdWithOrders(<span class="number">41</span>);</span><br><span class="line">    System.out.println(user);</span><br><span class="line">    System.out.println(user.getOrderList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="1-3-3-多对多查询"><a href="#1-3-3-多对多查询" class="headerlink" title="1.3.3 多对多查询"></a>1.3.3 多对多查询</h5><ul>
+<li><p>需求</p>
+<p>查询用户同时查询出该用户的所有角色</p>
+</li>
+<li><p>多对多查询语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`user`</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="comment">#&#123;id&#125;;</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">role</span> r <span class="keyword">INNER</span> <span class="keyword">JOIN</span> user_role ur <span class="keyword">ON</span> r.<span class="string">`id`</span> = ur.<span class="string">`rid`</span> </span><br><span class="line">	<span class="keyword">WHERE</span> ur.<span class="string">`uid`</span> = <span class="comment">#&#123;用户id&#125;;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>UserMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//多对多注解嵌套查询</span></span><br><span class="line"><span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line"><span class="meta">@Results</span>(&#123; <span class="comment">// resultMap标签手动映射</span></span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"id"</span>,property = <span class="string">"id"</span>,id=<span class="keyword">true</span>), <span class="comment">// result标签映射封装</span></span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"username"</span>,property = <span class="string">"username"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"birthday"</span>,property = <span class="string">"birthday"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"sex"</span>,property = <span class="string">"sex"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(column = <span class="string">"address"</span>,property = <span class="string">"address"</span>),</span><br><span class="line">        <span class="meta">@Result</span>(property = <span class="string">"roleList"</span>,javaType = List<span class="class">.<span class="keyword">class</span>,<span class="title">column</span> </span>= <span class="string">"id"</span>,many = <span class="meta">@Many</span>(select = <span class="string">"com.test.dao.OrderMapper.findByUid"</span>))</span><br><span class="line">&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findByIdWithRoles</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RoleMapper接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RoleMapper</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM role r INNER JOIN user_role ur ON ur.`rid = r.`id` WHERE ur.`uid`=#&#123;uid&#125;"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(value = &#123;</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"id"</span>,property = <span class="string">"id"</span>,id = <span class="keyword">true</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"role_name"</span>,property = <span class="string">"roleName"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"role_desc"</span>,property = <span class="string">"roleDesc"</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Role&gt; <span class="title">findByUid</span><span class="params">(Integer id)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注解嵌套</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">//多对多注解嵌套查询</span></span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"SELECT * FROM user WHERE id = #&#123;id&#125;"</span>)</span><br><span class="line">    <span class="meta">@Results</span>(&#123; <span class="comment">// resultMap标签手动映射</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"id"</span>,property = <span class="string">"id"</span>,id=<span class="keyword">true</span>), <span class="comment">// result标签映射封装</span></span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"username"</span>,property = <span class="string">"username"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"birthday"</span>,property = <span class="string">"birthday"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"sex"</span>,property = <span class="string">"sex"</span>),</span><br><span class="line">            <span class="meta">@Result</span>(column = <span class="string">"address"</span>,property = <span class="string">"address"</span>),</span><br><span class="line">            </span><br><span class="line">      </span><br><span class="line"><span class="meta">@Result</span>(property = <span class="string">"roleList"</span>,javaType = List<span class="class">.<span class="keyword">class</span>,<span class="title">column</span> </span>= <span class="string">"id"</span>,many = <span class="meta">@Many</span>(select = <span class="string">"com.test.dao.OrderMapper.findByUid"</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">findByIdWithRoles</span><span class="params">(Integer id)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 多对多注解测试</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFindByIdWithRoles</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    UserMapper userMapper = sqlSession.getMapper(UserMapper<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">  </span><br><span class="line">    User user = userMapper.findByIdWithRoles(<span class="number">41</span>);</span><br><span class="line">    System.out.println(user);</span><br><span class="line">    System.out.println(user.getOrderList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-4-延迟加载"><a href="#1-4-延迟加载" class="headerlink" title="1.4 延迟加载"></a>1.4 延迟加载</h4><p>不管是一对多还是多对多 ，在注解配置中都有fetchType的属性</p>
+<ul>
+<li><p>fetchType = FetchType.LAZY    表示懒加载</p>
+</li>
+<li><p>fetchType = FetchType.EAGER   表示立即加载</p>
+</li>
+<li><p>fetchType = FetchType.DEFAULT 表示使用全局配置</p>
+</li>
+</ul>
+<h4 id="1-5-二级缓存"><a href="#1-5-二级缓存" class="headerlink" title="1.5 二级缓存"></a>1.5 二级缓存</h4><p>配置SqlMapConfig.xml文件开启二级缓存的支持</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">		因为cacheEnabled的取值默认就为true，所以这一步可以省略不配置。</span></span><br><span class="line"><span class="comment">		为true代表开启二级缓存；为false代表不开启二级缓存。</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"cacheEnabled"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在Mapper接口中使用注解配置二级缓存</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CacheNamespace</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserMapper</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-6-知识小结"><a href="#1-6-知识小结" class="headerlink" title="1.6 知识小结"></a>1.6 知识小结</h4><ul>
+<li><p>注解开发和xml配置相比，从开发效率来说，注解编写更简单，效率更高。</p>
+</li>
+<li><p>从可维护性来说，注解如果要修改，必须修改源码，会导致维护成本增加。xml维护性更强。</p>
+</li>
+<li><p>经验：单表简单CRUD可以使用注解、多表及动态sql就用xml</p>
+</li>
+</ul>
+<h1 id="二-MyBatis案例练习"><a href="#二-MyBatis案例练习" class="headerlink" title="二.MyBatis案例练习"></a>二.MyBatis案例练习</h1><h4 id="2-1-编程风格"><a href="#2-1-编程风格" class="headerlink" title="2.1 编程风格"></a>2.1 编程风格</h4><p>浏览器：Chrome、Firefox</p>
+<p>包目录：cn(com).公司名.项目名（都是小写）</p>
+<p>类：大驼峰式命名</p>
+<p>方法名：小驼峰式命名</p>
+<h4 id="2-2-环境搭建"><a href="#2-2-环境搭建" class="headerlink" title="2.2 环境搭建"></a>2.2 环境搭建</h4><ul>
+<li><p>编写中文过滤器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebFilter</span>(<span class="string">"/*"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EncodeFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        servletRequest.setCharacterEncoding(<span class="string">"UTF-8"</span>);</span><br><span class="line">        filterChain.doFilter(servletRequest, servletResponse);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="2-3-查询所有"><a href="#2-3-查询所有" class="headerlink" title="2.3 查询所有"></a>2.3 查询所有</h4><h5 id="2-3-1-需求和效果实现"><a href="#2-3-1-需求和效果实现" class="headerlink" title="2.3.1 需求和效果实现"></a>2.3.1 需求和效果实现</h5><p>通过三层架构+接口+mybatis，查询员工信息，在页面展示</p>
+<h5 id="2-3-2需求分析"><a href="#2-3-2需求分析" class="headerlink" title="2.3.2需求分析"></a>2.3.2需求分析</h5><p>index.jsp–&gt;EmpServlet–&gt;EmpService接口EmpServiceImp实现类–&gt;EmpDao接口+EmpDao映射，最终返给list.jsp</p>
+<h5 id="2-3-3-代码实现"><a href="#2-3-3-代码实现" class="headerlink" title="2.3.3 代码实现"></a>2.3.3 代码实现</h5><ul>
+<li><p>index.jsp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/emp?action=findAll"</span>&gt;</span>员工列表<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Emp实体类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Emp</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String sex;</span><br><span class="line">    <span class="keyword">private</span> String joindate;</span><br><span class="line">    <span class="keyword">private</span> Double salary;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line"><span class="comment">//此处省略getter/setter，toString</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpServlet</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet</span>(<span class="string">"/EmpServlet"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmpServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写service方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 获取action请求参数</span></span><br><span class="line">        String action = request.getParameter(<span class="string">"action"</span>);</span><br><span class="line">        <span class="comment">// 判断</span></span><br><span class="line">        <span class="keyword">if</span> (action.equals(<span class="string">"findAll"</span>)) &#123;</span><br><span class="line">            <span class="keyword">this</span>.findAll(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查询所有</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">findAll</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1.调用service查询</span></span><br><span class="line">        EmpService empService = <span class="keyword">new</span> EmpServiceImpl();</span><br><span class="line">        List&lt;Emp&gt; list = empService.findAll();</span><br><span class="line">        <span class="comment">// 2.将list写入request域</span></span><br><span class="line">        request.setAttribute(<span class="string">"list"</span>, list);</span><br><span class="line">        <span class="comment">// 3.转发</span></span><br><span class="line">        request.getRequestDispatcher(<span class="string">"/list.jsp"</span>).forward(request, response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmpServiceImpl</span> <span class="keyword">implements</span> <span class="title">EmpService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Emp&gt; <span class="title">findAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 通过mybatis工具类获取sqlSession</span></span><br><span class="line">        SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line">        <span class="comment">// 创建EmpDao代理对象</span></span><br><span class="line">        EmpDao empDao = sqlSession.getMapper(EmpDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        <span class="comment">// 查询</span></span><br><span class="line">        List&lt;Emp&gt; list= empDao.findAll();</span><br><span class="line">        <span class="comment">// 关闭sqlSession</span></span><br><span class="line">        MyBatisUtils.close(sqlSession);</span><br><span class="line">        <span class="keyword">return</span> list;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpDao（接口+映射）</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.test.dao.EmpDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findAll"</span> <span class="attr">resultType</span>=<span class="string">"Emp"</span>&gt;</span></span><br><span class="line">        SELECT * FROM emp</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>list.jsp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">c:forEach</span> <span class="attr">items</span>=<span class="string">"$&#123;list&#125;"</span> <span class="attr">var</span>=<span class="string">"emp"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.id&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.ename&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.joindate&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.salary&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.address&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">c:forEach</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="2-4-分页查询"><a href="#2-4-分页查询" class="headerlink" title="2.4 分页查询"></a>2.4 分页查询</h4><h5 id="2-4-1-导入数据"><a href="#2-4-1-导入数据" class="headerlink" title="2.4.1 导入数据"></a>2.4.1 导入数据</h5><h5 id="2-4-2-分页介绍"><a href="#2-4-2-分页介绍" class="headerlink" title="2.4.2 分页介绍"></a>2.4.2 分页介绍</h5><p>在实际开发中，如果数据库数据太多，一般我们需要进行分页查询，提高效率</p>
+<ul>
+<li><p>分页技术实现</p>
+<p>物理分页：数据库实现（MySQL、Oracle）</p>
+<p>内存分页：查询全部，在通过java代码进行分页</p>
+</li>
+<li><p>使用MySQL操作物理分页</p>
+<ul>
+<li><p>语法：    select * from 表名 limit 开始索引,每页个数;    </p>
+</li>
+<li><p>模拟百度分页，一个显示5条，数据库共有16条记录  </p>
+<ul>
+<li><p>第一页    </p>
+<p>select * from 表名 limit 0,5;  </p>
+</li>
+<li><p>第二页    </p>
+<p>select * from 表名 limit 5,5;  </p>
+</li>
+<li><p>第三页    </p>
+<p>select * from 表名 limit 10,5;  </p>
+</li>
+<li><p>第四页    </p>
+<p>select * from 表名 limit 15,5;    </p>
+</li>
+<li><p>索引公式    </p>
+<p>开始索引=(当前页-1) × 每页个数    </p>
+</li>
+<li><p>如何获得当前页和每页个数</p>
+<p>前端页提供</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-4-3-需求和效果实现"><a href="#2-4-3-需求和效果实现" class="headerlink" title="2.4.3 需求和效果实现"></a>2.4.3 需求和效果实现</h5><p>通过mysql物理分页，一个显示5条，数据库共有16条记录</p>
+<h5 id="2-4-3-需求分析"><a href="#2-4-3-需求分析" class="headerlink" title="2.4.3 需求分析"></a>2.4.3 需求分析</h5><p><img src="1589342693907.png" alt=""></p>
+<ul>
+<li><p>后端代码流程图</p>
+<p><img src="1589350595261.png" alt=""></p>
+</li>
+</ul>
+<h5 id="2-4-4-代码实现"><a href="#2-4-4-代码实现" class="headerlink" title="2.4.4 代码实现"></a>2.4.4 代码实现</h5><ul>
+<li><p>index.jsp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">&lt;%--&lt;a href="$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findAll"&gt;员工列表&lt;/a&gt;--%&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=1&amp;pageSize=5"</span>&gt;</span>员工列表<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>PageBean</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PageBean</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer totalCount; <span class="comment">// 总记录数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer totalPage;<span class="comment">// 总页数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;E&gt; list; <span class="comment">// 结果集</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer currentPage; <span class="comment">// 当前页</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer pageSize; <span class="comment">// 每页个数</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">//此处省略getter/setter，toString</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpServlet</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet</span>(<span class="string">"/EmpServlet"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmpServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写service方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 获取action请求参数</span></span><br><span class="line">        String action = req.getParameter(<span class="string">"action"</span>);</span><br><span class="line">        <span class="comment">// 判断</span></span><br><span class="line">        <span class="keyword">if</span> (action.equals(<span class="string">"findAll"</span>)) &#123;</span><br><span class="line">            <span class="keyword">this</span>.findAll(req, resp);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (action.equals(<span class="string">"findByPage"</span>)) &#123;</span><br><span class="line">            <span class="keyword">this</span>.findByPage(req, resp);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    EmpService empService = <span class="keyword">new</span> EmpServiceImpl();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分页查询</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">findByPage</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1.接收请求参数</span></span><br><span class="line">        String currentPageStr = req.getParameter(<span class="string">"currentPage"</span>);</span><br><span class="line">        String pageSizeStr = req.getParameter(<span class="string">"pageSize"</span>);</span><br><span class="line">        <span class="comment">// 2.转为整型</span></span><br><span class="line">        <span class="keyword">int</span> currentPage = Integer.parseInt(currentPageStr);</span><br><span class="line">        <span class="keyword">int</span> pageSize = Integer.parseInt(pageSizeStr);</span><br><span class="line">        <span class="comment">// 3.调用service查询</span></span><br><span class="line">        PageBean&lt;Emp&gt; pb = empService.findByPage(currentPage, pageSize);</span><br><span class="line">        <span class="comment">// 4.设置到request域</span></span><br><span class="line">        req.setAttribute(<span class="string">"pb"</span>, pb);</span><br><span class="line">        <span class="comment">// 5.转发</span></span><br><span class="line">        req.getRequestDispatcher(<span class="string">"/list.jsp"</span>).forward(req, resp);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmpServiceImpl</span> <span class="keyword">implements</span> <span class="title">EmpService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Emp&gt; <span class="title">findAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 通过mybatis工具类获取sqlSession</span></span><br><span class="line">        SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line">        <span class="comment">// 创建EmpDao代理对象</span></span><br><span class="line">        EmpDao empDao = sqlSession.getMapper(EmpDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        <span class="comment">// 查询</span></span><br><span class="line">        List&lt;Emp&gt; list = empDao.findAll();</span><br><span class="line">        <span class="comment">// 关闭sqlSession</span></span><br><span class="line">        MyBatisUtils.close(sqlSession);</span><br><span class="line">        <span class="keyword">return</span> list;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PageBean&lt;Emp&gt; <span class="title">findByPage</span><span class="params">(<span class="keyword">int</span> currentPage,<span class="keyword">int</span> pageSize)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 通过mybatis工具类获取sqlSession</span></span><br><span class="line">        SqlSession sqlSession = MyBatisUtils.openSession();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建EmpDao代理对象</span></span><br><span class="line">        EmpDao empDao = sqlSession.getMapper(EmpDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1.创建 PageBean</span></span><br><span class="line">        PageBean&lt;Emp&gt; pageBean = <span class="keyword">new</span> PageBean();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2.封装当前页和每页个数</span></span><br><span class="line">        pageBean.setCurrentPage(currentPage);</span><br><span class="line">        pageBean.setPageSize(pageSize);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.调用dao查询总记录数并封装</span></span><br><span class="line">        Integer totalCount = empDao.findCount();</span><br><span class="line">        pageBean.setTotalCount(totalCount);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4.计算并封装总页数</span></span><br><span class="line">        <span class="keyword">int</span> totalPage = (<span class="keyword">int</span>)Math.ceil(totalCount*<span class="number">1.0</span>/pageSize);</span><br><span class="line">        pageBean.setTotalPage(totalPage);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5.计算开始索引</span></span><br><span class="line">        <span class="keyword">int</span> index = (currentPage - <span class="number">1</span>) * pageSize;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 6.调用dao查询结果集并封装</span></span><br><span class="line">        List&lt;Emp&gt; list = empDao.findList(index,pageSize);</span><br><span class="line">        pageBean.setList(list);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭sqlSession</span></span><br><span class="line">        MyBatisUtils.close(sqlSession);</span><br><span class="line">        <span class="comment">// 7.返回pageBean对象</span></span><br><span class="line">        <span class="keyword">return</span> pageBean;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EmpDao（接口+映射）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmpDao</span> </span>&#123;</span><br><span class="line">    <span class="function">List&lt;Emp&gt; <span class="title">findAll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//查看总记录</span></span><br><span class="line">    <span class="function">Integer <span class="title">findCount</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//分页查询结果</span></span><br><span class="line">    <span class="function">List&lt;Emp&gt; <span class="title">findList</span><span class="params">(@Param(<span class="string">"index"</span>)</span> <span class="keyword">int</span> index,@<span class="title">Param</span><span class="params">(<span class="string">"pageSize"</span>)</span> <span class="keyword">int</span> pageSize)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span> <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.test.dao.EmpDao"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findAll"</span> <span class="attr">resultType</span>=<span class="string">"Emp"</span>&gt;</span></span><br><span class="line">        SELECT * FROM emp</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--  查看总记录数 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findCount"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Integer"</span>&gt;</span></span><br><span class="line">        SELECT count(*) FROM emp</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--    查看结果集--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findList"</span> <span class="attr">resultType</span>=<span class="string">"com.test.domain.Emp"</span>&gt;</span></span><br><span class="line">        SELECT * FROM emp limit #&#123;index&#125;,#&#123;pageSize&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>list.jsp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">%@</span> <span class="attr">page</span> <span class="attr">contentType</span>=<span class="string">"text/html;charset=UTF-8"</span> <span class="attr">language</span>=<span class="string">"java"</span> %&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">%@</span> <span class="attr">taglib</span> <span class="attr">prefix</span>=<span class="string">"c"</span> <span class="attr">uri</span>=<span class="string">"http://java.sun.com/jsp/jstl/core"</span> %&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line">        table &#123;</span><br><span class="line">            margin: 30px auto;</span><br><span class="line">            text-align: center;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="css">        <span class="selector-id">#page</span> <span class="selector-tag">td</span> &#123;</span></span><br><span class="line">            width: 20px;</span><br><span class="line">            border: 1px solid gray;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">"1"</span> <span class="attr">cellpadding</span>=<span class="string">"0"</span> <span class="attr">cellspacing</span>=<span class="string">"0"</span> <span class="attr">width</span>=<span class="string">"600px"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>姓名<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>性别<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>入职日期<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>薪资<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>住址<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">c:forEach</span> <span class="attr">items</span>=<span class="string">"$&#123;emps&#125;"</span> <span class="attr">var</span>=<span class="string">"emp"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.name&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.sex&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.joindate&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.salary&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>$&#123;emp.address&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">c:forEach</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span> <span class="attr">style</span>=<span class="string">"text-align: left"</span>&gt;</span>总共检索到$&#123;pb.totalCount&#125;条记录,共分$&#123;pb.totalPage&#125;页<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">id</span>=<span class="string">"page"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">c:if</span> <span class="attr">test</span>=<span class="string">"$&#123;pb.currentPage&gt;1&#125;"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span> <span class="attr">style</span>=<span class="string">"width:50px"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">style</span>=<span class="string">"text-decoration: none"</span></span></span><br><span class="line"><span class="tag">                   <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;pb.currentPage-1&#125;&amp;pageSize=5"</span>&gt;</span>上一页<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">c:if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">c:forEach</span> <span class="attr">begin</span>=<span class="string">"1"</span> <span class="attr">end</span>=<span class="string">"$&#123;pb.totalPage&#125;"</span> <span class="attr">var</span>=<span class="string">"page"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">c:if</span> <span class="attr">test</span>=<span class="string">"$&#123;page == pb.currentPage&#125;"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span> <span class="attr">bgcolor</span>=<span class="string">"#ffd700"</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">style</span>=<span class="string">"text-decoration: none"</span></span></span><br><span class="line"><span class="tag">                       <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;page&#125;&amp;pageSize=5"</span>&gt;</span>$&#123;page&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">c:if</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">c:if</span> <span class="attr">test</span>=<span class="string">"$&#123;page != pb.currentPage&#125;"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">style</span>=<span class="string">"text-decoration: none"</span></span></span><br><span class="line"><span class="tag">                       <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;page&#125;&amp;pageSize=5"</span>&gt;</span>$&#123;page&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">c:if</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;/<span class="name">c:forEach</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">c:if</span> <span class="attr">test</span>=<span class="string">"$&#123;pb.currentPage &lt; pb.totalPage&#125;"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span> <span class="attr">style</span>=<span class="string">"width:50px"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">style</span>=<span class="string">"text-decoration: none"</span></span></span><br><span class="line"><span class="tag">                   <span class="attr">href</span>=<span class="string">"$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;pb.currentPage+1&#125;&amp;pageSize=5"</span>&gt;</span>下一页<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">c:if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> txt = <span class="built_in">document</span>.getElementById(<span class="string">"uname"</span>);</span></span><br><span class="line"><span class="actionscript">    <span class="comment">// var txt = document.querySelector（"#uname"）;</span></span></span><br><span class="line"><span class="actionscript">    txt.innerText = <span class="string">"admin"</span>;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2%20&%20%E5%8A%A0%E8%BD%BD%20&%20%E7%BC%93%E5%AD%98/" rel="prev" title="Mybatis嵌套查询 & 加载 & 缓存">
+      <i class="fa fa-chevron-left"></i> Mybatis嵌套查询 & 加载 & 缓存
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/14/Maven%E5%9F%BA%E7%A1%80/" rel="next" title="Maven基础">
+      Maven基础 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一-MyBatis注解"><span class="nav-number">1.</span> <span class="nav-text">一.MyBatis注解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-MyBatis常用注解"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 MyBatis常用注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-MyBatis-单表操作"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 MyBatis 单表操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-MyBatis多表操作"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 MyBatis多表操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-一对一查询"><span class="nav-number">1.0.0.3.1.</span> <span class="nav-text">1.3.1 一对一查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-2-一对多查询"><span class="nav-number">1.0.0.3.2.</span> <span class="nav-text">1.3.2 一对多查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-3-多对多查询"><span class="nav-number">1.0.0.3.3.</span> <span class="nav-text">1.3.3 多对多查询</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-延迟加载"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">1.4 延迟加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-二级缓存"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">1.5 二级缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-知识小结"><span class="nav-number">1.0.0.6.</span> <span class="nav-text">1.6 知识小结</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二-MyBatis案例练习"><span class="nav-number">2.</span> <span class="nav-text">二.MyBatis案例练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-编程风格"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 编程风格</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-环境搭建"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.2 环境搭建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-查询所有"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">2.3 查询所有</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-1-需求和效果实现"><span class="nav-number">2.0.0.3.1.</span> <span class="nav-text">2.3.1 需求和效果实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-2需求分析"><span class="nav-number">2.0.0.3.2.</span> <span class="nav-text">2.3.2需求分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-3-代码实现"><span class="nav-number">2.0.0.3.3.</span> <span class="nav-text">2.3.3 代码实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-分页查询"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">2.4 分页查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-1-导入数据"><span class="nav-number">2.0.0.4.1.</span> <span class="nav-text">2.4.1 导入数据</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-2-分页介绍"><span class="nav-number">2.0.0.4.2.</span> <span class="nav-text">2.4.2 分页介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-3-需求和效果实现"><span class="nav-number">2.0.0.4.3.</span> <span class="nav-text">2.4.3 需求和效果实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-3-需求分析"><span class="nav-number">2.0.0.4.4.</span> <span class="nav-text">2.4.3 需求分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-4-代码实现"><span class="nav-number">2.0.0.4.5.</span> <span class="nav-text">2.4.4 代码实现</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

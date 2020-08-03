@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="linux基础 Linux网络 Nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux &amp; Nginx">
+<meta property="og:url" content="http://yoursite.com/2020/05/25/Linux%20&%20Nginx/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="linux基础 Linux网络 Nginx">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-25T01:01:19.000Z">
+<meta property="article:modified_time" content="2020-08-03T15:08:45.349Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/25/Linux%20&%20Nginx/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux & Nginx | Swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--学习笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/25/Linux%20&%20Nginx/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux & Nginx
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>linux基础</li>
+<li>Linux网络</li>
+<li>Nginx</li>
+</ul>
+<a id="more"></a>
+
+<h1 id="一-linux基础"><a href="#一-linux基础" class="headerlink" title="一.linux基础"></a>一.linux基础</h1><h4 id="1-1-远程连接工具使用"><a href="#1-1-远程连接工具使用" class="headerlink" title="1.1 远程连接工具使用"></a>1.1 远程连接工具使用</h4><p>在实际开发中，Linux服务器都在其他的地方，我们要通过windows客户端工具远程去连接Linux并操作 它，连接Linux的windows客户端工具有很多，企业中常用的有secureCRT、Putty、xshell、SSH Secure等。</p>
+<h4 id="1-2-Linux目录结构"><a href="#1-2-Linux目录结构" class="headerlink" title="1.2 Linux目录结构"></a>1.2 Linux目录结构</h4><p>root目录:超级管理员所在的目录，用~表示<br>home目录:普通用户所在的目录<br>usr目录:安装用户文件所在的目录<br>etc目录:Linux系统管理和配置文件所在的目录</p>
+<h4 id="1-3-文件夹-目录-操作命令"><a href="#1-3-文件夹-目录-操作命令" class="headerlink" title="1.3 文件夹(目录)操作命令"></a>1.3 文件夹(目录)操作命令</h4><ul>
+<li><p>查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">ls</span><br><span class="line"></span><br><span class="line">List directory contents.</span><br><span class="line"></span><br><span class="line">- List files one per line:</span><br><span class="line">    ls -1</span><br><span class="line"></span><br><span class="line">- List all files, including hidden files:</span><br><span class="line">    ls -a</span><br><span class="line"></span><br><span class="line">- Long format list (permissions, ownership, size and modification date) of all files:</span><br><span class="line">    ls -la</span><br><span class="line"></span><br><span class="line">- Long format list with size displayed using human readable units (KB, MB, GB):</span><br><span class="line">    ls -lh</span><br><span class="line"></span><br><span class="line">- Long format list sorted by size (descending):</span><br><span class="line">    ls -lS</span><br><span class="line"></span><br><span class="line">- Long format list of all files, sorted by modification date (oldest first):</span><br><span class="line">    ls -ltr</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>跳转</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span></span><br><span class="line"></span><br><span class="line">Change the current working directory.</span><br><span class="line"></span><br><span class="line">- Go to the given directory:</span><br><span class="line">    <span class="built_in">cd</span> path/to/directory</span><br><span class="line"></span><br><span class="line">- Go to home directory of current user:</span><br><span class="line">    <span class="built_in">cd</span></span><br><span class="line"></span><br><span class="line">- Go up to the parent of the current directory:</span><br><span class="line">    <span class="built_in">cd</span> ..</span><br><span class="line"></span><br><span class="line">- Go to the previously chosen directory:</span><br><span class="line">    <span class="built_in">cd</span> -</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir</span><br><span class="line"></span><br><span class="line">Creates a directory.</span><br><span class="line"></span><br><span class="line">- Create a directory <span class="keyword">in</span> current directory or given path:</span><br><span class="line">    mkdir directory</span><br><span class="line"></span><br><span class="line">- Create directories recursively (useful <span class="keyword">for</span> creating nested <span class="built_in">dirs</span>):</span><br><span class="line">    mkdir -p path/to/directory</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>搜索</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">find</span><br><span class="line"></span><br><span class="line">Find files or directories under the given directory tree, recursively.</span><br><span class="line"></span><br><span class="line">- Find files by extension:</span><br><span class="line">    find root_path -name <span class="string">'*.ext'</span></span><br><span class="line"></span><br><span class="line">- Find files by matching multiple patterns:</span><br><span class="line">    find root_path -name <span class="string">'*pattern_1*'</span> -or -name <span class="string">'*pattern_2*'</span></span><br><span class="line"></span><br><span class="line">- Find directories matching a given name, <span class="keyword">in</span> <span class="keyword">case</span>-insensitive mode:</span><br><span class="line">    find root_path -<span class="built_in">type</span> d -iname <span class="string">'*lib*'</span></span><br><span class="line"></span><br><span class="line">- Find files matching a path pattern:</span><br><span class="line">    find root_path -path <span class="string">'**/lib/**/*.ext'</span></span><br><span class="line"></span><br><span class="line">- Find files matching a given pattern, excluding specific paths:</span><br><span class="line">    find root_path -name <span class="string">'*.py'</span> -not -path <span class="string">'*/site-packages/*'</span></span><br><span class="line"></span><br><span class="line">- Find files matching a given size range:</span><br><span class="line">    find root_path -size +500k -size -10M</span><br><span class="line"></span><br><span class="line">- Run a <span class="built_in">command</span> <span class="keyword">for</span> each file (use `&#123;&#125;` within the <span class="built_in">command</span> to access the filename):</span><br><span class="line">    find root_path -name <span class="string">'*.ext'</span> -<span class="built_in">exec</span> wc -l &#123;&#125; \;</span><br><span class="line"></span><br><span class="line">- Find files modified <span class="keyword">in</span> the last 7 days, and delete them:</span><br><span class="line">    find root_path -mtime -7 -delete</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mv</span><br><span class="line"></span><br><span class="line">Move or rename files and directories.</span><br><span class="line"></span><br><span class="line">- Move files <span class="keyword">in</span> arbitrary locations:</span><br><span class="line">    mv <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Do not prompt <span class="keyword">for</span> confirmation before overwriting existing files:</span><br><span class="line">    mv -f <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Prompt <span class="keyword">for</span> confirmation before overwriting existing files, regardless of file permissions:</span><br><span class="line">    mv -i <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Do not overwrite existing files at the target:</span><br><span class="line">    mv -n <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Move files <span class="keyword">in</span> verbose mode, showing files after they are moved:</span><br><span class="line">    mv -v <span class="built_in">source</span> target</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>剪切</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mv</span><br><span class="line"></span><br><span class="line">Move or rename files and directories.</span><br><span class="line"></span><br><span class="line">- Move files <span class="keyword">in</span> arbitrary locations:</span><br><span class="line">    mv <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Do not prompt <span class="keyword">for</span> confirmation before overwriting existing files:</span><br><span class="line">    mv -f <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Prompt <span class="keyword">for</span> confirmation before overwriting existing files, regardless of file permissions:</span><br><span class="line">    mv -i <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Do not overwrite existing files at the target:</span><br><span class="line">    mv -n <span class="built_in">source</span> target</span><br><span class="line"></span><br><span class="line">- Move files <span class="keyword">in</span> verbose mode, showing files after they are moved:</span><br><span class="line">    mv -v <span class="built_in">source</span> target</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>复制</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">cp</span><br><span class="line"></span><br><span class="line">Copy files and directories.</span><br><span class="line"></span><br><span class="line">- Copy a file to another location:</span><br><span class="line">    cp path/to/file.ext path/to/copy.ext</span><br><span class="line"></span><br><span class="line">- Copy a file into another directory, keeping the filename:</span><br><span class="line">    cp path/to/file.ext path/to/target_parent_directory</span><br><span class="line"></span><br><span class="line">- Recursively copy a directory<span class="string">'s contents to another location (if the destination exists, the directory is copied inside it):</span></span><br><span class="line"><span class="string">    cp -r path/to/directory path/to/copy</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Copy a directory recursively, in verbose mode (shows files as they are copied):</span></span><br><span class="line"><span class="string">    cp -vr path/to/directory path/to/copy</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Copy text files to another location, in interactive mode (prompts user before overwriting):</span></span><br><span class="line"><span class="string">    cp -i *.txt path/to/target_directory</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Dereference symbolic links before copying:</span></span><br><span class="line"><span class="string">    cp -L link path/to/copy</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rmdir</span><br><span class="line"></span><br><span class="line">Removes a directory.</span><br><span class="line"></span><br><span class="line">- Remove directory, provided it is empty. Use `rm` to remove not empty directories:</span><br><span class="line">    rmdir path/to/directory</span><br><span class="line"></span><br><span class="line">- Remove directories recursively (useful <span class="keyword">for</span> nested <span class="built_in">dirs</span>):</span><br><span class="line">    rmdir -p path/to/directory</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-4-文件操作命令"><a href="#1-4-文件操作命令" class="headerlink" title="1.4 文件操作命令"></a>1.4 文件操作命令</h4><ul>
+<li><p>创建</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">touch</span><br><span class="line"></span><br><span class="line">Change a file access and modification <span class="built_in">times</span> (atime, mtime).</span><br><span class="line"></span><br><span class="line">- Create a new empty file(s) or change the <span class="built_in">times</span> <span class="keyword">for</span> existing file(s) to current time:</span><br><span class="line">    touch filename</span><br><span class="line"></span><br><span class="line">- Set the <span class="built_in">times</span> on a file to a specific date and time:</span><br><span class="line">    touch -t YYYYMMDDHHMM.SS filename</span><br><span class="line"></span><br><span class="line">- Use the <span class="built_in">times</span> from a file to <span class="built_in">set</span> the <span class="built_in">times</span> on a second file:</span><br><span class="line">    touch -r filename filename2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">cat</span><br><span class="line"></span><br><span class="line">Print and concatenate files.</span><br><span class="line"></span><br><span class="line">- Print the contents of a file to the standard output:</span><br><span class="line">    cat file</span><br><span class="line"></span><br><span class="line">- Concatenate several files into the target file:</span><br><span class="line">    cat file1 file2 &gt; target_file</span><br><span class="line"></span><br><span class="line">- Append several files into the target file:</span><br><span class="line">    cat file1 file2 &gt;&gt; target_file</span><br><span class="line"></span><br><span class="line">- Number all output lines:</span><br><span class="line">    cat -n file</span><br><span class="line"></span><br><span class="line">- Display non-printable and whitespace characters (with `M-` prefix <span class="keyword">if</span> non-ASCII):</span><br><span class="line">    cat -v -t -e file</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">tail</span><br><span class="line"></span><br><span class="line">Display the last part of a file.</span><br><span class="line"></span><br><span class="line">- Show last <span class="string">'num'</span> lines <span class="keyword">in</span> file:</span><br><span class="line">    tail -n num file</span><br><span class="line"></span><br><span class="line">- Show all file since line <span class="string">'num'</span>:</span><br><span class="line">    tail -n +num file</span><br><span class="line"></span><br><span class="line">- Show last <span class="string">'num'</span> bytes <span class="keyword">in</span> file:</span><br><span class="line">    tail -c num file</span><br><span class="line"></span><br><span class="line">- Keep reading file until `Ctrl + C`:</span><br><span class="line">    tail -f file</span><br><span class="line"></span><br><span class="line">- Keep reading file until `Ctrl + C`, even <span class="keyword">if</span> the file is rotated:</span><br><span class="line">    tail -F file</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">head</span><br><span class="line"></span><br><span class="line">Output the first part of files.</span><br><span class="line"></span><br><span class="line">- Output the first few lines of a file:</span><br><span class="line">    head -n count_of_lines filename</span><br><span class="line"></span><br><span class="line">- Output the first few bytes of a file:</span><br><span class="line">    head -c number_in_bytes filename</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">rm</span><br><span class="line"></span><br><span class="line">Remove files or directories.</span><br><span class="line"></span><br><span class="line">- Remove files from arbitrary locations:</span><br><span class="line">    rm path/to/file path/to/another/file</span><br><span class="line"></span><br><span class="line">- Recursively remove a directory and all its subdirectories:</span><br><span class="line">    rm -r path/to/directory</span><br><span class="line"></span><br><span class="line">- Forcibly remove a directory, without prompting <span class="keyword">for</span> confirmation or showing error messages:</span><br><span class="line">    rm -rf path/to/directory</span><br><span class="line"></span><br><span class="line">- Interactively remove multiple files, with a prompt before every removal:</span><br><span class="line">    rm -i file(s)</span><br><span class="line"></span><br><span class="line">- Remove files <span class="keyword">in</span> verbose mode, printing a message <span class="keyword">for</span> each removed file:</span><br><span class="line">    rm -v path/to/directory/*</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">vim</span><br><span class="line"></span><br><span class="line">Vim (Vi IMproved), a <span class="built_in">command</span>-line text editor, provides several modes <span class="keyword">for</span> different kinds of text manipulation.</span><br><span class="line">Pressing `i` enters edit mode. `&lt;Esc&gt;` goes back to normal mode, <span class="built_in">which</span> doesn<span class="string">'t allow regular text insertion.</span></span><br><span class="line"><span class="string">More information: &lt;https://www.vim.org&gt;.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Open a file:</span></span><br><span class="line"><span class="string">    vim path/to/file</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- View Vim'</span>s <span class="built_in">help</span> manual:</span><br><span class="line">    :<span class="built_in">help</span>&lt;Enter&gt;</span><br><span class="line"></span><br><span class="line">- Save a file:</span><br><span class="line">    :write&lt;Enter&gt;</span><br><span class="line"></span><br><span class="line">- Quit without saving:</span><br><span class="line">    :quit!&lt;Enter&gt;</span><br><span class="line"></span><br><span class="line">- Open a file at a specified line number:</span><br><span class="line">    vim +line_number path/to/file</span><br><span class="line"></span><br><span class="line">- Undo the last operation:</span><br><span class="line">    u</span><br><span class="line"></span><br><span class="line">- Search <span class="keyword">for</span> a pattern <span class="keyword">in</span> the file (press `n`/`N` to go to next/previous match):</span><br><span class="line">    /search_pattern&lt;Enter&gt;</span><br><span class="line"></span><br><span class="line">- Perform a regex substitution <span class="keyword">in</span> the whole file:</span><br><span class="line">    :%s/pattern/replacement/g&lt;Enter&gt;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-5-文件压缩命令"><a href="#1-5-文件压缩命令" class="headerlink" title="1.5 文件压缩命令"></a>1.5 文件压缩命令</h4><ul>
+<li><p>将文件打成压缩包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">tar</span><br><span class="line"></span><br><span class="line">Archiving utility.</span><br><span class="line">Often combined with a compression method, such as gzip or bzip.</span><br><span class="line">More information: &lt;https://www.gnu.org/software/tar&gt;.</span><br><span class="line"></span><br><span class="line">- Create an archive from files:</span><br><span class="line">    tar cf target.tar file1 file2 file3</span><br><span class="line"></span><br><span class="line">- Create a gzipped archive:</span><br><span class="line">    tar czf target.tar.gz file1 file2 file3</span><br><span class="line"></span><br><span class="line">- Create a gzipped archive from a directory using relative paths:</span><br><span class="line">    tar czf target.tar.gz -C path/to/directory .</span><br><span class="line"></span><br><span class="line">- Extract a (compressed) archive into the current directory:</span><br><span class="line">    tar xf source.tar[.gz|.bz2|.xz]</span><br><span class="line"></span><br><span class="line">- Extract an archive into a target directory:</span><br><span class="line">    tar xf source.tar -C directory</span><br><span class="line"></span><br><span class="line">- Create a compressed archive, using archive suffix to determine the compression program:</span><br><span class="line">    tar caf target.tar.xz file1 file2 file3</span><br><span class="line"></span><br><span class="line">- List the contents of a tar file:</span><br><span class="line">    tar tvf source.tar</span><br><span class="line"></span><br><span class="line">- Extract files matching a pattern:</span><br><span class="line">    tar xf source.tar --wildcards <span class="string">"*.html"</span></span><br><span class="line"></span><br><span class="line">- Extract a specific file without preserving the folder structure:</span><br><span class="line">    tar xf source.tar source.tar/path/to/extract --strip-components=depth_to_strip</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解压缩包获得文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">tar</span><br><span class="line"></span><br><span class="line">Archiving utility.</span><br><span class="line">Often combined with a compression method, such as gzip or bzip.</span><br><span class="line">More information: &lt;https://www.gnu.org/software/tar&gt;.</span><br><span class="line"></span><br><span class="line">- Create an archive from files:</span><br><span class="line">    tar cf target.tar file1 file2 file3</span><br><span class="line"></span><br><span class="line">- Create a gzipped archive:</span><br><span class="line">    tar czf target.tar.gz file1 file2 file3</span><br><span class="line"></span><br><span class="line">- Create a gzipped archive from a directory using relative paths:</span><br><span class="line">    tar czf target.tar.gz -C path/to/directory .</span><br><span class="line"></span><br><span class="line">- Extract a (compressed) archive into the current directory:</span><br><span class="line">    tar xf source.tar[.gz|.bz2|.xz]</span><br><span class="line"></span><br><span class="line">- Extract an archive into a target directory:</span><br><span class="line">    tar xf source.tar -C directory</span><br><span class="line"></span><br><span class="line">- Create a compressed archive, using archive suffix to determine the compression program:</span><br><span class="line">    tar caf target.tar.xz file1 file2 file3</span><br><span class="line"></span><br><span class="line">- List the contents of a tar file:</span><br><span class="line">    tar tvf source.tar</span><br><span class="line"></span><br><span class="line">- Extract files matching a pattern:</span><br><span class="line">    tar xf source.tar --wildcards <span class="string">"*.html"</span></span><br><span class="line"></span><br><span class="line">- Extract a specific file without preserving the folder structure:</span><br><span class="line">    tar xf source.tar source.tar/path/to/extract --strip-components=depth_to_strip</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="1-6-文件权限命令"><a href="#1-6-文件权限命令" class="headerlink" title="1.6 文件权限命令"></a>1.6 文件权限命令</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">chmod</span><br><span class="line"></span><br><span class="line">Change the access permissions of a file or directory.</span><br><span class="line"></span><br><span class="line">- Give the [u]ser who owns a file the right to e[x]ecute it:</span><br><span class="line">    chmod u+x file</span><br><span class="line"></span><br><span class="line">- Give the [u]ser rights to [r]ead and [w]rite to a file/directory:</span><br><span class="line">    chmod u+rw file_or_directory</span><br><span class="line"></span><br><span class="line">- Remove e[x]ecutable rights from the [g]roup:</span><br><span class="line">    chmod g-x file</span><br><span class="line"></span><br><span class="line">- Give [a]ll users rights to [r]ead and e[x]ecute:</span><br><span class="line">    chmod a+rx file</span><br><span class="line"></span><br><span class="line">- Give [o]thers (not <span class="keyword">in</span> the file owner<span class="string">'s group) the same rights as the [g]roup:</span></span><br><span class="line"><span class="string">    chmod o=g file</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Remove all rights from [o]thers:</span></span><br><span class="line"><span class="string">    chmod o= file</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- Change permissions recursively giving [g]roup and [o]thers the abililty to [w]rite:</span></span><br><span class="line"><span class="string">    chmod -R g+w,o+w directory</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="1-7-其他命令"><a href="#1-7-其他命令" class="headerlink" title="1.7 其他命令"></a>1.7 其他命令</h4><ul>
+<li><p>显示工作目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">pwd</span></span><br><span class="line"></span><br><span class="line">Print name of current/working directory.</span><br><span class="line"></span><br><span class="line">- Print the current directory:</span><br><span class="line">    <span class="built_in">pwd</span></span><br><span class="line"></span><br><span class="line">- Print the current directory, and resolve all symlinks (i.e. show the <span class="string">"physical"</span> path):</span><br><span class="line">    <span class="built_in">pwd</span> -P</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">ps</span><br><span class="line"></span><br><span class="line">Information about running processes.</span><br><span class="line"></span><br><span class="line">- List all running processes:</span><br><span class="line">    ps aux</span><br><span class="line"></span><br><span class="line">- List all running processes including the full <span class="built_in">command</span> string:</span><br><span class="line">    ps auxww</span><br><span class="line"></span><br><span class="line">- Search <span class="keyword">for</span> a process that matches a string:</span><br><span class="line">    ps aux | grep string</span><br><span class="line"></span><br><span class="line">- List all processes of the current user <span class="keyword">in</span> extra full format:</span><br><span class="line">    ps --user $(id -u) -F</span><br><span class="line"></span><br><span class="line">- List all processes of the current user as a tree:</span><br><span class="line">    ps --user $(id -u) f</span><br><span class="line"></span><br><span class="line">- Get the parent pid of a process:</span><br><span class="line">    ps -o ppid= -p pid</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>杀死进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span></span><br><span class="line"></span><br><span class="line">Sends a signal to a process, usually related to stopping the process.</span><br><span class="line">All signals except <span class="keyword">for</span> SIGKILL and SIGSTOP can be intercepted by the process to perform a clean <span class="built_in">exit</span>.</span><br><span class="line"></span><br><span class="line">- Terminate a program using the default SIGTERM (terminate) signal:</span><br><span class="line">    <span class="built_in">kill</span> process_id</span><br><span class="line"></span><br><span class="line">- List available signal names (to be used without the `SIG` prefix):</span><br><span class="line">    <span class="built_in">kill</span> -l</span><br><span class="line"></span><br><span class="line">- Terminate a background job:</span><br><span class="line">    <span class="built_in">kill</span> %job_id</span><br><span class="line"></span><br><span class="line">- Terminate a program using the SIGHUP (hang up) signal. Many daemons will reload instead of terminating:</span><br><span class="line">    <span class="built_in">kill</span> -1|HUP process_id</span><br><span class="line"></span><br><span class="line">- Terminate a program using the SIGINT (interrupt) signal. This is typically initiated by the user pressing `Ctrl + C`:</span><br><span class="line">    <span class="built_in">kill</span> -2|INT process_id</span><br><span class="line"></span><br><span class="line">- Signal the operating system to immediately terminate a program (<span class="built_in">which</span> gets no chance to capture the signal):</span><br><span class="line">    <span class="built_in">kill</span> -9|KILL process_id</span><br><span class="line"></span><br><span class="line">- Signal the operating system to pause a program until a SIGCONT (<span class="string">"continue"</span>) signal is received:</span><br><span class="line">    <span class="built_in">kill</span> -17|STOP process_id</span><br><span class="line"></span><br><span class="line">- Send a `SIGUSR1` signal to all processes with the given GID (group id):</span><br><span class="line">    <span class="built_in">kill</span> -SIGUSR1 -group_id</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>搜索</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">grep</span><br><span class="line"></span><br><span class="line">Matches patterns <span class="keyword">in</span> input text.</span><br><span class="line">Supports simple patterns and regular expressions.</span><br><span class="line"></span><br><span class="line">- Search <span class="keyword">for</span> an exact string:</span><br><span class="line">    grep search_string path/to/file</span><br><span class="line"></span><br><span class="line">- Search <span class="keyword">in</span> <span class="keyword">case</span>-insensitive mode:</span><br><span class="line">    grep -i search_string path/to/file</span><br><span class="line"></span><br><span class="line">- Search recursively (ignoring non-text files) <span class="keyword">in</span> current directory <span class="keyword">for</span> an exact string:</span><br><span class="line">    grep -RI search_string .</span><br><span class="line"></span><br><span class="line">- Use extended regular expressions (supporting `?`, `+`, `&#123;&#125;`, `()` and `|`):</span><br><span class="line">    grep -E ^regex$ path/to/file</span><br><span class="line"></span><br><span class="line">- Print 3 lines of [C]ontext around, [B]efore, or [A]fter each match:</span><br><span class="line">    grep -C|B|A 3 search_string path/to/file</span><br><span class="line"></span><br><span class="line">- Print file name with the corresponding line number <span class="keyword">for</span> each match:</span><br><span class="line">    grep -Hn search_string path/to/file</span><br><span class="line"></span><br><span class="line">- Use the standard input instead of a file:</span><br><span class="line">    cat path/to/file | grep search_string</span><br><span class="line"></span><br><span class="line">- Invert match <span class="keyword">for</span> excluding specific strings:</span><br><span class="line">    grep -v search_string</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>管道</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">|      ##管道符</span><br><span class="line">管道只允许正确输出通过</span><br><span class="line"> tee         ####复制一份输出</span><br><span class="line">2&gt;&amp;1 |       ####转换错误输出为正确再通过管道</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">poweroff</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br><span class="line"></span><br><span class="line">Reboot the system.</span><br><span class="line"></span><br><span class="line">- Reboot immediately:</span><br><span class="line">    sudo reboot</span><br><span class="line"></span><br><span class="line">- Reboot immediately without gracefully shutting down:</span><br><span class="line">    sudo reboot -q</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="二-Linux网络"><a href="#二-Linux网络" class="headerlink" title="二.Linux网络"></a>二.Linux网络</h1><h4 id="2-1-网络服务"><a href="#2-1-网络服务" class="headerlink" title="2.1 网络服务"></a>2.1 网络服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br><span class="line"></span><br><span class="line">Network Interface Configurator.</span><br><span class="line"></span><br><span class="line">- View network settings of an ethernet adapter:</span><br><span class="line">    ifconfig eth0</span><br><span class="line"></span><br><span class="line">- Display details of all interfaces, including disabled interfaces:</span><br><span class="line">    ifconfig -a</span><br><span class="line"></span><br><span class="line">- Disable eth0 interface:</span><br><span class="line">    ifconfig eth0 down</span><br><span class="line"></span><br><span class="line">- Enable eth0 interface:</span><br><span class="line">    ifconfig eth0 up</span><br><span class="line"></span><br><span class="line">- Assign IP address to eth0 interface:</span><br><span class="line">    ifconfig eth0 ip_address</span><br><span class="line">    </span><br><span class="line">ip addr :CentOS7版本</span><br><span class="line">修改网卡ip</span><br><span class="line">vim /etc/sysconfig/network-scripts/ifcfg-ens33</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>概要信息</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEVICE=ens33</td>
+<td>网卡名称</td>
+</tr>
+<tr>
+<td>TYPE=Ethernet</td>
+<td>网卡类型 以太网</td>
+</tr>
+<tr>
+<td>ONBOOT=yes</td>
+<td>是否开机就使用此网卡</td>
+</tr>
+<tr>
+<td>BOOTPROTO=dhcp</td>
+<td>启动网卡时指定获取IP地址的方式</td>
+</tr>
+<tr>
+<td>IPADDR=</td>
+<td>ip地址</td>
+</tr>
+<tr>
+<td>GATEWAY=</td>
+<td>网关</td>
+</tr>
+<tr>
+<td>NETMASK=255.255.255.0</td>
+<td>子网掩码</td>
+</tr>
+<tr>
+<td>DNS1=</td>
+<td>DNS服务器</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>重启网卡服务</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>systemctl status network</td>
+<td>查看指定服务的状态</td>
+</tr>
+<tr>
+<td>systemctl stop network</td>
+<td>停止指定服务</td>
+</tr>
+<tr>
+<td>systemctl start network</td>
+<td>启动指定服务</td>
+</tr>
+<tr>
+<td>systemctl restart network</td>
+<td>重启指定服务</td>
+</tr>
+</tbody></table>
+<h4 id="2-2-防火墙服务"><a href="#2-2-防火墙服务" class="headerlink" title="2.2 防火墙服务"></a>2.2 防火墙服务</h4><h5 id="2-2-1-防火墙设置"><a href="#2-2-1-防火墙设置" class="headerlink" title="2.2.1 防火墙设置"></a>2.2.1 防火墙设置</h5><table>
+<thead>
+<tr>
+<th>防火墙设置</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开启防火墙</td>
+<td>systemctl start firewalld</td>
+</tr>
+<tr>
+<td>重启防火墙</td>
+<td>systemctl restart firewalld</td>
+</tr>
+<tr>
+<td>关闭防火墙</td>
+<td>systemctl stop firewalld</td>
+</tr>
+<tr>
+<td>设置开机启动</td>
+<td>systemctl enable firewalld</td>
+</tr>
+<tr>
+<td>停止并关闭开机启动</td>
+<td>systemctl disable firewalld</td>
+</tr>
+<tr>
+<td>查看防火墙状态</td>
+<td>systemctl status firewalld 或者 firewall-cmd –state</td>
+</tr>
+<tr>
+<td>查看防火墙开机时是否启动</td>
+<td>systemctl list-unit-files | grep firewalld</td>
+</tr>
+</tbody></table>
+<h5 id="2-2-2-端口设置"><a href="#2-2-2-端口设置" class="headerlink" title="2.2.2 端口设置"></a>2.2.2 端口设置</h5><table>
+<thead>
+<tr>
+<th>端口设置</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>添加</td>
+<td>firewall-cmd –zone=public –add-port=80/tcp –permanent</td>
+</tr>
+<tr>
+<td>更新防火墙规则</td>
+<td>firewall-cmd –reload</td>
+</tr>
+<tr>
+<td>查看</td>
+<td>firewall-cmd –zone=public –query-port=80/tcp<br>firewall-cmd –zone=public –list-ports</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>firewall-cmd –zone=public –remove-port=80/tcp –permanent</td>
+</tr>
+<tr>
+<td>常用端口</td>
+<td>8080 tomcat<br>80 http协议<br>443 https协议<br/>22 ssh远程连接<br/>3306 mysql<br/>6379 redis</td>
+</tr>
+</tbody></table>
+<h1 id="三-Nginx"><a href="#三-Nginx" class="headerlink" title="三.Nginx"></a>三.Nginx</h1><h4 id="3-1-介绍"><a href="#3-1-介绍" class="headerlink" title="3.1 介绍"></a>3.1 介绍</h4><p>Nginx是一款轻量级的 Web 服务器,由俄罗斯的程序设计师伊戈尔·西索夫所开发。 Nginx性能非常优秀, 官方测试能够支撑5万并发链接，并且 cpu、内存等资源消耗却非常低，运行非常稳定。</p>
+<p>Nginx的功能有很多，我们主要使用它来做静态资源服务器、负载均衡服务器和反向代理服务器。</p>
+<h4 id="3-2-应用场景"><a href="#3-2-应用场景" class="headerlink" title="3.2 应用场景"></a>3.2 应用场景</h4><h5 id="3-2-1-静态资源服务器"><a href="#3-2-1-静态资源服务器" class="headerlink" title="3.2.1 静态资源服务器"></a>3.2.1 静态资源服务器</h5><p>部署网站的静态资源(html、css、js),可与Tomcat等实现动静分离</p>
+<h4 id="3-2-2-反向代理服务器"><a href="#3-2-2-反向代理服务器" class="headerlink" title="3.2.2 反向代理服务器"></a>3.2.2 反向代理服务器</h4><ul>
+<li><p>代理</p>
+<p>给某个对象提供一个代理对象，并由代理对象控制原对象的引用</p>
+</li>
+<li><p>正向代理</p>
+<p>对客户端进行代理(例如VPN)</p>
+</li>
+<li><p>反向代理</p>
+<p>对服务端进行代理</p>
+<p>反向代理，就是对服务端进行代理，作为客户端,只需要将请求发送到反向代理服务器，由反向代理服务 器去选择目标服务器获取数据后，再响应给客户端，此时反向代理服务器和目标服务器对外就是一个服 务器，暴露的是代理服务器地址，隐藏了真实服务器IP地址。</p>
+</li>
+</ul>
+<h5 id="3-2-3-负载均衡服务器"><a href="#3-2-3-负载均衡服务器" class="headerlink" title="3.2.3 负载均衡服务器"></a>3.2.3 负载均衡服务器</h5><p>负载均衡 <em>Load Balance</em> 意思就是将一份负载分摊到多个操作单元上进行执行</p>
+<h4 id="3-3-配置文件介绍-nginx-1-13-9-conf-nginx-conf"><a href="#3-3-配置文件介绍-nginx-1-13-9-conf-nginx-conf" class="headerlink" title="3.3 配置文件介绍(nginx-1.13.9/conf/nginx.conf)"></a>3.3 配置文件介绍(nginx-1.13.9/conf/nginx.conf)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80; <span class="comment">#port</span></span><br><span class="line">    server_name  localhost; <span class="comment">#Server</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   html; <span class="comment">#Static resource directory</span></span><br><span class="line">        index  index.html index.htm; <span class="comment">#Default visit page</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="3-5-nginx与tomcat区别"><a href="#3-5-nginx与tomcat区别" class="headerlink" title="3.5 nginx与tomcat区别"></a>3.5 nginx与tomcat区别</h5><ul>
+<li><p>存放的文件(资源)形式<br> Nginx是http服务器,只能解析静态文件 </p>
+<p>Tomcat是web中间件(本质上是一个servlet),能解析jsp和静态文件</p>
+</li>
+<li><p>用途 </p>
+<p>nginx可以作为反向代理服务器,负责均衡服务器,静态资源存放服务器 </p>
+<p>tomcat能作为jsp容器使用,静态资源存放服务器</p>
+</li>
+<li><p>性能 </p>
+<p>nginx支持5W+并发,tomcat的并发只能在200-400之间</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><strong># linux基础</strong></p>
+<p><strong>## Linux基本命令</strong></p>
+<p><strong>### 目录结构</strong></p>
+<p>- root</p>
+<p>​    - 超级管理员所在的目录</p>
+<p>- home</p>
+<p>​    - 普通用户所在的目录</p>
+<p>- usr</p>
+<p>​    - 安装用户文件所在的目录</p>
+<p>- etc</p>
+<p>​    - Linux系统管理和配置文件所在的目录</p>
+<p><strong>### 目录操作</strong></p>
+<p>- 查看</p>
+<p>​    - ll</p>
+<p>​    - ls</p>
+<p>- 切换</p>
+<p>​    - cd</p>
+<p>​        - 绝对路径</p>
+<p>​        - 相对路径</p>
+<p>- 创建</p>
+<p>​    - mkdir -p</p>
+<p>- 修改/剪切</p>
+<p>​    - mv</p>
+<p>- 复制</p>
+<p>​    - cp -r</p>
+<p>- 删除</p>
+<p>​    - rmdir -p</p>
+<p><strong>### 文件操作</strong></p>
+<p>- 创建</p>
+<p>​    - touch</p>
+<p>- 查看</p>
+<p>​    - cat/more/less/head/tail</p>
+<p>- 删除</p>
+<p>​    - rm -rf</p>
+<p>- 编辑</p>
+<p>​    - vim</p>
+<p>​        - 插入模式</p>
+<p>​            - i</p>
+<p>​        - 命令行模式 </p>
+<p>​            - esc</p>
+<p>​        - 底行模式</p>
+<p>​            - :</p>
+<p>​                - wq!</p>
+<p>​                - q!</p>
+<p><strong>### 压缩命令</strong></p>
+<p>- 打包</p>
+<p>​    - tar -zcvf</p>
+<p>​        - xxxx.tar.gz</p>
+<p>- 解压缩</p>
+<p>​    - tar -zxvf</p>
+<p>​        - xxxx.tar.gz</p>
+<p><strong>### 文件权限</strong></p>
+<p>- chmod -R 777</p>
+<p><strong>### 其他命令</strong></p>
+<p>- 查看进程</p>
+<p>​    - ps -ef</p>
+<p>- 杀死进程</p>
+<p>​    - kill -9 PID</p>
+<p>- 文本搜索</p>
+<p>​    - grep -in</p>
+<p>- 管道</p>
+<p>​    - 一个命令的输出作为另一个命令的输入</p>
+<p><strong>## Linux网络</strong></p>
+<p><strong>### 网络</strong></p>
+<p>- 查看ip</p>
+<p>​    - ifconfig</p>
+<p>​    - ip addr</p>
+<p><strong>### 防火墙</strong></p>
+<p>- 防火墙设置</p>
+<p>​    - 关闭</p>
+<p>​        - systemctl stop firewalld</p>
+<p>​    - 关闭开机自启动</p>
+<p>​        - systemctl disable firewalld</p>
+<p>- 端口设置</p>
+<p>​    - 放行端口</p>
+<p>​        - firewall-cmd –zone=public –add-port=80/tcp –permanent</p>
+<p>​    - 更新规则</p>
+<p>​        - firewall-cmd –reload</p>
+<p><strong>## Nginx</strong></p>
+<p><strong>### 由战斗民族开发的一款高性能的 http 服务器/反向代理服务器</strong></p>
+<p>- http服务器</p>
+<p>- 反向代理（负载均衡）</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/21/%E5%A4%A7%E8%AF%9D%E9%87%8D%E6%9E%84/" rel="prev" title="大话重构">
+      <i class="fa fa-chevron-left"></i> 大话重构
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/28/Spring%20%E5%88%9D%E8%AF%86%20&%20%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/" rel="next" title="Spring 初识 & 相关配置">
+      Spring 初识 & 相关配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一-linux基础"><span class="nav-number">1.</span> <span class="nav-text">一.linux基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-远程连接工具使用"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 远程连接工具使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Linux目录结构"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 Linux目录结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-文件夹-目录-操作命令"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 文件夹(目录)操作命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-文件操作命令"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">1.4 文件操作命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-文件压缩命令"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">1.5 文件压缩命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-文件权限命令"><span class="nav-number">1.0.0.6.</span> <span class="nav-text">1.6 文件权限命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-7-其他命令"><span class="nav-number">1.0.0.7.</span> <span class="nav-text">1.7 其他命令</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二-Linux网络"><span class="nav-number">2.</span> <span class="nav-text">二.Linux网络</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-网络服务"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 网络服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-防火墙服务"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.2 防火墙服务</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-1-防火墙设置"><span class="nav-number">2.0.0.2.1.</span> <span class="nav-text">2.2.1 防火墙设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-2-端口设置"><span class="nav-number">2.0.0.2.2.</span> <span class="nav-text">2.2.2 端口设置</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三-Nginx"><span class="nav-number">3.</span> <span class="nav-text">三.Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-介绍"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">3.1 介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-应用场景"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">3.2 应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-1-静态资源服务器"><span class="nav-number">3.0.0.2.1.</span> <span class="nav-text">3.2.1 静态资源服务器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-2-反向代理服务器"><span class="nav-number">3.0.0.3.</span> <span class="nav-text">3.2.2 反向代理服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-3-负载均衡服务器"><span class="nav-number">3.0.0.3.1.</span> <span class="nav-text">3.2.3 负载均衡服务器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-配置文件介绍-nginx-1-13-9-conf-nginx-conf"><span class="nav-number">3.0.0.4.</span> <span class="nav-text">3.3 配置文件介绍(nginx-1.13.9&#x2F;conf&#x2F;nginx.conf)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-5-nginx与tomcat区别"><span class="nav-number">3.0.0.4.1.</span> <span class="nav-text">3.5 nginx与tomcat区别</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
