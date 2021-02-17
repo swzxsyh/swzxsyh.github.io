@@ -176,6 +176,65 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/21/Centos-8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/03/21/Centos-8/" class="post-title-link" itemprop="url">Centos 8 挂载本地镜像repo</a>
+        </h2>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>安装后命令行界面</p>
+<p>先挂载本地镜像<br>mkdir /mnt/cdrom<br>mount -t auto /dev/cdrom /mnt/cdrom</p>
+<p>验证是否存在<br>ll /mnt/cdrom</p>
+<p>然后进入/etc/yum.repo.d/<br>创建local.repo</p>
+<p>vi local.repo</p>
+<p>[LocalRepo_BaseOS]<br>name=Centos Linux 8<br>baseurl=file:///mnt/cdrom/BaseOS<br>enabled=1<br>gpgcheck=1<br>gpgkep=file://etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</p>
+<p>[LocalRepo_AppStream]<br>name=Centos Linux 8<br>baseurl=file:///mnt/cdrom/AppStream<br>enabled=1<br>gpgcheck=1<br>gpgkep=file://etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</p>
+<p>退出</p>
+<p>yum clean all<br>yum makecache</p>
+<p>查看grouplist有什么可以安装的<br>yum grouplist</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/21/My-New-Post-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -368,7 +427,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-count">103</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -396,7 +455,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
