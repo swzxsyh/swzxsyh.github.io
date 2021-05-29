@@ -1,37 +1,870 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Swzxsyh" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="BOM DOM(与XML的dom4j思想完全一样)可以实现对节点对增删改查 正则表达式:对字符对过滤校验">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript 进阶笔记">
+<meta property="og:url" content="http://yoursite.com/2020/04/09/JavaScript%20%E8%BF%9B%E9%98%B6%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="BOM DOM(与XML的dom4j思想完全一样)可以实现对节点对增删改查 正则表达式:对字符对过滤校验">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-09T00:52:46.000Z">
+<meta property="article:modified_time" content="2020-08-03T15:02:05.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/04/09/JavaScript 进阶笔记/"/>
+
+
+
+
+
+  <title>JavaScript 进阶笔记 | Swzxsyh</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Swzxsyh</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">--学习笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/09/JavaScript%20%E8%BF%9B%E9%98%B6%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JavaScript 进阶笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-09T08:52:46+08:00">
+                2020-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ul>
+<li>BOM</li>
+<li>DOM(与XML的dom4j思想完全一样)可以实现对节点对增删改查</li>
+<li>正则表达式:对字符对过滤校验<span id="more"></span>
+<h1 id="一-BOM对象"><a href="#一-BOM对象" class="headerlink" title="一.BOM对象"></a>一.BOM对象</h1><h4 id="1-1-BOM简介"><a href="#1-1-BOM简介" class="headerlink" title="1.1 BOM简介"></a>1.1 BOM简介</h4>浏览器对象模型(Browser Object Model)<br>作用:把浏览器抽象成一个对象模型,可以使用JS模拟一些浏览器功能</li>
+</ul>
+<h4 id="1-2-Window对象"><a href="#1-2-Window对象" class="headerlink" title="1.2 Window对象"></a>1.2 Window对象</h4><ul>
+<li>三种弹框<br>警告框:提示信息<br>alert()<br>确认框:确认信息<br>confirm()<br>输入框:输入信息<br>prompt()</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//警告框:提示信息</span></span></span><br><span class="line"><span class="javascript">    alert(<span class="string">&quot;Hello&quot;</span>)</span></span><br><span class="line"><span class="javascript">    <span class="comment">//确认框:确认信息</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> result = confirm(<span class="string">&quot;Sure to Delete?Y/N&quot;</span>)</span></span><br><span class="line"><span class="javascript">    <span class="keyword">if</span> (result == <span class="literal">true</span>) &#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(<span class="string">&quot;Y&quot;</span>);</span></span><br><span class="line"><span class="javascript">    &#125; <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(<span class="string">&quot;N&quot;</span>);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript">    <span class="comment">//输入框:输入信息</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> age = prompt(<span class="string">&quot;Please Input Your Age&quot;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">if</span> (age != <span class="literal">null</span>) &#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(<span class="string">&quot;Please Input Age&quot;</span>,<span class="string">`<span class="subst">$&#123;age&#125;</span>`</span>)</span></span><br><span class="line"><span class="javascript">    &#125;<span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(<span class="string">&quot;Canceled&quot;</span>);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>二种定时器</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">JS两个定时器</span></span><br><span class="line"><span class="comment">1)一次性定时器</span></span><br><span class="line"><span class="comment">    创建:let 定时器对象 = setTimeout(`函数()`,毫秒)</span></span><br><span class="line"><span class="comment">    关闭:clearTimeout(定时器对象)</span></span><br><span class="line"><span class="comment">2)循环型定时器</span></span><br><span class="line"><span class="comment">    创建:    let 定时器对象 = setInterval(函数,毫秒)</span></span><br><span class="line"><span class="comment">    关闭:clearInterval()</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;btn1&quot;</span>&gt;</span>Cancel Print Time<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;btn2&quot;</span>&gt;</span>Cancel Print Number<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.定时1s在控制台打印当前时间</span></span></span><br><span class="line"><span class="javascript">    <span class="function"><span class="keyword">function</span> <span class="title">fun1</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>().toLocaleString());</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> timeout = <span class="built_in">setTimeout</span>(<span class="string">`fun1()`</span>, <span class="number">1000</span>);</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.点击按钮取消打印时间</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;btn1&quot;</span>).onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">clearTimeout</span>(timeout);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//3.每隔2秒在控制台打印递增自然数</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> num = <span class="number">1</span>;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="function"><span class="keyword">function</span> <span class="title">fun2</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(num++);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> interval = <span class="built_in">setInterval</span>(fun2, <span class="number">2000</span>);</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//4.点击按钮取消打印自然数</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;btn2&#x27;</span>).onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">clearInterval</span>(interval);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-Location对象"><a href="#1-3-Location对象" class="headerlink" title="1.3 Location对象"></a>1.3 Location对象</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">location地址</span></span><br><span class="line"><span class="comment">    1)获取当前窗口地址</span></span><br><span class="line"><span class="comment">        location.href</span></span><br><span class="line"><span class="comment">    2)刷新当前页面</span></span><br><span class="line"><span class="comment">        location.reload</span></span><br><span class="line"><span class="comment">    3)跳转页面</span></span><br><span class="line"><span class="comment">        location.href=&#x27;new location&#x27;</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;addr()&quot;</span>&gt;</span>获取当前浏览器地址<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;refresh()&quot;</span>&gt;</span>刷新当前页面<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;jump()&quot;</span>&gt;</span>跳转页面(重点)<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="function"><span class="keyword">function</span> <span class="title">addr</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(location.href);</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript">    <span class="function"><span class="keyword">function</span> <span class="title">refresh</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(location.reload());</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript">    <span class="function"><span class="keyword">function</span> <span class="title">jump</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(location.href = <span class="string">&#x27;https://www.baidu.com/&#x27;</span>);;</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="二-DOM对象"><a href="#二-DOM对象" class="headerlink" title="二.DOM对象"></a>二.DOM对象</h1><h4 id="2-1-DOM简介"><a href="#2-1-DOM简介" class="headerlink" title="2.1 DOM简介"></a>2.1 DOM简介</h4><p>DOM(Document Object Model) 页面文档对象模型<br>JS把页面抽象成为一个对象,允许我们使用js来操作页面</p>
+<h4 id="2-2-DOM获取元素"><a href="#2-2-DOM获取元素" class="headerlink" title="2.2 DOM获取元素"></a>2.2 DOM获取元素</h4><ul>
+<li>第一种:es6之前的获取方式<br>1)获取一个:<br><strong>document.getElementById(id属性值)</strong><br>2)获取多个:<br>document.getElementByTagName(标签名属性值) 根据标签名获取，返回数组对象<br>document.getElementByClassName(class属性值) 根据class属性获取，返回数组对象<br>document.getElementByName(name属性值) 根据name属性获取，返回数组对象</li>
+</ul>
+<ul>
+<li>第二种:es6可根据CSS选择器获取<br>1)获取一个:<br>document.querySelector(id选择器)<br>2)获取多个:<br><strong>document.querySelectorAll(css选择器)</strong><br>  标签<br>  class<br>  属性<br>  后代<br>  并集<br>  父子<br>  …</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.获取id=&quot;name&quot;对象</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.getElementById(<span class="string">&#x27;name&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.querySelector(<span class="string">&#x27;name&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.获取class=&quot;radio&quot;的标签数组</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.getElementsByClassName(<span class="string">&#x27;radio&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;radio&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//3.获取所有option标签对象数组</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;option&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;option&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//4.获取name=&quot;hobby&quot;的input标签对象数组</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.getElementsByName(<span class="string">&#x27;hobby&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;input[name=&quot;hobby&quot;]&#x27;</span>));<span class="comment">//CSS的属性选择器</span></span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//5.获取文件上传选择框</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;form input[type=&quot;file&quot;]&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-DOM操作内容"><a href="#2-3-DOM操作内容" class="headerlink" title="2.3 DOM操作内容"></a>2.3 DOM操作内容</h4><ul>
+<li>获取或修改元素(标签)的纯文本内容<br>语法:<br>  element.innerText</li>
+<li>获取或者修改元素的html内容<br>  element.innerHTML;</li>
+<li>获取或者修改包含自身的html内容<br>  element.outerHTML;</li>
+</ul>
+<p>总结:</p>
+<ol>
+<li>innerText 获取的是纯文本 innerHTML获取的是所有html内容</li>
+<li>innerText 设置到页面中的是纯文本 innerHTML设置到页面中的html会展示出外观效果 </li>
+<li>innerHTML不包含自身 outerHTML包含自身的html内容</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css"></span></span><br><span class="line"><span class="css">        <span class="selector-id">#myDiv</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="attribute">border</span>: <span class="number">1px</span> solid red;</span></span><br><span class="line"><span class="css">        &#125;</span></span><br><span class="line"><span class="css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;myDiv&quot;</span>&gt;</span>AAA<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> myDIV = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;myDiv&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.innetText操作div内容</span></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.1获取纯文本</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(myDIV.innerText);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.2 获取纯文本,无法更改标签等属性</span></span></span><br><span class="line"><span class="javascript">    myDIV.innerText = <span class="string">&quot;BBBBB&quot;</span>;<span class="comment">//覆盖</span></span></span><br><span class="line"><span class="javascript">    myDIV.innerText += <span class="string">&quot;BBBBB&quot;</span>;<span class="comment">//追加</span></span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.innerHTML操作div内容</span></span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.1 获取超文本内容</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(myDIV.innerHTML);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.2 设置超文本,可以更改标签等属性</span></span></span><br><span class="line"><span class="javascript">    myDIV.innerHTML = <span class="string">&#x27;&lt;h1&gt;CCCCCC&lt;/h1&gt;&#x27;</span><span class="comment">//覆盖</span></span></span><br><span class="line"><span class="javascript">    myDIV.innerHTML += <span class="string">&#x27;&lt;h1&gt;CCCCCC&lt;/h1&gt;&#x27;</span><span class="comment">//追加</span></span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//3.outerHTML操作div</span></span></span><br><span class="line"><span class="javascript">    myDIV.outerHTML=<span class="string">&#x27;&lt;p&gt;DDDDDDDD&lt;/p&gt;&#x27;</span><span class="comment">//不仅可以修改纯文本，还能修改标签</span></span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-DOM操作属性"><a href="#2-4-DOM操作属性" class="headerlink" title="2.4 DOM操作属性"></a>2.4 DOM操作属性</h4><ul>
+<li>获取文本框的值,单选框或复选框的选中状态<br>语法:<br>  element.properties 获取或者修改元素对象的原生属性</li>
+<li>给元素设置自定义属性<br>语法:<br>  element.setAttribute(属性名,属性值) 给元素设置一个属性值,可以设置原生和自定义</li>
+<li>获取元素的自定义属性值<br>语法:<br>  element.getAttribute(属性名) 获取元素的一个属性值,可以获取原生和自定义 </li>
+<li>移除元素的自定义属性<br>语法:<br>  element.removeAttribute(属性名)</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;#&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span>&gt;</span></span><br><span class="line">    Name: <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">id</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;AAAAA&quot;</span>/&gt;</span><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    Hobby:</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;smoke&quot;</span>&gt;</span>X</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;drink&quot;</span>&gt;</span>Y</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;perm&quot;</span>&gt;</span>Z<span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;reset&quot;</span> <span class="attr">value</span>=<span class="string">&quot;清空按钮&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交按钮&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.获取文本框预定义的属性值</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> username = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;username&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(username);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(username.type);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(username.name);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(username.value);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.给文本框设置自定义属性</span></span></span><br><span class="line"><span class="javascript">    username.setAttribute(<span class="string">&#x27;customize&#x27;</span>, <span class="string">&#x27;customize properties&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//3.获取文本框自定义属性</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(username.getAttribute(<span class="string">&#x27;customize&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="comment">//4.移除文本框自定义属性</span></span></span><br><span class="line"><span class="javascript">    username.removeAttribute(<span class="string">&#x27;customize&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    username.removeAttribute(<span class="string">&#x27;value&#x27;</span>);</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2-5-DOM操作样式"><a href="#2-5-DOM操作样式" class="headerlink" title="2.5 DOM操作样式"></a>2.5 DOM操作样式</h4><ul>
+<li><p>设置一个css样式<br>语法:<br>  element.style.样式名=’样式值’    获取或者修改一个css样式<br>特点:<br>  驼峰格式样式属性名<br>  css格式:font-size<br>  js格式:fontSize</p>
+</li>
+<li><p>批量设置css样式<br>语法:<br>  element.style.cssText 获取后者修改 标签的style属性的文本值<br>特点:有耦合性，无提示较麻烦</p>
+</li>
+<li><p>通过class设置样式<br>语法:<br>  element.className=’class选择器名’ 获取或者修改标签的class属性的文本值</p>
+</li>
+<li><p>切换class样式<br>语法:<br>  element.classList es6特别提供的操作元素class的接口<br>常用方法有四个:<br>add() 添加一个class样式<br>remove() 移除一个class样式<br>contains() 判断是否包含某一个样式<br>toggle() 切换一个class样式 有则删除,无则添加</p>
+</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css"></span></span><br><span class="line"><span class="css">        <span class="selector-id">#p1</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="attribute">background-color</span>: red;</span></span><br><span class="line"><span class="css">        &#125;</span></span><br><span class="line"><span class="css"></span></span><br><span class="line"><span class="css">        <span class="selector-class">.mp</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="attribute">color</span>: green;</span></span><br><span class="line"><span class="css">            <span class="attribute">font-size</span>: <span class="number">30px</span>;</span></span><br><span class="line"><span class="css">            <span class="attribute">font-family</span>: <span class="string">&quot;Cascadia Code&quot;</span>;</span></span><br><span class="line"><span class="css">        &#125;</span></span><br><span class="line"><span class="css"></span></span><br><span class="line"><span class="css">        <span class="selector-class">.mpp</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="attribute">background-color</span>: lightgray;</span></span><br><span class="line"><span class="css">        &#125;</span></span><br><span class="line"><span class="css"></span></span><br><span class="line"><span class="css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">&quot;p1&quot;</span>&gt;</span>Set One CSS Style<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">&quot;p2&quot;</span>&gt;</span>Set CSS Style<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">&quot;p3&quot;</span>&gt;</span>Set CSS Style By Class<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> p1 = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;p1&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> p2 = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;p2&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> p3 = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;p3&#x27;</span>);</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.设置一个css样式</span></span></span><br><span class="line"><span class="javascript">    p1.style.backgroundColor = <span class="string">&#x27;black&#x27;</span>;</span></span><br><span class="line"><span class="javascript">    p1.style.color = <span class="string">&#x27;white&#x27;</span>;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//2.批量设置css样式</span></span></span><br><span class="line"><span class="javascript">    p2.style.cssText = <span class="string">&#x27;border:1px solid red;font-size:20px&#x27;</span>;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//3.通过class设置样式</span></span></span><br><span class="line"><span class="javascript">    p3.className = <span class="string">&#x27;mp mpp&#x27;</span>;<span class="comment">//注意不要添加&#x27;.&#x27;符号,可以添加多个组</span></span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-6-DOM操作元素"><a href="#2-6-DOM操作元素" class="headerlink" title="2.6 DOM操作元素"></a>2.6 DOM操作元素</h4><ul>
+<li>创建一个标签对象<br>语法:<br>innerHTML 获取或者设置标签的html内容</li>
+<li>父标签添加子标签<br>语法:<br>document.createElement(标签名称) 创建一个标签对象<br>parentNode.appendChild(newNode) 给父标签添加一个子标签</li>
+<li>移除元素<br>outerHTML</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">&quot;name&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>A<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>B<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//添加一个心列表</span></span></span><br><span class="line"><span class="javascript">    <span class="comment">//方式一</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;name&quot;</span>).innerHTML += <span class="string">&#x27;&lt;li&gt;C&lt;/li&gt;&#x27;</span>;</span></span><br><span class="line"><span class="javascript">    <span class="comment">//方式二</span></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.1 创建li标签</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> li = <span class="built_in">document</span>.createElement(<span class="string">&#x27;li&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    li.innerText = <span class="string">&#x27;All&#x27;</span>;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(li);</span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.2 父标签添加子标签</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;name&#x27;</span>).appendChild(li);</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="三-正则表达式"><a href="#三-正则表达式" class="headerlink" title="三.正则表达式"></a>三.正则表达式</h1><p>作用:根据定义好的规则，过滤文本内容</p>
+<ul>
+<li><p>在js中使用正则表达式<br>创建方式<br>1)let reg1 = new RegExp(‘正则表达式字符串’);<br>2)let reg1 = /正则表达式/;<br>验证方法<br>1)正则对象.test(字符串)<br>符号正则规则就返回true，否则false<br>2)字符串对象.match(正则对象)<br>返回字符串中符号正则规则的内容</p>
+</li>
+<li><p>正则表达式修饰符<br>i忽略大小写  g全局匹配 m 多行匹配</p>
+</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//1.创建正则对象</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> reg1 = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">&#x27;\\d+&#x27;</span>);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(reg1.test(<span class="string">&#x27;abc&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(reg1.test(<span class="string">&#x27;123&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> reg2 = <span class="regexp">/\d+/</span>;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(reg2.test(<span class="string">&#x27;abc&#x27;</span>));</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(reg2.test(<span class="string">&#x27;123&#x27;</span>));</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//验证方法</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="string">&quot;a1&quot;</span>.match(reg2));<span class="comment">//表示获取字符串符号正则规则的部分</span></span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">//正则表达式修饰符</span></span></span><br><span class="line"><span class="javascript">    <span class="comment">//i忽略大小写  g全局匹配 m 多行匹配</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> regi = <span class="regexp">/[]amn]/i</span>;<span class="comment">//不区分大小写匹配amn ignore忽略大小写</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> resi = <span class="string">&#x27;ABC&#x27;</span>.match(regi);<span class="comment">//从ABC中匹配regi模式字符串</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(resi);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> regg = <span class="regexp">/\d/g</span>;<span class="comment">//全局查找数组 global 全局</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> resg = <span class="string">&quot;1 plus 2 equels 3&quot;</span>.match(regg);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(resg);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> regm = <span class="regexp">/^\d/m</span>;<span class="comment">//多行匹配开头的数字(^限定开始 $限定结束) ，multipart</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> resm = <span class="string">&quot;abc1 plus 2 equals 3\n6abcmnk&quot;</span>.match(regm);</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(resm);</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="四-综合案例"><a href="#四-综合案例" class="headerlink" title="四.综合案例"></a>四.综合案例</h1><h4 id="4-1-表单校验"><a href="#4-1-表单校验" class="headerlink" title="4.1 表单校验"></a>4.1 表单校验</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.两次密码输入一致</span></span><br><span class="line"><span class="comment">//2.获取密码框和确认密码框的js对象</span></span><br><span class="line"><span class="keyword">let</span></span><br><span class="line">    pwd1 = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;pwd1&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> pwd2 = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;pwd2&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//1.2 校验密码是否一致的方法</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkPwd</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> boo = pwd1.value == pwd2.value;</span><br><span class="line">    <span class="keyword">if</span> (boo == <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;pwdwarn&#x27;</span>).style.display = <span class="string">&#x27;none&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;pwdwarn&#x27;</span>).style.display = <span class="string">&#x27;inline&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> boo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//1.3 给确认密码框绑定失去焦点时间</span></span><br><span class="line">pwd2.onblur = checkPwd;<span class="comment">//不能加括号()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2.邮箱格式正确</span></span><br><span class="line"><span class="comment">//2.1 定义邮箱正则表达式</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2.2 获取邮箱的js对象</span></span><br><span class="line"><span class="keyword">let</span> email = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;email&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> emailReg = <span class="regexp">/\w+([-+.&#x27;]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//2.3 定义校验函数(方法)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkEmail</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> boo = emailReg.test(email.value);</span><br><span class="line">    <span class="keyword">if</span> (boo == <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;emailwarn&#x27;</span>).style.display = <span class="string">&#x27;none&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;emailwarn&#x27;</span>).style.display = <span class="string">&#x27;inline&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> boo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//2.4 给邮箱绑定失去焦点事件</span></span><br><span class="line">email.onblur = checkEmail;</span><br><span class="line"></span><br><span class="line"><span class="comment">//3.手机号格式正确</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> phone = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;phone&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> phoneReg = <span class="regexp">/^((0\d&#123;2,3&#125;-\d&#123;7,8&#125;)|(1[3584]\d&#123;9&#125;))$/</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkPhone</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> boo = phoneReg.test(phone.value);</span><br><span class="line">    <span class="keyword">if</span> (boo == <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;phonewarn&#x27;</span>).style.display = <span class="string">&#x27;none&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">document</span>.getElementById(<span class="string">&#x27;phonewarn&#x27;</span>).style.display = <span class="string">&#x27;inline&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> boo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">phone.onblur = checkPhone;</span><br><span class="line"></span><br><span class="line"><span class="comment">//表单提交时进行校验 一定触发onsubmit()事件</span></span><br><span class="line"><span class="built_in">document</span>.getElementById(<span class="string">&#x27;myForm&#x27;</span>).onsubmit = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (checkPwd() &amp;&amp; checkEmail() &amp;&amp; checkPhone()) &#123;</span><br><span class="line">        alert(<span class="string">&#x27;Successful&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        alert(<span class="string">&#x27;Something Wrong&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ <details>
+<summary>点我展开html和css</summary>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class=&quot;regist_bg&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;regist&quot;&gt;</span><br><span class="line">        &lt;form action=&quot;#&quot; id=&quot;myForm&quot;&gt;</span><br><span class="line">            &lt;table width=&quot;700px&quot; height=&quot;350px&quot;&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td colspan=&quot;3&quot;&gt;</span><br><span class="line">                        &lt;font color=&quot;#3164af&quot;&gt;会员注册&lt;/font&gt; USER REGISTER</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;用户名&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input id=&quot;loginnameId&quot; type=&quot;text&quot; name=&quot;loginname&quot; size=&quot;50&quot;/&gt;&lt;span</span><br><span class="line">                            id=&quot;loginnamewarn&quot; class=&quot;warn&quot;&gt;用户名不能为空&lt;/span&gt;&lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;密码&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input id=&quot;pwd1&quot; type=&quot;password&quot; name=&quot;pwd1&quot; size=&quot;50&quot;/&gt;&lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;确认密码&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input id=&quot;pwd2&quot; type=&quot;password&quot; name=&quot;pwd2&quot; size=&quot;50&quot;/&gt;&lt;span</span><br><span class="line">                            id=&quot;pwdwarn&quot; class=&quot;warn&quot;&gt;密码不一致&lt;/span&gt;&lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;Email&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input id=&quot;email&quot; type=&quot;text&quot; name=&quot;email&quot; size=&quot;50&quot;/&gt; &lt;span id=&quot;emailwarn&quot;</span><br><span class="line">                                                                                                 class=&quot;warn&quot;&gt;邮箱格式有误&lt;/span&gt;</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;姓名&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;text&quot; name=&quot;username&quot; size=&quot;50&quot;/&gt;&lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;性别&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;</span><br><span class="line">                        &lt;input type=&quot;radio&quot; name=&quot;gender&quot; value=&quot;男&quot; checked=&quot;checked&quot;/&gt;男</span><br><span class="line">                        &lt;input type=&quot;radio&quot; name=&quot;gender&quot; value=&quot;女&quot;/&gt;女</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;电话号码&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;&lt;input id=&quot;phone&quot; type=&quot;text&quot; name=&quot;phone&quot; size=&quot;50&quot;/&gt; &lt;span id=&quot;phonewarn&quot;</span><br><span class="line">                                                                                                 class=&quot;warn&quot;&gt;手机格式有误&lt;/span&gt;</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td align=&quot;right&quot;&gt;所在地&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;3&quot;&gt;</span><br><span class="line">                        &lt;select id=&quot;provinceId&quot; onchange=&quot;selectCity(this.value)&quot; style=&quot;width:150px&quot;&gt;</span><br><span class="line">                            &lt;option value=&quot;&quot;&gt;----请-选-择-省----&lt;/option&gt;</span><br><span class="line">                            &lt;option value=&quot;0&quot;&gt;北京&lt;/option&gt;</span><br><span class="line">                            &lt;option value=&quot;1&quot;&gt;辽宁&lt;/option&gt;</span><br><span class="line">                            &lt;option value=&quot;2&quot;&gt;江苏&lt;/option&gt;</span><br><span class="line">                        &lt;/select&gt;</span><br><span class="line">                        &lt;select id=&quot;cityId&quot; style=&quot;width:150px&quot;&gt;</span><br><span class="line">                            &lt;option&gt;----请-选-择-市----&lt;/option&gt;</span><br><span class="line">                        &lt;/select&gt;</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td width=&quot;80&quot; align=&quot;right&quot;&gt;验证码&lt;/td&gt;</span><br><span class="line">                    &lt;td width=&quot;100&quot;&gt;&lt;input type=&quot;text&quot; name=&quot;verifyCode&quot;/&gt;&lt;/td&gt;</span><br><span class="line">                    &lt;td&gt;&lt;img src=&quot;../img/checkMa.png&quot;/&gt;&lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">                &lt;tr&gt;</span><br><span class="line">                    &lt;td&gt;&lt;/td&gt;</span><br><span class="line">                    &lt;td colspan=&quot;2&quot;&gt;</span><br><span class="line">                        &lt;input id=&quot;rebtn&quot; type=&quot;submit&quot; value=&quot;注册&quot;/&gt;</span><br><span class="line">                    &lt;/td&gt;</span><br><span class="line">                &lt;/tr&gt;</span><br><span class="line">            &lt;/table&gt;</span><br><span class="line">        &lt;/form&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.regist_bg</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">600px</span>;</span><br><span class="line">    <span class="attribute">padding-top</span>: <span class="number">40px</span>;</span><br><span class="line">    <span class="attribute">background-image</span>: <span class="built_in">url</span>(<span class="string">../img/bg.jpg</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.regist</span> &#123;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">7px</span> inset <span class="number">#ccc</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">700px</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">40px</span> <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">padding-left</span>: <span class="number">80px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#fff</span>;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">25%</span>;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">10px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">input</span><span class="selector-attr">[type=<span class="string">&quot;submit&quot;</span>]</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: aliceblue;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">35px</span>;</span><br><span class="line">    <span class="attribute">color</span>: red;</span><br><span class="line">    <span class="attribute">cursor</span>: pointer;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">5px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.warn</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: red;</span><br><span class="line">    <span class="attribute">font-size</span>: <span class="number">12px</span>;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</details>
+
+
+<h4 id="4-2-商品全选"><a href="#4-2-商品全选" class="headerlink" title="4.2 商品全选"></a>4.2 商品全选</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;btn1&quot;</span>&gt;</span>1.全选<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;btn2&quot;</span>&gt;</span>2.反选<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;btn3&quot;</span>&gt;</span>3.全部取消<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>Computer</span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>Phone</span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>Car</span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>House</span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">checked</span>=<span class="string">&quot;true&quot;</span>&gt;</span>NoteBook</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">let</span> boxs = <span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;input[type=&quot;checkbox&quot;]&#x27;</span>);</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;btn1&#x27;</span>).onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">for</span> (<span class="keyword">let</span> box <span class="keyword">of</span> boxs) &#123;</span></span><br><span class="line"><span class="javascript">            box.checked=<span class="literal">true</span>;</span></span><br><span class="line"><span class="javascript">        &#125;</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;btn2&#x27;</span>).onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">for</span> (<span class="keyword">let</span> box <span class="keyword">of</span> boxs) &#123;</span></span><br><span class="line"><span class="javascript">            box.checked=!box.checked;</span></span><br><span class="line"><span class="javascript">        &#125;</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;btn3&#x27;</span>).onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">for</span> (<span class="keyword">let</span> box <span class="keyword">of</span> boxs) &#123;</span></span><br><span class="line"><span class="javascript">            box.checked=<span class="literal">false</span>;</span></span><br><span class="line"><span class="javascript">        &#125;</span></span><br><span class="line"><span class="javascript">    &#125;</span></span><br><span class="line"><span class="javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-省市联动"><a href="#4-3-省市联动" class="headerlink" title="4.3 省市联动"></a>4.3 省市联动</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> data = <span class="keyword">new</span> <span class="built_in">Array</span>();</span><br><span class="line">data[<span class="string">&#x27;A&#x27;</span>] = [<span class="string">&#x27;A1&#x27;</span>, <span class="string">&#x27;A2&#x27;</span>, <span class="string">&#x27;A3&#x27;</span>];</span><br><span class="line">data[<span class="string">&#x27;B&#x27;</span>] = [<span class="string">&#x27;B1&#x27;</span>, <span class="string">&#x27;B2&#x27;</span>, <span class="string">&#x27;B3&#x27;</span>];</span><br><span class="line">data[<span class="string">&#x27;C&#x27;</span>] = [<span class="string">&#x27;C1&#x27;</span>, <span class="string">&#x27;C2&#x27;</span>, <span class="string">&#x27;C3&#x27;</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> provinceID = <span class="built_in">document</span>.getElementById(<span class="string">&quot;provinceId&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> cityID = <span class="built_in">document</span>.getElementById(<span class="string">&quot;cityId&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//1.页面加载成功后，初始化省份数据</span></span><br><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> data) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(index);</span><br><span class="line">        provinceId.innerHTML +=<span class="string">`&lt;option value=&quot;<span class="subst">$&#123;index&#125;</span>&quot;&gt;<span class="subst">$&#123;index&#125;</span>&lt;/option&gt;`</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//2.给省份下拉框绑定onchange事件</span></span><br><span class="line">provinceId.onchange = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.value);<span class="comment">//当前用户选中的value值,它就是二维数组的索引</span></span><br><span class="line">    <span class="built_in">console</span>.log(data[<span class="built_in">this</span>.value]);</span><br><span class="line">    <span class="comment">//3.城市列表</span></span><br><span class="line">    cityId.innerHTML = <span class="string">&#x27;&lt;option value=&quot;&quot;&gt;----请-选-择-市----&lt;/option&gt;&#x27;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.value);</span><br><span class="line">    <span class="built_in">console</span>.log(data[<span class="built_in">this</span>.value]);</span><br><span class="line">    <span class="keyword">let</span> citys = data[<span class="built_in">this</span>.value];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> city <span class="keyword">of</span> citys) &#123;</span><br><span class="line">        cityId.innerHTML += <span class="string">`&lt;option value=&quot;<span class="subst">$&#123;city&#125;</span>&quot;&gt;<span class="subst">$&#123;city&#125;</span>&lt;/option&gt;`</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ <details>
+<summary>点我展开html和css</summary>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;zh-CN&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Case 03<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;../css/case03.css&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;regist_bg&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;regist&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;#&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">table</span> <span class="attr">width</span>=<span class="string">&quot;600&quot;</span> <span class="attr">height</span>=<span class="string">&quot;350px&quot;</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;3&quot;</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">font</span> <span class="attr">color</span>=<span class="string">&quot;#3164af&quot;</span>&gt;</span>会员注册<span class="tag">&lt;/<span class="name">font</span>&gt;</span> USER REGISTER</span><br><span class="line">                    <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>用户名<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">&quot;loginnameId&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;loginname&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>密码<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">&quot;loginpwdId&quot;</span> <span class="attr">type</span>=<span class="string">&quot;password&quot;</span> <span class="attr">name</span>=<span class="string">&quot;loginpwd&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>确认密码<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">&quot;reloginpwdId&quot;</span> <span class="attr">type</span>=<span class="string">&quot;password&quot;</span> <span class="attr">name</span>=<span class="string">&quot;reloginpwd&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>Email<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">&quot;emailId&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;email&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>姓名<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>性别<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;radio&quot;</span> <span class="attr">name</span>=<span class="string">&quot;gender&quot;</span> <span class="attr">value</span>=<span class="string">&quot;男&quot;</span> <span class="attr">checked</span>=<span class="string">&quot;checked&quot;</span> /&gt;</span>男</span><br><span class="line">                        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;radio&quot;</span> <span class="attr">name</span>=<span class="string">&quot;gender&quot;</span> <span class="attr">value</span>=<span class="string">&quot;女&quot;</span> /&gt;</span>女</span><br><span class="line">                    <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>电话号码<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;phone&quot;</span> <span class="attr">size</span>=<span class="string">&quot;60&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>所在地<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;3&quot;</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;provinceId&quot;</span> <span class="attr">style</span>=<span class="string">&quot;width:150px&quot;</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;&quot;</span>&gt;</span>----请-选-择-省----<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;cityId&quot;</span> <span class="attr">style</span>=<span class="string">&quot;width:150px&quot;</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;&quot;</span>&gt;</span>----请-选-择-市----<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">width</span>=<span class="string">&quot;80&quot;</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>验证码<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">width</span>=<span class="string">&quot;100&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;verifyCode&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;../img/checkMa.png&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;注册&quot;</span> /&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">1.当页面加载成功后，要初始化省份信息</span></span><br><span class="line"><span class="comment">    页面加载事件,遍历数组的索引</span></span><br><span class="line"><span class="comment">2.给省份下拉框绑定onchange事件</span></span><br><span class="line"><span class="comment">    根据用户选择的省份查询对应的</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> <span class="attr">src</span>=<span class="string">&quot;../js/case03.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">.regist_bg &#123;</span><br><span class="line">    width: 100%;</span><br><span class="line">    height: 600px;</span><br><span class="line">    padding-top: 40px;</span><br><span class="line">    background-image: url(../img/bg.jpg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.regist &#123;</span><br><span class="line">    border: 7px inset #ccc;</span><br><span class="line">    width: 600px;</span><br><span class="line">    padding: 40px 0;</span><br><span class="line">    padding-left: 80px;</span><br><span class="line">    background-color: #fff;</span><br><span class="line">    margin-left: 25%;</span><br><span class="line">    border-radius: 10px;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">input[type=&quot;submit&quot;] &#123;</span><br><span class="line">    background-color: aliceblue;</span><br><span class="line">    width: 100px;</span><br><span class="line">    height: 35px;</span><br><span class="line">    color: red;</span><br><span class="line">    cursor: pointer;</span><br><span class="line">    border-radius: 5px;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</details>
+
+<h4 id="4-4-隔行换色"><a href="#4-4-隔行换色" class="headerlink" title="4.4 隔行换色"></a>4.4 隔行换色</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> oldColor;</span><br><span class="line"><span class="comment">//获取所有数组对象</span></span><br><span class="line"><span class="keyword">let</span> trs = <span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;table tr&#x27;</span>);<span class="comment">//注意:这里使用的是后代选择器,这里是js的一个小坑</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; trs.length; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i % <span class="number">2</span> == <span class="number">0</span>) &#123;<span class="comment">//偶数索引,奇数行</span></span><br><span class="line">        trs[i].style.backgroundColor = <span class="string">&#x27;lightgray&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;<span class="comment">//奇数索引，偶数行</span></span><br><span class="line">        trs[i].style.backgroundColor = <span class="string">&#x27;skyblue&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    trs[i].onmouseover = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;<span class="comment">//鼠标移入某一行</span></span><br><span class="line">        <span class="comment">//获取当前行的颜色</span></span><br><span class="line">        oldColor=trs[i].style.backgroundColor;</span><br><span class="line">        trs[i].style.backgroundColor = <span class="string">&#x27;brown&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    trs[i].onmouseout = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;<span class="comment">//鼠标移出某一行</span></span><br><span class="line">        trs[i].style.backgroundColor=oldColor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> tds = <span class="built_in">document</span>.querySelectorAll(<span class="string">&#x27;table td&#x27;</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; tds.length; i++) &#123;</span><br><span class="line">    tds[i].onmouseover=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        tds[i].style.backgroundColor=<span class="string">&#x27;Green&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    tds[i].onmouseout = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;<span class="comment">//鼠标移出某一行</span></span><br><span class="line">        tds[i].style.backgroundColor=oldColor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ <details>
+<summary>点我展开html</summary>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">id</span>=<span class="string">&quot;tab1&quot;</span> <span class="attr">border</span>=<span class="string">&quot;1&quot;</span> <span class="attr">width</span>=<span class="string">&quot;800&quot;</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span> <span class="attr">width</span>=<span class="string">&quot;100px&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>全/<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span>反选<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>分类ID<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>分类名称<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>分类描述<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>操作<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>手机数码<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>手机数码类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>2<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>电脑办公<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>电脑办公类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>3<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>鞋靴箱包<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>鞋靴箱包类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>家居饰品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>家居饰品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>5<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>牛奶制品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>牛奶制品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>6<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>大豆制品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>大豆制品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>7<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>海参制品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>海参制品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>8<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>羊绒制品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>羊绒制品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>9<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>海洋产品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>海洋产品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>10<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>奢侈用品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>奢侈用品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">class</span>=<span class="string">&quot;checkbox&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>家居饰品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>家居饰品类商品<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">a</span>&gt;</span>|<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>删除<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</details>
+
+<h4 id="4-5-拓展-为什么不用var"><a href="#4-5-拓展-为什么不用var" class="headerlink" title="4.5 拓展:为什么不用var"></a>4.5 拓展:为什么不用var</h4><ul>
+<li>ES6之前作用域为全局，容易导致变量有值被新值替代，局部变量使用let可以自动销毁，推荐let</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// for循环举例：var声明变量全局作用域、let声明变量是局部作用域</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">    <span class="built_in">document</span>.write(<span class="string">&#x27;&lt;h3&gt;我是var修饰遍历的内容&lt;/h3&gt;&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(i);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; <span class="number">5</span>; j++) &#123;</span><br><span class="line">    <span class="built_in">document</span>.write(<span class="string">&#x27;&lt;h3&gt;我是let修饰遍历的内容&lt;/h3&gt;&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// console.log(j);</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> b = <span class="number">5</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// 可以取到</span></span><br><span class="line"><span class="built_in">console</span>.log(b); <span class="comment">// 不能取到</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h3><h2 id="BOM对象"><a href="#BOM对象" class="headerlink" title="BOM对象"></a>BOM对象</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><ul>
+<li>浏览器对象模型</li>
+</ul>
+<h3 id="Window对象"><a href="#Window对象" class="headerlink" title="Window对象"></a>Window对象</h3><ul>
+<li><p>三种弹框</p>
+<ul>
+<li>alert()</li>
+<li>confim()</li>
+<li>prompt()</li>
+</ul>
+</li>
+<li><p>二种定时器</p>
+<ul>
+<li><p>setTimeout(函数,毫秒)</p>
+<ul>
+<li>clearTimeout(定时器)</li>
+</ul>
+</li>
+<li><p>setInterval(函数,毫秒)</p>
+<ul>
+<li>clearInterval(定时器)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Location对象"><a href="#Location对象" class="headerlink" title="Location对象"></a>Location对象</h3><ul>
+<li><p>reload()</p>
+</li>
+<li><p>href</p>
+<ul>
+<li>跳转页面</li>
+</ul>
+</li>
+</ul>
+<h2 id="DOM对象"><a href="#DOM对象" class="headerlink" title="DOM对象"></a>DOM对象</h2><h3 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h3><ul>
+<li>文档对象模型</li>
+</ul>
+<h3 id="获取元素"><a href="#获取元素" class="headerlink" title="获取元素"></a>获取元素</h3><ul>
+<li><p>ES5</p>
+<ul>
+<li>getElementById(id属性值)</li>
+</ul>
+</li>
+<li><p>ES6</p>
+<ul>
+<li>querySelector(CSS选择器)</li>
+<li>querySelectorAll(CSS选择器)</li>
+</ul>
+</li>
+</ul>
+<h3 id="操作内容"><a href="#操作内容" class="headerlink" title="操作内容"></a>操作内容</h3><ul>
+<li>innerText</li>
+<li>innerHTML</li>
+</ul>
+<h3 id="操作属性"><a href="#操作属性" class="headerlink" title="操作属性"></a>操作属性</h3><ul>
+<li><p>js对象.属性名</p>
+<ul>
+<li>原生属性</li>
+</ul>
+</li>
+</ul>
+<h3 id="操作样式"><a href="#操作样式" class="headerlink" title="操作样式"></a>操作样式</h3><ul>
+<li>js对象.style.样式名(驼峰格式)</li>
+<li>js对象.style.cssText</li>
+<li>js对象.className</li>
+</ul>
+<h3 id="操作元素"><a href="#操作元素" class="headerlink" title="操作元素"></a>操作元素</h3><ul>
+<li><p>添加元素</p>
+<ul>
+<li><p>js对象.innerHTML +=追加内容</p>
+</li>
+<li><p>document.createjs对象(标签)</p>
+<ul>
+<li>parentNode.appendChild(newNode)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><h3 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h3><ul>
+<li>let rege = new RegExp(“正则表达式”);</li>
+<li>let regex = /正则表达式/;</li>
+</ul>
+<h3 id="验证方法"><a href="#验证方法" class="headerlink" title="验证方法"></a>验证方法</h3><ul>
+<li>正则对象.test(字符串)</li>
+</ul>
+<h2 id="综合案例"><a href="#综合案例" class="headerlink" title="综合案例"></a>综合案例</h2><h3 id="表单校验"><a href="#表单校验" class="headerlink" title="表单校验"></a>表单校验</h3><ul>
+<li>发挥大家的想象力</li>
+</ul>
+<h3 id="商品全选"><a href="#商品全选" class="headerlink" title="商品全选"></a>商品全选</h3><h3 id="省市联动"><a href="#省市联动" class="headerlink" title="省市联动"></a>省市联动</h3><h3 id="隔行换色"><a href="#隔行换色" class="headerlink" title="隔行换色"></a>隔行换色</h3><p><em>XMind: ZEN - Trial Version</em></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/06/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E9%97%A8%E7%BC%96%E7%A8%8B%E8%AF%BE%EF%BC%88C-Sharp%E7%89%88%EF%BC%89/" rel="next" title="金老师C#课">
+                <i class="fa fa-chevron-left"></i> 金老师C#课
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/10/jQuery%20%E5%85%A5%E9%97%A8/" rel="prev" title="jQuery 入门">
+                jQuery 入门 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">103</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-BOM%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.</span> <span class="nav-text">一.BOM对象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-BOM%E7%AE%80%E4%BB%8B"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 BOM简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Window%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 Window对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-Location%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 Location对象</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-DOM%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">二.DOM对象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-DOM%E7%AE%80%E4%BB%8B"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 DOM简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-DOM%E8%8E%B7%E5%8F%96%E5%85%83%E7%B4%A0"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.2 DOM获取元素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-DOM%E6%93%8D%E4%BD%9C%E5%86%85%E5%AE%B9"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">2.3 DOM操作内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-DOM%E6%93%8D%E4%BD%9C%E5%B1%9E%E6%80%A7"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">2.4 DOM操作属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-DOM%E6%93%8D%E4%BD%9C%E6%A0%B7%E5%BC%8F"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">2.5 DOM操作样式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-6-DOM%E6%93%8D%E4%BD%9C%E5%85%83%E7%B4%A0"><span class="nav-number">2.0.0.6.</span> <span class="nav-text">2.6 DOM操作元素</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">三.正则表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B-%E7%BB%BC%E5%90%88%E6%A1%88%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">四.综合案例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E8%A1%A8%E5%8D%95%E6%A0%A1%E9%AA%8C"><span class="nav-number">4.0.0.1.</span> <span class="nav-text">4.1 表单校验</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E5%95%86%E5%93%81%E5%85%A8%E9%80%89"><span class="nav-number">4.0.0.2.</span> <span class="nav-text">4.2 商品全选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-%E7%9C%81%E5%B8%82%E8%81%94%E5%8A%A8"><span class="nav-number">4.0.0.3.</span> <span class="nav-text">4.3 省市联动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-4-%E9%9A%94%E8%A1%8C%E6%8D%A2%E8%89%B2"><span class="nav-number">4.0.0.4.</span> <span class="nav-text">4.4 隔行换色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-5-%E6%8B%93%E5%B1%95-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8var"><span class="nav-number">4.0.0.5.</span> <span class="nav-text">4.5 拓展:为什么不用var</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.0.1.</span> <span class="nav-text">总结:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BOM%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.1.</span> <span class="nav-text">BOM对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">4.1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Window%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.1.2.</span> <span class="nav-text">Window对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Location%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.1.3.</span> <span class="nav-text">Location对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOM%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.2.</span> <span class="nav-text">DOM对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%85%83%E7%B4%A0"><span class="nav-number">4.2.2.</span> <span class="nav-text">获取元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E5%86%85%E5%AE%B9"><span class="nav-number">4.2.3.</span> <span class="nav-text">操作内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E5%B1%9E%E6%80%A7"><span class="nav-number">4.2.4.</span> <span class="nav-text">操作属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%A0%B7%E5%BC%8F"><span class="nav-number">4.2.5.</span> <span class="nav-text">操作样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E5%85%83%E7%B4%A0"><span class="nav-number">4.2.6.</span> <span class="nav-text">操作元素</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.3.</span> <span class="nav-text">正则表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA"><span class="nav-number">4.3.1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="nav-number">4.3.2.</span> <span class="nav-text">验证方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%BC%E5%90%88%E6%A1%88%E4%BE%8B"><span class="nav-number">4.4.</span> <span class="nav-text">综合案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E5%8D%95%E6%A0%A1%E9%AA%8C"><span class="nav-number">4.4.1.</span> <span class="nav-text">表单校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%86%E5%93%81%E5%85%A8%E9%80%89"><span class="nav-number">4.4.2.</span> <span class="nav-text">商品全选</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9C%81%E5%B8%82%E8%81%94%E5%8A%A8"><span class="nav-number">4.4.3.</span> <span class="nav-text">省市联动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%94%E8%A1%8C%E6%8D%A2%E8%89%B2"><span class="nav-number">4.4.4.</span> <span class="nav-text">隔行换色</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

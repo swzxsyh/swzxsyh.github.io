@@ -1,37 +1,1387 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Swzxsyh" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="maven基础与环境搭建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Maven基础">
+<meta property="og:url" content="http://yoursite.com/2020/05/14/Maven%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Swzxsyh">
+<meta property="og:description" content="maven基础与环境搭建">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/14/Maven%E5%9F%BA%E7%A1%80/1589427711479.png">
+<meta property="article:published_time" content="2020-05-14T01:02:03.000Z">
+<meta property="article:modified_time" content="2020-08-03T15:25:25.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/14/Maven%E5%9F%BA%E7%A1%80/1589427711479.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/14/Maven基础/"/>
+
+
+
+
+
+  <title>Maven基础 | Swzxsyh</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Swzxsyh</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">--学习笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/Maven%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Swzxsyh">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Maven基础</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-14T09:02:03+08:00">
+                2020-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ul>
+<li>maven基础与环境搭建</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一-Maven简介"><a href="#一-Maven简介" class="headerlink" title="一.Maven简介"></a>一.Maven简介</h1><h4 id="1-1-Maven是什么"><a href="#1-1-Maven是什么" class="headerlink" title="1.1 Maven是什么"></a>1.1 Maven是什么</h4><p>Maven 是一个项目管理工具，它包含了一个项目对象模型 (POM:Project Object Model)，一组标准集合，一个项 目生命周期(Project Lifecycle)，一个依赖管理系统(Dependency Management System)，和用来运行定义在生命周 期阶段(phase)中插件(plugin)目标(goal)的逻辑。</p>
+<h4 id="1-2-Maven能解决什么问题"><a href="#1-2-Maven能解决什么问题" class="headerlink" title="1.2 Maven能解决什么问题"></a>1.2 Maven能解决什么问题</h4><p>一种工具，可以构建工程，管理 jar包，编译代码，还 能帮你自动运行单元测试，打包，生成报表，部署项目，生成 Web 站点。</p>
+<h4 id="1-3-Maven的两个核心功能"><a href="#1-3-Maven的两个核心功能" class="headerlink" title="1.3 Maven的两个核心功能"></a>1.3 Maven的两个核心功能</h4><h5 id="1-3-1-依赖管理"><a href="#1-3-1-依赖管理" class="headerlink" title="1.3.1 依赖管理"></a>1.3.1 依赖管理</h5><p>Maven的一个核心特性就是依赖管理。MVN依赖管理，就是一个管理jar包的过程</p>
+<table>
+<thead>
+<tr>
+<th>CRM项目<br>使用mvn工程实现</th>
+<th>➡项目中给定坐标，去仓库拉取jar包➡<br>索引的存在，使拉取jar包过程，可以认为是自己项目中有的</th>
+<th>MVN仓库<br>jar的仓库</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td>坐标:将来要找某个jar包，就是要确定这个jar包的坐标</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>jar包如何给出坐标:公司/组织名+项目名+版本号一起确定</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>maven工程中不直接将jar包导入到工程中，而是通过在pom.xml文件中添加所需jar包的坐标，避免了jar直接引入进来，在需要用到jar包的时候，只要查找pom.xml文件，再通过pom.xml文件中的坐标，到一个专门用于”存放jar包的仓库”(maven仓库)中根据坐标从而找到这些jar包，再把这些jar包拿去运行。 </p>
+<ul>
+<li><p>通过读取pom.xml 文件中的坐标，再到仓库中找到jar包，会不会很慢</p>
+<blockquote>
+<p>通过pom.xml文件配置要引入的jar包的坐标，再读取坐标并到仓库中加载jar包，这样我们就可以直接使用jar包，为了解决这个过程中速度慢的问题，maven中也有索引的概念，通过建立索引，可以大大提高加载jar包的速度，使得我们认为jar包基本跟放在本地的工程文件中再读取出来的速度是一样的。</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="1-3-2-项目构建"><a href="#1-3-2-项目构建" class="headerlink" title="1.3.2 项目构建"></a>1.3.2 项目构建</h5><ul>
+<li><p>什么是项目构建</p>
+<p>项目从编译、测试、运行、打包、安装 ，部署整个过程都交给maven进行管理，这个过程称为构建。 </p>
+<p>一键构建 指的是整个构建过程，使用maven一个命令可以轻松完成整个工作。</p>
+</li>
+<li><p>Maven规范化构建流程</p>
+<table>
+<thead>
+<tr>
+<th>清理</th>
+<th>➡</th>
+<th>编译</th>
+<th>➡</th>
+<th>测试</th>
+<th>➡</th>
+<th>报告</th>
+<th>➡</th>
+<th>打包</th>
+<th>➡</th>
+<th>部署</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h1 id="二-Maven安装和使用"><a href="#二-Maven安装和使用" class="headerlink" title="二 Maven安装和使用"></a>二 Maven安装和使用</h1><h4 id="2-1-Maven下载和安装"><a href="#2-1-Maven下载和安装" class="headerlink" title="2.1 Maven下载和安装"></a>2.1 Maven下载和安装</h4><h5 id="2-1-1-Maven下载"><a href="#2-1-1-Maven下载" class="headerlink" title="2.1.1 Maven下载"></a>2.1.1 Maven下载</h5><p>Maven官网下载地址:<a href="http://maven.apache.org/download.cgi">http://maven.apache.org/download.cgi</a></p>
+<p>目前使用@3.5版本</p>
+<h5 id="2-1-2-Maven安装"><a href="#2-1-2-Maven安装" class="headerlink" title="2.1.2 Maven安装"></a>2.1.2 Maven安装</h5><p>将apache-maven-3.5.2-bin.zip解压并添加至path</p>
+<ul>
+<li><p>maven目录结构</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bin</td>
+<td>存放了 maven 的命令</td>
+</tr>
+<tr>
+<td>boot</td>
+<td>存放了一些 maven 本身的引导程序，如类加载器等</td>
+</tr>
+<tr>
+<td>conf</td>
+<td>存放了 maven 的一些配置文件，如 setting.xml 文件</td>
+</tr>
+<tr>
+<td>lib</td>
+<td>存放了 maven 本身运行所需的一些 jar 包</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">apache-maven-3.5.2</span><br><span class="line">├── LICENSE</span><br><span class="line">├── NOTICE</span><br><span class="line">├── README.txt</span><br><span class="line">├── bin</span><br><span class="line">│   ├── m2.conf</span><br><span class="line">│   ├── mvn</span><br><span class="line">│   ├── mvn.cmd</span><br><span class="line">│   ├── mvnDebug</span><br><span class="line">│   ├── mvnDebug.cmd</span><br><span class="line">│   └── mvnyjp</span><br><span class="line">├── boot</span><br><span class="line">│   └── plexus-classworlds-2.5.2.jar</span><br><span class="line">├── conf</span><br><span class="line">│   ├── logging</span><br><span class="line">│   ├── settings.xml</span><br><span class="line">│   └── toolchains.xml</span><br><span class="line">└── lib</span><br><span class="line">    ├── aopalliance-1.0.jar</span><br><span class="line">		├── ...省略</span><br><span class="line">    └── wagon-provider-api.license</span><br><span class="line"></span><br><span class="line">7 directories, 91 files</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="2-1-3-Maven及JDK配置"><a href="#2-1-3-Maven及JDK配置" class="headerlink" title="2.1.3 Maven及JDK配置"></a>2.1.3 Maven及JDK配置</h5><p>  Maven 3.3+ require JDK 1.7 or above to execute - they still allow you to build against 1.3 and other JDK versions <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">by Using Toolchains</a></p>
+<ul>
+<li><p>配置PATH</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi .zshrc</span><br><span class="line"></span><br><span class="line"><span class="comment">#MAVEN_HOME</span></span><br><span class="line"><span class="built_in">export</span> MAVEN_HOME=/Users/swzxsyh/Program/apache-maven-3.5.2</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$MAVEN_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="2-1-4-Maven软件版本测试"><a href="#2-1-4-Maven软件版本测试" class="headerlink" title="2.1.4 Maven软件版本测试"></a>2.1.4 Maven软件版本测试</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> ~ <span class="comment">#mvn -v</span></span><br><span class="line">Apache Maven 3.5.2 (138edd61fd100ec658bfa2d307c43b76940a5d7d; 2017-10-18T15:58:13+08:00)</span><br><span class="line">Maven home: /Users/swzxsyh/Program/apache-maven-3.5.2</span><br><span class="line">Java version: 1.8.0_221, vendor: Oracle Corporation</span><br><span class="line">Java home: /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre</span><br><span class="line">Default locale: en_CN, platform encoding: UTF-8</span><br><span class="line">OS name: <span class="string">&quot;mac os x&quot;</span>, version: <span class="string">&quot;10.15.4&quot;</span>, arch: <span class="string">&quot;x86_64&quot;</span>, family: <span class="string">&quot;mac&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-Maven仓库"><a href="#2-3-Maven仓库" class="headerlink" title="2.3 Maven仓库"></a>2.3 Maven仓库</h4><h5 id="2-3-1-Maven仓库的分类"><a href="#2-3-1-Maven仓库的分类" class="headerlink" title="2.3.1 Maven仓库的分类"></a>2.3.1 Maven仓库的分类</h5><p>Maven仓库分为本地仓库和远程仓库二大类。而远程仓库又可分成中央仓库，私服，第三方仓库。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Maven仓库</th>
+<th align="center"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><b/>本地仓库</td>
+<td></td>
+<td align="center"><b/>远程仓库</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td align="center">⬇</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td align="center">中央仓库</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td align="center">私服</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td align="center">第三方公共库</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>依赖寻找流程</p>
+<ul>
+<li><p>在本地仓库中，根据Maven坐标系寻找指定依赖，如果存在，直接返回。</p>
+</li>
+<li><p>如果Maven仓库中不存在，或者需要检查依赖的版本时，maven则会去远程仓库中寻找，下载到本地仓库中再使 用。</p>
+</li>
+</ul>
+</li>
+<li><p>本地仓库</p>
+<p>用来存储从远程仓库下载的插件和jar包，项目使用一些插件或jar包，优先从本地仓库查找。</p>
+</li>
+<li><p>中央仓库</p>
+<p>在maven软件中内置一个远程仓库地址<a href="http://repo1.maven.org/maven2">http://repo1.maven.org/maven2</a> ，它是中央仓库，服务于整个互联网，它是由Maven团队自己维护，里面存储了非常全的jar包，它包含了世界上大部分流行的开源项目构件。</p>
+</li>
+<li><p>第三方公共库</p>
+<p>Maven 仓库默认中央仓库在国外且只有一个， 国内使用难免很慢，我们可以更换为第三方公共库，例如:阿里云镜 像。</p>
+</li>
+<li><p>私服</p>
+<p>私服是一种特殊的远程仓库，其内容是来自于其他的远程仓库，一般架设在局域网内，提供给一个组织的人员使用。 当Maven需要下载依赖时，从私服请求，如果私服上不存在该依赖，则从其他远程仓库下载，同时缓存在私服上，提 供给其他人使用。如果项目中的一些内部模块，无法发布到外部远程仓库中，也可发布在私服上，提供给项目中的其 他人员使用。</p>
+</li>
+</ul>
+<h5 id="2-3-2-Maven本地仓库的配置"><a href="#2-3-2-Maven本地仓库的配置" class="headerlink" title="2.3.2 Maven本地仓库的配置"></a>2.3.2 Maven本地仓库的配置</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd  $MAVEN_HOME/conf </span><br><span class="line">vi settings.xml</span><br><span class="line"># 找到</span><br><span class="line"><span class="tag">&lt;<span class="name">settings</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/SETTINGS/1.0.0&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- localRepository</span></span><br><span class="line"><span class="comment">   | The path to the local repository maven will use to store artifacts.</span></span><br><span class="line"><span class="comment">   |</span></span><br><span class="line"><span class="comment">   | Default: $&#123;user.home&#125;/.m2/repository</span></span><br><span class="line"><span class="comment">  &lt;localRepository&gt;/path/to/local/repo&lt;/localRepository&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  将<span class="tag">&lt;<span class="name">localRepository</span>&gt;</span>/path/to/local/repo<span class="tag">&lt;/<span class="name">localRepository</span>&gt;</span>改为本地仓库路径添加到注释后</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-4-Maven仓库国内镜像配置"><a href="#2-3-4-Maven仓库国内镜像配置" class="headerlink" title="2.3.4 Maven仓库国内镜像配置"></a>2.3.4 Maven仓库国内镜像配置</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirrors</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- mirror</span></span><br><span class="line"><span class="comment">   | Specifies a repository mirror site to use instead of a given repository. The repository that</span></span><br><span class="line"><span class="comment">   | this mirror serves has an ID that matches the mirrorOf element of this mirror. IDs are used</span></span><br><span class="line"><span class="comment">   | for inheritance and direct lookup purposes, and must be unique across the set of mirrors.</span></span><br><span class="line"><span class="comment">   |</span></span><br><span class="line"><span class="comment">  &lt;mirror&gt;</span></span><br><span class="line"><span class="comment">    &lt;id&gt;mirrorId&lt;/id&gt;</span></span><br><span class="line"><span class="comment">    &lt;mirrorOf&gt;repositoryId&lt;/mirrorOf&gt;</span></span><br><span class="line"><span class="comment">    &lt;name&gt;Human Readable Name for this Mirror.&lt;/name&gt;</span></span><br><span class="line"><span class="comment">    &lt;url&gt;http://my.repository.com/repo/path&lt;/url&gt;</span></span><br><span class="line"><span class="comment">  &lt;/mirror&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 添加阿里云镜像 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>alimaven<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun maven<span class="tag">&lt;/<span class="name">name</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.aliyun.com/nexus/content/groups/public/<span class="tag">&lt;/<span class="name">url</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-4-全局setting与用户setting"><a href="#2-3-4-全局setting与用户setting" class="headerlink" title="2.3.4 全局setting与用户setting"></a>2.3.4 全局setting与用户setting</h5><p>maven仓库地址、私服等配置信息需要在setting.xml文件中配置，分为全局配置和用户配置。 </p>
+<p>在maven安装目录下 的有 conf/setting.xml文件，此setting.xml文件用于maven的所有project项目，它作为maven的全局配置。 如需要 个性配置则需要在用户配置中设置，用户配置的setting.xml文件默认的位置在:${user.dir} /.m2/settings.xml目录 中,${user.dir} 指windows 中的用户目录。</p>
+<p> maven会先找用户配置，如果找到则以用户配置文件为准，否则使用全 局配置文件。</p>
+<h4 id="2-3-Maven坐标和依赖"><a href="#2-3-Maven坐标和依赖" class="headerlink" title="2.3 Maven坐标和依赖"></a>2.3 Maven坐标和依赖</h4><p>Maven的一个核心的作用就是管理项目的依赖，引入我们所需的各种jar包等。为了能自动化的解析任何一个Java构 件，Maven必须将这些Jar包或者其他资源进行唯一标识，这是管理项目的依赖的基础，也就是我们要说的坐标。包 括我们自己开发的项目，也是要通过坐标进行唯一标识的，这样才能才其它项目中进行依赖引用。</p>
+<ul>
+<li><p>坐标的定义元素如下</p>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>groupId</td>
+<td>定义当前Maven项目名称</td>
+</tr>
+<tr>
+<td>artifactId</td>
+<td>定义项目模块</td>
+</tr>
+<tr>
+<td>version</td>
+<td>定义当前项目的当前版本</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>例如</p>
+<p>创建一个Maven的web项目，在pom.xml文件中生成坐标</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--当前项目坐标--&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.test<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven_helloword<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>要引入junit的测试jar，只需要在pom.xml配置文件中配置引入junit的坐标依赖即可</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 依赖关系 --&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 此项目运行使用junit，所以此项目依赖junit --&gt;</span> </span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- junit的项目名称 --&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- junit的模块名称 --&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> <span class="comment">&lt;!-- junit版本 --&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 依赖范围:单元测试时使用junit --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="2-4-Maven工程的认识"><a href="#2-4-Maven工程的认识" class="headerlink" title="2.4 Maven工程的认识"></a>2.4 Maven工程的认识</h4><h5 id="2-4-1-Maven工程的目录结构"><a href="#2-4-1-Maven工程的目录结构" class="headerlink" title="2.4.1 Maven工程的目录结构"></a>2.4.1 Maven工程的目录结构</h5><p>作为一个maven工程，它的src目录和pom.xml是必备的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">├── maven_java.iml</span><br><span class="line">├── pom.xml</span><br><span class="line">├── src</span><br><span class="line">└── target</span><br></pre></td></tr></table></figure>
+
+<p>进入src目录后，我们发现它里面的目录结构如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">src</span><br><span class="line">├── main</span><br><span class="line">│   ├── java					<span class="comment">#项目代码</span></span><br><span class="line">│   ├── resources			<span class="comment">#配置文件</span></span><br><span class="line">│   └── webapp				<span class="comment">#页面资源</span></span><br><span class="line">└── <span class="built_in">test</span></span><br><span class="line">		├── java					<span class="comment">#测试代码</span></span><br><span class="line">    └──resources 					</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>src/main/java</td>
+<td>存放项目的.java文件</td>
+</tr>
+<tr>
+<td>src/main/resources</td>
+<td>存放项目资源文件，如spring, mybatis配置文件</td>
+</tr>
+<tr>
+<td>src/test/java</td>
+<td>存放所有单元测试.java文件，如junit测试类</td>
+</tr>
+<tr>
+<td>src/test/resources</td>
+<td>测试资源文件</td>
+</tr>
+<tr>
+<td>target</td>
+<td>项目输出位置，编译后的class文件会输出到此目录</td>
+</tr>
+<tr>
+<td>pom.xml</td>
+<td>maven项目核心配置文</td>
+</tr>
+</tbody></table>
+<ul>
+<li>注意:如果是普通的java项目，那么就没有webapp目录。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">完整java项目</span><br><span class="line">	java工程名（项目名）</span><br><span class="line">		|-- src目录</span><br><span class="line">			|-- main目录（主干代码）</span><br><span class="line">				|-- java目录（java代码）</span><br><span class="line">				|-- resources目录（配置文件）</span><br><span class="line">			|-- <span class="built_in">test</span>目录（测试代码）</span><br><span class="line">				|-- java目录（java代码）</span><br><span class="line">				|-- resources目录（配置文件）</span><br><span class="line">		|-- pom.xml（maven工程核心配置文件）</span><br><span class="line">		|-- target目录（存放编译后的class文件.....）</span><br><span class="line"></span><br><span class="line">* web项目【重点】</span><br><span class="line">	web工程名（项目名）</span><br><span class="line">		|-- src目录</span><br><span class="line">			|-- main目录（主干代码）</span><br><span class="line">				|-- java目录（java代码）</span><br><span class="line">				|-- resources目录（配置文件）</span><br><span class="line">				|-- webapp目录（页面资源）</span><br><span class="line">					|-- WEB-INF</span><br><span class="line">						|-- web.xml(web工程核心配置文件)</span><br><span class="line">					|-- index.jsp</span><br><span class="line">					|-- css、js、img..</span><br><span class="line">			|-- <span class="built_in">test</span>目录（测试代码）</span><br><span class="line">				|-- java目录（java代码）</span><br><span class="line">				|-- resources目录（配置文件）</span><br><span class="line">		|-- pom.xml（maven工程核心配置文件）</span><br><span class="line">		|-- target目录（存放编译后的class文件.....）</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="2-4-2-Maven工程的运行"><a href="#2-4-2-Maven工程的运行" class="headerlink" title="2.4.2 Maven工程的运行"></a>2.4.2 Maven工程的运行</h5><p>进入maven工程目录(当前目录有pom.xml文件)，运行tomcat7:run命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">~ mvn tomcat7:run</span><br><span class="line"></span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] &gt;&gt;&gt; tomcat7-maven-plugin:2.2:run (default-cli) &gt; process-classes @ maven_web &gt;&gt;&gt;</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ maven_web ---</span><br><span class="line">[INFO] Changes detected - recompiling the module!</span><br><span class="line">[INFO] Compiling 1 <span class="built_in">source</span> file to /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/classes</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] &lt;&lt;&lt; <span class="string">tomcat7-maven-plugin:2.2:run (default-cli) &lt; process-classes @ maven_web &lt;&lt;&lt;</span></span><br><span class="line"><span class="string">[INFO] </span></span><br><span class="line"><span class="string">[INFO] </span></span><br><span class="line"><span class="string">[INFO] --- tomcat7</span>-maven-plugin:2.2:run (default-cli) @ maven_web ---</span><br><span class="line">[INFO] Running war on http://localhost:8080/</span><br><span class="line">[INFO] Creating Tomcat server configuration at /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/tomcat</span><br><span class="line">[INFO] create webapp with contextPath: </span><br><span class="line">May 15, 2020 10:29:37 PM org.apache.coyote.AbstractProtocol init</span><br><span class="line">INFO: Initializing ProtocolHandler [<span class="string">&quot;http-bio-8080&quot;</span>]</span><br><span class="line">May 15, 2020 10:29:37 PM org.apache.catalina.core.StandardService startInternal</span><br><span class="line">INFO: Starting service Tomcat</span><br><span class="line">May 15, 2020 10:29:37 PM org.apache.catalina.core.StandardEngine startInternal</span><br><span class="line">INFO: Starting Servlet Engine: Apache Tomcat/7.0.47</span><br><span class="line">May 15, 2020 10:29:38 PM org.apache.coyote.AbstractProtocol start</span><br><span class="line">INFO: Starting ProtocolHandler [<span class="string">&quot;http-bio-8080&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>根据上边的提示信息,访问<a href="http://localhost:8080/">http://localhost:8080/</a>  即可</p>
+<h1 id="三-Maven生命周期和插件"><a href="#三-Maven生命周期和插件" class="headerlink" title="三.Maven生命周期和插件"></a>三.Maven生命周期和插件</h1><h4 id="3-1-Maven常用命令和插件"><a href="#3-1-Maven常用命令和插件" class="headerlink" title="3.1 Maven常用命令和插件"></a>3.1 Maven常用命令和插件</h4><h5 id="3-1-1-clean"><a href="#3-1-1-clean" class="headerlink" title="3.1.1 clean"></a>3.1.1 clean</h5><p>clean是maven工程的清理命令，执行 clean会删除target目录及内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">~ mvn clean</span><br><span class="line"> </span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ maven_web ---</span><br><span class="line">[INFO] Deleting /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 0.228 s</span><br><span class="line">[INFO] Finished at: 2020-05-15T23:52:52+08:00</span><br><span class="line">[INFO] Final Memory: 9M/309M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-2-compile"><a href="#3-1-2-compile" class="headerlink" title="3.1.2 compile"></a>3.1.2 compile</h5><p>compile是maven工程的编译命令，作用是将src/main/java下的文件编译为class文件输出到target目录下。</p>
+<p>将src中main目录下java代码进行编译，将src中main目录下配置抽取，输出到target目录: classes目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">~ mvn compile</span><br><span class="line"></span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ maven_web ---</span><br><span class="line">[INFO] Changes detected - recompiling the module!</span><br><span class="line">[INFO] Compiling 1 <span class="built_in">source</span> file to /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/classes</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 0.952 s</span><br><span class="line">[INFO] Finished at: 2020-05-15T23:56:28+08:00</span><br><span class="line">[INFO] Final Memory: 13M/209M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line"></span><br><span class="line">～ ll  ./target/classes/cn/itcast/web/servlet/</span><br><span class="line"> </span><br><span class="line">total 8</span><br><span class="line">-rw-r--r--  1 swzxsyh  staff   1.1K May 15 23:56 HelloServlet.class</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-3-test"><a href="#3-1-3-test" class="headerlink" title="3.1.3 test"></a>3.1.3 test</h5><p>test是maven工程的测试命令 mvn test，会执行src/test/java下的单元测试类，并编译为class文件。</p>
+<p>mvn test=&gt;target编译main代码=&gt;编译test代码=&gt;执行所有测试代码，类名xxxTest结尾，必须有@Test注解的方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">~ mvn <span class="built_in">test</span></span><br><span class="line"></span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line"></span><br><span class="line"><span class="comment">#清理target目录</span></span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line"><span class="comment">#编译src/main主干</span></span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ maven_web ---</span><br><span class="line">[INFO] Nothing to compile - all classes are up to date</span><br><span class="line">[INFO] </span><br><span class="line"><span class="comment">#编译src/test测试目录</span></span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ maven_web ---</span><br><span class="line">[INFO] Changes detected - recompiling the module!</span><br><span class="line">[INFO] Compiling 1 <span class="built_in">source</span> file to /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/test-classes</span><br><span class="line">[INFO] </span><br><span class="line"><span class="comment"># 针对test目录下的测试代码，逐一测试</span></span><br><span class="line">[INFO] --- maven-surefire-plugin:2.12.4:<span class="built_in">test</span> (default-test) @ maven_web ---</span><br><span class="line">[INFO] Surefire report directory: /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/surefire-reports</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------</span><br><span class="line"> T E S T S</span><br><span class="line">-------------------------------------------------------</span><br><span class="line">Running cn.itcast.test.HelloTest</span><br><span class="line">仅在测试期有效</span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.065 sec</span><br><span class="line"></span><br><span class="line">Results :</span><br><span class="line"></span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0</span><br><span class="line"></span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 1.509 s</span><br><span class="line">[INFO] Finished at: 2020-05-16T00:00:02+08:00</span><br><span class="line">[INFO] Final Memory: 15M/212M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-4-package"><a href="#3-1-4-package" class="headerlink" title="3.1.4 package"></a>3.1.4 package</h5><p>package是maven工程的打包命令，对于java工程执行package打成jar包，对于web工程打成war包。</p>
+<p>mvn package=&gt;编译main代码=&gt;编译test代码=&gt;执行测试=&gt;将项目打成war包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">~ mvn package</span><br><span class="line"> </span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ maven_web ---</span><br><span class="line">[INFO] Nothing to compile - all classes are up to date</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ maven_web ---</span><br><span class="line">[INFO] Nothing to compile - all classes are up to date</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-surefire-plugin:2.12.4:<span class="built_in">test</span> (default-test) @ maven_web ---</span><br><span class="line">[INFO] Surefire report directory: /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/surefire-reports</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------</span><br><span class="line"> T E S T S</span><br><span class="line">-------------------------------------------------------</span><br><span class="line">Running cn.itcast.test.HelloTest</span><br><span class="line">仅在测试期有效</span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 sec</span><br><span class="line"></span><br><span class="line">Results :</span><br><span class="line"></span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0</span><br><span class="line"></span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-war-plugin:2.2:war (default-war) @ maven_web ---</span><br><span class="line">[INFO] Packaging webapp</span><br><span class="line">[INFO] Assembling webapp [maven_web] <span class="keyword">in</span> [/Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/maven_web-1.0-SNAPSHOT]</span><br><span class="line">[INFO] Processing war project</span><br><span class="line">[INFO] Copying webapp resources [/Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/src/main/webapp]</span><br><span class="line">[INFO] Webapp assembled <span class="keyword">in</span> [49 msecs]</span><br><span class="line">[INFO] Building war: /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/maven_web-1.0-SNAPSHOT.war</span><br><span class="line">[INFO] WEB-INF/web.xml already added, skipping</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 1.528 s</span><br><span class="line">[INFO] Finished at: 2020-05-16T00:05:14+08:00</span><br><span class="line">[INFO] Final Memory: 12M/294M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line"></span><br><span class="line">~ find . -name <span class="string">&#x27;*war&#x27;</span>  </span><br><span class="line">./target/maven_web-1.0-SNAPSHOT.war</span><br><span class="line"><span class="comment">#此包可以直接放在tomcat的webapp下执行</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>注意：为什么maven_hello是war包而不是jar包呢？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat pom.xml| grep -ri <span class="string">&#x27;packaging&#x27;</span> </span><br><span class="line">(standard input):    &lt;packaging&gt;war&lt;/packaging&gt;</span><br><span class="line"><span class="comment">#导包方式：jar默认，手动指定war</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="3-1-5-install"><a href="#3-1-5-install" class="headerlink" title="3.1.5 install"></a>3.1.5 install</h5><p>install是maven工程的安装命令，执行install将maven打成jar包或war包发布到本地仓库。</p>
+<p>mvn install=&gt;编译main代码=&gt;编译test代码=&gt;执行测试=&gt;将项目打成war包=&gt;安装到本地库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">~ mvn install</span><br><span class="line"> </span><br><span class="line">[INFO] Scanning <span class="keyword">for</span> projects...</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Building maven_web 1.0-SNAPSHOT</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ maven_web ---</span><br><span class="line">[INFO] Nothing to compile - all classes are up to date</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ maven_web ---</span><br><span class="line">[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!</span><br><span class="line">[INFO] Copying 0 resource</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ maven_web ---</span><br><span class="line">[INFO] Nothing to compile - all classes are up to date</span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-surefire-plugin:2.12.4:<span class="built_in">test</span> (default-test) @ maven_web ---</span><br><span class="line">[INFO] Surefire report directory: /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/surefire-reports</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------</span><br><span class="line"> T E S T S</span><br><span class="line">-------------------------------------------------------</span><br><span class="line">Running cn.itcast.test.HelloTest</span><br><span class="line">仅在测试期有效</span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.053 sec</span><br><span class="line"></span><br><span class="line">Results :</span><br><span class="line"></span><br><span class="line">Tests run: 1, Failures: 0, Errors: 0, Skipped: 0</span><br><span class="line"></span><br><span class="line">[INFO] </span><br><span class="line">[INFO] --- maven-war-plugin:2.2:war (default-war) @ maven_web ---</span><br><span class="line">[INFO] Packaging webapp</span><br><span class="line">[INFO] Assembling webapp [maven_web] <span class="keyword">in</span> [/Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/maven_web-1.0-SNAPSHOT]</span><br><span class="line">[INFO] Processing war project</span><br><span class="line">[INFO] Copying webapp resources [/Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/src/main/webapp]</span><br><span class="line">[INFO] Webapp assembled <span class="keyword">in</span> [32 msecs]</span><br><span class="line">[INFO] Building war: /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/maven_web-1.0-SNAPSHOT.war</span><br><span class="line">[INFO] WEB-INF/web.xml already added, skipping</span><br><span class="line">[INFO] </span><br><span class="line"></span><br><span class="line"><span class="comment"># 将自己的代码，编译到本地仓库，之后可以上传到远程仓库，服务器自动下载部署</span></span><br><span class="line">[INFO] --- maven-install-plugin:2.4:install (default-install) @ maven_web ---</span><br><span class="line">[INFO] Installing /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/target/maven_web-1.0-SNAPSHOT.war to /Users/swzxsyh/Program/repository/cn/itcast/maven_web/1.0-SNAPSHOT/maven_web-1.0-SNAPSHOT.war</span><br><span class="line">[INFO] Installing /Users/swzxsyh/Downloads/Day54-maven基础&amp;环境搭建/代码/maven_web/pom.xml to /Users/swzxsyh/Program/repository/cn/itcast/maven_web/1.0-SNAPSHOT/maven_web-1.0-SNAPSHOT.pom</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 1.522 s</span><br><span class="line">[INFO] Finished at: 2020-05-16T00:08:09+08:00</span><br><span class="line">[INFO] Final Memory: 12M/297M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p><strong>从运行结果中，可以看出: 当后面的命令执行时，前面的操作过程也都会自动执行</strong></p>
+<h5 id="3-1-6-deploy"><a href="#3-1-6-deploy" class="headerlink" title="3.1.6 deploy"></a>3.1.6 deploy</h5><p>maven工程部署命令，将jar或war包部署（上传）到私服中。</p>
+<h4 id="3-2-Maven生命周期"><a href="#3-2-Maven生命周期" class="headerlink" title="3.2 Maven生命周期"></a>3.2 Maven生命周期</h4><p>maven对项目构建过程分为三套相互独立的生命周期，请注意这里说的是“三套”，而且“相互独立”。</p>
+<p>在同一个生命周期中的命令,执行后面的命令,前面的命令自动执行</p>
+<table>
+<thead>
+<tr>
+<th>三套名称</th>
+<th>描述</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Clean Lifecycle</td>
+<td>在进行真正的构建之前进行一些清理工作。</td>
+<td>clean</td>
+</tr>
+<tr>
+<td>Default Lifecycle</td>
+<td>构建的核心部分，编译，测试，打包，部署等等。</td>
+<td>compile,test,package,install,deploy</td>
+</tr>
+<tr>
+<td>Site Lifecycle</td>
+<td>生成项目报告，站点，发布站点。</td>
+<td>site</td>
+</tr>
+</tbody></table>
+<h5 id="3-2-1-clean生命周期-clean生命周期的目的是清理项目"><a href="#3-2-1-clean生命周期-clean生命周期的目的是清理项目" class="headerlink" title="3.2.1 clean生命周期 clean生命周期的目的是清理项目"></a>3.2.1 clean生命周期 clean生命周期的目的是清理项目</h5><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pre-clean</td>
+<td>执行一些需要在clean之前完成的工作</td>
+</tr>
+<tr>
+<td>clean</td>
+<td>移除所有上一次构建生成的文件</td>
+</tr>
+<tr>
+<td>post-clean</td>
+<td>执行一些需要在clean之后立刻完成的工作</td>
+</tr>
+</tbody></table>
+<h5 id="3-2-2-default生命周期"><a href="#3-2-2-default生命周期" class="headerlink" title="3.2.2 default生命周期"></a>3.2.2 default生命周期</h5><p>default生命周期定义了真正构件时所需要执行的所有步骤，它是生命周期中最核心的部分</p>
+<table>
+<thead>
+<tr>
+<th>生命周期阶段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>validate(校验)</td>
+<td>校验项目是否正确并且所有必要的信息可以完成项目的构建过程。</td>
+</tr>
+<tr>
+<td>initialize(初始化)</td>
+<td>初始化构建状态，比如设置属性值。</td>
+</tr>
+<tr>
+<td>generate-sources(生成源代码)</td>
+<td>生成包含在编译阶段中的任何源代码。</td>
+</tr>
+<tr>
+<td>process-sources(处理源代码)</td>
+<td>处理源代码，比如说，过滤任意值。</td>
+</tr>
+<tr>
+<td>generate-resources(生成资源文件)</td>
+<td>生成将会包含在项目包中的资源文件。</td>
+</tr>
+<tr>
+<td>process-resources (处理资源文件)</td>
+<td>复制和处理资源到目标目录，为打包阶段最好准备。</td>
+</tr>
+<tr>
+<td>compile(编译)</td>
+<td>编译项目的源代码。</td>
+</tr>
+<tr>
+<td>process-classes(处理类文件)</td>
+<td>处理编译生成的文件，比如说对Java class文件做字节码改善优化。</td>
+</tr>
+<tr>
+<td>generate-test-sources(生成测试源代 码)</td>
+<td>生成包含在编译阶段中的任何测试源代码。</td>
+</tr>
+<tr>
+<td>process-test-sources(处理测试源代 码)</td>
+<td>处理测试源代码，比如说，过滤任意值。</td>
+</tr>
+<tr>
+<td>generate-test-resources(生成测试资源 文件)</td>
+<td>为测试创建资源文件。</td>
+</tr>
+<tr>
+<td>process-test-resources(处理测试资源 文件)</td>
+<td>复制和处理测试资源到目标目录。</td>
+</tr>
+<tr>
+<td>test-compile(编译测试源码)</td>
+<td>编译测试源代码到测试目标目录.</td>
+</tr>
+<tr>
+<td>process-test-classes(处理测试类文件)</td>
+<td>处理测试源码编译生成的文件。</td>
+</tr>
+<tr>
+<td>test(测试)</td>
+<td>使用合适的单元测试框架运行测试(Juint是其中之一)。</td>
+</tr>
+<tr>
+<td>prepare-package(准备打包)</td>
+<td>在实际打包之前，执行任何的必要的操作为打包做准备。</td>
+</tr>
+<tr>
+<td>package(打包)</td>
+<td>将编译后的代码打包成可分发格式的文件，比如JAR、WAR或者 EAR文件。</td>
+</tr>
+<tr>
+<td>pre-integration-test(集成测试前)</td>
+<td>在执行集成测试前进行必要的动作。比如说，搭建需要的环境。</td>
+</tr>
+<tr>
+<td>integration-test(集成测试)</td>
+<td>处理和部署项目到可以运行集成测试环境中。</td>
+</tr>
+<tr>
+<td>post-integration-test(集成测试后)</td>
+<td>在执行集成测试完成后进行必要的动作。比如说，清理集成测试 环境。</td>
+</tr>
+<tr>
+<td>verify (验证)</td>
+<td>运行任意的检查来验证项目包有效且达到质量标准。</td>
+</tr>
+<tr>
+<td>install(安装)</td>
+<td>安装项目包到本地仓库，这样项目包可以用作其他本地项目的依赖。</td>
+</tr>
+<tr>
+<td>deploy(部署)</td>
+<td>将最终的项目包复制到远程仓库中与其他开发者和项目共享。</td>
+</tr>
+</tbody></table>
+<h5 id="3-2-3-site生命周期"><a href="#3-2-3-site生命周期" class="headerlink" title="3.2.3 site生命周期"></a>3.2.3 site生命周期</h5><p>site生命周期的目的是建立和发布项目站点，Maven能够基于POM所包含的信息，自动生成一个友好的站点，方便团 队交流和发布项目信息。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pre-site</td>
+<td>执行一些需要在生成站点文档之前完成的工作</td>
+</tr>
+<tr>
+<td>site</td>
+<td>生成项目的站点文档</td>
+</tr>
+<tr>
+<td>post-site</td>
+<td>执行一些需要在生成站点文档之后完成的工作，并且为部署做准备</td>
+</tr>
+<tr>
+<td>site-deploy</td>
+<td>将生成的站点文档部署到特定的服务器上</td>
+</tr>
+</tbody></table>
+<h4 id="3-3-Maven概念模型"><a href="#3-3-Maven概念模型" class="headerlink" title="3.3 Maven概念模型"></a>3.3 Maven概念模型</h4><p>Maven 包含了一个项目对象模型 (POM:Project Object Model)，一组标准集合，一个项目生命周期(Project Lifecycle)，一个依赖管理系统(Dependency Management System)，和用来运行定义在生命周期阶段(phase)中插 件(plugin)目标(goal)的逻辑。</p>
+<p><img src="1589427711479.png" alt=""></p>
+<ul>
+<li><p>项目对象模型 (Project Object Model)</p>
+<p>一个maven工程都有一个pom.xml文件，通过pom.xml文件定义项目的坐标、项目依赖、项目信息、插件目标等。</p>
+</li>
+<li><p>依赖管理系统(Dependency Management System)</p>
+<p>通过maven的依赖管理对项目所依赖的jar 包进行统一管理。比如:项目依赖junit4.12，通过在pom.xml中定义 junit4.12的依赖即使用junit4.12，如下所示是junit4.12的依赖定义:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 依赖关系 --&gt;</span> <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 此项目运行使用junit，所以此项目依赖junit --&gt;</span> <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- junit的项目名称 --&gt;</span> <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- junit的模块名称 --&gt;</span> <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> <span class="comment">&lt;!-- junit版本 --&gt;</span> <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 依赖范围:单元测试时使用junit --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一个项目生命周期(Project Lifecycle)</p>
+<p>使用maven完成项目的构建，项目构建包括:清理、编译、测试、部署等过程，maven将这些过程规范为一个生命</p>
+<p>周期</p>
+<table>
+<thead>
+<tr>
+<th>清理</th>
+<th>➡</th>
+<th>编译</th>
+<th>➡</th>
+<th>测试</th>
+<th>➡</th>
+<th>报告</th>
+<th>➡</th>
+<th>打包</th>
+<th>➡</th>
+<th>部署</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+<li><p>一组标准集合</p>
+<p>maven将整个项目管理过程定义一组标准。</p>
+<p>比如:通过maven构建工程有标准的目录结构，有标准的生命周期阶 段、依赖管理有标准的坐标定义等。</p>
+</li>
+<li><p>插件(plugin)目标(goal)</p>
+<p>maven 管理项目生命周期过程都是基于插件完成的。</p>
+</li>
+</ul>
+<h1 id="四-IDEA创建Maven工程"><a href="#四-IDEA创建Maven工程" class="headerlink" title="四.IDEA创建Maven工程"></a>四.IDEA创建Maven工程</h1><h4 id="4-1-IDEA配置本地Maven"><a href="#4-1-IDEA配置本地Maven" class="headerlink" title="4.1 IDEA配置本地Maven"></a>4.1 IDEA配置本地Maven</h4><p>进入configure–&gt;settings–&gt;build–&gt;build tools–&gt;Maven中，设置maven工具和本地仓库</p>
+<p>进入configure–&gt;settings–&gt;build–&gt;build tools–&gt;Maven–&gt;Runner中，设置VM Options:-DarchetypeCatalog=internal -Dfile.encoding=GB2312</p>
+<h4 id="4-2-IDEA创建工程"><a href="#4-2-IDEA创建工程" class="headerlink" title="4.2 IDEA创建工程"></a>4.2 IDEA创建工程</h4><ul>
+<li><p>Java工程</p>
+<p>选择Maven，下一步，设置GroupID域名倒写，ArtifactID项目名，Version版本号</p>
+</li>
+<li><p>手动创建test测试配置文件目录</p>
+<p>test目录右击创建resources目录，然后Mark Directory AS选Resources Root</p>
+</li>
+<li><p>指定maven环境的jdk版本和字符集</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 设置编译版本为1.8 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">encoding</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>maven工程命令操作</p>
+<p>打开右侧maven栏，双击命令即可</p>
+</li>
+<li><p>如何导入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--依赖管理--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--mysql驱动--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.47<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装一个插件JBLJavaToWeb</p>
+<p>点击项目，选择插件功能JBLJavaToWeb即可将Java项目转换为Web项目</p>
+</li>
+</ul>
+<h4 id="4-3-发布web工程"><a href="#4-3-发布web工程" class="headerlink" title="4.3 发布web工程"></a>4.3 发布web工程</h4><ul>
+<li><p>idea使用外置tomcat运行</p>
+<p>Add Configurations–&gt;ADD=&gt;Tomcat(Local)，设置名称Tomcat，其他跟之前项目一样</p>
+</li>
+<li><p>idea使用maven内置tomcat插件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 设置编译版本为1.8 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">encoding</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tomcat7-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">port</span>&gt;</span>8080<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">path</span>&gt;</span>/<span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">uriEncoding</span>&gt;</span>utf-8<span class="tag">&lt;/<span class="name">uriEncoding</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="4-4-依赖管理"><a href="#4-4-依赖管理" class="headerlink" title="4.4 依赖管理"></a>4.4 依赖管理</h4><p>我们不考虑依赖范围引起的问题</p>
+<table>
+<thead>
+<tr>
+<th>依赖范围</th>
+<th>对于编译classpath有效</th>
+<th>对于测试classpath有效</th>
+<th>对于运行时classpath有效</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compile（默认）</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>mybatis</td>
+</tr>
+<tr>
+<td>test</td>
+<td>-</td>
+<td>Y</td>
+<td>-</td>
+<td>junit</td>
+</tr>
+<tr>
+<td><strong>provided</strong></td>
+<td>Y</td>
+<td>Y</td>
+<td>-</td>
+<td>servlet-api</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>-</td>
+<td>Y</td>
+<td>Y</td>
+<td>JDBC驱动</td>
+</tr>
+<tr>
+<td>system</td>
+<td>Y</td>
+<td>Y</td>
+<td>-</td>
+<td>本地，maven仓库之外的库</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>依赖范围</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compile</td>
+<td>默认依赖范围，作用域在编译、测试、运行时都有效。</td>
+</tr>
+<tr>
+<td>test</td>
+<td>作用域在测试时有效。编译和运行时不需要，比如：Junit。</td>
+</tr>
+<tr>
+<td>provided</td>
+<td>作用域在编译、测试时有效。运行时不需要，比如： servlet api 被 tomcat 容器提供。</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>作用域在测试、运行时有效。编译时不需要，比如：jdbc的驱动包。</td>
+</tr>
+<tr>
+<td>system</td>
+<td>system范围依赖与provided类似，jar包在本地磁盘而不是maven仓库</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>在maven_web工程中测试scope:</p>
+<ul>
+<li><p>默认引入 的jar包 </p>
+<p>compile 【默认范围 可以不写】(编译、测试、运行 都有效 ) </p>
+</li>
+<li><p>servlet-api 、jsp-api</p>
+<p>provided (编译、测试 有效， 运行时无效 防止和tomcat下jar冲突) </p>
+</li>
+<li><p>jdbc驱动jar包 </p>
+<p>runtime (测试、运行 有效 )</p>
+</li>
+<li><p>junit </p>
+<p>test (测试有效)</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>依赖范围由强到弱的顺序是:compile&gt;provided&gt;runtime&gt;test</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><strong>## 介绍</strong></p>
+<p><strong>### 项目管理工具</strong></p>
+<p>- 依赖管理</p>
+<p>​    - 通过maven管理jar包的整个过程</p>
+<p>- 一键构建</p>
+<p>​    - 通过一个maven的一个命令就可以完成工程整个构建的过程</p>
+<p><strong>## 安装和使用</strong></p>
+<p><strong>### 下载和安装</strong></p>
+<p>- 下载 3.5.2 版本</p>
+<p>- 安装解压到非中文路径</p>
+<p>- 配置MAVEN_HOME环境变量</p>
+<p>​    - 依赖java环境</p>
+<p><strong>## 仓库分类</strong></p>
+<p><strong>### 本地仓库</strong></p>
+<p><strong>### 远程仓库</strong></p>
+<p>- 1.中央仓库</p>
+<p>- 2.第三方远程仓库</p>
+<p>​    - 阿里云镜像</p>
+<p>- 3.私服</p>
+<p><strong>### 配置指定本地仓库</strong></p>
+<p>- 帅哥提供5G</p>
+<p>​    - 不建议覆盖</p>
+<p><strong>### 配置阿里云镜像</strong></p>
+<p>- 提高下载速度</p>
+<p><strong>## 命令和插件</strong></p>
+<p><strong>### 1）clean</strong></p>
+<p>- 清理target目录</p>
+<p><strong>### 2）compile</strong></p>
+<p>- 编译 src/main/java</p>
+<p><strong>### 3）test</strong></p>
+<p>- 测试 src/test/java</p>
+<p><strong>### 4）package</strong></p>
+<p>- 将工程进行打包</p>
+<p>​    - jar</p>
+<p>​    - war</p>
+<p><strong>### 5）install</strong></p>
+<p>- 将打包后的工程安装到本地仓库</p>
+<p><strong>### 6）deploy</strong></p>
+<p>- 将本地仓库的jar包或war包上传到私服</p>
+<p><strong>## 生命周期</strong></p>
+<p><strong>### 清理生命周期</strong></p>
+<p>- clean</p>
+<p><strong>### 默认生命周期</strong></p>
+<p>- compile</p>
+<p>​    - test</p>
+<p>​        - package</p>
+<p>​            - install</p>
+<p>​                - deploy</p>
+<p><strong>### 站点生命周期</strong></p>
+<p>- site</p>
+<p><strong>## IDEA配置maven工具</strong></p>
+<p><strong>### 全局settings配置</strong></p>
+<p>- 指定maven工具路径</p>
+<p>- 指定maven工具配置文件路径</p>
+<p>- 指定maven工具本地仓库的路径</p>
+<p><strong>### 指定本地创建maven时，使用本地骨架</strong></p>
+<p>- -DarchetypeCatalog=internal -Dfile.encoding=GB2312</p>
+<p><strong>## IDEA创建maven工程</strong></p>
+<p><strong>### 1)创建java工程</strong></p>
+<p><strong>### 2）创建web工程</strong></p>
+<p>- 下载JBLJavaToWeb插件</p>
+<p><strong>## IDEA发布web工程</strong></p>
+<p><strong>### 1）使用本地tomcat</strong></p>
+<p><strong>### 2）使用tomcat插件</strong></p>
+<p>- pom.xml</p>
+<p><strong>## 依赖范围</strong></p>
+<p><strong>### 1）我们编写的web工程需要手动导入servlet-api 坐标</strong></p>
+<p><strong>### 2）在打成 war包的时候将servlet-api 设置到 /WEB-INF/lib目录下</strong></p>
+<p><strong>### 3）如果与tomcat软件内置的版本不一致，可能会启动报错</strong></p>
+<p><strong>### 4）需要指定jar包的作用范围（provided）</strong></p>
+<p><strong>### 有哪些依赖范围呢？</strong></p>
+<p>- compile</p>
+<p>​    - 默认，在编译、测试、运行期有效</p>
+<p>- test</p>
+<p>​    - 仅在测试期有效</p>
+<p>- provided</p>
+<p>​    - 在编译、测试期有效</p>
+<p>- runtime</p>
+<p>​    - 在测试、运行期有效</p>
+<p>- system</p>
+<p>​    - 从本地中导入jar包</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/" rel="next" title="MyBatis注解">
+                <i class="fa fa-chevron-left"></i> MyBatis注解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/20/Redis%20&%20%E4%BC%98%E5%8C%96/" rel="prev" title="Redis & 优化">
+                Redis & 优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">103</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-Maven%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一.Maven简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-Maven%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.1 Maven是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Maven%E8%83%BD%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">1.2 Maven能解决什么问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-Maven%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">1.3 Maven的两个核心功能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86"><span class="nav-number">1.0.0.3.1.</span> <span class="nav-text">1.3.1 依赖管理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-2-%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA"><span class="nav-number">1.0.0.3.2.</span> <span class="nav-text">1.3.2 项目构建</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-Maven%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二 Maven安装和使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-Maven%E4%B8%8B%E8%BD%BD%E5%92%8C%E5%AE%89%E8%A3%85"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">2.1 Maven下载和安装</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-1-Maven%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.0.0.1.1.</span> <span class="nav-text">2.1.1 Maven下载</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-2-Maven%E5%AE%89%E8%A3%85"><span class="nav-number">2.0.0.1.2.</span> <span class="nav-text">2.1.2 Maven安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-3-Maven%E5%8F%8AJDK%E9%85%8D%E7%BD%AE"><span class="nav-number">2.0.0.1.3.</span> <span class="nav-text">2.1.3 Maven及JDK配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-4-Maven%E8%BD%AF%E4%BB%B6%E7%89%88%E6%9C%AC%E6%B5%8B%E8%AF%95"><span class="nav-number">2.0.0.1.4.</span> <span class="nav-text">2.1.4 Maven软件版本测试</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-Maven%E4%BB%93%E5%BA%93"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.3 Maven仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-1-Maven%E4%BB%93%E5%BA%93%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-number">2.0.0.2.1.</span> <span class="nav-text">2.3.1 Maven仓库的分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-2-Maven%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">2.0.0.2.2.</span> <span class="nav-text">2.3.2 Maven本地仓库的配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-4-Maven%E4%BB%93%E5%BA%93%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F%E9%85%8D%E7%BD%AE"><span class="nav-number">2.0.0.2.3.</span> <span class="nav-text">2.3.4 Maven仓库国内镜像配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-4-%E5%85%A8%E5%B1%80setting%E4%B8%8E%E7%94%A8%E6%88%B7setting"><span class="nav-number">2.0.0.2.4.</span> <span class="nav-text">2.3.4 全局setting与用户setting</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-Maven%E5%9D%90%E6%A0%87%E5%92%8C%E4%BE%9D%E8%B5%96"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">2.3 Maven坐标和依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-Maven%E5%B7%A5%E7%A8%8B%E7%9A%84%E8%AE%A4%E8%AF%86"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">2.4 Maven工程的认识</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-1-Maven%E5%B7%A5%E7%A8%8B%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.0.0.4.1.</span> <span class="nav-text">2.4.1 Maven工程的目录结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-2-Maven%E5%B7%A5%E7%A8%8B%E7%9A%84%E8%BF%90%E8%A1%8C"><span class="nav-number">2.0.0.4.2.</span> <span class="nav-text">2.4.2 Maven工程的运行</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-Maven%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E6%8F%92%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">三.Maven生命周期和插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-Maven%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%92%8C%E6%8F%92%E4%BB%B6"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">3.1 Maven常用命令和插件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-1-clean"><span class="nav-number">3.0.0.1.1.</span> <span class="nav-text">3.1.1 clean</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-2-compile"><span class="nav-number">3.0.0.1.2.</span> <span class="nav-text">3.1.2 compile</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-3-test"><span class="nav-number">3.0.0.1.3.</span> <span class="nav-text">3.1.3 test</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-4-package"><span class="nav-number">3.0.0.1.4.</span> <span class="nav-text">3.1.4 package</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-5-install"><span class="nav-number">3.0.0.1.5.</span> <span class="nav-text">3.1.5 install</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-6-deploy"><span class="nav-number">3.0.0.1.6.</span> <span class="nav-text">3.1.6 deploy</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-Maven%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">3.2 Maven生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-1-clean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-clean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E7%9B%AE%E7%9A%84%E6%98%AF%E6%B8%85%E7%90%86%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.0.0.2.1.</span> <span class="nav-text">3.2.1 clean生命周期 clean生命周期的目的是清理项目</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-2-default%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.0.0.2.2.</span> <span class="nav-text">3.2.2 default生命周期</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-3-site%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.0.0.2.3.</span> <span class="nav-text">3.2.3 site生命周期</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-Maven%E6%A6%82%E5%BF%B5%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.0.0.3.</span> <span class="nav-text">3.3 Maven概念模型</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B-IDEA%E5%88%9B%E5%BB%BAMaven%E5%B7%A5%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">四.IDEA创建Maven工程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-IDEA%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0Maven"><span class="nav-number">4.0.0.1.</span> <span class="nav-text">4.1 IDEA配置本地Maven</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-IDEA%E5%88%9B%E5%BB%BA%E5%B7%A5%E7%A8%8B"><span class="nav-number">4.0.0.2.</span> <span class="nav-text">4.2 IDEA创建工程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-%E5%8F%91%E5%B8%83web%E5%B7%A5%E7%A8%8B"><span class="nav-number">4.0.0.3.</span> <span class="nav-text">4.3 发布web工程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-4-%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86"><span class="nav-number">4.0.0.4.</span> <span class="nav-text">4.4 依赖管理</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
