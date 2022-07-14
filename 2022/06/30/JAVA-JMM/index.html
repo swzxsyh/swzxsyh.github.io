@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Java内存模型概念java内存模型（java memory model，简称JMM）用来屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果。 目标：定义程序中各个变量的访问规则，即在虚拟机中将变量从内存中进行存储和取出这样的底层细节。 内存模型的组成： 1.主内存，java内存模型规定，所有变量都存储在主内存（Main Memory）中 2.工作内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA-JMM">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Java内存模型概念java内存模型（java memory model，简称JMM）用来屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果。 目标：定义程序中各个变量的访问规则，即在虚拟机中将变量从内存中进行存储和取出这样的底层细节。 内存模型的组成： 1.主内存，java内存模型规定，所有变量都存储在主内存（Main Memory）中 2.工作内">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/screen_shot.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/stickPicture.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/sync_load_store.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/image-20220703171312027.png">
+<meta property="article:published_time" content="2022-06-30T15:10:41.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.483Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/screen_shot.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JAVA-JMM | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/JAVA-JMM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JAVA-JMM
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:10:41" itemprop="dateCreated datePublished" datetime="2022-06-30T23:10:41+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Java内存模型概念"><a href="#Java内存模型概念" class="headerlink" title="Java内存模型概念"></a>Java内存模型概念</h1><p>java内存模型（java memory model，简称JMM）用来屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果。</p>
+<p>目标：定义程序中各个变量的访问规则，即在虚拟机中将变量从内存中进行存储和取出这样的底层细节。</p>
+<p>内存模型的组成：</p>
+<p>1.主内存，java内存模型规定，所有变量都存储在主内存（Main Memory）中</p>
+<p>2.工作内存，每条线程都有自己的工作内存（working memory，又称本地内存），工作内存是JMM的一个抽象概念，并不真实存在，它涵盖了：缓存、写缓冲区、寄存器以及其他硬件和编译器优化</p>
+<p><img src="/2022/06/30/JAVA-JMM/screen_shot.png" alt="image"></p>
+<span id="more"></span>
+
+<h1 id="内存交互"><a href="#内存交互" class="headerlink" title="内存交互"></a>内存交互</h1><p>关于主内存和工作内存之间的具体交互协议，即一个变量如何从主内存拷贝到工作内存、如何从工作内存同步回主内存之类的实现细节，java内存模型中定义了8种操作</p>
+<p>​    <img src="/2022/06/30/JAVA-JMM/stickPicture.png" alt="8种基本操作"></p>
+<p>1.lock（锁定）作用于主内存变量，它把一个变量标识为一条线程独占的状态。</p>
+<p>2.unlock（解锁）作用于主内存变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他变量锁定</p>
+<p>3.read（读取）作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便于随后的load动作使用</p>
+<p>4.load（载入）作用于工作内存的变量，它把read操作从主内存中得到的变量值放入工作内存的变量副本中</p>
+<p>5.use（使用）作用于工作内存的变量，它把工作内存中一个变量的值传递给执行引擎，每当虚拟机遇到一个需要使用到变量的值的字节码指令时就会执行这个操作</p>
+<p>6.assign（赋值）作用于工作内存的变量，它把一个从执行引擎收到的值赋给工作内存的变量，每当虚拟机遇到一个给变量赋值的字节码指令时就会执行这个操作</p>
+<p>7.store（存储）作用于工作内存的变量，它把工作内存中一个变量的值传送到主内存中，以便随后write操作使用</p>
+<p>8.write（写入）作用于主内存的变量，它把store操作从主内存中得到的变量的值放入到主内存中</p>
+<p><img src="/2022/06/30/JAVA-JMM/sync_load_store.png" alt="image"></p>
+<h1 id="同步规则"><a href="#同步规则" class="headerlink" title="同步规则"></a>同步规则</h1><ul>
+<li>不允许 read 和 load、store 和 write 操作之一单独出现，即不允许一个变量从主内存读取了但工作内存不接受，或者从工作内存发起回写了但主内存不接受的情况出现。</li>
+<li>不允许一个线程丢弃它的最近的 assign 操作，即变量在工作内存中改变了之后必须把该变化同步回主内存。</li>
+<li>不允许一个线程无原因地（没有发生过任何 assign 操作）把数据从线程的工作内存同步回主内存中。</li>
+<li>一个新的变量只能在主内存中 “诞生”，不允许在工作内存中直接使用一个未被初始化（load 或 assign）的变量，换句话说就是对一个变量实施 use 和 store 操作之前，必须先执行过了 assign 和 load 操作。</li>
+<li>一个变量在同一个时刻只允许一条线程对其进行 lock 操作，但 lock 操作可以被同一条线程重复执行多次，多次执行 lock 后，只有执行相同次数的 unlock 操作，变量才会被解锁。</li>
+<li>如果对一个变量执行 lock 操作，将会清空工作内存中此变量的值，在执行引擎使用这个变量前，需要重新执行 load 或 assign 操作初始化变量的值。</li>
+<li>如果一个变量事先没有被 lock 操作锁定，则不允许对它执行 unlock 操作，也不允许去 unlock 一个被其他线程锁定住的变量。</li>
+</ul>
+<h1 id="JVM内存操作的并发问题"><a href="#JVM内存操作的并发问题" class="headerlink" title="JVM内存操作的并发问题"></a>JVM内存操作的并发问题</h1><p><strong>1.工作内存数据一致性</strong> </p>
+<p>各个线程操作数据时会保存使用到的主内存中的共享变量副本，当多个线程的运算任务都涉及到同一个共享变量时，将导致各自的共享变量副本不一致，如果发生这种情况，以谁的副本为准呢?</p>
+<p><strong>2.指令重排序优化</strong> </p>
+<p>java中重排序通常是编译器或运行时环境为了优化程序性能而采取的对指令进行重新排序的一种手段。重排序分为两类：<strong>编译器重排序和运行期重排序</strong>，分别对应编译器和运行时环境，指令重排序满足两个条件：</p>
+<p>1.单线程情况下，要给程序一个顺序执行的假象，即经过重排序的执行结果与顺序执行的结果保持一致</p>
+<p>2.存在数据依赖关系的不允许重排序</p>
+<h1 id="内存交互的3个基本特征"><a href="#内存交互的3个基本特征" class="headerlink" title="内存交互的3个基本特征"></a>内存交互的3个基本特征</h1><ol>
+<li><strong>原子性</strong> </li>
+<li><strong>可见性</strong> </li>
+<li><strong>有序性</strong></li>
+</ol>
+<h1 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h1><p>1.java中如何保证底层操作的有序性和可见性呢？可以通过内存屏障。</p>
+<p>内存屏障是被插入两个CPU指令之间的一种指令，用来<strong>禁止</strong>处理器指令发生<strong>重排序</strong>，从而保障<strong>有序性</strong>的。</p>
+<p>为了达到屏障的效果，它也会使处理器写入、读取之前，将<strong>主内存的值写入高速缓存</strong>，<strong>清空无效队列</strong>，从而<strong>保障可见性</strong>。</p>
+<p>例：</p>
+<p>Store1; </p>
+<p>Store2;   </p>
+<p>Load1;   </p>
+<p>StoreLoad;  &#x2F;&#x2F;内存屏障</p>
+<p>Store3;   </p>
+<p>Load2;   </p>
+<p>Load3;</p>
+<p>2.常见的四种屏障</p>
+<p>1）LoadLoad屏障：对于这样的语句：Load1；LoadLoad；Load2，在load2及后续读操作要读取的数据被访问前，保证Load1要读取的数据被读取完毕。</p>
+<p>2）StoreStore屏障：例：Store1;StoreStore;Store2，在Store2及后续写入操作执行前，保证Store1的写入操作对其他处理器可见。</p>
+<p>3）LoadStore屏障：例：Load1;LoadStore;Store2，在Store2及后续写入操作执行前，保证Load1要读取的数据被读取完毕。</p>
+<p>4）StoreLoad屏障：例：Store1;StoreLoad;Load2,在Load2及后续所有读操作执行前，保证Store1的写入对所有处理器可见（开销最大，冲刷写缓冲区，清空无效队列）。在大多数处理器中，这个屏障是个万能屏障</p>
+<h1 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h1><p>volatile的中文意思是不稳定的、易变的，用volatile修饰的变量是为了<strong>保证变量的可见性</strong>。</p>
+<p>volatile有两种语义：</p>
+<p>1.<strong>保证可见性</strong>，</p>
+<p>线程写volatile变量的过程：</p>
+<p>1）改变线程工作内存中volatile变量副本的值</p>
+<p>2）将改变后的副本的值从工作内存刷到主内存中</p>
+<p>线程读volatile变量值的过程</p>
+<p>1）从主内存中读取volatile变量的最新值到线程的工作内存中</p>
+<p>2）从工作内存中读取volatile变量的副本</p>
+<p><strong>2.禁止进行指令重排序</strong></p>
+<p>1）当程序执行到volatile变量的<strong>读操作或者写操作时</strong>，在<strong>其前面的操作的更改肯定已经全部进行</strong>，<strong>且结果对后面的操作可见</strong>（happens-before）；在<strong>其后面的操作肯定还没有进行</strong></p>
+<p>2）在进行指令优化时，不能将在对volatile变量访问的语句放在其后面执行，也不能讲volatile变量后面的语句放在其前面执行（不能改变volatile变量前后的语句顺序）</p>
+<p><strong>3.实现原理</strong></p>
+<p><img src="/2022/06/30/JAVA-JMM/image-20220703171312027.png" alt="image"></p>
+<p>来源：</p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/java-jmm-synchronize-eight-operations.html">https://rumenz.com/rumenbiji/java-jmm-synchronize-eight-operations.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/30/%E7%BD%91%E7%BB%9C-DNS/" rel="prev" title="网络-DNS">
+      <i class="fa fa-chevron-left"></i> 网络-DNS
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/30/JAVA-JVM/" rel="next" title="JAVA-JVM">
+      JAVA-JVM <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">Java内存模型概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%BA%A4%E4%BA%92"><span class="nav-number">2.</span> <span class="nav-text">内存交互</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E8%A7%84%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">同步规则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">JVM内存操作的并发问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%BA%A4%E4%BA%92%E7%9A%843%E4%B8%AA%E5%9F%BA%E6%9C%AC%E7%89%B9%E5%BE%81"><span class="nav-number">5.</span> <span class="nav-text">内存交互的3个基本特征</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C"><span class="nav-number">6.</span> <span class="nav-text">内存屏障</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Volatile"><span class="nav-number">7.</span> <span class="nav-text">Volatile</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

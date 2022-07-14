@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.linux基础1.1 远程连接工具使用在实际开发中，Linux服务器都在其他的地方，我们要通过windows客户端工具远程去连接Linux并操作 它，连接Linux的windows客户端工具有很多，企业中常用的有secureCRT、Putty、xshell、SSH Secure等。 1.2 Linux目录结构root目录:超级管理员所在的目录，用~表示home目录:普通用户所在的目录usr目录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux &amp; Nginx">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/05/25/Linux-Nginx/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.linux基础1.1 远程连接工具使用在实际开发中，Linux服务器都在其他的地方，我们要通过windows客户端工具远程去连接Linux并操作 它，连接Linux的windows客户端工具有很多，企业中常用的有secureCRT、Putty、xshell、SSH Secure等。 1.2 Linux目录结构root目录:超级管理员所在的目录，用~表示home目录:普通用户所在的目录usr目录">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-24T17:40:56.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.842Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/05/25/Linux-Nginx/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux & Nginx | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/25/Linux-Nginx/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux & Nginx
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-25 01:40:56" itemprop="dateCreated datePublished" datetime="2020-05-25T01:40:56+08:00">2020-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.linux基础<br>1.1 远程连接工具使用<br>在实际开发中，Linux服务器都在其他的地方，我们要通过windows客户端工具远程去连接Linux并操作 它，连接Linux的windows客户端工具有很多，企业中常用的有secureCRT、Putty、xshell、SSH Secure等。</p>
+<p>1.2 Linux目录结构<br>root目录:超级管理员所在的目录，用~表示<br>home目录:普通用户所在的目录<br>usr目录:安装用户文件所在的目录<br>etc目录:Linux系统管理和配置文件所在的目录</p>
+<p>1.3 文件夹(目录)操作命令<br>查看</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>ls</p>
+<p>List directory contents.</p>
+<ul>
+<li><p>List files one per line:<br>  ls -1</p>
+</li>
+<li><p>List all files, including hidden files:<br>  ls -a</p>
+</li>
+<li><p>Long format list (permissions, ownership, size and modification date) of all files:<br>  ls -la</p>
+</li>
+<li><p>Long format list with size displayed using human readable units (KB, MB, GB):<br>  ls -lh</p>
+</li>
+<li><p>Long format list sorted by size (descending):<br>  ls -lS</p>
+</li>
+<li><p>Long format list of all files, sorted by modification date (oldest first):<br>  ls -ltr<br>跳转</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>cd</p>
+<p>Change the current working directory.</p>
+<ul>
+<li><p>Go to the given directory:<br>  cd path&#x2F;to&#x2F;directory</p>
+</li>
+<li><p>Go to home directory of current user:<br>  cd</p>
+</li>
+<li><p>Go up to the parent of the current directory:<br>  cd ..</p>
+</li>
+<li><p>Go to the previously chosen directory:<br>  cd -<br>创建</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>mkdir</p>
+<p>Creates a directory.</p>
+<ul>
+<li><p>Create a directory in current directory or given path:<br>  mkdir directory</p>
+</li>
+<li><p>Create directories recursively (useful for creating nested dirs):<br>  mkdir -p path&#x2F;to&#x2F;directory<br>搜索</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>find</p>
+<p>Find files or directories under the given directory tree, recursively.</p>
+<ul>
+<li><p>Find files by extension:<br>  find root_path -name ‘*.ext’</p>
+</li>
+<li><p>Find files by matching multiple patterns:<br>  find root_path -name ‘<em>pattern_1</em>‘ -or -name ‘<em>pattern_2</em>‘</p>
+</li>
+<li><p>Find directories matching a given name, in case-insensitive mode:<br>  find root_path -type d -iname ‘<em>lib</em>‘</p>
+</li>
+<li><p>Find files matching a path pattern:<br>  find root_path -path ‘<strong>&#x2F;lib&#x2F;</strong>&#x2F;*.ext’</p>
+</li>
+<li><p>Find files matching a given pattern, excluding specific paths:<br>  find root_path -name ‘<em>.py’ -not -path ‘</em>&#x2F;site-packages&#x2F;*’</p>
+</li>
+<li><p>Find files matching a given size range:<br>  find root_path -size +500k -size -10M</p>
+</li>
+<li><p>Run a command for each file (use <code>&#123;&#125;</code> within the command to access the filename):<br>  find root_path -name ‘*.ext’ -exec wc -l {} ;</p>
+</li>
+<li><p>Find files modified in the last 7 days, and delete them:<br>  find root_path -mtime -7 -delete<br>修改</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</p>
+<p>mv</p>
+<p>Move or rename files and directories.</p>
+<ul>
+<li><p>Move files in arbitrary locations:<br>  mv source target</p>
+</li>
+<li><p>Do not prompt for confirmation before overwriting existing files:<br>  mv -f source target</p>
+</li>
+<li><p>Prompt for confirmation before overwriting existing files, regardless of file permissions:<br>  mv -i source target</p>
+</li>
+<li><p>Do not overwrite existing files at the target:<br>  mv -n source target</p>
+</li>
+<li><p>Move files in verbose mode, showing files after they are moved:<br>  mv -v source target<br>剪切</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</p>
+<p>mv</p>
+<p>Move or rename files and directories.</p>
+<ul>
+<li><p>Move files in arbitrary locations:<br>  mv source target</p>
+</li>
+<li><p>Do not prompt for confirmation before overwriting existing files:<br>  mv -f source target</p>
+</li>
+<li><p>Prompt for confirmation before overwriting existing files, regardless of file permissions:<br>  mv -i source target</p>
+</li>
+<li><p>Do not overwrite existing files at the target:<br>  mv -n source target</p>
+</li>
+<li><p>Move files in verbose mode, showing files after they are moved:<br>  mv -v source target<br>复制</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>cp</p>
+<p>Copy files and directories.</p>
+<ul>
+<li><p>Copy a file to another location:<br>  cp path&#x2F;to&#x2F;file.ext path&#x2F;to&#x2F;copy.ext</p>
+</li>
+<li><p>Copy a file into another directory, keeping the filename:<br>  cp path&#x2F;to&#x2F;file.ext path&#x2F;to&#x2F;target_parent_directory</p>
+</li>
+<li><p>Recursively copy a directory’s contents to another location (if the destination exists, the directory is copied inside it):<br>  cp -r path&#x2F;to&#x2F;directory path&#x2F;to&#x2F;copy</p>
+</li>
+<li><p>Copy a directory recursively, in verbose mode (shows files as they are copied):<br>  cp -vr path&#x2F;to&#x2F;directory path&#x2F;to&#x2F;copy</p>
+</li>
+<li><p>Copy text files to another location, in interactive mode (prompts user before overwriting):<br>  cp -i *.txt path&#x2F;to&#x2F;target_directory</p>
+</li>
+<li><p>Dereference symbolic links before copying:<br>  cp -L link path&#x2F;to&#x2F;copy<br>删除</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>rmdir</p>
+<p>Removes a directory.</p>
+<ul>
+<li><p>Remove directory, provided it is empty. Use <code>rm</code> to remove not empty directories:<br>  rmdir path&#x2F;to&#x2F;directory</p>
+</li>
+<li><p>Remove directories recursively (useful for nested dirs):<br>  rmdir -p path&#x2F;to&#x2F;directory<br>1.4 文件操作命令<br>创建</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>touch</p>
+<p>Change a file access and modification times (atime, mtime).</p>
+<ul>
+<li><p>Create a new empty file(s) or change the times for existing file(s) to current time:<br>  touch filename</p>
+</li>
+<li><p>Set the times on a file to a specific date and time:<br>  touch -t YYYYMMDDHHMM.SS filename</p>
+</li>
+<li><p>Use the times from a file to set the times on a second file:<br>  touch -r filename filename2<br>查看</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>cat</p>
+<p>Print and concatenate files.</p>
+<ul>
+<li><p>Print the contents of a file to the standard output:<br>  cat file</p>
+</li>
+<li><p>Concatenate several files into the target file:<br>  cat file1 file2 &gt; target_file</p>
+</li>
+<li><p>Append several files into the target file:<br>  cat file1 file2 &gt;&gt; target_file</p>
+</li>
+<li><p>Number all output lines:<br>  cat -n file</p>
+</li>
+<li><p>Display non-printable and whitespace characters (with <code>M-</code> prefix if non-ASCII):<br>  cat -v -t -e file</p>
+</li>
+</ul>
+<p>tail</p>
+<p>Display the last part of a file.</p>
+<ul>
+<li><p>Show last ‘num’ lines in file:<br>  tail -n num file</p>
+</li>
+<li><p>Show all file since line ‘num’:<br>  tail -n +num file</p>
+</li>
+<li><p>Show last ‘num’ bytes in file:<br>  tail -c num file</p>
+</li>
+<li><p>Keep reading file until <code>Ctrl + C</code>:<br>  tail -f file</p>
+</li>
+<li><p>Keep reading file until <code>Ctrl + C</code>, even if the file is rotated:<br>  tail -F file</p>
+</li>
+</ul>
+<p>head</p>
+<p>Output the first part of files.</p>
+<ul>
+<li><p>Output the first few lines of a file:<br>  head -n count_of_lines filename</p>
+</li>
+<li><p>Output the first few bytes of a file:<br>  head -c number_in_bytes filename<br>删除</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>rm</p>
+<p>Remove files or directories.</p>
+<ul>
+<li><p>Remove files from arbitrary locations:<br>  rm path&#x2F;to&#x2F;file path&#x2F;to&#x2F;another&#x2F;file</p>
+</li>
+<li><p>Recursively remove a directory and all its subdirectories:<br>  rm -r path&#x2F;to&#x2F;directory</p>
+</li>
+<li><p>Forcibly remove a directory, without prompting for confirmation or showing error messages:<br>  rm -rf path&#x2F;to&#x2F;directory</p>
+</li>
+<li><p>Interactively remove multiple files, with a prompt before every removal:<br>  rm -i file(s)</p>
+</li>
+<li><p>Remove files in verbose mode, printing a message for each removed file:<br>  rm -v path&#x2F;to&#x2F;directory&#x2F;*<br>编辑</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>vim</p>
+<p>Vim (Vi IMproved), a command-line text editor, provides several modes for different kinds of text manipulation.<br>Pressing <code>i</code> enters edit mode. <code>&lt;Esc&gt;</code> goes back to normal mode, which doesn’t allow regular text insertion.<br>More information: <a target="_blank" rel="noopener" href="https://www.vim.org/">https://www.vim.org</a>.</p>
+<ul>
+<li><p>Open a file:<br>  vim path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>View Vim’s help manual:<br>  :help<Enter></Enter></p>
+</li>
+<li><p>Save a file:<br>  :write<Enter></Enter></p>
+</li>
+<li><p>Quit without saving:<br>  :quit!<Enter></Enter></p>
+</li>
+<li><p>Open a file at a specified line number:<br>  vim +line_number path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Undo the last operation:<br>  u</p>
+</li>
+<li><p>Search for a pattern in the file (press <code>n</code>&#x2F;<code>N</code> to go to next&#x2F;previous match):<br>  &#x2F;search_pattern<Enter></Enter></p>
+</li>
+<li><p>Perform a regex substitution in the whole file:<br>  :%s&#x2F;pattern&#x2F;replacement&#x2F;g<Enter><br>1.5 文件压缩命令<br>将文件打成压缩包</Enter></p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>tar</p>
+<p>Archiving utility.<br>Often combined with a compression method, such as gzip or bzip.<br>More information: <a target="_blank" rel="noopener" href="https://www.gnu.org/software/tar">https://www.gnu.org/software/tar</a>.</p>
+<ul>
+<li><p>Create an archive from files:<br>  tar cf target.tar file1 file2 file3</p>
+</li>
+<li><p>Create a gzipped archive:<br>  tar czf target.tar.gz file1 file2 file3</p>
+</li>
+<li><p>Create a gzipped archive from a directory using relative paths:<br>  tar czf target.tar.gz -C path&#x2F;to&#x2F;directory .</p>
+</li>
+<li><p>Extract a (compressed) archive into the current directory:<br>  tar xf source.tar[.gz|.bz2|.xz]</p>
+</li>
+<li><p>Extract an archive into a target directory:<br>  tar xf source.tar -C directory</p>
+</li>
+<li><p>Create a compressed archive, using archive suffix to determine the compression program:<br>  tar caf target.tar.xz file1 file2 file3</p>
+</li>
+<li><p>List the contents of a tar file:<br>  tar tvf source.tar</p>
+</li>
+<li><p>Extract files matching a pattern:<br>  tar xf source.tar –wildcards “*.html”</p>
+</li>
+<li><p>Extract a specific file without preserving the folder structure:<br>  tar xf source.tar source.tar&#x2F;path&#x2F;to&#x2F;extract –strip-components&#x3D;depth_to_strip<br>解压缩包获得文件</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>tar</p>
+<p>Archiving utility.<br>Often combined with a compression method, such as gzip or bzip.<br>More information: <a target="_blank" rel="noopener" href="https://www.gnu.org/software/tar">https://www.gnu.org/software/tar</a>.</p>
+<ul>
+<li><p>Create an archive from files:<br>  tar cf target.tar file1 file2 file3</p>
+</li>
+<li><p>Create a gzipped archive:<br>  tar czf target.tar.gz file1 file2 file3</p>
+</li>
+<li><p>Create a gzipped archive from a directory using relative paths:<br>  tar czf target.tar.gz -C path&#x2F;to&#x2F;directory .</p>
+</li>
+<li><p>Extract a (compressed) archive into the current directory:<br>  tar xf source.tar[.gz|.bz2|.xz]</p>
+</li>
+<li><p>Extract an archive into a target directory:<br>  tar xf source.tar -C directory</p>
+</li>
+<li><p>Create a compressed archive, using archive suffix to determine the compression program:<br>  tar caf target.tar.xz file1 file2 file3</p>
+</li>
+<li><p>List the contents of a tar file:<br>  tar tvf source.tar</p>
+</li>
+<li><p>Extract files matching a pattern:<br>  tar xf source.tar –wildcards “*.html”</p>
+</li>
+<li><p>Extract a specific file without preserving the folder structure:<br>  tar xf source.tar source.tar&#x2F;path&#x2F;to&#x2F;extract –strip-components&#x3D;depth_to_strip<br>1.6 文件权限命令<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>chmod</p>
+</li>
+</ul>
+<p>Change the access permissions of a file or directory.</p>
+<ul>
+<li><p>Give the [u]ser who owns a file the right to e[x]ecute it:<br>  chmod u+x file</p>
+</li>
+<li><p>Give the [u]ser rights to [r]ead and [w]rite to a file&#x2F;directory:<br>  chmod u+rw file_or_directory</p>
+</li>
+<li><p>Remove e[x]ecutable rights from the [g]roup:<br>  chmod g-x file</p>
+</li>
+<li><p>Give [a]ll users rights to [r]ead and e[x]ecute:<br>  chmod a+rx file</p>
+</li>
+<li><p>Give [o]thers (not in the file owner’s group) the same rights as the [g]roup:<br>  chmod o&#x3D;g file</p>
+</li>
+<li><p>Remove all rights from [o]thers:<br>  chmod o&#x3D; file</p>
+</li>
+<li><p>Change permissions recursively giving [g]roup and [o]thers the abililty to [w]rite:<br>  chmod -R g+w,o+w directory<br>1.7 其他命令<br>显示工作目录</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>pwd</p>
+<p>Print name of current&#x2F;working directory.</p>
+<ul>
+<li><p>Print the current directory:<br>  pwd</p>
+</li>
+<li><p>Print the current directory, and resolve all symlinks (i.e. show the “physical” path):<br>  pwd -P<br>查看进程</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>ps</p>
+<p>Information about running processes.</p>
+<ul>
+<li><p>List all running processes:<br>  ps aux</p>
+</li>
+<li><p>List all running processes including the full command string:<br>  ps auxww</p>
+</li>
+<li><p>Search for a process that matches a string:<br>  ps aux | grep string</p>
+</li>
+<li><p>List all processes of the current user in extra full format:<br>  ps –user $(id -u) -F</p>
+</li>
+<li><p>List all processes of the current user as a tree:<br>  ps –user $(id -u) f</p>
+</li>
+<li><p>Get the parent pid of a process:<br>  ps -o ppid&#x3D; -p pid<br>杀死进程</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>kill</p>
+<p>Sends a signal to a process, usually related to stopping the process.<br>All signals except for SIGKILL and SIGSTOP can be intercepted by the process to perform a clean exit.</p>
+<ul>
+<li><p>Terminate a program using the default SIGTERM (terminate) signal:<br>  kill process_id</p>
+</li>
+<li><p>List available signal names (to be used without the <code>SIG</code> prefix):<br>  kill -l</p>
+</li>
+<li><p>Terminate a background job:<br>  kill %job_id</p>
+</li>
+<li><p>Terminate a program using the SIGHUP (hang up) signal. Many daemons will reload instead of terminating:<br>  kill -1|HUP process_id</p>
+</li>
+<li><p>Terminate a program using the SIGINT (interrupt) signal. This is typically initiated by the user pressing <code>Ctrl + C</code>:<br>  kill -2|INT process_id</p>
+</li>
+<li><p>Signal the operating system to immediately terminate a program (which gets no chance to capture the signal):<br>  kill -9|KILL process_id</p>
+</li>
+<li><p>Signal the operating system to pause a program until a SIGCONT (“continue”) signal is received:<br>  kill -17|STOP process_id</p>
+</li>
+<li><p>Send a <code>SIGUSR1</code> signal to all processes with the given GID (group id):<br>  kill -SIGUSR1 -group_id<br>搜索</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>grep</p>
+<p>Matches patterns in input text.<br>Supports simple patterns and regular expressions.</p>
+<ul>
+<li><p>Search for an exact string:<br>  grep search_string path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Search in case-insensitive mode:<br>  grep -i search_string path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Search recursively (ignoring non-text files) in current directory for an exact string:<br>  grep -RI search_string .</p>
+</li>
+<li><p>Use extended regular expressions (supporting <code>?</code>, <code>+</code>, <code>&#123;&#125;</code>, <code>()</code> and <code>|</code>):<br>  grep -E ^regex$ path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Print 3 lines of [C]ontext around, [B]efore, or [A]fter each match:<br>  grep -C|B|A 3 search_string path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Print file name with the corresponding line number for each match:<br>  grep -Hn search_string path&#x2F;to&#x2F;file</p>
+</li>
+<li><p>Use the standard input instead of a file:<br>  cat path&#x2F;to&#x2F;file | grep search_string</p>
+</li>
+<li><p>Invert match for excluding specific strings:<br>  grep -v search_string<br>管道</p>
+</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>|      ##管道符<br>管道只允许正确输出通过<br> tee         ####复制一份输出<br>2&gt;&amp;1 |       ####转换错误输出为正确再通过管道<br>关机</p>
+<p>1<br>poweroff<br>重启</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>reboot</p>
+<p>Reboot the system.</p>
+<ul>
+<li><p>Reboot immediately:<br>  sudo reboot</p>
+</li>
+<li><p>Reboot immediately without gracefully shutting down:<br>  sudo reboot -q<br>二.Linux网络<br>2.1 网络服务<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>ifconfig</p>
+</li>
+</ul>
+<p>Network Interface Configurator.</p>
+<ul>
+<li><p>View network settings of an ethernet adapter:<br>  ifconfig eth0</p>
+</li>
+<li><p>Display details of all interfaces, including disabled interfaces:<br>  ifconfig -a</p>
+</li>
+<li><p>Disable eth0 interface:<br>  ifconfig eth0 down</p>
+</li>
+<li><p>Enable eth0 interface:<br>  ifconfig eth0 up</p>
+</li>
+<li><p>Assign IP address to eth0 interface:<br>  ifconfig eth0 ip_address</p>
+</li>
+</ul>
+<p>ip addr :CentOS7版本<br>修改网卡ip<br>vim &#x2F;etc&#x2F;sysconfig&#x2F;network-scripts&#x2F;ifcfg-ens33<br>概要信息	<br>DEVICE&#x3D;ens33	网卡名称<br>TYPE&#x3D;Ethernet	网卡类型 以太网<br>ONBOOT&#x3D;yes	是否开机就使用此网卡<br>BOOTPROTO&#x3D;dhcp	启动网卡时指定获取IP地址的方式<br>IPADDR&#x3D;	ip地址<br>GATEWAY&#x3D;	网关<br>NETMASK&#x3D;255.255.255.0	子网掩码<br>DNS1&#x3D;	DNS服务器<br>重启网卡服务	<br>systemctl status network	查看指定服务的状态<br>systemctl stop network	停止指定服务<br>systemctl start network	启动指定服务<br>systemctl restart network	重启指定服务<br>2.2 防火墙服务<br>2.2.1 防火墙设置<br>防火墙设置	<br>开启防火墙	systemctl start firewalld<br>重启防火墙	systemctl restart firewalld<br>关闭防火墙	systemctl stop firewalld<br>设置开机启动	systemctl enable firewalld<br>停止并关闭开机启动	systemctl disable firewalld<br>查看防火墙状态	systemctl status firewalld 或者 firewall-cmd –state<br>查看防火墙开机时是否启动	systemctl list-unit-files | grep firewalld<br>2.2.2 端口设置<br>端口设置	<br>添加	firewall-cmd –zone&#x3D;public –add-port&#x3D;80&#x2F;tcp –permanent<br>更新防火墙规则	firewall-cmd –reload<br>查看	firewall-cmd –zone&#x3D;public –query-port&#x3D;80&#x2F;tcp<br>firewall-cmd –zone&#x3D;public –list-ports<br>删除	firewall-cmd –zone&#x3D;public –remove-port&#x3D;80&#x2F;tcp –permanent<br>常用端口	8080 tomcat<br>80 http协议<br>443 https协议<br>22 ssh远程连接<br>3306 mysql<br>6379 redis<br>三.Nginx<br>3.1 介绍<br>Nginx是一款轻量级的 Web 服务器,由俄罗斯的程序设计师伊戈尔·西索夫所开发。 Nginx性能非常优秀, 官方测试能够支撑5万并发链接，并且 cpu、内存等资源消耗却非常低，运行非常稳定。</p>
+<p>Nginx的功能有很多，我们主要使用它来做静态资源服务器、负载均衡服务器和反向代理服务器。</p>
+<p>3.2 应用场景<br>3.2.1 静态资源服务器<br>部署网站的静态资源(html、css、js),可与Tomcat等实现动静分离</p>
+<p>3.2.2 反向代理服务器<br>代理</p>
+<p>给某个对象提供一个代理对象，并由代理对象控制原对象的引用</p>
+<p>正向代理</p>
+<p>对客户端进行代理(例如VPN)</p>
+<p>反向代理</p>
+<p>对服务端进行代理</p>
+<p>反向代理，就是对服务端进行代理，作为客户端,只需要将请求发送到反向代理服务器，由反向代理服务 器去选择目标服务器获取数据后，再响应给客户端，此时反向代理服务器和目标服务器对外就是一个服 务器，暴露的是代理服务器地址，隐藏了真实服务器IP地址。</p>
+<p>3.2.3 负载均衡服务器<br>负载均衡 Load Balance 意思就是将一份负载分摊到多个操作单元上进行执行</p>
+<p>3.3 配置文件介绍(nginx-1.13.9&#x2F;conf&#x2F;nginx.conf)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>server {<br>    listen       80; #port<br>    server_name  localhost; #Server</p>
+<pre><code>#charset koi8-r;
+
+#access_log  logs/host.access.log  main;
+
+location / &#123;
+    root   html; #Static resource directory
+    index  index.html index.htm; #Default visit page
+&#125;
+</code></pre>
+<p>3.5 nginx与tomcat区别<br>存放的文件(资源)形式<br>Nginx是http服务器,只能解析静态文件</p>
+<p>Tomcat是web中间件(本质上是一个servlet),能解析jsp和静态文件</p>
+<p>用途</p>
+<p>nginx可以作为反向代理服务器,负责均衡服务器,静态资源存放服务器</p>
+<p>tomcat能作为jsp容器使用,静态资源存放服务器</p>
+<p>性能</p>
+<p>nginx支持5W+并发,tomcat的并发只能在200-400之间</p>
+<p>总结</p>
+<h1 id="linux基础"><a href="#linux基础" class="headerlink" title="linux基础"></a>linux基础</h1><h2 id="Linux基本命令"><a href="#Linux基本命令" class="headerlink" title="Linux基本命令"></a>Linux基本命令</h2><h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><ul>
+<li>root</li>
+</ul>
+<p>​ - 超级管理员所在的目录</p>
+<ul>
+<li>home</li>
+</ul>
+<p>​ - 普通用户所在的目录</p>
+<ul>
+<li>usr</li>
+</ul>
+<p>​ - 安装用户文件所在的目录</p>
+<ul>
+<li>etc</li>
+</ul>
+<p>​ - Linux系统管理和配置文件所在的目录</p>
+<h3 id="目录操作"><a href="#目录操作" class="headerlink" title="目录操作"></a>目录操作</h3><ul>
+<li>查看</li>
+</ul>
+<p>​ - ll</p>
+<p>​ - ls</p>
+<ul>
+<li>切换</li>
+</ul>
+<p>​ - cd</p>
+<p>​ - 绝对路径</p>
+<p>​ - 相对路径</p>
+<ul>
+<li>创建</li>
+</ul>
+<p>​ - mkdir -p</p>
+<ul>
+<li>修改&#x2F;剪切</li>
+</ul>
+<p>​ - mv</p>
+<ul>
+<li>复制</li>
+</ul>
+<p>​ - cp -r</p>
+<ul>
+<li>删除</li>
+</ul>
+<p>​ - rmdir -p</p>
+<h3 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h3><ul>
+<li>创建</li>
+</ul>
+<p>​ - touch</p>
+<ul>
+<li>查看</li>
+</ul>
+<p>​ - cat&#x2F;more&#x2F;less&#x2F;head&#x2F;tail</p>
+<ul>
+<li>删除</li>
+</ul>
+<p>​ - rm -rf</p>
+<ul>
+<li>编辑</li>
+</ul>
+<p>​ - vim</p>
+<p>​ - 插入模式</p>
+<p>​ - i</p>
+<p>​ - 命令行模式</p>
+<p>​ - esc</p>
+<p>​ - 底行模式</p>
+<p>​ - :</p>
+<p>​ - wq!</p>
+<p>​ - q!</p>
+<h3 id="压缩命令"><a href="#压缩命令" class="headerlink" title="压缩命令"></a>压缩命令</h3><ul>
+<li>打包</li>
+</ul>
+<p>​ - tar -zcvf</p>
+<p>​ - xxxx.tar.gz</p>
+<ul>
+<li>解压缩</li>
+</ul>
+<p>​ - tar -zxvf</p>
+<p>​ - xxxx.tar.gz</p>
+<h3 id="文件权限"><a href="#文件权限" class="headerlink" title="文件权限"></a>文件权限</h3><ul>
+<li>chmod -R 777</li>
+</ul>
+<h3 id="其他命令"><a href="#其他命令" class="headerlink" title="其他命令"></a>其他命令</h3><ul>
+<li>查看进程</li>
+</ul>
+<p>​ - ps -ef</p>
+<ul>
+<li>杀死进程</li>
+</ul>
+<p>​ - kill -9 PID</p>
+<ul>
+<li>文本搜索</li>
+</ul>
+<p>​ - grep -in</p>
+<ul>
+<li>管道</li>
+</ul>
+<p>​ - 一个命令的输出作为另一个命令的输入</p>
+<h2 id="Linux网络"><a href="#Linux网络" class="headerlink" title="Linux网络"></a>Linux网络</h2><h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><ul>
+<li>查看ip</li>
+</ul>
+<p>​ - ifconfig</p>
+<p>​ - ip addr</p>
+<h3 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h3><ul>
+<li>防火墙设置</li>
+</ul>
+<p>​ - 关闭</p>
+<p>​ - systemctl stop firewalld</p>
+<p>​ - 关闭开机自启动</p>
+<p>​ - systemctl disable firewalld</p>
+<ul>
+<li>端口设置</li>
+</ul>
+<p>​ - 放行端口</p>
+<p>​ - firewall-cmd –zone&#x3D;public –add-port&#x3D;80&#x2F;tcp –permanent</p>
+<p>​ - 更新规则</p>
+<p>​ - firewall-cmd –reload</p>
+<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><h3 id="由战斗民族开发的一款高性能的-http-服务器-x2F-反向代理服务器"><a href="#由战斗民族开发的一款高性能的-http-服务器-x2F-反向代理服务器" class="headerlink" title="由战斗民族开发的一款高性能的 http 服务器&#x2F;反向代理服务器"></a>由战斗民族开发的一款高性能的 http 服务器&#x2F;反向代理服务器</h3><ul>
+<li><p>http服务器</p>
+</li>
+<li><p>反向代理（负载均衡）</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/20/Redis-%E4%BC%98%E5%8C%96/" rel="prev" title="Redis & 优化">
+      <i class="fa fa-chevron-left"></i> Redis & 优化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/28/Spring-%E5%88%9D%E8%AF%86-%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/" rel="next" title="Spring 初识 & 相关配置">
+      Spring 初识 & 相关配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#linux%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">linux基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">Linux基本命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.1.</span> <span class="nav-text">目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.2.</span> <span class="nav-text">目录操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.3.</span> <span class="nav-text">文件操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.4.</span> <span class="nav-text">压缩命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="nav-number">1.1.5.</span> <span class="nav-text">文件权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.6.</span> <span class="nav-text">其他命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E7%BD%91%E7%BB%9C"><span class="nav-number">1.2.</span> <span class="nav-text">Linux网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C"><span class="nav-number">1.2.1.</span> <span class="nav-text">网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">1.2.2.</span> <span class="nav-text">防火墙</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx"><span class="nav-number">1.3.</span> <span class="nav-text">Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B1%E6%88%98%E6%96%97%E6%B0%91%E6%97%8F%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E6%AC%BE%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84-http-%E6%9C%8D%E5%8A%A1%E5%99%A8-x2F-%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.3.1.</span> <span class="nav-text">由战斗民族开发的一款高性能的 http 服务器&#x2F;反向代理服务器</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

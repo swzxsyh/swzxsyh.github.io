@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="栈(虚拟机栈VM Stack)堆是存储的单元(堆只保存对象信息)，栈是运行时的单位;在整个JVM的内存之中，栈内存是一个非常重要的的概念；栈里面存储的都是与当前线程相关的信息，包括：局部变量、程序运行状态、方法返回地址等。 虚拟机栈栈中保存的是一个又一个栈帧 栈帧入栈与出栈一个栈帧对应一个未运行完的函数；当某一个函数被调用一次时，就会产生一个栈帧(记录着该函数的相关信息)，并入栈;当该函数运行完毕">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA-栈与栈帧">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/04/JAVA-%E6%A0%88%E5%B8%A7/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="栈(虚拟机栈VM Stack)堆是存储的单元(堆只保存对象信息)，栈是运行时的单位;在整个JVM的内存之中，栈内存是一个非常重要的的概念；栈里面存储的都是与当前线程相关的信息，包括：局部变量、程序运行状态、方法返回地址等。 虚拟机栈栈中保存的是一个又一个栈帧 栈帧入栈与出栈一个栈帧对应一个未运行完的函数；当某一个函数被调用一次时，就会产生一个栈帧(记录着该函数的相关信息)，并入栈;当该函数运行完毕">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-04T04:06:08.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.655Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/04/JAVA-%E6%A0%88%E5%B8%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JAVA-栈与栈帧 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/JAVA-%E6%A0%88%E5%B8%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JAVA-栈与栈帧
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-04 12:06:08" itemprop="dateCreated datePublished" datetime="2022-07-04T12:06:08+08:00">2022-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="栈-虚拟机栈VM-Stack"><a href="#栈-虚拟机栈VM-Stack" class="headerlink" title="栈(虚拟机栈VM Stack)"></a>栈(虚拟机栈VM Stack)</h1><p>堆是存储的单元(堆只保存对象信息)，栈是运行时的单位;在整个<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=JVM&spm=1001.2101.3001.7020">JVM</a>的内存之中，栈内存是一个非常重要的的概念；栈里面存储的都是与当前线程相关的信息，包括：局部变量、程序运行状态、方法返回地址等。</p>
+<h2 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h2><p>栈中保存的是一个又一个栈帧</p>
+<h2 id="栈帧入栈与出栈"><a href="#栈帧入栈与出栈" class="headerlink" title="栈帧入栈与出栈"></a>栈帧入栈与出栈</h2><p>一个栈帧对应一个未运行完的函数；当某一个函数被调用一次时，就会产生一个栈帧(记录着该函数的相关信息)，并入栈;当该函数运行完毕之后，其对应的栈帧会出栈。</p>
+<p>注：函数的一次调用就会产生一个对应的栈帧，而不是一个函数本身对应一个栈帧；如：递归调用就会产生无数个栈帧。</p>
+<h2 id="栈的溢出"><a href="#栈的溢出" class="headerlink" title="栈的溢出"></a>栈的溢出</h2><p>从栈的结构可知：如果栈帧数量过多(n多次调用方法)或某个(些)栈帧过大会导致栈溢出引发SOE(Stack Overflow Error)。</p>
+<p>注：如果允许虚拟机栈动态扩展，那么当内存不足时，会导致OOM(OutOfMemoryError)</p>
+<span id="more"></span>
+
+<h1 id="栈帧-Stack-Frame"><a href="#栈帧-Stack-Frame" class="headerlink" title="栈帧(Stack Frame)"></a>栈帧(Stack Frame)</h1><p>栈帧是用于支持虚拟机进行方法调用和方法执行的数据结构。它是虚拟机运行时数据区的虚拟机栈的组成元素。调用一次方法(无论是不是调用的同一个方法)就会产生一个栈帧</p>
+<h2 id="操作数栈-Operand-Stack"><a href="#操作数栈-Operand-Stack" class="headerlink" title="操作数栈(Operand Stack)"></a>操作数栈(Operand Stack)</h2><p>表达式计算在操作数栈中完成。当一个方法刚刚开始执行的时候，这个方法的操作数栈是空的，在方法的执行过程中，会有各种字节码指令往操作数栈中写入和提取内容，也就是出栈&#x2F;入栈操作。例如，在做算术运算的时候是通过操作数栈来进行的，又或者在调用其他方法的时候是通过操作数栈来进行参数传递的。</p>
+<p>注：在概念模型里面，虚拟机栈中的栈帧之间是完全相互独立的。但是在大多数虚拟机的实现里都会做一些优化<br>       处理，令两个栈帧出现一部分重叠。让下面栈帧的部分操作数栈与上面栈帧的部分局部变量表重叠在一起，<br>       这样在进行方法的调用时就可以共用一部分数据，无需进行额外的参数复制传递，重叠的过程</p>
+<h2 id="局部变量表-Local-Variable-Table"><a href="#局部变量表-Local-Variable-Table" class="headerlink" title="局部变量表(Local Variable Table)"></a>局部变量表(Local Variable Table)</h2><p>局部变量表是一组变量值存储空间，用于存放方法参数和方法内部定义的局部变量。</p>
+<p>注：局部变量表以变量槽(solt)为最小单位，一个变量槽最大只允许保存四字节(即:32位)长度的变量。如果超过32位，<br>    则会开辟两个连续的solt。</p>
+<h2 id="动态链接-Dynamic-Linking"><a href="#动态链接-Dynamic-Linking" class="headerlink" title="动态链接(Dynamic Linking)"></a>动态链接(Dynamic Linking)</h2><p>请求方法时，先有动态链接，再包装为栈帧</p>
+<p>每个栈帧都包含一个指向运行时常量池中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态连接。</p>
+<h2 id="返回地址-Return-Adderss"><a href="#返回地址-Return-Adderss" class="headerlink" title="返回地址(Return Adderss)"></a>返回地址(Return Adderss)</h2><p>方法执行完(不论是正常执行还是发生了异常)后需要返回到方法被调用的位置，程序才能继续执行，方法但回事可能需要在栈帧中保存一些信息，用来帮助恢复上层方法的执行状态。</p>
+<p>方法的退出过程实际上就等于把当前栈帧出栈。</p>
+<ul>
+<li><p>正常返回</p>
+<p>恢复上层方法的局部变量表和操作数栈。<br>把返回值(如果有的话)压入调用者栈帧的操作数栈中。<br>调整PC计数器的值以指向方法调用指令后面的一条指令。</p>
+</li>
+<li><p>异常返回</p>
+<p>找到异常处理的栈帧</p>
+</li>
+</ul>
+<h2 id="指向运行时常量池的引用"><a href="#指向运行时常量池的引用" class="headerlink" title="指向运行时常量池的引用"></a>指向运行时常量池的引用</h2><p>当前方法所属的类的运行时常量池的引用，引用其他的常量类或者使用String池中的字符串。</p>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/justry_deng/article/details/86761833">https://blog.csdn.net/justry_deng/article/details/86761833</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1uV411s7yu">https://www.bilibili.com/video/BV1uV411s7yu</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/04/JAVA-JUC%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/" rel="prev" title="JAVA-J.U.C并发容器">
+      <i class="fa fa-chevron-left"></i> JAVA-J.U.C并发容器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/04/JVM-GC-Roots/" rel="next" title="JVM-GC Roots">
+      JVM-GC Roots <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%88-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88VM-Stack"><span class="nav-number">1.</span> <span class="nav-text">栈(虚拟机栈VM Stack)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="nav-number">1.1.</span> <span class="nav-text">虚拟机栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E5%B8%A7%E5%85%A5%E6%A0%88%E4%B8%8E%E5%87%BA%E6%A0%88"><span class="nav-number">1.2.</span> <span class="nav-text">栈帧入栈与出栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%9A%84%E6%BA%A2%E5%87%BA"><span class="nav-number">1.3.</span> <span class="nav-text">栈的溢出</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%88%E5%B8%A7-Stack-Frame"><span class="nav-number">2.</span> <span class="nav-text">栈帧(Stack Frame)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88-Operand-Stack"><span class="nav-number">2.1.</span> <span class="nav-text">操作数栈(Operand Stack)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E8%A1%A8-Local-Variable-Table"><span class="nav-number">2.2.</span> <span class="nav-text">局部变量表(Local Variable Table)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5-Dynamic-Linking"><span class="nav-number">2.3.</span> <span class="nav-text">动态链接(Dynamic Linking)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E5%9C%B0%E5%9D%80-Return-Adderss"><span class="nav-number">2.4.</span> <span class="nav-text">返回地址(Return Adderss)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%90%91%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0%E7%9A%84%E5%BC%95%E7%94%A8"><span class="nav-number">2.5.</span> <span class="nav-text">指向运行时常量池的引用</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">2.5.0.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

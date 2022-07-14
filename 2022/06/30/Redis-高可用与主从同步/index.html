@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="高可用主从模式 不具备自动容错和恢复功能,需要等机器重启或者手动切换前端IP才能恢复 较难支持在线扩容 存在数据丢失,以及全量复制时会降低性能  哨兵模式 sentinal,哨兵,主要负责:(1) 集群监控,负责监控redis master和salve进程是否正常工作(2) 消息通知,如果某个redis有故障,哨兵负责发送消息作为报警通知管理员(3) 故障转移,如果master挂掉,自动转移到sa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis-高可用与主从同步">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="高可用主从模式 不具备自动容错和恢复功能,需要等机器重启或者手动切换前端IP才能恢复 较难支持在线扩容 存在数据丢失,以及全量复制时会降低性能  哨兵模式 sentinal,哨兵,主要负责:(1) 集群监控,负责监控redis master和salve进程是否正常工作(2) 消息通知,如果某个redis有故障,哨兵负责发送消息作为报警通知管理员(3) 故障转移,如果master挂掉,自动转移到sa">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/9f3406f8ba5b48feb60cc3db4c1965fb1ca03d84cbaf837bd454dab186bd8b37.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/5b8c390c524d32e73774b2220a26bd427b787cdb2a581f3e3a3e07707882ff0b.png">
+<meta property="article:published_time" content="2022-06-30T09:20:46.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.034Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/9f3406f8ba5b48feb60cc3db4c1965fb1ca03d84cbaf837bd454dab186bd8b37.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis-高可用与主从同步 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis-高可用与主从同步
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:20:46" itemprop="dateCreated datePublished" datetime="2022-06-30T17:20:46+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h1><h2 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h2><ul>
+<li>不具备自动容错和恢复功能,需要等机器重启或者手动切换前端IP才能恢复</li>
+<li>较难支持在线扩容</li>
+<li>存在数据丢失,以及全量复制时会降低性能</li>
+</ul>
+<h2 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h2><ul>
+<li><p>sentinal,哨兵,主要负责:<br>(1) 集群监控,负责监控redis master和salve进程是否正常工作<br>(2) 消息通知,如果某个redis有故障,哨兵负责发送消息作为报警通知管理员<br>(3) 故障转移,如果master挂掉,自动转移到salve 节点上<br>(4) 配置中心.如果故障转移发生,通知客户端新的master地址</p>
+</li>
+<li><p>哨兵本身也可以是分布式的,作为一个哨兵集群,这样当部分哨兵节点挂掉,集群依然可以正常工作</p>
+</li>
+<li><p>数据丢失</p>
+<ul>
+<li><p>主从复制导致丢失</p>
+<ul>
+<li>在master节点数据还没同步到slave的时候,master宕机了</li>
+</ul>
+</li>
+<li><p>集群脑裂导致丢失</p>
+<ul>
+<li><p>某个master所在机器突然脱离了正常的网络,跟其他slave节点不能连接,但实际上master还运行着,此时哨兵可能会认为master宕机,重新选举了master,此时集群里会存在两个master</p>
+</li>
+<li><p>在某个slave选举成为master之后,客户端还没来得及切换到新的master上面,继续向旧的master写入数据,此时旧master恢复正常,会作为一个slave挂到新的master上面,自己的数据就会被清空,重新复制数据</p>
+</li>
+</ul>
+</li>
+<li><p>解决办法<br>      min-salves-to-write<br>  min-slaves-max-lag<br>  设置要求最少数量的slave,复制和同步最大延迟不能超过多长时间.超过min-slaves-max-lag指定的时间后未收到ack则master拒绝写请求</p>
+</li>
+</ul>
+</li>
+<li><p>sdown和odown失败状态<br>            - sdown是主观宕机,即就一个哨兵自己觉得master宕机了.如果一个哨兵ping一个master,超过is-master-after-milliseconds指定的时间后,没有收到回复则主观认为master宕机了<br>- odowm,客观宕机,如果quorum数量的哨兵都觉得master宕机了.如果一个哨兵指定时间内,收到了quorum指定数量的其他哨兵也认为master宕机了,那就是客观宕机</p>
+</li>
+<li><p>自动发现<br>            - 哨兵间的相互发现是通过redis的pub&#x2F;sub机制实现的<br>    每个哨兵都会往 <em>sentinel</em>:hello这个channel发送消息,这个时候其他哨兵可以订阅这个消息感知其他哨兵的存在<br>  - 每隔两秒钟,哨兵就会往自己监控的某个master+slaves对应的 <em>sentinel</em>:hello  channel里发送一个消息,内容是自己的host ip runid 和对这个master的监控配置</p>
+</li>
+<li><p>选举算法<br>      - 如果一个master被认为odown了,而且majority哨兵都允许主备涉黄,那么某个哨兵就会执行主备切换操作<br>  - 首先需要quorum数量的哨兵认为odowm了,然后选举出来一个哨兵来做切换,这个哨兵需得到majority哨兵的授权<br>    如quorum &lt; majority ,比如有5个哨兵,majority就是3,quorum设置为2,那么需要3个哨兵授权才能执行切换<br>    如quorum &gt;&#x3D; majority, 那么必须quorum数量的哨兵授权才能执行<br>  - 执行切换的那个哨兵会从切换到的新master哪里得到一个 configuration epoch(一个版本包version),进行传播</p>
+</li>
+<li><p>优点<br>      - 基于主从模式,具有主从的有点<br>  - 故障可以转移,可用性好</p>
+</li>
+<li><p>缺点<br>      - 配置复杂<br>  - 在线扩容较难</p>
+</li>
+</ul>
+<h2 id="Cluster集群"><a href="#Cluster集群" class="headerlink" title="Cluster集群"></a>Cluster集群</h2><ul>
+<li>16384个槽</li>
+<li>crc16 对 16384 取余</li>
+<li>有任意一个master挂掉且没有可用的slaves时,集群进入fail状态,不可用</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="主从同步"><a href="#主从同步" class="headerlink" title="主从同步"></a>主从同步</h1><h2 id="第一次同步"><a href="#第一次同步" class="headerlink" title="第一次同步"></a>第一次同步</h2><p><img src="/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/9f3406f8ba5b48feb60cc3db4c1965fb1ca03d84cbaf837bd454dab186bd8b37.png" alt="image"></p>
+<ul>
+<li><p>第一阶段：建立链接、协商同步</p>
+<ul>
+<li><p>执行replicaof命令，从服务器就会发送【psync】命令到主服务器，表示要进行数据同步。<br>psync携带两个参数，分别是主服务器的【runID】和复制进度【offset】</p>
+<ul>
+<li><p>runID，每个Redis服务器启动时都会自动产生一个随机ID来唯一标识自己。当从服务器和主服务器第一次进行同步时，因为不知道主服务器的runID，所以会设置为 “？”</p>
+</li>
+<li><p>offset表示复制的进度，第一次同步时为 -1</p>
+</li>
+</ul>
+</li>
+<li><p>主服务器收到【psync】命令后，会用【FULLRESYNC】命令响应对方<br>  - 响应会带上runID和offset参数</p>
+</li>
+</ul>
+</li>
+<li><p>第二阶段：主服务器同步数据给从服务器</p>
+<ul>
+<li>主服务器会执行bgsave命令生成RDB文件，然后将文件发送给从服务器<ul>
+<li>在生成RDB文件过程中，新的写操作命令会被记录到replication buffer 缓冲区中</li>
+<li>当有多个从服务器时，如果都与主服务器进行全量同步，那么主服务就会忙于fork创建子进程，如果主服务器数据非常大，在fork的时候就会阻塞主线程；另外传输RDB文件也会占用主服务器带宽。<br>因此可以设置从服务器从从服务器上同步数据，分摊压力</li>
+</ul>
+</li>
+<li>从服务器收到RDB文件后，会清空当前的数据，然后载入RDB文件</li>
+</ul>
+</li>
+<li><p>第三阶段：主服务器发送新写操作命令给从服务器</p>
+</li>
+</ul>
+<h2 id="命令传播-–-基于长连接的命令传播"><a href="#命令传播-–-基于长连接的命令传播" class="headerlink" title="命令传播 – 基于长连接的命令传播"></a>命令传播 – 基于长连接的命令传播</h2><ul>
+<li>第一次同步完成后，双方之间就维持一个TCP链接。后续主服务器通过该链接将写操作命令传播给从服务器，然后从服务器执行该命令repl_backlog_buffer</li>
+</ul>
+<h2 id="增量复制"><a href="#增量复制" class="headerlink" title="增量复制"></a>增量复制</h2><ul>
+<li>当网络断开时，就无法通过基于产量及的命令传播进行同步。当网络从新连接时，会进行增量同步<ul>
+<li>从服务器在网络恢复后，会发送psync名利给给主服务器，此时psync命令里的offset参数不是-1</li>
+<li>然后主服务器将从服务器断线期间所执行的写操作命令发送给从服务器(repl_backlog_bufffer,replication offset,环形缓冲区)</li>
+<li>主服务器收到该命令后，然后后用CONTINUE命令响应，告诉从服务器接下来采用增量复制的方式同步数据</li>
+</ul>
+</li>
+<li>repl_backlog_buffer<ul>
+<li>一个环形缓冲区，用于主从服务器断连后，从中找到差异数据。缓冲区保持着最近传播的写命令<img src="/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/5b8c390c524d32e73774b2220a26bd427b787cdb2a581f3e3a3e07707882ff0b.png" alt="image"></li>
+<li>默认大小为 1M， 写满后会覆盖之前的数据。可通过【repl-backlog-size】进行调节</li>
+</ul>
+</li>
+<li>replication offset<ul>
+<li>标记环形缓冲区的同步进度，主从服务器都有各自的偏移量，主服务器使用【master_repl_offset】来记录自己写到的位置，从服务器用【salve_repl_offset】来记录自己读到的位置</li>
+</ul>
+</li>
+</ul>
+<p>从服务器重新连接时，从服务器会通过【psync】命令将自己的复制偏移量【salve_repl_offset】发送给主服务器，主服务器根据自己的【master_repl_offset】与从服务器的复制便宜李兰决定执行哪种操作<br>当判断出从服务器要读取的数据还在repl_backlog_buffer缓冲区时，采取增量同步<br>否则采用全量同步</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="prev" title="Redis-数据类型与数据结构">
+      <i class="fa fa-chevron-left"></i> Redis-数据类型与数据结构
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/30/Redis-Redission%E9%94%81/" rel="next" title="Redis-Redission锁">
+      Redis-Redission锁 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">主从模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">哨兵模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster%E9%9B%86%E7%BE%A4"><span class="nav-number">1.3.</span> <span class="nav-text">Cluster集群</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5"><span class="nav-number">2.</span> <span class="nav-text">主从同步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%90%8C%E6%AD%A5"><span class="nav-number">2.1.</span> <span class="nav-text">第一次同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E4%BC%A0%E6%92%AD-%E2%80%93-%E5%9F%BA%E4%BA%8E%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%91%BD%E4%BB%A4%E4%BC%A0%E6%92%AD"><span class="nav-number">2.2.</span> <span class="nav-text">命令传播 – 基于长连接的命令传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E%E9%87%8F%E5%A4%8D%E5%88%B6"><span class="nav-number">2.3.</span> <span class="nav-text">增量复制</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

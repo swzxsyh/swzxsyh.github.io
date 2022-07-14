@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="垃圾收集器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM-垃圾收集器">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="垃圾收集器">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1607593330.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/Serial.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1617029902.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/SerialOld.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/MarkCompact.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/Parallel.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1604495447.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/ParallelOld.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/CMS.png">
+<meta property="article:published_time" content="2022-07-02T09:04:20.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.727Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1607593330.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JVM-垃圾收集器 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM-垃圾收集器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 17:04:20" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:20+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h1><p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1607593330.png" alt="image"></p>
+<span id="more"></span>
+
+<h1 id="串行收集器Serial"><a href="#串行收集器Serial" class="headerlink" title="串行收集器Serial"></a>串行收集器Serial</h1><blockquote>
+<p>串行收集器是指同一时间段类只允许一个CPU执行**垃圾回收,此时用户线程被暂停(STW),**直到垃圾回收结束。</p>
+<ul>
+<li><p>参数：-XX:+UseSerialGC -XX:+UseSerialOldGC</p>
+</li>
+<li><p>优点</p>
+<ul>
+<li>简单高效，是Client模式下默认的垃圾收集器；</li>
+<li>对于资源受限的环境，比如单核(例如Docker中设置单核)，单线程效率较高；</li>
+<li>内存小于一两百兆的桌面程序中，交互有限，则有限的STW是可以接受的。</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<p>垃圾回收速度较慢且回收能力有限，频繁的STW会导致较差的使用体验。</p>
+</li>
+<li><p>应用场景</p>
+<p>是HotSpot在Client模式下默认的新生代垃圾收集器</p>
+<p>在用户的桌面应用场景中，可用内存一般不大（几十M至一两百M），可以在较短时间内完成垃圾收集（几十MS至一百多MS）,只要不频繁发生，这是可以接受的</p>
+</li>
+</ul>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/Serial.png"></p>
+</blockquote>
+<h2 id="Serial"><a href="#Serial" class="headerlink" title="Serial"></a>Serial</h2><ul>
+<li>串行</li>
+<li>新生代</li>
+<li>复制算法</li>
+<li>响应速度优先</li>
+<li>单CPU环境下的Client模式</li>
+</ul>
+<blockquote>
+<p>Serial是单线程垃圾回收器,当需要执行垃圾回收时,程序会暂停一切工作,然后单线程执行垃圾回收.</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1617029902.png" alt="image"></p>
+<p>单线程的好处就是减少上下文切换,减少系统开销.但是这种方式的缺点也很明显,在GC的过程中,会暂停程序执行. 若GC发生不频繁可以选这个. 对于新声代来说,区域比较小,停顿时间短.</p>
+</blockquote>
+<ul>
+<li><p>优点</p>
+<ul>
+<li>简单高效，是Client模式下默认的垃圾收集器；</li>
+<li>对于资源受限的环境，比如单核(例如Docker中设置单核)，单线程效率较高；</li>
+<li>内存小于一两百兆的桌面程序中，交互有限，则有限的STW是可以接受的。</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>垃圾回收速度较慢且回收能力有限，频繁的STW会导致较差的使用体验。</li>
+</ul>
+</li>
+<li><p>应用场景</p>
+<ul>
+<li>是HotSpot在Client模式下默认的新生代垃圾收集器</li>
+<li>在用户的桌面应用场景中，可用内存一般不大（几十M至一两百M），可以在较短时间内完成垃圾收集（几十MS至一百多MS）,只要不频繁发生，这是可以接受的</li>
+</ul>
+</li>
+</ul>
+<h2 id="Serial-Old"><a href="#Serial-Old" class="headerlink" title="Serial Old"></a>Serial Old</h2><ul>
+<li>串行</li>
+<li>老年代</li>
+<li>标记-整理</li>
+<li>响应速度优先</li>
+<li>单CPU环境下的Client模式、CMS的后备预案</li>
+</ul>
+<blockquote>
+<p>老年代垃圾收集器,与Serial一样,是一个单线程垃圾收集器,不同的是用的算法不一样(标记-整理)</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/SerialOld.png" alt="image"></p>
+<p>根据老年代的特点,有人设计了<code>标记-整理(Mark Compact)</code>算法,标记过程和<code>标记-清除</code>算法一样,但是后续步骤不是直接对可回收对象进行清理,而是让存活对象向一端移动,然后清除掉边界以外的内存，如下图所示。</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/MarkCompact.png" alt="image"></p>
+<p><code>复制算法</code>在对象存活比较高的老年代需要复制大量的对象,效率将会贬低,如果不想浪费50%的内存,就需要有额外的空间进行分配担保,以应对对象100%都存活的极端情况,所以老年代并不适用<code>复制算法</code>。</p>
+</blockquote>
+<h1 id="并行收集器Parallel"><a href="#并行收集器Parallel" class="headerlink" title="并行收集器Parallel"></a>并行收集器Parallel</h1><blockquote>
+<p>指多条垃圾收集线程并行工作，但此时用户线程仍然处于等待状态，但是由于是多CPU同时执行,所以应用程序的吞吐量比较高.</p>
+<p>吞吐量优先:花在垃圾收集的时间和花在应用时间的占比 -XX:GCTimeRatio&#x3D;, 垃圾收集时间占：1&#x2F;1+n</p>
+<ul>
+<li>-XX:+UseParallelGC -XX:+UseParallelOldGC</li>
+<li>Server模式下的默认收集器</li>
+</ul>
+<p>场景：适合科学计算、后台处理等弱交互场景</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/Parallel.png" alt="image"></p>
+</blockquote>
+<h2 id="ParNew"><a href="#ParNew" class="headerlink" title="ParNew"></a>ParNew</h2><blockquote>
+<p><strong>ParNew同样用于新生代,是Serial的多线程版本,和CMS配合使用.</strong></p>
+<p>在参数,算法(同样的复制算法)和Serial相同.</p>
+<p>Par是Parallel的缩写,多线程的意思,但是这里的多线程仅仅指垃圾收集多线程并行,并不是垃圾收集和程序并行运行.ParNew也需要暂停一切工作,然后多线程并行垃圾收集.</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1604495447.png" alt="image"></p>
+<p>因为是多线程执行,所以在多CPU环境下,效率比<code>Serial</code>高,但是在单CPU环境下,因为线程切换,反而性能比较差.</p>
+</blockquote>
+<ul>
+<li><p>参数</p>
+<ul>
+<li>“-XX:+UseConcMarkSweepGC”：指定使用CMS后，会默认使用ParNew作为新生代收集器；</li>
+<li>“-XX:+UseParNewGC”：强制指定使用ParNew； </li>
+<li>“-XX:ParallelGCThreads”：指定垃圾收集的线程数量，ParNew默认开启的收集线程与CPU的数量相同；</li>
+</ul>
+</li>
+<li><p>应用场景</p>
+</li>
+</ul>
+<blockquote>
+<p>在Server模式下,ParNew是一个非常重要的收集器,因为除Serial外,目前只有ParNew与CMS收集器配合工作.</p>
+</blockquote>
+<h2 id="Parallel-Scavenge"><a href="#Parallel-Scavenge" class="headerlink" title="Parallel Scavenge"></a>Parallel Scavenge</h2><ul>
+<li>并行</li>
+<li>新生代</li>
+<li>复制算法</li>
+<li>吞吐量优先</li>
+<li>在后台运算而不需要太多交互的任务</li>
+</ul>
+<blockquote>
+<p><strong>可以并行收集的多线程垃圾收集器</strong></p>
+<p>Parallel scavenge是一个新生代垃圾收集器,它是用<code>复制算法</code>的垃圾收集器,又是<code>多线程</code>并行的垃圾收集器,和ParNew类似.吞吐量优先的垃圾收集器,是Java1.8默认的新生代垃圾收集器.</p>
+</blockquote>
+<ul>
+<li>主要特点</li>
+</ul>
+<blockquote>
+<p>Parallel scavenge收集器的目标是达到一个可控的吞吐量,(吞吐量&#x3D;运行用户代码时间&#x2F;(运行用户代码时间+垃圾收集时间))</p>
+<p>但它的对象分配规则与回收策略都与ParNew收集器有所不同，它是以吞吐量最大化（即GC时间占总运行时间最小）为目标的收集器实现，它允许较长时间的STW换取总吞吐量最大化</p>
+<p><code>吞度量=t1/(t1+t2)</code><br><code>t1运行用户代码的总时间</code><br><code>t2运行垃圾收集的总时间</code><br><code>比如，虚拟机总共运行了100分钟，其中垃圾收集花掉1分钟，那吞吐量就是99%。</code></p>
+</blockquote>
+<ul>
+<li><p>参数</p>
+<ul>
+<li>-XX:MaxGCPauseMillis   控制最大垃圾收集停顿时间</li>
+</ul>
+<blockquote>
+<p>参数的值是一个大于0的毫秒数，收集器将尽可能的保证回收耗费的时间不超过设定的值，但是，并不是越小越好，GC停顿时间缩短是以牺牲吞吐量和新生代空间来换取的，如果设置的值太小，将会导致频繁GC，这样虽然GC停顿时间下来了，但是吞吐量也下来了。比如收集500MB时候，需要每10秒收集一次，每次回收耗时100ms；如果收集300MB的时候，需要每5秒收集一次，每次回收耗时70ms，虽然每次回收耗时更少，但是工作频次提高，导致吞吐量反而降低了。</p>
+</blockquote>
+<ul>
+<li>-XX:GCTimeRatio   控制吞吐量大小</li>
+</ul>
+<blockquote>
+<p>参数的值是一个大于0且小于100的整数，也就是垃圾收集时间占总时间的比率，默认值是99，就是允许最大1%（即1&#x2F;(1+99)）的垃圾收集时间。</p>
+<p>Parallel Scavenge有个重要的特性，是支持GC自适应的调节策略，使用-XX：UseAdaptiveSizePolicy参数开启，开启之后，虚拟机会根据当前系统运行情况收集监控信息，动态调整新生代的比例、老年大大小等细节参数，以提供最合适的停顿时间或最大的吞吐量。开启这个参数之后，就不需要再设置新生代大小，Eden与S0&#x2F;S1的比例等等参数。</p>
+</blockquote>
+</li>
+<li><p>使用场景</p>
+</li>
+</ul>
+<blockquote>
+<p>Parallel scavenge收集器的高吞吐量可以最高效率的利用CPU,尽快的完成程序的运算任务,主要适合后台运算而不是太多交互的任务(太多交互的任务,适合用响应时间优先的CMS垃圾收集器)</p>
+<p>Parallel scavenge可以精确控制吞吐量,通过两个参数:控制最大垃圾收集停顿时间<code>-XX:MaxGCPauseills</code>,设置吞吐量大小<code>-XX:GCTimeRatio</code>(GCTimeRatio的默认值为99，因此，GC耗时的占比应为1&#x2F;（1+99）&#x3D;1%。使用参数的理论效果：GCTimeRatio越大，吞吐量越大，GC的总耗时越小。有可能导致单次MinorGC耗时变长。适用于高运算场景). 它还可以用<code>-XX:+UseAdaptiveSizePolicy</code>参数进行自适应调节(GC Ergonomics),打开后会JVM会根据当前的运行状况动态调整最适合的吞吐量,配合前面两个参数更好.</p>
+</blockquote>
+<h2 id="Parallel-Old"><a href="#Parallel-Old" class="headerlink" title="Parallel Old"></a>Parallel Old</h2><ul>
+<li>并行</li>
+<li>老年代</li>
+<li>标记-整理</li>
+<li>吞吐量优先</li>
+<li>在后台运算而不需要太多交互的任务</li>
+</ul>
+<blockquote>
+<p>老年代收集器,是Parallel Scavenge老年代版本,用的算法是<code>标记-整理</code>,在JDK1.6提供,多线程收集</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/ParallelOld.png" alt="image"></p>
+</blockquote>
+<h1 id="并发收集器-Concurrent"><a href="#并发收集器-Concurrent" class="headerlink" title="并发收集器 Concurrent"></a>并发收集器 Concurrent</h1><blockquote>
+<p>指用户线程与垃圾收集线程同时执行 (但不一定是并行的，可能会交替执行)，垃圾收集线程在执行的时候不会停顿用户程序的执行，适合对响应时间有要求的场景，比如 Web</p>
+<p>停顿时间:垃圾收集器做垃圾回收中断应用执行的时间 -XX:MaxGCPauseMills</p>
+<p>响应时间优先</p>
+<ul>
+<li>CMS:XX:+UseConcMarkSweepGC -XX:+UseParNewGC</li>
+<li>G1: -XX:+UseG1GC</li>
+</ul>
+</blockquote>
+<h2 id="CMS（Concurrent-Mark-Sweep）"><a href="#CMS（Concurrent-Mark-Sweep）" class="headerlink" title="CMS（Concurrent Mark Sweep）"></a>CMS（Concurrent Mark Sweep）</h2><ul>
+<li>并发</li>
+<li>老年代</li>
+<li>标记-清除</li>
+<li>响应速度优先</li>
+<li>集中在互联网站或B&#x2F;S系统服务端上的Java应用</li>
+</ul>
+<blockquote>
+<p>垃圾收集线程和用户线程同时工作,<strong>以获取最短停顿时间为目标的垃圾收集器，相对于其他收集器的STW时间更短，可以并行收集，同时它基于标记清除算法</strong></p>
+<p>会有<code>STW</code>。它作为老年代的垃圾收集器。新生代的垃圾收集器只能从<code>ParNew</code>和<code>Serial</code>中二选一。</p>
+<p><img src="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/CMS.png" alt="image"></p>
+</blockquote>
+<h4 id="CMS工作原理"><a href="#CMS工作原理" class="headerlink" title="CMS工作原理"></a>CMS工作原理</h4><blockquote>
+<p><code>CMS</code>垃圾收集阶段主要分成4个阶段</p>
+</blockquote>
+<ul>
+<li><p>初始标记(Inital Mark) </p>
+<p>用户线程被<code>STW</code>暂停,这个阶段只标记出<code>GC Roots</code>能直接关联到的对象,标记完成后恢复用户线程,由于直接关联的对象都比较少,所以速度会很快。</p>
+</li>
+<li><p>并发标记(Concurrent mark) </p>
+<p>从<code>GC Roots</code>直接关联的对象开始遍历整个堆中的对象,耗时比较长,但是此时不会暂停用户线程,可以并发执行。</p>
+</li>
+<li><p>重新标记(Remark) </p>
+<p>为了修正并发标记期间，因用户程序继续运作而标记产生改变的标记，需要STW。它的执行时间较长,但是比并发标记时间要短,这个过程会发生<code>STW</code>,暂停用户线程。</p>
+</li>
+<li><p>并发清除(Concurrent Sweep) </p>
+<p>清除标记阶段已经死亡的对象,释放内存,它可以和用户线程并发执行。</p>
+</li>
+</ul>
+<blockquote>
+<p>初始标记和重新标记的存在，使得CMS仍在存在STW。但并发标记和并发清除阶段不需要暂停其他的用户线程，因此整体的回收是低停顿的。</p>
+<p>由于垃圾回收阶段用户线程并没有中断，所以在CMS回收过程中还应该确保用户线程有足够的内存可用。因此，CMS不是当老年代完全没有空间可用时才被触发，而是当堆内存的使用率达到一个阈值时，便开始进行回收，确保应用程序在CMS工作过程中依然有足够的空间支持应用程序运行。<br>如果CMS运行期间预留的内存空间不够用户程序使用，那么就会出现一次”Concurrent Mode Failure”失败，此时虚拟机将会临时启用Serial Old作为老年代的垃圾回收器使用，这样停顿时间就长了。</p>
+</blockquote>
+<h3 id="CMS的优点"><a href="#CMS的优点" class="headerlink" title="CMS的优点"></a>CMS的优点</h3><ul>
+<li>并发收集</li>
+<li>低延迟</li>
+</ul>
+<h3 id="CMS不足"><a href="#CMS不足" class="headerlink" title="CMS不足"></a>CMS不足</h3><ul>
+<li>会产生内存碎片：标记-清除算法不可避免的会产生碎片，此时内存分配只能使用空闲列表法</li>
+<li>对CPU资源非常敏感：在并发阶段时，它虽然不会导致用户线程暂停，但是也会因为占用一部分线程而导致应用程序变慢，总吞吐量下降</li>
+<li>无法处理浮动垃圾：在并发标记阶段由于垃圾回收线程和用户线程是同时运行或交叉运行的，那么在并发标记阶段如果产生新的垃圾对象，CMS将无法对这些垃圾进行标记，最终会导致这些新产生的垃圾对象无法被及时回收，只能等到下一次GC时被回收</li>
+</ul>
+<h3 id="CMS重要的参数"><a href="#CMS重要的参数" class="headerlink" title="CMS重要的参数"></a>CMS重要的参数</h3><ul>
+<li>-XX:UseConcMarkSweepGC ：⼿动指定使⽤CMS，此时的组合为ParNew+CMS+Serial OLD（后备⽅<br>案）</li>
+<li>-XX:CMSInitiatingOccupanyFraction ：设置堆内存使⽤率的阈值，⼀旦达到该阈值，并开始进<br>⾏回收，默认值为68</li>
+<li>-XX:+UseCMSCompactAtFullCollection ：⽤于指定在执⾏完Full GC后堆内存空间是否进⾏压缩<br>整理。避免内存碎⽚的产⽣，它会导致停顿时间变⻓</li>
+<li>-XX:CMSFullGCsBefoerCompaction ：设置在执⾏完多少次Full GC后对内存空间进⾏压缩整理</li>
+<li>-XX:ParallelCMSThreads ：设置CMS的线程数，默认是（ParallelGCThreads + 3） &#x2F; 4</li>
+</ul>
+<h2 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h2><ul>
+<li>并发</li>
+<li>both</li>
+<li>标记-整理+复制算法</li>
+<li>响应速度优先</li>
+<li>面向服务端应用，将来替换CMS</li>
+</ul>
+<blockquote>
+<p>一款面向服务端应用的垃圾回收器，将堆内存划分成一个个Region（1MB-32MB，默认2048个分区）</p>
+</blockquote>
+<h3 id="回收过程"><a href="#回收过程" class="headerlink" title="回收过程"></a>回收过程</h3><p>除了并发标记，其他所有过程都需要STW</p>
+<ul>
+<li><p>初始标记</p>
+<p>仅仅是标记一下GC Roots能直接关联到的对象，并且修改TAMS的值，让下一阶段用户程序并发运行时，能在正确可用的Regin中创建新对象，这一阶段需要停顿线程，但是耗时很短</p>
+</li>
+<li><p>并发标记（<strong>与用户线程并发执行</strong>）</p>
+<p>从GC Roots开始，对堆中对象进行可达性分析，找出存活对象，这一过程时间较长，但是可以与用户线程并发执行</p>
+</li>
+<li><p><strong>最终标记</strong><br>修正在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录，这一阶段需要停顿线程，但是可以并行执行。</p>
+</li>
+<li><p><strong>筛选回收</strong></p>
+<p>对各个Regin的回收价值和成本进行排序，根据用户所期望的GC停顿时间来执行回收计划。</p>
+</li>
+</ul>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><p>并行与并发<br>G1能充分利用CPU、多核环境下的硬件优势，使用多个CPU来缩短stop-the-world停顿时间。</p>
+</li>
+<li><p>分代收集</p>
+<p>不需要与其他垃圾收集器配合，G1自己可以管理年轻代和年老代。</p>
+</li>
+<li><p>空间整合</p>
+<p>由于G1使用了独立区域（Region）概念，G1整体来看还是使用了“标记-整理”算法，从整体（两个Region）上来看是使用了复制算法，这两种算法都意味着G1在垃圾回收时不会产生内存空间碎片。</p>
+</li>
+<li><p>可预测的停顿：这是G1相比于CMS的另一大优势</p>
+</li>
+</ul>
+<h1 id="如何选择垃圾收集器"><a href="#如何选择垃圾收集器" class="headerlink" title="如何选择垃圾收集器"></a>如何选择垃圾收集器</h1><ul>
+<li>优先调整堆的大小让服务器自己来选择</li>
+<li>如果内存小于100M，使用串行收集器</li>
+<li>如果是单核，并且没有停顿时间的要求，串行或者JVM自己选</li>
+<li>如果允许停顿时间超过1秒，选择并行或者JVM自己选</li>
+<li>如果响应时间最重要，并且不能超过1秒，使用并发收集器</li>
+</ul>
+<h1 id="Parallel-GC"><a href="#Parallel-GC" class="headerlink" title="Parallel GC"></a>Parallel GC</h1><h2 id="Parallel-GC有两种组合"><a href="#Parallel-GC有两种组合" class="headerlink" title="Parallel GC有两种组合"></a>Parallel GC有两种组合</h2><ul>
+<li>使用<code>-XX:+UseParallelGC</code>参数来启用<code>Parallel Scavenge</code>和<code>PSMarkSweep(Serial Old)</code>收集器组合进行垃圾收集</li>
+<li>使用<code>-XX:+UserParallelOldGC</code>参数来启用<code>Parallel scavenge</code>和PSCompact(Parallel Old)收集器组合收集</li>
+</ul>
+<h3 id="Parallel-Scavenge-1"><a href="#Parallel-Scavenge-1" class="headerlink" title="Parallel Scavenge"></a>Parallel Scavenge</h3><h3 id="Parallel-Old-1"><a href="#Parallel-Old-1" class="headerlink" title="Parallel Old"></a>Parallel Old</h3><blockquote>
+<p><code>Parallel Old GC</code>在<code>Parallel Scavenge</code>和<code>Parallel Old</code>收集器组合中，负责Full GC，是一个并行收集器，其在整理年轻代的时候，使用与Parallel Scavenge GC一样的常规“复制”算法，但是在整理老年代的时候，是使用的基于“标记-整理”算法优化的“Mark–Summary-Compaction”算法。</p>
+<p>算法包含三个部分</p>
+<ul>
+<li><p>Mark</p>
+<p>首先将老年代的内存，划分为大小固定的多个连续Region，当标记完存活对象之后，统计每个Region的存活对象数量。Mark阶段采用串行标记所有从GC Roots可直达的对象，然后并行标记所有存活的对象。</p>
+</li>
+<li><p>Summary</p>
+<p>某个Region的密度 &#x3D; 存活对象的内存大小 &#x2F; Region内存大小。因为每次整理会将存活的对象向Old区的左侧移动，而对象存活越久，理论上就越不容易被回收，所以经过多次整理之后，左侧Region中的对象更偏向于稳定、“长寿”，即是左侧Region的密度更大。Summary阶段，算法采用以空间换时间的优化方式，针对一个密度很大的Region，比如95%的空间是存活对象，只有断断续续5%的空间是未使用的，那么算法认为这个Region不值得被整理，即是选择浪费掉这5%的空间，以节省整理操作的时间开销。在Sumamry阶段，首先从左至右计算各个Region的密度，直到找到一个point，这个point左侧的Region都不值得整理，右侧的Region需要整理。point左侧的Region被称为dense prefix，这个区域内的对象都不会被移动。Summary阶段是一个串行执行的阶段。</p>
+</li>
+<li><p>Compaction<br>Compaction阶段利用Summary阶段的统计数据，针对需要整理的部分，采用“整理”算法进行并行操作。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="GC策略"><a href="#GC策略" class="headerlink" title="GC策略"></a>GC策略</h2><ul>
+<li>-XX:+ScavengeBeforeFullGC</li>
+</ul>
+<blockquote>
+<p><code>ScavengeBeforeFullGC</code>是<code>Parallel GC</code>套装中（两种组合都生效）的一个参数，默认是开启的，作用是在一次Full GC之前，先触发一次Young GC来清理年轻代，以降低Full GC的STW耗时（Young GC会清理Young GC中非存活的对象，减少Full GC中，标记存活对象的工作量）。</p>
+</blockquote>
+<h2 id="内存分配策略"><a href="#内存分配策略" class="headerlink" title="内存分配策略"></a>内存分配策略</h2><blockquote>
+<p>对于常规收集器来说，当Eden区无法分配内存时，便会触发一次Young GC，但是对于Parallel GC有点变化：</p>
+</blockquote>
+<ul>
+<li>当整个新生代剩余的空间无法存放某个对象时，Parallel GC中该对象会直接进入老年代；</li>
+<li>而如果整个新生代剩余的空间可以存放但只是Eden区空间不足，则会尝试一次Minor GC。</li>
+</ul>
+<h2 id="悲观策略"><a href="#悲观策略" class="headerlink" title="悲观策略"></a>悲观策略</h2><blockquote>
+<p>绝大多数收集器，都有这么一个策略：在执行Young GC之前，如果估计之前晋升老年代的平均大小，比当前老年代的剩余空间要大的话，则会放弃Young GC，转而触发Full GC。</p>
+<p>Parallel GC除了上述策略外，还有另外一个策略：在执行Young GC之后，如果晋升老年代的平均大小，比当前老年代的剩余空间要大的话，则会触发一次Full GC。</p>
+</blockquote>
+<h2 id="JVM默认老年代回收是-PSMarkSweep-Serial-Old-还是Parallel-Old？"><a href="#JVM默认老年代回收是-PSMarkSweep-Serial-Old-还是Parallel-Old？" class="headerlink" title="JVM默认老年代回收是 PSMarkSweep(Serial-Old) 还是Parallel Old？"></a>JVM默认老年代回收是 PSMarkSweep(Serial-Old) 还是Parallel Old？</h2><blockquote>
+<p>这个改进使得HotSpot VM在选择使用<code>ParallelGC</code>（-XX:+UseParallelGC 或者是ergonomics自动选择）的时候，会默认开启 <code>-XX:+UseParallelOldGC</code> 。这个变更应该是在JDK7u4开始的JDK7u系列与JDK8系列开始生效。</p>
+<p>在这个改变之前，即便选择了ParallelGC，默认情况下ParallelOldGC并不会随即开启，而是要自己通过 -XX:+UseParallelOldGC 去选定。</p>
+</blockquote>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><h3 id="按线程分"><a href="#按线程分" class="headerlink" title="按线程分"></a>按线程分</h3><ul>
+<li>串行垃圾回收</li>
+</ul>
+<blockquote>
+<p>串行收集器是指同一时间段类只允许一个CPU执行垃圾回收,此时用户线程被暂停,直到垃圾回收结束。</p>
+</blockquote>
+<ul>
+<li>并行垃圾回收</li>
+</ul>
+<blockquote>
+<p>并行垃圾收集器是指多个CPU可以同时执行垃圾收集器,此时用户线程也被暂停,但是由于是多CPU同时执行,所以应用程序的吞吐量比较高。</p>
+</blockquote>
+<h3 id="按工作模式分"><a href="#按工作模式分" class="headerlink" title="按工作模式分"></a>按工作模式分</h3><ul>
+<li>独占式垃圾收集器</li>
+</ul>
+<blockquote>
+<p>在运行独占式垃圾收集器时,会暂停所有的用户线程,直到垃圾收集完毕。</p>
+</blockquote>
+<ul>
+<li>并发式垃圾收集器</li>
+</ul>
+<blockquote>
+<p>并发式垃圾收集器在运行的时候,会和用户线程交替执行,尽可能减少用户线程的停顿时间。</p>
+</blockquote>
+<h3 id="按碎片处理方式分"><a href="#按碎片处理方式分" class="headerlink" title="按碎片处理方式分"></a>按碎片处理方式分</h3><ul>
+<li>压缩式垃圾收集器</li>
+<li>非压缩式垃圾收集器</li>
+</ul>
+<h3 id="按工作区域分"><a href="#按工作区域分" class="headerlink" title="按工作区域分"></a>按工作区域分</h3><ul>
+<li>新生代垃圾收集器</li>
+<li>老年代垃圾收集器</li>
+</ul>
+<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><blockquote>
+<p>用户线程执行的总时间占CPU总运行时间的比率</p>
+</blockquote>
+<h4 id="垃圾收集开销"><a href="#垃圾收集开销" class="headerlink" title="垃圾收集开销"></a>垃圾收集开销</h4><blockquote>
+<p>垃圾收集总时间占CPU总运行时间</p>
+</blockquote>
+<h4 id="暂停时间"><a href="#暂停时间" class="headerlink" title="暂停时间"></a>暂停时间</h4><blockquote>
+<p>垃圾收集期间,用户线程被停顿的时间</p>
+</blockquote>
+<h4 id="收集频率"><a href="#收集频率" class="headerlink" title="收集频率"></a>收集频率</h4><blockquote>
+<p>相对于用户线程执行的次数,垃圾收集发生频率</p>
+<p>其中最为重要的就是平衡吞吐量和暂停时间。如果以吞吐量优先，那么必然需要降低内存回收的执行效率，但这样会导致需要更长的暂停时间来执行内存回收；如果以低延迟优先为原则，那么为了降低每次执行内存回收时的暂停时间，就只能频繁的执行内存回收，这又引起了年轻代内存的缩减和导致程序吞吐量下降。一般来说是在吞吐量最大的情况下,尽量降低停顿时间。</p>
+</blockquote>
+<h4 id="吞吐量计算方式"><a href="#吞吐量计算方式" class="headerlink" title="吞吐量计算方式"></a>吞吐量计算方式</h4><blockquote>
+<p>用户线程执行的总时间占CPU总运行时间的比率</p>
+<p>吞吐量 &#x3D; 运行用户代码时间 &#x2F; CPU总耗费时间</p>
+</blockquote>
+<h3 id="Java已有垃圾收集器"><a href="#Java已有垃圾收集器" class="headerlink" title="Java已有垃圾收集器"></a>Java已有垃圾收集器</h3><ul>
+<li>串行垃圾收集器:Serial,Serial Old,</li>
+<li>并行垃圾收集器:ParNew,Parallel Scavenge,Parallel Old</li>
+<li>并发垃圾收集器:CMS,G1,ZGC</li>
+</ul>
+<h3 id="按照回收区域分类"><a href="#按照回收区域分类" class="headerlink" title="按照回收区域分类"></a>按照回收区域分类</h3><ul>
+<li>年轻代垃圾收集器:Serial,ParNew,Parallel Scavenge</li>
+<li>老年代垃圾收集器:Serial Old,Parallel Old,CMS</li>
+<li>整堆收集器:G1,ZGC</li>
+</ul>
+<blockquote>
+<p>通过<code>-XX:+PrintCommandLineFlags</code>查看程序默认只用的<code>JVM</code>参数。通过<code>jinfo -flags pid</code>查看进程使用的<code>JVM</code>参数。</p>
+</blockquote>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-common-garbage-collector.html">https://rumenz.com/rumenbiji/jvm-common-garbage-collector.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_37325859/article/details/122318578">https://blog.csdn.net/qq_37325859/article/details/122318578</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-serial-old-parallel-old.html">https://rumenz.com/rumenbiji/jvm-serial-old-parallel-old.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-gc-conclusion.html">https://rumenz.com/rumenbiji/jvm-gc-conclusion.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/java-parallel-gc.html">https://rumenz.com/rumenbiji/java-parallel-gc.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-summary.html">https://rumenz.com/rumenbiji/jvm-summary.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/02/MessageQueue-%E9%80%89%E5%9E%8B/" rel="prev" title="MessageQueue-选型">
+      <i class="fa fa-chevron-left"></i> MessageQueue-选型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/02/JVM-CMS/" rel="next" title="JVM-CMS">
+      JVM-CMS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">垃圾收集器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E6%94%B6%E9%9B%86%E5%99%A8Serial"><span class="nav-number">2.</span> <span class="nav-text">串行收集器Serial</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Serial"><span class="nav-number">2.1.</span> <span class="nav-text">Serial</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Serial-Old"><span class="nav-number">2.2.</span> <span class="nav-text">Serial Old</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E6%94%B6%E9%9B%86%E5%99%A8Parallel"><span class="nav-number">3.</span> <span class="nav-text">并行收集器Parallel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ParNew"><span class="nav-number">3.1.</span> <span class="nav-text">ParNew</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel-Scavenge"><span class="nav-number">3.2.</span> <span class="nav-text">Parallel Scavenge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel-Old"><span class="nav-number">3.3.</span> <span class="nav-text">Parallel Old</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%94%B6%E9%9B%86%E5%99%A8-Concurrent"><span class="nav-number">4.</span> <span class="nav-text">并发收集器 Concurrent</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CMS%EF%BC%88Concurrent-Mark-Sweep%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">CMS（Concurrent Mark Sweep）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">4.1.0.1.</span> <span class="nav-text">CMS工作原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">4.1.1.</span> <span class="nav-text">CMS的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E4%B8%8D%E8%B6%B3"><span class="nav-number">4.1.2.</span> <span class="nav-text">CMS不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E9%87%8D%E8%A6%81%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">4.1.3.</span> <span class="nav-text">CMS重要的参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#G1"><span class="nav-number">4.2.</span> <span class="nav-text">G1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E6%94%B6%E8%BF%87%E7%A8%8B"><span class="nav-number">4.2.1.</span> <span class="nav-text">回收过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">4.2.2.</span> <span class="nav-text">特点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">如何选择垃圾收集器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Parallel-GC"><span class="nav-number">6.</span> <span class="nav-text">Parallel GC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel-GC%E6%9C%89%E4%B8%A4%E7%A7%8D%E7%BB%84%E5%90%88"><span class="nav-number">6.1.</span> <span class="nav-text">Parallel GC有两种组合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Parallel-Scavenge-1"><span class="nav-number">6.1.1.</span> <span class="nav-text">Parallel Scavenge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Parallel-Old-1"><span class="nav-number">6.1.2.</span> <span class="nav-text">Parallel Old</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC%E7%AD%96%E7%95%A5"><span class="nav-number">6.2.</span> <span class="nav-text">GC策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5"><span class="nav-number">6.3.</span> <span class="nav-text">内存分配策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E7%AD%96%E7%95%A5"><span class="nav-number">6.4.</span> <span class="nav-text">悲观策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM%E9%BB%98%E8%AE%A4%E8%80%81%E5%B9%B4%E4%BB%A3%E5%9B%9E%E6%94%B6%E6%98%AF-PSMarkSweep-Serial-Old-%E8%BF%98%E6%98%AFParallel-Old%EF%BC%9F"><span class="nav-number">6.5.</span> <span class="nav-text">JVM默认老年代回收是 PSMarkSweep(Serial-Old) 还是Parallel Old？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">6.6.</span> <span class="nav-text">分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%BA%BF%E7%A8%8B%E5%88%86"><span class="nav-number">6.6.1.</span> <span class="nav-text">按线程分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F%E5%88%86"><span class="nav-number">6.6.2.</span> <span class="nav-text">按工作模式分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%A2%8E%E7%89%87%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F%E5%88%86"><span class="nav-number">6.6.3.</span> <span class="nav-text">按碎片处理方式分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E5%B7%A5%E4%BD%9C%E5%8C%BA%E5%9F%9F%E5%88%86"><span class="nav-number">6.6.4.</span> <span class="nav-text">按工作区域分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="nav-number">6.7.</span> <span class="nav-text">性能指标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%9E%E5%90%90%E9%87%8F"><span class="nav-number">6.7.0.1.</span> <span class="nav-text">吞吐量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%BC%80%E9%94%80"><span class="nav-number">6.7.0.2.</span> <span class="nav-text">垃圾收集开销</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9A%82%E5%81%9C%E6%97%B6%E9%97%B4"><span class="nav-number">6.7.0.3.</span> <span class="nav-text">暂停时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E9%9B%86%E9%A2%91%E7%8E%87"><span class="nav-number">6.7.0.4.</span> <span class="nav-text">收集频率</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%9E%E5%90%90%E9%87%8F%E8%AE%A1%E7%AE%97%E6%96%B9%E5%BC%8F"><span class="nav-number">6.7.0.5.</span> <span class="nav-text">吞吐量计算方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E5%B7%B2%E6%9C%89%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">6.7.1.</span> <span class="nav-text">Java已有垃圾收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E5%9B%9E%E6%94%B6%E5%8C%BA%E5%9F%9F%E5%88%86%E7%B1%BB"><span class="nav-number">6.7.2.</span> <span class="nav-text">按照回收区域分类</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">6.7.2.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

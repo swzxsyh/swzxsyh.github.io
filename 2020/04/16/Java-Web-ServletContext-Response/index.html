@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.ServletContext1.1 概述ServletContext是一个容器(域对象)可以存储键值对数据(String key,Object value)，保存在ServletContext中的 数据不仅可以提供给所有的servlet使用，而且可以在整个项目范围内使用。 它的主要作用有3个:作为域对象可以获取当前应用下任何路径下的任何资源获取初始化参数获取文件MIME类型 1.2 域对象说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Web - ServletContext &amp; Response">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.ServletContext1.1 概述ServletContext是一个容器(域对象)可以存储键值对数据(String key,Object value)，保存在ServletContext中的 数据不仅可以提供给所有的servlet使用，而且可以在整个项目范围内使用。 它的主要作用有3个:作为域对象可以获取当前应用下任何路径下的任何资源获取初始化参数获取文件MIME类型 1.2 域对象说明">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/CheckCodeServlet">
+<meta property="article:published_time" content="2020-04-15T17:19:47.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.814Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/CheckCodeServlet">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java Web - ServletContext & Response | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java Web - ServletContext & Response
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-16 01:19:47" itemprop="dateCreated datePublished" datetime="2020-04-16T01:19:47+08:00">2020-04-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.ServletContext<br>1.1 概述<br>ServletContext是一个容器(域对象)可以存储键值对数据(String key,Object value)，保存在ServletContext中的 数据不仅可以提供给所有的servlet使用，而且可以在整个项目范围内使用。</p>
+<p>它的主要作用有3个:<br>作为域对象<br>可以获取当前应用下任何路径下的任何资源<br>获取初始化参数<br>获取文件MIME类型</p>
+<p>1.2 域对象<br>说明	API<br>往servletcontext容器中存入数据，name为数据名称，object为数据的值	void setAttribute(String name,Object object)<br>从ServletContext中获取数据，根据指定的数据名称	Object getAttribute(String name)<br>从ServletContext中移除数据，根据指定的数据名称	void removeAttribute(String name)<br>生命周期<br>何时创建:项目加载时创建<br>何时销毁:项目卸载时销毁<br>作用范围:整个项目(多个Servlet都可以使用它)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;OneServlet”)<br>public class OneServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //向ServletContext域存储数据
+    ServletContext sc1 = req.getServletContext();
+    ServletContext sc2 = getServletContext();
+    sc1.setAttribute(&quot;user&quot;,&quot;jack&quot;);
+    resp.getWriter().write(&quot;Set Message&quot;);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;TwoServlet”)<br>public class TwoServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //从ServletContext域存储数据
+    String user = (String) req.getServletContext().getAttribute(&quot;user&quot;);
+    resp.getWriter().write(&quot;Get Message:&quot;+user);
+&#125;
+</code></pre>
+<p>}<br>1.3 获取资源在服务器的真实地址<br>可以实现Web项目的移植性，动态获取文件真实路径<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RealPath”)<br>public class RealPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取web.xml文件真实路径
+    String realPath = req.getServletContext().getRealPath(&quot;/WEB-INF/web.xml&quot;);
+    resp.getWriter().write(realPath);
+&#125;
+</code></pre>
+<p>}<br>1.4 获取全局的配置函数<br>读取web.xml配置文件中<context-param>标签,实现参数和代码的解耦(多个Servlet可以获取)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>@WebServlet(“&#x2F;ContextPath”)<br>public class ContextPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</context-param></p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取全局参数
+    String value = req.getServletContext().getInitParameter(&quot;encode&quot;);
+    System.out.println(value);
+    resp.getWriter().write(value);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5</p>
+<!--   全局配置参数：所有Servlet都可以读取    -->
+<context-param>
+    <param-name>encode</param-name>
+    <param-value>UTF-8</param-value>
+</context-param>
+1.5 获取文件MIME类型
+互联网通信中的一种数据类型
+格式:大类型/小类型
+例如:text/html image/jpeg
+
+<p>1<br><a href="/Day35_war_exploded/MIMEServlet?filename=a.jpeg">Get MIME</a><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;MIMEServlet”)<br>public class MIMEServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取请求参数
+    String filename = req.getParameter(&quot;filename&quot;);
+    //获取指定文件的mime类型
+    String mimeType = req.getServletContext().getMimeType(filename);
+    resp.getWriter().write(filename+&quot;=&quot;+mimeType);
+&#125;
+</code></pre>
+<p>}<br>1.6 案例:统计网站的访问次数<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>@WebServlet(value &#x3D; “&#x2F;CountServlet”,loadOnStartup &#x3D; 4)&#x2F;&#x2F;服务器启动时，创建此servlet对象<br>public class CountServlet extends HttpServlet {<br>    @Override<br>    public void init() throws ServletException {<br>        getServletContext().setAttribute(“count”,0);<br>    }</p>
+<pre><code>@Override
+protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    this.doPost(req, resp);
+&#125;
+
+@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //设置response响应编码
+    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
+    resp.getWriter().write(&quot;&lt;h1&gt;Welcome&lt;/h1&gt;&quot;);
+
+    //用户每次访问,从域中取出，++再存入
+    Integer count = (Integer) req.getServletContext().getAttribute(&quot;count&quot;);
+    count++;
+    getServletContext().setAttribute(&quot;count&quot;, count);
+
+    resp.getWriter().write(&quot;&lt;div&gt;You are the &quot;+count+&quot; visitor&lt;/div&gt;&quot;);
+&#125;
+</code></pre>
+<p>}<br>二.Response<br>2.1 概述<br>response对象表示web服务器给浏览器返回的响应信息</p>
+<p>作用:开发人员可以使用response对象方法,设置要返回给浏览器的响应信息</p>
+<p>Response体系结构</p>
+<p>ServletResponse<br>⬆<br>HttpServletResponse<br>⬆<br>org.apache.catalina.connector.ResponseFacade 实现类(由Tomcat提供)<br>2.2 设置Http响应消息<br>2.2.1 响应行<br>格式<br>协议&#x2F;版本号 状态码<br>例如<br>HTTP&#x2F;1.1 200<br>API<br>说明	API<br>设置状态码	void setStatus()<br>2.2.2 响应头<br>格式<br>响应头名称:响应头的值<br>例如<br>Location:<a target="_blank" rel="noopener" href="http://www.oracle.com/">http://www.oracle.com</a><br>API<br>说明	API<br>设置指定头名称和对应的值	void setHeader(String name,String vale);<br>2.2.3 响应体<br>API(输出流对象)<br>说明	API<br>字符输出流	PrintWriter getWriter()<br>字节输出流	ServletOutputStream getOutputStream()<br>注意:在同一个Servlet中，不能同时存在两种流，互斥</p>
+<p>2.3 响应重定向<br>2.3.1 重定向特点<br>地址栏会发生改变<br>重定向是二次请求<br>重定向是客户端(浏览器)行为,可以跳转到服务器外部资源<br>不能使用request域共享数据<br>2.3.2 方式一<br>说明	API<br>设置状态码	response.setStatus(302)<br>设置响应头Location	response.setHeader(“Location”,”重定向网络地址”);<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;AServlet Run&quot;);
+   resp.setStatus(302);
+   resp.setHeader(&quot;Location&quot;,&quot;/Day35_war_exploded/BServlet&quot;);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@WebServlet(“&#x2F;BServlet”)<br>public class BServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;Bservlet Run&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.3.3 方式二<br>说明	API<br>response专门处理重定向的方法	response.sendRedirect(“重定向网络地址”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;AServlet Run&quot;);
+    resp.sendRedirect(&quot;http://www.baidu.com&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.3.4 转发与重定向区别<br>哪个对象<br>API<br>转发(request对象的方法)	request.getRequestDispatcher(“&#x2F;bServlet”).forward(request,response);<br>重定向(response对象的方法)	response.sendRedirect(“&#x2F;Day35_war_exploded&#x2F;bServlet”);<br>几次请求<br>转发	重定向<br>地址栏	没有改变	发生了改变<br>浏览器	发了一次请求	发了两次请求<br>服务器	只有一对请求和响应对象	有两对请求和响应对象<br>发生的位置	服务器	浏览器<br>小结<br>写法	说明<br>转发	(“&#x2F;servlet资源路径”) 服务器内部行为<br>重定向	(“&#x2F;虚拟路径(项目名)&#x2F;servlet资源路径”) 浏览器外部行为<br>使用场景</p>
+<p>使用场景	说明<br>如果需要传递数据(request域)	使用转发<br>如果不需要传递数据(request域)	使用重定向<br>2.4 响应定时刷新<br>说明	API<br>通过response设置响应头Refresh	response.setHeader(“Refresh”,”间隔时间(秒);跳转页面”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RefreshServlet”)<br>public class RefreshServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    resp.setHeader(&quot;Refresh&quot;,&quot;3;http://www.baidu.com&quot;);
+    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
+    resp.getWriter().write(&quot;Success,Redirect After 3 seconds&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.5 响应中文<br>步骤:</p>
+<p>说明	API<br>统一服务器编码:指定服务器响应编码方式	resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>通过response获取字符输出流	PrintWriter pw &#x3D; response.getWriter();<br>通过字符输出流输出文本	pw.write()<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>@WebServlet(“&#x2F;EncodeServlet”)<br>public class EncodeServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //可以解决客户端中文乱码，但是编码不统一
+</code></pre>
+<p>&#x2F;&#x2F;        resp.setCharacterEncoding(“GBK”);<br>        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>&#x2F;&#x2F;        PrintWriter pw &#x3D; resp.getWriter();<br>&#x2F;&#x2F;        pw.write(“中文”);</p>
+<pre><code>    //链式编程
+    resp.getWriter().write(&quot;中文&quot;);
+&#125;
+</code></pre>
+<p>}<br>综合案例<br>3.1 点击切换验证码<br>在页面展示登陆验证码，点击可以更换新验证码<br>作用:防止表单的恶意提交<br>本质:图片<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br><img src="/2020/04/16/Java-Web-ServletContext-Response/CheckCodeServlet" alt id="image1"></p>
+<script>
+    document.getElementById("image1").onclick = function () {
+        //reset src path
+        // new Date().getTime()为了欺骗浏览器使用不同src，强制刷新
+        this.src = '/Day35_war_exploded/CheckCodeServlet?' + new Date().getTime();
+    }
+</script>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>@WebServlet(“&#x2F;CheckCodeServlet”)<br>public class CheckCodeServlet extends HttpServlet {<br>    private static final long serialVersionUID &#x3D; 1L;<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+</code></pre>
+<p>&#x2F;&#x2F;  创建画布<br>        int width &#x3D; 120;<br>        int height &#x3D; 40;<br>        BufferedImage bufferedImage &#x3D; new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);<br>        &#x2F;&#x2F;  获得画笔<br>        Graphics g &#x3D; bufferedImage.getGraphics();<br>        &#x2F;&#x2F;  填充背景颜色<br>        g.setColor(Color.white);<br>        g.fillRect(0, 0, width, height);<br>        &#x2F;&#x2F;  绘制边框<br>        g.setColor(Color.red);<br>        g.drawRect(0, 0, width - 1, height - 1);<br>        &#x2F;&#x2F;  生成随机字符<br>        &#x2F;&#x2F;  准备数据<br>        String data &#x3D; “ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890”;<br>        &#x2F;&#x2F;  准备随机对象<br>        Random r &#x3D; new Random();<br>        &#x2F;&#x2F;  声明一个变量 保存验证码<br>        String code &#x3D; “”;<br>        &#x2F;&#x2F;  书写4个随机字符<br>        for (int i &#x3D; 0; i &lt; 4; i++) {<br>            &#x2F;&#x2F;  设置字体<br>            g.setFont(new Font(“宋体”, Font.BOLD, 28));<br>            &#x2F;&#x2F;  设置随机颜色<br>            g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));</p>
+<pre><code>        String str = data.charAt(r.nextInt(data.length())) + &quot;&quot;;
+        g.drawString(str, 10 + i * 28, 30);
+
+        //  将新的字符 保存到验证码中
+        code = code + str;
+    &#125;
+    //  绘制干扰线
+    for (int i = 0; i &lt; 6; i++) &#123;
+        //  设置随机颜色
+        g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
+
+        g.drawLine(r.nextInt(width), r.nextInt(height), r.nextInt(width), r.nextInt(height));
+    &#125;
+
+    //  将验证码 打印到控制台
+    System.out.println(code);
+
+    //  将验证码放到session中
+    req.getSession().setAttribute(&quot;code_session&quot;, code);
+
+    //  将画布显示在浏览器中
+    ImageIO.write(bufferedImage, &quot;jpg&quot;, resp.getOutputStream());
+&#125;
+</code></pre>
+<p>}<br>3.2 文件下载<br>用户点击页面的链接，浏览器开始下载文件。<br>3.2.1 使用链接下载文件<br>1<br><a href="/Day35_war_exploded/download/web.xml">Download_XML</a><br><br>缺点<br>浏览器可识别的媒体类型，是直接打开而不是下载<br>不能判断用户是否登录(vip)，进行限制</p>
+<p>3.2.2 使用Servlet下载文件<br>二个响应头二个字节流</p>
+<p>说明	API<br>被下载文件的字节输入流	FileInputStream<br>response字节输出流	response字节输出流<br>告知客户端下载文件的MIME类型	Content-Type:MIME类型<br>告知浏览器以附件的方式保存	Content-Disposition:attachment;filename&#x3D;文件名<br>1<br><a href="/Day35_war_exploded/DownloadServlet?filename=web.xml">Download_XML</a><br><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>@WebServlet(“&#x2F;DownloadServlet”)<br>public class DownloadServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取文件名
+    String filename = req.getParameter(&quot;filename&quot;);
+    //获取文件真实路径，封装字节输入流
+    ServletContext servletContext = req.getServletContext();
+    String realPath = servletContext.getRealPath(&quot;/download/&quot; + filename);
+    FileInputStream in = new FileInputStream(realPath);
+
+    //告诉浏览器下载文件MIME类型 Content-Type
+    String mimeType = servletContext.getMimeType(filename);
+    resp.setContentType(mimeType);
+
+    //告知浏览器以附件的方式保存 Content-Disposition:attachment;filename=文件名
+    //解决中文乱码和浏览器兼容性
+    String userAgent = req.getHeader(&quot;user-agent&quot;);
+    //调用工具处理
+    filename=DownLoadUtils.getName(userAgent,filename);
+    resp.setHeader(&quot;content-disposition&quot;, &quot;attachment;filename=&quot; + filename);
+</code></pre>
+<p>&#x2F;&#x2F;        resp.setHeader(“Content-Disposition”, “attachment;filename&#x3D;” + filename);<br>        &#x2F;&#x2F;获取response的字节输出流<br>        ServletOutputStream out &#x3D; resp.getOutputStream();<br>        &#x2F;&#x2F;IO流Copy<br>&#x2F;&#x2F;        byte[] bys &#x3D; new byte[1024];<br>&#x2F;&#x2F;        int len &#x3D; 0;<br>&#x2F;&#x2F;        while ((len &#x3D; in.read(bys)) !&#x3D; -1) {<br>&#x2F;&#x2F;            out.write(bys, 0, len);<br>&#x2F;&#x2F;        }<br>        IoUtil.copy(in,out);<br>        &#x2F;&#x2F;释放资源<br>        out.close();&#x2F;&#x2F;可以交给Tomcat关闭<br>        in.close();<br>    }<br>}<br>中文乱码问题<br>如果该下载文件名是中文的话，会出现乱码…<br>谷歌和绝大多数的浏览器是通过 url编码<br>URLEncode() 编码<br>URLDecode() 解码<br>火狐浏览器 base64编码<br>如下工具包解决乱码问题:<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>public class DownLoadUtils {</p>
+<pre><code>public static String getName(String agent, String filename) throws UnsupportedEncodingException &#123;
+    if (agent.contains(&quot;Firefox&quot;)) &#123;
+        // 火狐浏览器
+        BASE64Encoder base64Encoder = new BASE64Encoder();
+        filename = &quot;=?utf-8?B?&quot; + base64Encoder.encode(filename.getBytes(&quot;utf-8&quot;)) + &quot;?=&quot;;
+    &#125; else &#123;
+        // 其它浏览器
+        filename = URLEncoder.encode(filename, &quot;utf-8&quot;);
+    &#125;
+    return filename;
+&#125;
+</code></pre>
+<p>}<br>3.2.2.1 hutool工具包<br>官网:<a target="_blank" rel="noopener" href="https://www.hutool.cn/">https://www.hutool.cn/</a></p>
+<p>hutool-all-5.2.3.jar<br>总结<br>一 ServletContext<br>概述<br>代表当前web项目对象<br>主要作用<br>共享数据（域对象）</p>
+<p>获取资源文件在服务器上真实路径</p>
+<p>获取全局的配置参数</p>
+<p>web.xml中配置<br>获取文件MIME类型</p>
+<p>互联网传输数据时，识别文件的类型<br>案例：统计网站的访问次数<br>二 Response<br>概述<br>开发人员可以使用response对象的方法，设置要返回给浏览器的响应信息<br>Response设置响应消息<br>设置响应行</p>
+<p>void setStatus(int sc)<br>设置响应头</p>
+<p>void setHeader(String name, String value)<br>设置响应体</p>
+<p>ServletOutputStream getOutputStream() 字节输出流<br>PrintWriter getWriter() 字符输出流<br>响应重定向<br>转发与重定向的区别</p>
+<p>转发</p>
+<p>地址栏： 没有改变<br>浏览器： 发了一次请求<br>服务器： 只有一对请求和响应对象<br>发生的位置： 服务器<br>重定向</p>
+<p>地址栏： 发生了改变<br>浏览器： 发了两次请求<br>服务器： 有两对请求和响应对象<br>发生的位置： 浏览器<br>响应定时刷新<br>响应中文<br>response.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>三 综合案例<br>点击切换验证码<br>随机数欺骗浏览器<br>文件下载<br>解决了中文编码<br>hutool工具包</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/15/Java-Web-Request/" rel="prev" title="Java Web - Request">
+      <i class="fa fa-chevron-left"></i> Java Web - Request
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/18/Cookie/" rel="next" title="Cookie">
+      Cookie <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

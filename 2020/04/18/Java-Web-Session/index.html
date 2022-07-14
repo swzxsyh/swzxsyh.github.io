@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.Session1.1 概述1.2 快速入门HttpSession也是一个对象 说明	API存储数据	void setAttribute(String name,Object value)获取数据	Object getAttribute(String name)删除数据	void removeAttribute(String name)步骤分析 将数据存储到session中 说明	API通过re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Web - Session">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/04/18/Java-Web-Session/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.Session1.1 概述1.2 快速入门HttpSession也是一个对象 说明	API存储数据	void setAttribute(String name,Object value)获取数据	Object getAttribute(String name)删除数据	void removeAttribute(String name)步骤分析 将数据存储到session中 说明	API通过re">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-17T17:22:35.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.815Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/04/18/Java-Web-Session/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java Web - Session | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/18/Java-Web-Session/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java Web - Session
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-18 01:22:35" itemprop="dateCreated datePublished" datetime="2020-04-18T01:22:35+08:00">2020-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.Session<br>1.1 概述<br>1.2 快速入门<br>HttpSession也是一个对象</p>
+<p>说明	API<br>存储数据	void setAttribute(String name,Object value)<br>获取数据	Object getAttribute(String name)<br>删除数据	void removeAttribute(String name)<br>步骤分析</p>
+<p>将数据存储到session中</p>
+<p>说明	API<br>通过request对象，获取session对象	HttpSession session &#x3D; req.getSession();<br>操作session的API，存储数据	session.setAttribute(“username”,”AAABBBCCCC”);<br>从session中获取数据<br>说明	API<br>通过request对象，获取session对象	HttpSession session &#x3D; req.getSession();<br>操作session的API，获取数据	session.getAttribute(“username”);</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SetSession&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SetSession</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//通过request对象，获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//操作session的API，存储数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>,<span class="string">&quot;AAABBBCCCC&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@WebServlet(&quot;/GetSession&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GetSession</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//通过request对象，获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//操作session的API，获取数据</span></span><br><span class="line">    <span class="type">String</span>  <span class="variable">username</span> <span class="operator">=</span> (String) session.getAttribute(<span class="string">&quot;username&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;GetSession:&quot;</span>+username);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1.3 工作原理<br>Session基于Cookie技术实现<br>HttpSession session &#x3D; req.getSession();<br>如果用户是第一次访问:表示创建Session对象，生成编号<br>如果用户是第N次访问，根据浏览器携带编号找session对象</p>
+<p>1.4 Session细节<br>1.4.1 客户端关闭，服务器不关闭，两次获取的Session数据是否相同<br>默认情况下，浏览器关闭再打开，两次获取的Session不同(基于cookie实现，浏览器关闭，cookie销毁)<br>设置cookie的存活时间(JESSIONID)，代替服务器，覆盖JESSIONID，指定持久化时间</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SessionDemo01&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SessionDemo01</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//指定JESSIONID时间</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//向session中存数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>,<span class="string">&quot;zZZ&quot;</span>);</span><br><span class="line">    <span class="comment">//获取SESSION 的唯一编号</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">id</span> <span class="operator">=</span> session.getId();</span><br><span class="line">    <span class="comment">//设置cookie时长</span></span><br><span class="line">    <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(<span class="string">&quot;JESSIONID&quot;</span>, id);</span><br><span class="line">    <span class="comment">//设置存活时间</span></span><br><span class="line">    cookie.setMaxAge(<span class="number">60</span>*<span class="number">2</span>);</span><br><span class="line">    <span class="comment">//当前项目下共享</span></span><br><span class="line">    cookie.setPath(req.getContextPath());</span><br><span class="line">    <span class="comment">//response响应cookie</span></span><br><span class="line">    resp.addCookie(cookie);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1.4.2 客户端不关闭，服务器关闭，两次获取的Session数据是否相同<br>当服务器正常关闭，重启后，两次获取的session数据一样<br>Tomcat实现了以下功能<br>钝化(序列化):当服务器正常关闭时,session中当数据，会序列化到磁盘<br>活化(反序列化):当服务器开启后，从磁盘中读取文件，反序列化到内存中<br>1.4.3 生命周期<br>何时创建</p>
+<p>用户第一次调用req.getAttribute()时，创建<br>何时销毁</p>
+<p>服务器非正常关闭<br>非活跃状态30分钟后销毁(tomcat&#x2F;conf&#x2F;web.xml官方已配置)<br>session.invalidate();立即销毁<br>作用范围</p>
+<p>一次会话中，多次请求之间<br>注意:每一个浏览器和服务器之间都是独立的会话<br>1.4.4 URL重写<br>Session基于Cookie技术实现；浏览器Cookie可以禁用，一旦禁用，Session会出现问题<br>开发中，一般不考虑禁用Cookie用户</p>
+<p>如果真要处理，可以使用URL重写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SessionDemo02&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SessionDemo02</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//向session中存数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>, <span class="string">&quot;SIODJOISDJSO&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义URL</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;/Day37_war_exploded/GetSession&quot;</span>;</span><br><span class="line">    <span class="comment">//重写URL，拼接JESSIONID</span></span><br><span class="line">    url = resp.encodeURL(url);</span><br><span class="line"></span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;a href&#x27;&quot;</span> + url + <span class="string">&quot;&#x27;&gt;Direct to get Session&lt;/a&gt;&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1.5 Session特点<br>session存储数据在服务器<br>session存储类型任意(Object)<br>session存储大小和数据没有限制(相对于内存)<br>session存储数据相对安全<br>cookie和session的选择</p>
+<p>cookie将数据保存在浏览器端，数据相对不安全，建议敏感数据不要放在cookie中，且数据大小有限制<br>成本低，对服务器要求不高<br>浏览器为了解决该不足，前端使用了localStroage</p>
+<p>session将数据保存在服务器端，数据相对安全，数据大小比cookie中灵活<br>成本较高，对服务器压力大</p>
+<p>二. 三大域对象总结<br>request,session,ServletContext</p>
+<p>2.1 API<br>设置数据	void setAttribute(String name,Object o)<br>获取数据	Object getAttribute(String name)<br>删除数据	void removeAttribute(String name)<br>2.2 生命周期<br>2.2.1 ServleetContext域对象<br>何时创建	服务器正常启动，项目加载时创建<br>何时销毁	服务器关闭或项目卸载时，卸载<br>作用范围	整个web项目(共享数据)<br>2.2.2 HttpSession域对象<br>何时创建	用户第一次调用req.getSession() 方法时创建<br>用户访问携带的JESSIONID与服务器不匹配时创建<br>何时销毁	服务器非正常关闭时<br>未活跃时间30 min<br>session.invalidate();立即销毁<br>作用范围	一次会话中，多次请求间(共享数据)<br>2.2.3 HttpServletRequest域对象<br>何时创建	用户发送请求时创建<br>何时销毁	服务器做出响应后销毁<br>作用范围	一次请求中，多次转发间(共享数据)<br>2.3 小结<br>能用小的不用大的:request&lt;session&lt;servletContext</p>
+<p>常用场景</p>
+<p>request	一次查询的结果 (servlet转发jsp)<br>session	存放当前会话的私有数据<br>(验证码、购物车、等)<br>servletContext:若需要所有的Servlet都能访问到，才使用这个域对象</p>
+<p>三.综合案例<br>3.1 商品购物车<br>3.1.1 需求分析<br>addCatrSetvlet</p>
+<p>1.获取请求参数name(product)<br>2.返回:product 商品已加入购物车<br>3.从session中获取购物车<br>4.如果购物车为空，创建cart &#x3D; new HashMap()<br>5.判断，此商品是否存在于购物车<br>6.不存在，添加商品数量1<br>7.存在，在原商品基础上+1<br>8.将购物车重写到session中</p>
+<p>cart.jsp</p>
+<p>1.从session中获取购物车对象<br>2.判断是否为空<br>3.如果空，显示购物车空<br>4.如果不为空，遍历展示商品和数量</p>
+<p>3.1.2 代码实现<br>goods.jsp<br>addCartServlet<br>cart.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">&quot;text/html;charset=UTF-8&quot;</span> language=<span class="string">&quot;java&quot;</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line"></span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;title&gt;Goods&lt;/title&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line"></span><br><span class="line">  &lt;body&gt;</span><br><span class="line"></span><br><span class="line">    &lt;h3&gt;商品列表&lt;/h3&gt;</span><br><span class="line"></span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=TV&quot;</span>&gt;TV,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=PC&quot;</span>&gt;PC,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=Phone&quot;</span>&gt;Phone,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/AddCartServlet&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AddCartServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//设置编码</span></span><br><span class="line">    req.setCharacterEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取请求参数</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">product</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">    resp.getWriter().write(product + <span class="string">&quot;, has add to Cart&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//从session中获取购物车</span></span><br><span class="line">    Map&lt;String, Integer&gt; cart = (Map&lt;String, Integer&gt;) req.getSession().getAttribute(<span class="string">&quot;cart&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断购物车是否为空</span></span><br><span class="line">    <span class="keyword">if</span> (cart == <span class="literal">null</span>) &#123;</span><br><span class="line">      cart = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断购物车中是否包含本次商品</span></span><br><span class="line">    <span class="keyword">if</span> (cart.containsKey(product)) &#123;</span><br><span class="line">      <span class="comment">//存在,product++</span></span><br><span class="line">      <span class="type">Integer</span> <span class="variable">oldCount</span> <span class="operator">=</span> cart.get(product);<span class="comment">//之前的数量</span></span><br><span class="line">      cart.put(product, ++oldCount);<span class="comment">//数量加一</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//不存在 ,加入购物车</span></span><br><span class="line">      cart.put(product, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//重新将购物车写入到session中</span></span><br><span class="line">    req.getSession().setAttribute(<span class="string">&quot;cart&quot;</span>, cart);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//继续浏览</span></span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;br&gt;&lt;a href=&#x27;/Day37_war_exploded/goods.jsp&#x27;&gt;Continue View&lt;/a&gt;&lt;br&gt;&quot;</span>);</span><br><span class="line">    <span class="comment">//查看购物车</span></span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;br&gt;&lt;a href=&#x27;/Day37_war_exploded/cart.jsp&#x27;&gt;Check Shopping Cart&lt;/a&gt;&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">&quot;1&quot;</span> <span class="attr">width</span>=<span class="string">&quot;200px&quot;</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">th</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">th</span>&gt;</span>Quantity<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  &lt;%</span><br><span class="line">     //从session中获取购物车</span><br><span class="line">     Map&lt;String, Integer&gt; cart = (Map&lt;String, Integer&gt;) request.getSession().getAttribute(&quot;cart&quot;);</span><br><span class="line">  //判断是否为空</span><br><span class="line">  if (cart == null) &#123;</span><br><span class="line">  out.write(&quot;No Product here<span class="tag">&lt;<span class="name">br</span>&gt;</span>&quot;);</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">  for (String product : cart.keySet()) &#123;</span><br><span class="line">  out.write(&quot;<span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>&quot; + product + &quot;<span class="tag">&lt;/<span class="name">td</span>&gt;</span>  <span class="tag">&lt;<span class="name">td</span>&gt;</span>&quot; + cart.get(product) + &quot;<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">tr</span>/&gt;</span>&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  %&gt;</span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&#x27;/Day37_war_exploded/goods.jsp&#x27;</span>&gt;</span>Continue View<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>3.2 用户登陆(验证码)<br>3.2.1 需求分析<br>3.2.2 代码实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/LoginServlet&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//课下作业实现非空判断</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    req.setCharacterEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line">    <span class="comment">//获取用户输入验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">checkcode</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;checkcode&quot;</span>);</span><br><span class="line">    <span class="comment">//获取session验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">codeSession</span> <span class="operator">=</span> (String) req.getSession().getAttribute(<span class="string">&quot;code_session&quot;</span>);</span><br><span class="line">    <span class="comment">//校验匹配</span></span><br><span class="line">    <span class="keyword">if</span> (!checkcode.equalsIgnoreCase(codeSession)) &#123;</span><br><span class="line">      <span class="comment">//验证码不匹配提示</span></span><br><span class="line">      req.setAttribute(<span class="string">&quot;Error&quot;</span>, <span class="string">&quot;Check Code Wrong&quot;</span>);</span><br><span class="line">      <span class="comment">//转发到login.jsp</span></span><br><span class="line">      req.getRequestDispatcher(<span class="string">&quot;/login.jsp&quot;</span>).forward(req, resp);</span><br><span class="line">      <span class="comment">//代码不再向下执行</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取用户输入到用户名和密码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;username&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;password&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断用户名密码</span></span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">&quot;jack&quot;</span>.equals(username) &amp;&amp; <span class="string">&quot;123&quot;</span>.equals(password))) &#123;</span><br><span class="line">      <span class="comment">//用户名密码不匹配提示</span></span><br><span class="line">      req.setAttribute(<span class="string">&quot;Error&quot;</span>, <span class="string">&quot;Username or Password Wrong&quot;</span>);</span><br><span class="line">      <span class="comment">//转发到login.jsp</span></span><br><span class="line">      req.getRequestDispatcher(<span class="string">&quot;/login.jsp&quot;</span>).forward(req, resp);</span><br><span class="line">      <span class="comment">//代码不再向下执行</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//将用户名存入session</span></span><br><span class="line">    req.getSession().setAttribute(<span class="string">&quot;username&quot;</span>, username);</span><br><span class="line">    <span class="comment">//重定向到Succes.jsp</span></span><br><span class="line">    resp.sendRedirect(req.getContextPath() + <span class="string">&quot;/success.jsp&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;/war_exploded/LoginServlet&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">  <span class="title class_">Name</span>: &lt;input type=&quot;text&quot; name=&quot;username&quot;&gt;&lt;br&gt;</span><br><span class="line">    Password: &lt;input type=&quot;password&quot; name=&quot;password&quot;&gt;&lt;br&gt;</span><br><span class="line">      Checkcode: &lt;input type=&quot;text&quot; name=&quot;checkcode&quot;&gt;&lt;img src=&quot;/Day37_war_exploded/CheckCodeServlet&quot; id=&quot;image1&quot;</span><br><span class="line">alt=&quot;&quot;&gt;&lt;br&gt;</span><br><span class="line">  &lt;input type=&quot;submit&quot; value=&quot;Login&quot;&gt;</span><br><span class="line">    &lt;span style=&quot;color: red&quot;&gt;</span><br><span class="line">      &lt;%</span><br><span class="line">      String error = (String) request.getAttribute(&quot;Error&quot;);</span><br><span class="line">if (error != null) &#123;</span><br><span class="line">  out.write(error);</span><br><span class="line">&#125;</span><br><span class="line">%&gt;</span><br><span class="line"></span><br><span class="line">  &lt;/span&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">  document.getElementById(&quot;image1&quot;).onclick = function () &#123;</span><br><span class="line">  this.src = &#x27;/Day37_war_exploded/CheckCodeServlet?&#x27; + new Date().getTime();</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line"></span><br><span class="line">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;</span><br><span class="line">  &lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">  &lt;title&gt;Success&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;%</span><br><span class="line">  //获取用户信息</span><br><span class="line">  String username = (String) request.getSession().getAttribute(&quot;username&quot;);</span><br><span class="line">if (username != null)&#123;</span><br><span class="line">  out.write(&quot;Welcome ,&quot;+username);</span><br><span class="line">&#125;</span><br><span class="line">%&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p>总结<br>概述<br>在一次会话的多次请求之间共享数据，将数据保存到服务器端<br>实现原理<br>基于Cookie技术<br>jsessionid&#x3D;xxxx<br>常用方法<br>获取session<br>request.getSession()<br>使用session<br>setAttribute()<br>getAttribute()<br>remomveAttribute()<br>生命周期<br>何时创建<br>用户第一次执行getSession()方法时，创建<br>用户携带的jssionid与服务器不匹配时，创建<br>何时销毁<br>服务器非正常关闭时<br>session.invalidate()<br>session默认销毁时间30分钟</p>
+<p>tomcat目录&#x2F;conf&#x2F;web.xm<br>作用范围<br>一次会话中，多次请求之间<br>特点</p>
+<ol>
+<li>session在服务器端存储数据</li>
+<li>session存储数据格式可以是任意类型</li>
+<li>session存储数据没有大小限制（相对于内存）</li>
+<li>session存储数据相对安全<br>三个域对象<br>ServletContext<br>创建<br>销毁<br>作用域<br>HttpSession<br>创建<br>销毁<br>作用域<br>HttpServletRequest<br>创建<br>销毁<br>作用域<br>综合案例<br>商品购物车<br>用户登录（验证码）</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/18/Cookie/" rel="prev" title="Cookie">
+      <i class="fa fa-chevron-left"></i> Cookie
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/21/EL-JSTL-MVC/" rel="next" title="EL & JSTL & MVC">
+      EL & JSTL & MVC <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。 MySQL的逻辑架构 MySQL数据库主要分两个层级:服务层和存储引擎层   服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。 存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL-事务">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。 MySQL的逻辑架构 MySQL数据库主要分两个层级:服务层和存储引擎层   服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。 存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg">
+<meta property="article:published_time" content="2022-06-30T15:09:16.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.927Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQL-事务 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL-事务
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:09:16" itemprop="dateCreated datePublished" datetime="2022-06-30T23:09:16+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><p>事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。</p>
+<h2 id="MySQL的逻辑架构"><a href="#MySQL的逻辑架构" class="headerlink" title="MySQL的逻辑架构"></a>MySQL的逻辑架构</h2><blockquote>
+<p>MySQL数据库主要分两个层级:服务层和存储引擎层</p>
+</blockquote>
+<ul>
+<li>服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。</li>
+<li>存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM,InnoDB和Memory等,最常用的是InnoDB,也是MySQL默认的存储引擎。存储引擎在建表的时候也可以指定。</li>
+</ul>
+<h2 id="SQL语句的执行过程"><a href="#SQL语句的执行过程" class="headerlink" title="SQL语句的执行过程"></a>SQL语句的执行过程</h2><ul>
+<li>连接器:从MySQL客户端登录,需要连接器来连接用户和MySQL数据库,<code>mysql -uroot -p123456</code>进行MySQL登录,在完成TCP握手之后,连接器会根据输入的用户名和密码验证身份,若错误会提示:<code>Access denied for user</code>,若账号密码正确,MySQL会根据权限表中的记录来判定权限。</li>
+<li>查询缓存:MySQL在收到一个请求后,会先去缓存中查找,是否执行过这条SQL语句,之前执行过的SQL语句结果会以key-value的形式直接存储到缓存中,key是查询的语句,value是查询结果集,如果能通过SQL语句直接查询到缓存中的结果集,则直接返回。优点是效率高,但是不建议使用,原因是在MySQL中对表进行了更新操作,缓存就失效了,在频繁更新的系统中,缓存的命中率并不高。在MySQL8.0中查询缓存功能就被删除了,不存在查询缓存的功能了。</li>
+<li>分析器:分为词法分析和语法分析<ul>
+<li>词法分析:MySQL会解析sql语句,分词器会先做词法分析,SQL语句一般由字符串和空格组成,MySQL要识别出字符串代表什么。</li>
+<li>语法分析:根据词法分析的结果,按照语法规则看看SQL语句是否正确。如果SQL语句语法不正确,就提示:<code>You have an error in your SQL syntax</code></li>
+</ul>
+</li>
+<li>优化器:SQL语句语法正确后,优化器会判断你使用了哪种索引,哪种链接,优化器的作用就是确定效率最高的执行方案。</li>
+<li>执行器:在执行阶段,MySQL会判断有没有执行语句的权限,若没有权限,会返回没有权限的错误,若有权限,则打开表继续执行。打开表时,执行器会根据你使用的存储引擎,去使用该引擎对接的接口。</li>
+</ul>
+<p><img src="/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg"></p>
+<h2 id="特殊操作"><a href="#特殊操作" class="headerlink" title="特殊操作"></a>特殊操作</h2><p>在MySQL中,存在一些图书的命令,如果在事务中执行了这些命令,会马上强制执行commit提交事务;如DDL语句(create table&#x2F;drop table&#x2F;alter table)、lock tables语句等等。</p>
+<p>DML语句(insert,delete,update,select)等都不会强制提交事务。</p>
+<h2 id="ACID特性"><a href="#ACID特性" class="headerlink" title="ACID特性"></a>ACID特性</h2><ul>
+<li>原子性 – undo log 保证<br>一个事务的所有操作要么全部成功，要么全部失败，不会再中间环节结束</li>
+<li>持久性 – redo log 保证<br>事务处理结束之后，对数据库的修改是永久性的，不会因为系统故障等事件发生而丢失</li>
+<li>一致性 – 通过undo log 保证<br>数据库的完整性不会因为事务的执行而收到破坏。如有种有一个唯一索引约束的字段，一个事务对其进行操作后，使得该字段出现重复记录，则破坏了一致性。</li>
+<li>隔离性 – 通过undo log + MVCC保证<br>多个事务之间相互隔离。允许多个事务同时进行读写，不会由于交叉执行导致的数据不一致<ul>
+<li>一个事务写对另一个事务写操作的影响,锁机制保证隔离性</li>
+<li>一个事务写对另外一个事务读操作的影响,MVCC保证隔离性</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h2><ul>
+<li><p>读未提交（read uncommitted）<br>一个事务还没提交时，它的变更能被其他事务看到</p>
+<ul>
+<li><p>事例：老板要给程序员发工资，程序员的工资是3.6万&#x2F;月。但是发工资时老板不小心按错了数字，按成3.9万&#x2F;月，该钱已经打到程序员的户口，但是事务还没有提交，就在这时，程序员去查看自己这个月的工资，发现比往常多了3千元，以为涨工资了非常高兴。但是老板及时发现了不对，马上回滚差点就提交了的事务，将数字改成3.6万再提交。</p>
+<p>分析：实际程序员这个月的工资还是3.6万，但是程序员看到的是3.9万。他看到的是老板还没提交事务时的数据。这就是<strong>脏读</strong></p>
+<hr>
+<p>那怎么解决脏读呢？Read committed！读提交，能解决脏读问题。</p>
+<ul>
+<li>当前事务可以读到其它事务未提交的数据(脏数据),这种现象是脏读。</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>读已提交（read committed）<br>一个事务的变更在事务提交后才能被其他事务看到</p>
+<ul>
+<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（程序员事务开启），收费系统事先检测到他的卡里有3.6万，就在这个时候！！程序员的妻子要把钱全部转出充当家用，并提交。当收费系统准备扣款时，再检测卡里的金额，发现已经没钱了（第二次检测金额当然要等待妻子转出金额事务提交完）。程序员就会很郁闷，明明卡里是有钱的…</p>
+<p>分析：这就是读提交，若有事务对数据进行更新（UPDATE）操作时，读操作事务要等待这个更新操作事务提交后才能读取数据，可以解决脏读问题。但在这个事例中，出现了一个事务范围内两个相同的查询却返回了不同数据，这就是<strong>不可重复读</strong>。</p>
+<hr>
+<p>那怎么解决可能的不可重复读问题？Repeatable read ！</p>
+<ul>
+<li>不可重复读:在同一个事务中两次读取同一个数据不一样,这种现象被称为不可重复读。脏读可不可重复读的区别在于,脏读读到的是其它事务未提价的数据,而不可重复读读到的是其它事务已经提价的数据</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>可重复读（repeatable read）<br>一个事务执行过程中看到的数据，一直跟这个事务启动时看到的数据时一致的。MySQL InnoDB引擎的默认隔离级别</p>
+<ul>
+<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（事务开启，不允许其他事务的UPDATE修改操作），收费系统事先检测到他的卡里有3.6万。这个时候他的妻子不能转出金额了。接下来收费系统就可以扣款了。</p>
+<p>分析：重复读可以解决不可重复读问题。写到这里，应该明白的一点就是，不可重复读对应的是修改，即UPDATE操作。但是可能还会有幻读问题。因为幻读问题对应的是插入INSERT操作，而不是UPDATE操作。</p>
+<p><strong>什么时候会出现幻读？</strong></p>
+<p>事例：程序员某一天去消费，花了2千元，然后他的妻子去查看他今天的消费记录（全表扫描FTS，妻子事务开启），看到确实是花了2千元，就在这个时候，程序员花了1万买了一部电脑，即新增INSERT了一条消费记录，并提交。当妻子打印程序员的消费记录清单时（妻子事务提交），发现花了1.2万元，似乎出现了幻觉，这就是<strong>幻读</strong>。</p>
+<hr>
+<p>那怎么解决幻读问题？Serializable！</p>
+<ul>
+<li>在一个事务中两次查询查到的数据条数不同,这种现象被称为幻读。不可重复读和幻读的区别在于,不可重复度是数据变了,幻读是数据行数变了。</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>串行化（serializable）<br>会对记录加上读写锁，在多个事务对这条记录进行读写操作时，如果发生读写重读，后访问的事务必须等到前一个事务执行完成后，才能继续执行</p>
+</li>
+<li><p>优先级<br>串行化 &gt; 可重复读 &gt; 读已提交 &gt; 读未提交</p>
+</li>
+<li><p>实现原理(MVCC)</p>
+<ul>
+<li><p>读未提交级别，因为可以读到未提交的数据，因此直接读取最新的数据即可</p>
+</li>
+<li><p>串行化级别，通过加读写锁的方式避免并行访问</p>
+</li>
+<li><p>读已提交和可重复读级别，它们是通过Read View （数据快照）来实现的，它们之间的区别在于创建Read View的时机不同。</p>
+<p>(多版本并发控制)</p>
+<p>读已提交：在每个数据读取前都生成一个快照<br>可重复读：启动事务的时候生成一个快照，并在事务期间都使用该快照</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="事务并发产生的问题"><a href="#事务并发产生的问题" class="headerlink" title="事务并发产生的问题"></a>事务并发产生的问题</h2><ul>
+<li><p>脏读<br>一个事务读取到另一个事务未提交的数据</p>
+<ul>
+<li>如事务A、事务B同时执行。事务A从数据库中获取记录值，并更新，此时事务B也查询该记录值，则事务B查询到的是事务A更新后但未提交的值。如果此时事务A提交时异常需要进行回滚，则事务B得到的记录值就是不正确的值，若基于该记录值进行后续操作，很可能导致数据的不一致。</li>
+</ul>
+</li>
+<li><p>不可重复读<br>一个事务内多次读取同一个数据，前后两次读取的结果不一致。更多针对的是update操作</p>
+<ul>
+<li>如事务A开始从数据库读取记录值为a，此时事务B更新该记录值为B并提交了事务，当A再次读取该记录值时，前后两次读取的结果是不一致的。</li>
+</ul>
+</li>
+<li><p>幻读<br>一个事务内多次查询符合相同条件的记录数量，前后两次查询的记录数量不一致。更多的针对insert 操作</p>
+<ul>
+<li>如事务A、事务B同时执行。事务A先查询某个条件下的记录数量，共1条，事务B也按该条件查询，结果为2条。然后事务A插入一条符合该条件的记录并提交事务。此后事务B再按照该条件进行查询，发现符合结果的记录数与第一次查询到记录数量不一致。</li>
+</ul>
+</li>
+</ul>
+<p>1、将事务隔离级别提高到读已提交以上，则可以解决脏读问题<br>2、将事务隔离级别提高到可重复读以上，则可以解决脏读、不可重读问题<br>3.将事务隔离几倍提高到串行化以上，则可以解决幻读问题，但一般不会设置为串行化（性能差），InnoDB通过next-key lock （行锁和间隙锁的组合，【锁住记录之间的间隙和记录本身，防止其他事务在这个记录之间插入新的记录）进行解决】</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>InnoDB实现的RR,通过锁机制(包含netxt-key lock),MVCC(包含隐藏数据列,基于undo log的版本链,ReadView)等,实现了一定程度的隔离性,可以满足大多数场景的需要。</p>
+<p>RR虽然避免了幻读问题，但是毕竟不是Serializable，不能保证完全的隔离</p>
+<p>如果在事务中第一次读取采用非加锁读，第二次读取采用加锁读，则如果在两次读取之间数据发生了变化，两次读取到的结果不一样，因为加锁读时不会采用MVCC。</p>
+<p>出现了幻读问题</p>
+<p>RR模式下 日志中记录的是：先commit的记录在前面，后commit的记录在后面，与执行时间点无关；就单个 session 来说，好理解，执行顺序就是记录顺序；多个 session 之间的话，先 commit 的先记录主库对数据库的更改是按执行时间的先后顺序进行的，而 binlog 却是按 commit 的先后顺序记录的。</p>
+</blockquote>
+<h6 id="来源"><a href="#来源" class="headerlink" title="来源:"></a>来源:</h6><p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/mysql-transaction.html">https://rumenz.com/rumenbiji/mysql-transaction.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/mysql-transaction.html">https://rumenz.com/rumenbiji/mysql-transaction.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/30/MySQL-MVCC/" rel="prev" title="MySQL-MVCC">
+      <i class="fa fa-chevron-left"></i> MySQL-MVCC
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/30/MySQL-%E6%97%A5%E5%BF%97/" rel="next" title="MySQL-日志">
+      MySQL-日志 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">MySQL的逻辑架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL%E8%AF%AD%E5%8F%A5%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">SQL语句的执行过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.</span> <span class="nav-text">特殊操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ACID%E7%89%B9%E6%80%A7"><span class="nav-number">1.4.</span> <span class="nav-text">ACID特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.5.</span> <span class="nav-text">隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B9%B6%E5%8F%91%E4%BA%A7%E7%94%9F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">事务并发产生的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">1.7.0.0.0.1.</span> <span class="nav-text">来源:</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

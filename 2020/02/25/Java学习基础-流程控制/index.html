@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一. 流程控制1.1 流程控制语句分类•顺序结构顺序结构是最基本的结构，按照代码先后依次执行。•分支结构（if,switch）•循环结构(for,while,do…while) 1.2 if语句①格式：if(关系表达式){语句体；}执行流程：①首先计算表达式的值②如果关系表达式的值为true就执行语句体。③如果关系表达式的值为false就不执行语句体。④继续执行后面的内容。 1.3 if语句② 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java学习基础--流程控制">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/02/25/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一. 流程控制1.1 流程控制语句分类•顺序结构顺序结构是最基本的结构，按照代码先后依次执行。•分支结构（if,switch）•循环结构(for,while,do…while) 1.2 if语句①格式：if(关系表达式){语句体；}执行流程：①首先计算表达式的值②如果关系表达式的值为true就执行语句体。③如果关系表达式的值为false就不执行语句体。④继续执行后面的内容。 1.3 if语句② 1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-25T15:57:52.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.832Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/02/25/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java学习基础--流程控制 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/02/25/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java学习基础--流程控制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-25 23:57:52" itemprop="dateCreated datePublished" datetime="2020-02-25T23:57:52+08:00">2020-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一. 流程控制<br>1.1 流程控制语句分类<br>•顺序结构<br>顺序结构是最基本的结构，按照代码先后依次执行。<br>•分支结构（if,switch）<br>•循环结构(for,while,do…while)</p>
+<p>1.2 if语句①<br>格式：<br>if(关系表达式){<br>语句体；<br>}<br>执行流程：<br>①首先计算表达式的值<br>②如果关系表达式的值为true就执行语句体。<br>③如果关系表达式的值为false就不执行语句体。<br>④继续执行后面的内容。</p>
+<p>1.3 if语句②</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(关系表达式)&#123;</span><br><span class="line">  语句体<span class="number">1</span>；</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">  语句体<span class="number">2</span>；</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>①首先计算表达式的值<br>②如果关系表达式的值为true就执行语句体1。<br>③如果关系表达式的值为false就执行语句体2。<br>④继续执行后面的内容。</p>
+<p>1.4 if语句③</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(关系表达式<span class="number">1</span>)&#123;</span><br><span class="line">  语句体<span class="number">1</span>；</span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>(关系表达式<span class="number">2</span>)(</span><br><span class="line">  语句体<span class="number">2</span>；</span><br><span class="line">)...</span><br><span class="line">  <span class="keyword">else</span>&#123;</span><br><span class="line">    语句体n+<span class="number">1</span>；</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>①首先计算表达式的值<br>②如果关系表达式的值为true就执行语句体1。<br>③如果关系表达式的值为false就执行语句体2。<br>④…<br>⑤如果没有任何true，则执行语句体n+1。</p>
+<p>二. switch语句<br>switch语句格式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(表达式)&#123;</span><br><span class="line">  <span class="keyword">case</span> 值<span class="number">1</span>:</span><br><span class="line">    语句体<span class="number">1</span>；</span><br><span class="line">      <span class="keyword">break</span>；</span><br><span class="line">      <span class="keyword">case</span> 值<span class="number">2</span>:</span><br><span class="line">    语句体<span class="number">2</span>；</span><br><span class="line">      <span class="keyword">break</span>；    </span><br><span class="line">      <span class="keyword">case</span> 值<span class="number">3</span>:</span><br><span class="line">    语句体<span class="number">3</span>；</span><br><span class="line">      <span class="keyword">break</span>；</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">    语句体n+<span class="number">1</span>；</span><br><span class="line">      [<span class="keyword">break</span>;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行流程：<br>①首先计算表达式的值<br>②依次和case后面的值进行比较，如果有对应的值，就会执行语句，在执行过程中，遇到break就结束。<br>③如果所有的case后面的值和表达式的值都不匹配，就会执行default里的语句，然后程序结束。</p>
+<p>三. for循环语句<br>3.1 循环结构<br>循环结构组成：<br>初始化语句：用于表示程序循环开始时的起始状态，简单说就是循环开始时什么样。<br>条件判断语句：用于表示程序循环反复执行的条件，简单说就是循环是否能一直执行下去。<br>循环体语句：用于表示程序循环反复执行的内容，简单说就是循环反复执行的事情。<br>条件控制语句：简单说就是循环每次变化的内容，简单说就是控制循环是否能执行下去。</p>
+<p>循环结构对应的语法：<br>初始化语句：这是一条或多条语句，这些语句可以完成一些初始化操作。<br>条件判断语句：这里使用一个结果为boolean类型的表达式，这个表达式能决定是否执行循环体。<br>循环体语句：这里可以是任意语句，这些语句将反复执行。<br>条件控制语句：这里通常是使用一条语句来改变变量的值，从而达到是否让循环继续执行下去的结果。<br>3.2 for语句循环格式<br>格式:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(初始化语句；条件判断语句；条件控制语句)&#123;</span><br><span class="line">  循环体语句</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>执行流程：<br>①首先执行初始化语句<br>②执行条件判断语句，true执行，false跳出。<br>③执行循环体语句<br>④执行条件控制语句<br>⑤回到②继续</p>
+<p>四. while循环语句<br>4.1while循环语句格式<br>完整格式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">初始化语句;</span><br><span class="line"><span class="keyword">while</span>(条件判断语句)&#123;</span><br><span class="line">  循环体语句;</span><br><span class="line">  条件控制语句;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>执行流程：<br>①首先执行初始化语句<br>②执行条件判断语句，true执行，false跳出。<br>③执行循环体语句<br>④执行条件控制语句<br>⑤回到②继续</p>
+<p>五. do…while循环语句<br>5.1 do…while循环语句完整格式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">初始化语句;</span><br><span class="line"><span class="keyword">do</span>&#123;</span><br><span class="line">  循环体语句;</span><br><span class="line">  条件控制语句;</span><br><span class="line">&#125;<span class="keyword">while</span>(条件判断语句)</span><br></pre></td></tr></table></figure>
+
+<p>执行流程：<br>①首先执行初始化语句<br>②执行循环体语句<br>③执行条件控制语句<br>④执行条件判断语句，true执行，false跳出。<br>⑤回到②继续</p>
+<p>六.三种循环语句的区别<br>•for 循环和while循环先判断条件是否成立，然后决定是否执行循环体（先判断后执行）<br>•do…while循环先执行一次循环体，然后判断条件是否成立，是否继续执行循环体。（先执行后判断）<br>for和while的区别<br>•条件控制语句所控制的自增变量，因为归属for循环的语句中，在for循环结束后就不能再被访问到了。<br>•条件控制语句所控制的自增变量，因为不归属while循环的语句中，在while循环结束后，该变量还能继续使用。<br>死循环格式：<br>for(;;){}<br>while(true){}<br>do{}while(true);</p>
+<p>七.跳转控制语句：<br>7.1 跳转控制语句概述<br>•continue 用在循环中，基于条件控制，跳过某次循环体内容执行，继续下一次执行<br>•break 用在循环中，基于条件控制，终止某次循环体内容执行，也就是说结束当前的整个循环。</p>
+<p>八. 循环嵌套<br>语句结构：<br>•顺序语句:以分号结尾，表示一句话的结束。<br>•分支语句<br>一对大括号表示if的整体结构，整体描述一个完整的if语句<br>一对大括号表示for的整体结构，整体描述一个完整的for语句<br>•循环语句:<br>一对大括号表示while的整体结构，整体描述一个完整的while语句<br>一对大括号表示do…while的整体结构，整体描述一个完整的do…while语句<br>任何语句对外都可以看成是一句话，一句代码。<br>分支语句包含分支语句成为分支嵌套。<br>循环语句包含循环语句成为循环嵌套。</p>
+<p>九. Random<br>9.1 random的作用和使用步骤<br>作用：用于产生一个随机数。<br>使用步骤：<br>①导包<br>import java.util.Random;<br>导包的动作必须出现在定义上面。<br>②创建对象<br>Random r &#x3D; new Random();<br>上面这个格式里，只有变量名r可以变，其他都不允许变。<br>③接收数据<br>int number &#x3D; r.nextInt(10);&#x2F;&#x2F;数据获取的范围：【0，10），包括0，不包括10<br>上面这个格式里，变量名r可以变，数字范围10可以变，其他都不允许变。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/25/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="prev" title="Java学习基础 - 运算符">
+      <i class="fa fa-chevron-left"></i> Java学习基础 - 运算符
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/25/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E6%95%B0%E7%BB%84/" rel="next" title="Java学习基础--数组">
+      Java学习基础--数组 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

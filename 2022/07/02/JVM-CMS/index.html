@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CMSConcurrentMarkSweep（并发标记清除） CMS垃圾收集器从jdk1.6中开始应用,是一个老年代垃圾收集器,在JVM的发展过程中扮演了重要的历史作用,jdk1.7,jdk1.8中都可以开启使用。在jdk9中已废弃。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM-CMS">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="CMSConcurrentMarkSweep（并发标记清除） CMS垃圾收集器从jdk1.6中开始应用,是一个老年代垃圾收集器,在JVM的发展过程中扮演了重要的历史作用,jdk1.7,jdk1.8中都可以开启使用。在jdk9中已废弃。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/ScreenShot.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/1604836565.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/1604836576.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/1604836590.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/1604836604.png">
+<meta property="article:published_time" content="2022-07-02T09:04:26.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.666Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/JVM-CMS/ScreenShot.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/02/JVM-CMS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JVM-CMS | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-CMS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM-CMS
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 17:04:26" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:26+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h1><p>ConcurrentMarkSweep（并发标记清除）</p>
+<p><code>CMS</code>垃圾收集器从<code>jdk1.6</code>中开始应用,是一个老年代垃圾收集器,在<code>JVM</code>的发展过程中扮演了重要的历史作用,<code>jdk1.7</code>,<code>jdk1.8</code>中都可以开启使用。在<code>jdk9</code>中已废弃。</p>
+<p><img src="/2022/07/02/JVM-CMS/ScreenShot.png"></p>
+<span id="more"></span>
+
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li>追求最短停顿时间</li>
+</ul>
+<h2 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h2><ul>
+<li>标记清除</li>
+<li>标记复制</li>
+<li>标记整理</li>
+</ul>
+<h2 id="清除步骤"><a href="#清除步骤" class="headerlink" title="清除步骤"></a>清除步骤</h2><h3 id="初始标记"><a href="#初始标记" class="headerlink" title="初始标记"></a>初始标记</h3><ul>
+<li>SafePoint（安全点&#x2F;区）</li>
+<li>标记GC Roots引用对象<ul>
+<li>java虚拟机栈引用对象</li>
+<li>java native栈引用对象</li>
+<li>方法区类静态属性引用的对象</li>
+<li>方法区常量引用的对象</li>
+<li>synchronized锁引用对象</li>
+<li>类元</li>
+<li>JMXBean</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>标记GcRoots直接可达老年对象,新生代存活对象引用的老年代对象.整个过程在JDK1.7中是单线程的在JDK1.8中是多线程的(通过CMSParallelInitialMarkEnabled参数调整)。这个过程会导致STW。</p>
+<p><img src="/2022/07/02/JVM-CMS/1604836565.png"></p>
+</blockquote>
+<h3 id="并发标记"><a href="#并发标记" class="headerlink" title="并发标记"></a>并发标记</h3><blockquote>
+<p>从<code>初始标记</code>阶段标记过的对象开始,标记其它存活对象,这个阶段垃圾回收线程和应用线程同时运行。由于是同时运行,应用线程还在跑,会导致对象的晋升,对象引用的变化,特殊对象直接分配到老年代。这些受到影响的老年代对象所在的Card会被标记成Dirty,用于重新标记阶段扫描,老年代对象的Card被标记为Dirty的可能原因如下面绿线所示。</p>
+<p><img src="/2022/07/02/JVM-CMS/1604836576.png" alt="image"></p>
+</blockquote>
+<h3 id="预清理"><a href="#预清理" class="headerlink" title="预清理"></a>预清理</h3><blockquote>
+<p>由于上一个阶段是并发执行的未标记的变化对象只是标记成了Dirty对象,还没有处理,<code>预清理</code>就是来标记这些<code>Dirty对象</code>。如下图:在并发标记阶段3号Card被标志为Dirty。这个阶段是为<code>重新标记</code>阶段做准备。</p>
+<p><img src="/2022/07/02/JVM-CMS/1604836590.png" alt="image"></p>
+<p>预清理将6号标志为存活对象</p>
+<p><img src="/2022/07/02/JVM-CMS/1604836604.png" alt="image"></p>
+</blockquote>
+<h3 id="可被终止的预清理"><a href="#可被终止的预清理" class="headerlink" title="可被终止的预清理"></a>可被终止的预清理</h3><blockquote>
+<p>这个阶段也是为重新标志阶段做准备,在进入重新标志阶段前,最好能进行一个Minor GC,将年轻代清理一遍, 这样可以清除大部分年轻代的对象(绝大部分年轻代对象朝生夕死),尽量缩短<code>重新标记</code>阶段停顿时间,CMS还提供了CMSScavengeBeforeRemark参数，可以在进入重新标记之前强制进行依次Minor gc。</p>
+</blockquote>
+<h3 id="重新标记-remark-Stop-the-world"><a href="#重新标记-remark-Stop-the-world" class="headerlink" title="重新标记(remark , Stop the world)"></a>重新标记(remark , Stop the world)</h3><p><code>预清理</code>和<code>可被终止的预清理</code>都是为<code>重新标志</code>阶段做准备,由于<code>重新标志</code>阶段会发生(<strong>STW</strong>),所以要保证尽肯能的停顿时间段,不然就会影响应用程序的用户体验。这个阶段扫描的目标是:年轻代+GC Roots+Dirty老年代对象，这个阶段是多线程的(XX:+CMSParallelRemarkEnabled)。</p>
+<h3 id="并发清除"><a href="#并发清除" class="headerlink" title="并发清除"></a>并发清除</h3><blockquote>
+<p>用户线程被激活，那些未被标志的对象会被清除。’</p>
+</blockquote>
+<h3 id="并发重置"><a href="#并发重置" class="headerlink" title="并发重置"></a>并发重置</h3><blockquote>
+<p>CMS垃圾收集器参数回到初始状态，为下一次垃圾收集做准备。</p>
+</blockquote>
+<h2 id="三色标记-清除算法（Tri-Color-Mark-Sweep）"><a href="#三色标记-清除算法（Tri-Color-Mark-Sweep）" class="headerlink" title="三色标记-清除算法（Tri-Color Mark Sweep）"></a>三色标记-清除算法（Tri-Color Mark Sweep）</h2><p>JVM虚拟机在进行垃圾回收时，把从GC ROOTS开始遍历的对象标记为黑、白、灰三种颜色，但实际上，三色标记和颜色没有任何关系，只与一次扫描状态相关。</p>
+<ul>
+<li>白色代表未扫描的节点，需要 GC 的对象；</li>
+<li>黑色代表该节点的子节点也已经被扫描完，<strong>确定</strong>不需要 GC 的对象</li>
+<li>灰色代表代表已扫描完的节点，该节点的子节点没有被扫描。可能不需要 GC 的对象，但是还未完成标记的任务，也可以认为是增量任务。</li>
+</ul>
+<p>在三色标记-清除算法中，一开始所有对象都染成白色。初始化完成后，会启动标记程序。在标记的过程中，是可以暂停标记程序执行 Mutation。</p>
+<p>算法需要维护 3 个集合，白色集合、黑色集合、灰色集合。3 个集合是互斥的，对象只能在一个集合中。</p>
+<ul>
+<li>执行之初，所有对象都放入白色集合</li>
+<li>第一次执行，算法将 Root 集合能直接引用的对象加入灰色集合</li>
+<li>接下来算法会不断从灰色集合中取出元素进行标记</li>
+</ul>
+<h3 id="标记的过程主要分为-3-个步骤"><a href="#标记的过程主要分为-3-个步骤" class="headerlink" title="标记的过程主要分为 3 个步骤"></a>标记的过程主要分为 3 个步骤</h3><ol>
+<li>如果对象在白色集合中，那么先将对象放入灰色集合；</li>
+<li>然后遍历节点的所有的引用对象，并递归所有引用对象；</li>
+<li>当一个对象的所有引用对象都在灰色集合中，就把这个节点放入为黑色集合。</li>
+</ol>
+<p>这是一个 DFS 的过程。如果多个线程对不同的 Root Object 并发执行这个算法，我们需要保证 3 个集合都是线程安全的，可以考虑利用 ConcurrentSet（这样性能更好），或者对临界区上锁。并发执行这个算法的时候，如果发现一个灰色节点说明其他线程正在处理这个节点，就忽略这个节点。这样，就解决了标记程序可以并发执行的问题。</p>
+<p>当标记算法执行完成的时候，所有不需要 GC 的元素都会涂黑</p>
+<p>标记算法完成后，白色集合内就是需要回收的对象。</p>
+<p>以上，是类似双色标记-清除算法的全量 GC 程序，我们从 Root 集合开始遍历，完成了对所有元素的标记（将它们放入对应的集合）。</p>
+<p>接下来我们来考虑增加 GC（Incremental GC）的实现。首先对用户的修改进行分类，有这样 3 类修改（Mutation）需要考虑：</p>
+<ol>
+<li>创建新对象</li>
+<li>删除已有对象</li>
+<li>调整已有引用</li>
+</ol>
+<p>如果用户程序创建了新对象，可以考虑把新对象直接标记为灰色。虽然，也可以考虑标记为黑色，但是标记为灰色可以让 GC 意识到新增了未完成的任务。比如用户创建了新对象之后，新对象引用了之前删除的对象，就需要重新标记创建的部分。</p>
+<p>如果用户删除了已有的对象，通常做法是等待下一次全量 Mark 算法处理。下图中我们删除了 Root Object 到 A 的引用，这个时候如果把 A 标记成白色，那么还需要判断是否还有其他路径引用到 A，而且 B,C 节点的颜色也需要重新计算。关键的问题是，虽然可以实现一个基于 A 的 DFS 去解决这个问题，但实际情况是我们并不着急解决这个问题，因为内存空间往往是有富余的。</p>
+<h2 id="CMS收集器中两个致命的问题"><a href="#CMS收集器中两个致命的问题" class="headerlink" title="CMS收集器中两个致命的问题"></a>CMS收集器中两个致命的问题</h2><h3 id="CMS是一个很好的并发垃圾收集器-但是使用过程中会产生两个重要的问题。"><a href="#CMS是一个很好的并发垃圾收集器-但是使用过程中会产生两个重要的问题。" class="headerlink" title="CMS是一个很好的并发垃圾收集器,但是使用过程中会产生两个重要的问题。"></a><code>CMS</code>是一个很好的并发垃圾收集器,但是使用过程中会产生两个重要的问题。</h3><ul>
+<li><p>promotion failed 晋升失败</p>
+<ul>
+<li><p>黑色标记点 建立新的引用关系</p>
+</li>
+<li><p>白色节点被灰色节点引用，中途与灰色节点断开，直接被黑色节点引用，黑色不扫描，无法获取新引用</p>
+</li>
+</ul>
+</li>
+<li><p>concurrent mode failure 收集器无法处理浮动垃圾</p>
+<ul>
+<li>浮动垃圾：回收时黑色对象已断开引用，但此时已为黑色标记不进行回收</li>
+</ul>
+</li>
+</ul>
+<h3 id="promotion-failed-晋升失败原因"><a href="#promotion-failed-晋升失败原因" class="headerlink" title="promotion failed 晋升失败原因"></a>promotion failed 晋升失败原因</h3><blockquote>
+<p>该问题发生在<code>Minor GC</code>过程中,<code>Survivor Space</code>放不下转移的对象,老年代也放不下(promotion failed发生的时候老年代CMS还没有机会进行回收,又放不下转移到老年代的对象,下一步就会产生<code>concurrent mode fialure</code>,发生STW降级为Serial Old)</p>
+<p>即使老年代有足够的空间,但是仍然可能导致分配失败,因为没有足够连续的空间,从而触发<code>Concurrent mode Failure</code>,会发生<code>SWT</code>的<code>FullGC</code>。<code>FullGC</code>相比于<code>CMS</code>这种并发模式的<code>GC</code>需要更长的停顿时间才能完成垃圾回收工作。这会导致严重的停顿服务不可用问题</p>
+<p>下面是一条<code>promotion failed</code>失败的日志</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">106.641: [GC 106.641: [ParNew (promotion failed): 14784K-&gt;14784K(14784K), 0.0370328 secs]106.678: [CMS106.715: [CMS-concurrent-mark: 0.065/0.103 secs] [Times: user=0.17 sys=0.00, real=0.11 secs]</span><br><span class="line"></span><br><span class="line">(concurrent mode failure): 41568K-&gt;27787K(49152K), 0.2128504 secs] 52402K-&gt;27787K(63936K), [CMS Perm : 2086K-&gt;2086K(12288K)], 0.2499776 secs] [Times: user=0.28 sys=0.00, real=0.25 secs]</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><ul>
+<li><p>CMS：<strong>Incremental Update</strong>（<strong>增量更新</strong>）</p>
+<p>该算法从结果入手，判断扫描完结时，是否有白色对象被黑色对象引用，如果被引用，则通过write barrier 写屏障技术，把黑色对象重新标记为灰色，然后重新扫描</p>
+</li>
+<li><p>G1：<strong>SATB 算法</strong>（<strong>原始快照</strong>）</p>
+<p>1.该算法从源头入手，GC开始之前拍摄快照，设定所有存在引用的对象都是存活的；</p>
+<p>2.GC扫描完成之后再次拍摄快照，将新引用的存活对象标记。然后将快照叠加。</p>
+</li>
+</ul>
+<h3 id="concurrent-mode-failure产生的原因"><a href="#concurrent-mode-failure产生的原因" class="headerlink" title="concurrent mode failure产生的原因"></a>concurrent mode failure产生的原因</h3><blockquote>
+<p>concurrent mode failure<code>是</code>CMS<code>特有的错误,</code>CMS<code>的垃圾清理线程和用户线程是并行进行的. 老年代正在清理,从年轻代晋升了新对象，或者分配的大对象在新生代放不下,直接在老年代分配内存,这时老年代也放不下,则会抛出</code>concurrent mode failure</p>
+<p>需要stop-the-wold 降级为GC-Serail Old</p>
+</blockquote>
+<h3 id="concurrent-mode-failure的影响"><a href="#concurrent-mode-failure的影响" class="headerlink" title="concurrent mode failure的影响"></a>concurrent mode failure的影响</h3><blockquote>
+<p>老年代的垃圾收集器从<code>CMS</code>退化成<code>Serial Old</code>,所有用户线程被暂停,停顿时间变长。</p>
+</blockquote>
+<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><h4 id="CMS触发太晚"><a href="#CMS触发太晚" class="headerlink" title="CMS触发太晚"></a>CMS触发太晚</h4><blockquote>
+<p><code>-XX:CMSInitiatingOccupancyFraction=N</code> 是指设定CMS在对内存占用率达到N%的时候开始GC(因为CMS会有浮动垃圾,所以一般都较早启动GC);</p>
+</blockquote>
+<ul>
+<li>将:<code>-XX:CMSInitiatingOccupancyFraction=N</code>调小</li>
+</ul>
+<h4 id="空间碎片太多"><a href="#空间碎片太多" class="headerlink" title="空间碎片太多"></a>空间碎片太多</h4><blockquote>
+<p>开启空间碎片整理,并将空间碎片整理周期设置在合理范围,-<code>XX:CMSFullGCsBeforeCompaction</code>作用：设置在执行多少次Full GC后对内存空间进行压缩整理。</p>
+</blockquote>
+<ul>
+<li>-XX:+UseCMSCompactAtFullCollection （空间碎片整理）</li>
+<li>-XX:CMSFullGCsBeforeCompaction&#x3D;n</li>
+</ul>
+<h4 id="垃圾产生太快"><a href="#垃圾产生太快" class="headerlink" title="垃圾产生太快"></a>垃圾产生太快</h4><ul>
+<li>晋升阈值太小</li>
+<li>Survivor空间过小</li>
+<li>Eden区过小,导致晋升速率过快</li>
+<li>存在大对象</li>
+</ul>
+<h2 id="使用CMS垃圾收集器要注意的问题"><a href="#使用CMS垃圾收集器要注意的问题" class="headerlink" title="使用CMS垃圾收集器要注意的问题"></a>使用CMS垃圾收集器要注意的问题</h2><h3 id="重新标记停顿时间过长"><a href="#重新标记停顿时间过长" class="headerlink" title="重新标记停顿时间过长"></a><code>重新标记</code>停顿时间过长</h3><blockquote>
+<p>80%的时间花在<code>重新标志</code>阶段，如果发现<code>重新标志</code>阶段停顿时间过长,可尝试添加<code>-XX:+CMSScavengeBeforeRemark</code>,在<code>重新标志</code>之前做一次<code>Minor GC</code>,目的是减少对老年代对象的无效引用，降低<code>重新标志</code>的开销。</p>
+</blockquote>
+<h3 id="内存碎片问题"><a href="#内存碎片问题" class="headerlink" title="内存碎片问题"></a>内存碎片问题</h3><blockquote>
+<p>CMS是基于标记-清除算法的,CMS只会删除垃圾对象，不会对内存空间做压缩，会造成内存碎片。我们需要用<code>-XX:CMSFullGCsBeforeCompaction=n</code>参数来调整，含义是在上一次CMS并发执行过后,还要执行多少次<code>Full GC</code>才做内存压缩.</p>
+<p><code>CMS</code>垃圾收集器在回收老年代时,采用的是标记清理(Mark-Sweep)算法,它在垃圾回收时并不会压缩堆,时间久了,导致老年代的碎片化问题越来越严重,直到发生单线程的<code>Mark-Sweep Compact GC</code>即<code>FullGC</code>,会完全<code>STW</code>。如果堆比较大并且老年代占的空间比较大,<code>STW</code>的时间会持续几秒,十几秒,几十秒。对于应用程序来说就是长时间的停顿,这对于互联网应用的影响是很大的。</p>
+</blockquote>
+<h3 id="concurrent-mode-failure"><a href="#concurrent-mode-failure" class="headerlink" title="concurrent mode failure"></a>concurrent mode failure</h3><blockquote>
+<p>在CMS GC过程中由于应用程序也在跑,当年轻代满了,执行了<code>Minor GC</code>这时候,需要将存活对象放入老年代,而此时老年代空间也不足,这时CMS还没有机会回收老年代。可以设置以下两个参数</p>
+</blockquote>
+<ul>
+<li>-XX:CMSInitiatingOccupancyFraction&#x3D;75</li>
+</ul>
+<blockquote>
+<p>CMS对内存的占用率达到75%将启动GC,默认为92%,太高将导致<code>promotion failed</code></p>
+</blockquote>
+<ul>
+<li>-XX:+UseCMSInitiatingOccupancyOnly</li>
+</ul>
+<blockquote>
+<p>如果没有设置<code>UseCMSInitiatingOccupancyOnly</code>，只设置了<code>CMSInitiatingOccupancyFraction</code>那么JVM只在第一次使用,后续会进行自动调整。</p>
+<p>为什么要设置以上两个参数，在垃圾收集阶段,用户线程还在运行,所以必须要留够空间让用户线程运行。CMS前五个阶段都是标记存活对象的，除了”初始标记”和”重新标记”阶段会stop the word ，其它三个阶段都是与用户线程一起跑的，就会出现这样的情况gc线程正在标记存活对象，用户线程同时向老年代提升新的对象，清理工作还没有开始，old gen已经没有空间容纳更多对象了，这时候就会导致concurrent mode failure， 然后就会使用串行收集器回收老年代的垃圾，导致停顿的时间非常长。<br>CMSInitiatingOccupancyFraction参数要设置一个合理的值，设置大了，会增加concurrent mode failure发生的频率，设置的小了，又会增加CMS频率，所以要根据应用的运行情况来选取一个合理的值。如果发现这两个参数设置大了会导致full gc，设置小了会导致频繁的CMS GC，说明你的老年代空间过小，应该增加老年代空间的大小了。</p>
+</blockquote>
+<h3 id="promotion-failed"><a href="#promotion-failed" class="headerlink" title="promotion failed"></a>promotion failed</h3><blockquote>
+<p>在进行Minor GC时,Survivor space放不下,对象只能放入老年代,而此时老年代也放不下,大多数情况是老年代内存碎片太多，导致没有连续的空间存放对象。</p>
+</blockquote>
+<h3 id="过早的晋升和晋升失败"><a href="#过早的晋升和晋升失败" class="headerlink" title="过早的晋升和晋升失败"></a>过早的晋升和晋升失败</h3><blockquote>
+<p>发生Minor GC时,如果对象过大(Survivor Space存放不下)基本上会放到老年代,这种现象被称为对象过早晋升,这将导致老年代被中短期对象增张，肯能导致严重的性能问题。如果老年代也满了，会触发Full GC,这将会导致遍历整个堆,晋升失败。</p>
+</blockquote>
+<h4 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h4><ul>
+<li>如果是因为内存碎片导致的大对象提升失败，cms需要进行空间整理压缩；</li>
+<li>如果是因为提升过快导致的，说明Survivor 空闲空间不足，那么可以尝试调大 Survivor；</li>
+<li>如果是因为老年代空间不够导致的，尝试将CMS触发的阈值调低。</li>
+</ul>
+<h2 id="收集器停顿案例"><a href="#收集器停顿案例" class="headerlink" title="收集器停顿案例"></a>收集器停顿案例</h2><h3 id="分析CMS日志"><a href="#分析CMS日志" class="headerlink" title="分析CMS日志"></a>分析<code>CMS</code>日志</h3><blockquote>
+<p>启动jvm的时候，增加参数-XX:+PrintGCDetails 和 -XX:+PrintGCTimeStamps可以打印出CMS GC的详细日志。-XX:+PrintHeapAtGC 在进行GC的前后打印出堆的信息,-Xloggc:..&#x2F;logs&#x2F;gc.log 日志文件的输出路径。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps and -XX:+PrintGCApplicationStoppedTime -XX:PrintFLSStatistics=2</span><br></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">&#123;Heap before GC invocations=7430 (full 24):</span><br><span class="line">parnew generation total 134400K, used 121348K[0x53000000, 0x5c600000, 0x5c600000)</span><br><span class="line">eden space 115200K, 99% used [0x53000000, 0x5a07e738, 0x5a080000)</span><br><span class="line">from space 19200K, 32% used [0x5a080000, 0x5a682cc0, 0x5b340000)</span><br><span class="line">to space 19200K, 0% used [0x5b340000, 0x5b340000, 0x5c600000)</span><br><span class="line">concurrent mark-sweep generation total 2099200K, used 1694466K [0x5c600000, 0xdc800000, 0xdc800000)</span><br><span class="line">concurrent-mark-sweep perm gen total 409600K, used 186942K [0xdc800000, 0xf5800000, 0xfbc00000)</span><br><span class="line">10628.167: [GC Before GC:</span><br><span class="line">Statistics <span class="keyword">for</span> BinaryTreeDictionary:</span><br><span class="line">------------------------------------</span><br><span class="line">Total Free Space: 103224160</span><br><span class="line">Max Chunk Size: 5486</span><br><span class="line">Number of Blocks: 57345</span><br><span class="line">Av. Block Size: 1800</span><br><span class="line">Tree Height: 36 &lt;---- High fragmentation</span><br><span class="line">Statistics <span class="keyword">for</span> IndexedFreeLists:</span><br><span class="line">--------------------------------</span><br><span class="line">Total Free Space: 371324</span><br><span class="line">Max Chunk Size: 254</span><br><span class="line">Number of Blocks: 8591 &lt;---- High fragmentation</span><br><span class="line">Av. Block Size: 43</span><br><span class="line">free=103595484</span><br><span class="line">frag=1.0000 &lt;---- High fragmentation</span><br><span class="line">Before GC:</span><br><span class="line">Statistics <span class="keyword">for</span> BinaryTreeDictionary:</span><br><span class="line">------------------------------------</span><br><span class="line">Total Free Space: 0</span><br><span class="line">Max Chunk Size: 0</span><br><span class="line">Number of Blocks: 0</span><br><span class="line">Tree Height: 0</span><br><span class="line">Statistics <span class="keyword">for</span> IndexedFreeLists:</span><br><span class="line">--------------------------------</span><br><span class="line">Total Free Space: 0</span><br><span class="line">Max Chunk Size: 0</span><br><span class="line">Number of Blocks: 0</span><br><span class="line">free=0 frag=0.0000</span><br><span class="line">10628.168: [ParNew (promotion failed) Desired survivor size 9830400 bytes, new threshold 1 (max 1)</span><br><span class="line">- age 1: 4770440 bytes, 4770440 total: 121348K-&gt;122157K(134400K), 0.4263254secs]</span><br><span class="line">10628,594: [CMS10630.887: [CMS-concurrent-mark: 7.286/8.682 secs] [Times: user=14.81, sys=0.34, real=8.68 secs]</span><br><span class="line">(concurrent mode failure):1698044K-&gt;625427K(2099200K), 17.1365396 secs]</span><br><span class="line">1815815K-&gt;625427K(2233600K), [CMS Perm : 186942K-&gt;180711K(409600K)]</span><br><span class="line">After GC:</span><br><span class="line">Statistics <span class="keyword">for</span> BinaryTreeDictionary:</span><br><span class="line">------------------------------------</span><br><span class="line">Total Free Space: 377269492</span><br><span class="line">Max Chunk Size:</span><br><span class="line">377269492</span><br><span class="line">Number of Blocks: 1 &lt;---- No fragmentation</span><br><span class="line">Av. Block Size: 377269492</span><br><span class="line">Tree Height: 1 &lt;---- No fragmentation</span><br><span class="line">Statistics <span class="keyword">for</span> IndexedFreeLists:</span><br><span class="line">--------------------------------</span><br><span class="line">Total Free Space: 0</span><br><span class="line">Max Chunk Size: 0</span><br><span class="line">Number of Blocks: 0</span><br><span class="line">free=377269492</span><br><span class="line">frag=0.0000 &lt;---- No fragmentation</span><br><span class="line">After GC:</span><br><span class="line">Statistics <span class="keyword">for</span> BinaryTreeDictionary:</span><br><span class="line">------------------------------------</span><br><span class="line">Total Free Space: 0</span><br><span class="line">Max Chunk Size: 0</span><br><span class="line">Number of Blocks: 0</span><br><span class="line">Tree Height: 0</span><br><span class="line">Statistics <span class="keyword">for</span> IndexedFreeLists:</span><br><span class="line">--------------------------------</span><br><span class="line">Total Free Space: 0</span><br><span class="line">Max Chunk Size: 0</span><br><span class="line">Number of Blocks: 0</span><br><span class="line">free=0 frag=0.0000</span><br><span class="line">, 17.5645589 secs] [Times: user=17.82 sys=0.06, real=17.57 secs]</span><br><span class="line">Heap after GC invocations=7431 (full 25):</span><br><span class="line">parnew generation total 134400K, used 0K [0x53000000, 0x5c600000, 0x5c600000)</span><br><span class="line">eden space 115200K, 0% used [0x53000000, 0x53000000, 0x5a080000)</span><br><span class="line">from space 19200K, 0% used [0x5b340000, 0x5b340000, 0x5c600000)</span><br><span class="line">to space 19200K, 0% used [0x5a080000, 0x5a080000, 0x5b340000)</span><br><span class="line">concurrent mark-sweep generation total 2099200K, used 625427K [0x5c600000, 0xdc800000, 0xdc800000)</span><br><span class="line">concurrent-mark-sweep perm gen total 409600K, used 180711K [0xdc800000, 0xf5800000, 0xfbc00000)</span><br><span class="line">&#125;</span><br><span class="line">Total time <span class="keyword">for</span> <span class="built_in">which</span> application threads were stopped: 17.5730653 seconds</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>由于碎片率非常高，从而导致promotion failure，然后发生concurrent mode failure，触发的FullGC总计花了17.1365396秒才完成。</p>
+</blockquote>
+<h3 id="操作系统内存不够-使用了swap-导致CMS长时间停顿"><a href="#操作系统内存不够-使用了swap-导致CMS长时间停顿" class="headerlink" title="操作系统内存不够,使用了swap,导致CMS长时间停顿"></a>操作系统内存不够,使用了<code>swap</code>,导致<code>CMS</code>长时间停顿</h3><blockquote>
+<p>操作系统使用了<code>swap</code>,可能导致GC停顿时间更长，这些停顿可能是几秒，甚至几十秒级别。</p>
+<p>系统配置了允许使用swap空间，操作系统可能把JVM进程的非活动内存页移到swap空间，从而释放内存给当前活动进程（可能是操作系统上其他进程，取决于系统调度）。Swapping由于需要访问磁盘，所以相比物理内存，它的速度慢的令人发指。所以，如果在GC的时候，系统正好需要执行Swapping</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;Heap before GC invocations=132 (full 0):par new generation total 2696384K, used 2696384K [0xfffffffc20010000, 0xfffffffce0010000, 0xfffffffce0010000)eden space 2247040K, 100% used [0xfffffffc20010000, 0xfffffffca9270000, 0xfffffffca9270000)from space 449344K, 100% used [0xfffffffca9270000, 0xfffffffcc4940000, 0xfffffffcc4940000)to space 449344K, 0% used [0xfffffffcc4940000, 0xfffffffcc4940000, 0xfffffffce0010000)concurrent mark-sweep generation total 9437184K, used 1860619K [0xfffffffce0010000, 0xffffffff20010000, 0xffffffff20010000)concurrent-mark-sweep perm gen total 1310720K, used 511451K [0xffffffff20010000, 0xffffffff70010000, 0xffffffff70010000)2020-07-17T03:58:06.601-0700: 51522.120: [GC Before GC: :2696384K-&gt;449344K(2696384K), 29.4779282 secs] 4557003K-&gt;2326821K(12133568K) ,29.4795222 secs] [Times: user=915.56, sys=6.35, real=29.48 secs]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>最后一行[Times: user&#x3D;915.56, sys&#x3D;6.35, real&#x3D;29.48 secs]中real就是YGC时应用真实的停顿时间。</p>
+</blockquote>
+<h3 id="YGC时-vmstat命令输出"><a href="#YGC时-vmstat命令输出" class="headerlink" title="YGC时 vmstat命令输出"></a><code>YGC</code>时 vmstat命令输出</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r b w swap free re mf pi po fr de sr s0 s1 s2 s3 <span class="keyword">in</span> sy cs us sy id0 0 0 77611960 94847600 55 266 0 0 0 0 0 0 0 0 0 3041 2644 2431 44 8 480 0 0 76968296 94828816 79 324 0 18 18 0 0 0 0 1 0 3009 3642 2519 59 13 281 0 0 77316456 94816000 389 2848 0 7 7 0 0 0 0 2 0 40062 78231 61451 42 6 532 0 0 77577552 94798520 115 591 0 13 13 0 0 13 12 1 0 4991 8104 5413 2 0 98</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>YGC</code>总共花了29.48才完成,从上面看出系统在此期间使用了600多Mb的<code>swap</code>分区,这就意味着，在GC的时候，内存中的一些页被移到了swap空间，这个内存页不一定属于JVM进程，可能是其他操作系统上的其他进程。</p>
+<p>操作系统上可用物理内容不足以运行系统上所有的进程，解决办法就是尽可能运行更少的进程，增加RAM从而提升系统的物理内存。在这个例子中，Old区有9G，但是只使用了1.8G（mark-sweep generation total 9437184K, used 1860619K）。我们可以适当的降低Old区的大小以及整个堆的大小，从而减少内存压力，最小化系统上的应用发生swapping的可能。</p>
+</blockquote>
+<h3 id="堆空间不足"><a href="#堆空间不足" class="headerlink" title="堆空间不足"></a>堆空间不足</h3><blockquote>
+<p>如果应用程序需要的堆内存比我们设定的<code>Xms</code>大,也会导致频繁的<code>GC</code>,严重的情况会导致<code>OOM</code>。由于堆空间不足,对象分配失败,JVM就要调用<code>GC</code>尝试回收已经分配的空间,但是<code>GC</code>不能释放更多的内存空间,又导致下一次<code>GC</code>。</p>
+<p>应用运行时，频繁的FullGC会引起长时间停顿，在下面这个例子中，Perm空间(永久代)几乎是满的，并且在Perm区尝试分配内存也都失败了，从而触发FullGC：</p>
+<p>永久代：这个区域会存储包括类定义、结构、字段、方法（数据及代码）以及常量在内的类相关数据。它可以通过（以下两个是非堆区配置参数）-XX:PermSize及-XX:MaxPermSize来进行调节。若永久代(Perm Gen)空间用完，会导致java.lang.OutOfMemoryError: PermGenspace的异常。而且从JDK8开始，永久代被元空间所取代。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">166687.013: [Full GC [PSYoungGen:126501K-&gt;0K(922048K)] [PSOldGen: 2063794K-&gt;1598637K(2097152K)]2190295K-&gt;1598637K(3019200K) [PSPermGen: 165840K-&gt;164249K(166016K)],6.8204928 secs] [Times: user=6.80 sys=0.02, real=6.81 secs]166699.015: [Full GC [PSYoungGen:125518K-&gt;0K(922048K)] [PSOldGen: 1763798K-&gt;1583621K(2097152K)]1889316K-&gt;1583621K(3019200K) [PSPermGen: 165868K-&gt;164849K(166016K)],4.8204928 secs] [Times: user=4.80 sys=0.02, real=4.81 secs]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果老年代空间不足时,也会导致频繁的<code>FullGC</code>,解决方案就是扩大<code>老年代</code>和<code>永久代</code>的空间。</p>
+</blockquote>
+<h3 id="程序中调用了System-gc"><a href="#程序中调用了System-gc" class="headerlink" title="程序中调用了System.gc"></a>程序中调用了<code>System.gc</code></h3><blockquote>
+<p>System.gc调用，应用中的一些类里，或者第三方模块中调用System.gc调用从而触发STW的FullGC，也可能会引起非常长时间的停顿。如下GC日志所示，Full GC后面的（System）表示它是由调用System.GC触发的FullGC，并且耗时5.75秒：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">164638.058: [Full GC (System) [PSYoungGen: 22789K-&gt;0K(992448K)][PSOldGen: 1645508K-&gt;1666990K(2097152K)] 1668298K-&gt;1666990K(3089600K)[PSPermGen: 164914K-&gt;164914K(166720K)], 5.7499132 secs] [Times: user=5.69, sys=0.06, real=5.75 secs]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你要关闭通过调用<code>System.gc()</code>触发<code>FullGC</code>，配置JVM参数 -<code>XX:+DisableExplicitGC</code>即可。</p>
+</blockquote>
+<h2 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h2><h3 id="谈谈对CMS的认知？"><a href="#谈谈对CMS的认知？" class="headerlink" title="谈谈对CMS的认知？"></a>谈谈对CMS的认知？</h3><blockquote>
+<p>CMS(concurrent mark sweep)在jdk1.5中已经开始使用了,2004年9月30日,JDK1.5发布。CMS设计的目标就是获取最低停顿时间(stop the world停顿时间),它是基于<code>标记-清除</code>算法实现的。常用的场景是互联网网站(对服务响应要求较高),它是一个老年代垃圾收集器,可以和<code>Serial</code>收集器,<code>Parallel New</code>收集器配合使用。当并行模式(concurrent mode failure)失败时CMS会退化成<code>Serial Old</code>.</p>
+</blockquote>
+<h3 id="CMS收集器的工作流程-步骤-是什么样的"><a href="#CMS收集器的工作流程-步骤-是什么样的" class="headerlink" title="CMS收集器的工作流程(步骤)是什么样的?"></a>CMS收集器的工作流程(步骤)是什么样的?</h3><blockquote>
+<p>主要四个阶段</p>
+</blockquote>
+<ul>
+<li>初始标记:只标记和GC Roots能直连的对象,速度快,会发生(stop the world)</li>
+<li>并发标记:和应用线程并发执行,遍历<code>初始标记</code>阶段标记过的对象,标记这些对象的可达对象。</li>
+<li>重新标记:由于<code>并发标记</code>是和应用线程是并发执行的,所以有些标记过的对象发生了变化。这个过程比<code>初始标记</code>用时长,但是比<code>并发标记</code>阶段用时短。会发生(stop the world)</li>
+<li>并发清除:和应用线程一起运行。基于标记对象,直接清理对象。</li>
+</ul>
+<h3 id="CMS的缺点"><a href="#CMS的缺点" class="headerlink" title="CMS的缺点?"></a>CMS的缺点?</h3><h4 id="垃圾碎片问题"><a href="#垃圾碎片问题" class="headerlink" title="垃圾碎片问题"></a>垃圾碎片问题</h4><ul>
+<li>原因:由于CMS采用的是<code>标记-清除</code>算法,所以不可避免会有内存碎片问题。</li>
+<li>解决:使用<code>-XX:+CMSFullGCsBeforeCompaction=n</code>,意思是在上次<code>CMS</code>并发<code>GC</code>执行过后,到底还要做多少<code>Full GC</code>才做压缩。默认是0,也就是说每次<code>CMS GC</code>顶不住了转入<code>Full GC</code>时都要压缩。</li>
+</ul>
+<h4 id="并发模式失败-concurrent-mode-failure"><a href="#并发模式失败-concurrent-mode-failure" class="headerlink" title="并发模式失败(concurrent mode failure)"></a>并发模式失败(concurrent mode failure)</h4><ul>
+<li>原因:CMS垃圾清理线程和应用线程是并发执行的,如果在清理过程中老年代空间不足不能容纳新对象。</li>
+<li>解决:使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>和<code>-XX:CMSInitiatingOccupancyFraction=60</code>,指定CMS对内存的占用率到60%时开始GC。</li>
+</ul>
+<h4 id="重新标记阶段时间过长"><a href="#重新标记阶段时间过长" class="headerlink" title="重新标记阶段时间过长"></a>重新标记阶段时间过长</h4><ul>
+<li>解决:使用<code>-XX:+CMSScavengeBeforeRemark</code>,在执行<code>重新标记</code>之前,先做一次<code>Young GC</code>,目的在于较少年轻代对老年代的无效引用,降低<code>重新标记</code>的开销。</li>
+</ul>
+<h3 id="为什么配置了CMS-GC-却触发了Full-GC"><a href="#为什么配置了CMS-GC-却触发了Full-GC" class="headerlink" title="为什么配置了CMS GC,却触发了Full GC?"></a>为什么配置了<code>CMS GC</code>,却触发了<code>Full GC</code>?</h3><ul>
+<li>大对象分配时,年轻代放不下,直接去老年代,结果老年代也放不下。</li>
+<li>内存碎片问题(使用<code>标记-清除</code>算法的缺点)</li>
+<li><code>CMS GC</code>失败(concurrent mode failure导致)</li>
+<li>jmap -histo 人为执行了命令</li>
+</ul>
+<h2 id="CMS总结"><a href="#CMS总结" class="headerlink" title="CMS总结"></a>CMS总结</h2><ul>
+<li><p>CMS只收集老年代,响应速度优先。</p>
+</li>
+<li><p>重新标记会STW,停顿时间较长,所以在这之前进行一次Minor GC,会减少很多对老年代对象的无效引用。</p>
+</li>
+<li><p>内存碎片问题导致的Full GC,请使用<code>-XX:CMSFullGCsBeforeCompaction=n</code>,有规律对内存进行整理减少内存碎片。</p>
+</li>
+<li><p>JDK1.7,JDK1.8设置CMS垃圾收集器<code>XX:+UseConcMarkSweepGC</code></p>
+</li>
+<li><p><code>promotion failed – concurrent mode failure</code></p>
+<blockquote>
+<p>Minor GC后， Survivor空间容纳不了剩余对象，将要放入老年代，老年代有碎片或者不能容纳这些对象，就产生了concurrent mode failure, 然后进行stop-the-world的Serial Old收集器。</p>
+<p>解决办法：-XX:UseCMSCompactAtFullCollection -XX:CMSFullGCBeforeCompaction&#x3D;5 或者调大新生代或者Survivor空间</p>
+</blockquote>
+</li>
+<li><p><code>concurrent mode failure</code></p>
+<blockquote>
+<p>CMS是和业务线程并发运行的，在执行CMS的过程中有业务对象需要在老年代直接分配，例如大对象，但是老年代没有足够的空间来分配，所以导致concurrent mode failure, 然后需要进行stop-the-world的Serial Old收集器。</p>
+<p>解决办法：+XX:CMSInitiatingOccupancyFraction 触发CMS收集器的内存比例,调大老年带的空间。+XX:CMSMaxAbortablePrecleanTime,+XX:CMSFullGCsBeforeCompaction&#x3D;5,5次Full GC 后压缩old generation一次</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="几个重要的CMS参数"><a href="#几个重要的CMS参数" class="headerlink" title="几个重要的CMS参数"></a>几个重要的CMS参数</h3><ul>
+<li><code>-XX:CMSFullGCsBeforeCompaction=n</code> <code>Full GC</code> n 次后进行内存压缩整理</li>
+<li><code>-XX:CMSInitiatingOccupancyFraction=70</code> <code>-XX:+UseCMSInitiatingOccupancyOnly</code> 内存占用70%将触发<code>CMS GC</code></li>
+<li><code>-XX:+CMSScavengeBeforeRemark</code> CMS GC前执行一次Minor GC</li>
+</ul>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1BL411H7ZX">https://www.bilibili.com/video/BV1BL411H7ZX</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/cms-garbage-collector.html">https://rumenz.com/rumenbiji/cms-garbage-collector.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/cms-fatal-error.html">https://rumenz.com/rumenbiji/cms-fatal-error.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/cms-stop-case.html">https://rumenz.com/rumenbiji/cms-stop-case.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E9%87%8D%E5%AD%A6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%AE%8C/28%20%20%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E4%B8%8B%E7%AF%87%EF%BC%9A%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0-%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95%E6%98%AF%E6%80%8E%E4%B9%88%E5%9B%9E%E4%BA%8B%EF%BC%9F.md">https://learn.lianglianglee.com/专栏/重学操作系统-完/28%20%20内存回收下篇：三色标记-清除算法是怎么回事？.md</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/02/JVM-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" rel="prev" title="JVM-垃圾收集器">
+      <i class="fa fa-chevron-left"></i> JVM-垃圾收集器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/02/JVM-G1/" rel="next" title="JVM-G1">
+      JVM-G1 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CMS"><span class="nav-number">1.</span> <span class="nav-text">CMS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4"><span class="nav-number">1.2.</span> <span class="nav-text">标记清除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%85%E9%99%A4%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">清除步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E6%A0%87%E8%AE%B0"><span class="nav-number">1.3.1.</span> <span class="nav-text">初始标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">并发标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E6%B8%85%E7%90%86"><span class="nav-number">1.3.3.</span> <span class="nav-text">预清理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A2%AB%E7%BB%88%E6%AD%A2%E7%9A%84%E9%A2%84%E6%B8%85%E7%90%86"><span class="nav-number">1.3.4.</span> <span class="nav-text">可被终止的预清理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E6%A0%87%E8%AE%B0-remark-Stop-the-world"><span class="nav-number">1.3.5.</span> <span class="nav-text">重新标记(remark , Stop the world)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%B8%85%E9%99%A4"><span class="nav-number">1.3.6.</span> <span class="nav-text">并发清除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E9%87%8D%E7%BD%AE"><span class="nav-number">1.3.7.</span> <span class="nav-text">并发重置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0-%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95%EF%BC%88Tri-Color-Mark-Sweep%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">三色标记-清除算法（Tri-Color Mark Sweep）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%BB%E8%A6%81%E5%88%86%E4%B8%BA-3-%E4%B8%AA%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.1.</span> <span class="nav-text">标记的过程主要分为 3 个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMS%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%AD%E4%B8%A4%E4%B8%AA%E8%87%B4%E5%91%BD%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.5.</span> <span class="nav-text">CMS收集器中两个致命的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E6%98%AF%E4%B8%80%E4%B8%AA%E5%BE%88%E5%A5%BD%E7%9A%84%E5%B9%B6%E5%8F%91%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8-%E4%BD%86%E6%98%AF%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E4%B8%AD%E4%BC%9A%E4%BA%A7%E7%94%9F%E4%B8%A4%E4%B8%AA%E9%87%8D%E8%A6%81%E7%9A%84%E9%97%AE%E9%A2%98%E3%80%82"><span class="nav-number">1.5.1.</span> <span class="nav-text">CMS是一个很好的并发垃圾收集器,但是使用过程中会产生两个重要的问题。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#promotion-failed-%E6%99%8B%E5%8D%87%E5%A4%B1%E8%B4%A5%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.5.2.</span> <span class="nav-text">promotion failed 晋升失败原因</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concurrent-mode-failure%E4%BA%A7%E7%94%9F%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.5.3.</span> <span class="nav-text">concurrent mode failure产生的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concurrent-mode-failure%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">1.5.4.</span> <span class="nav-text">concurrent mode failure的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-1"><span class="nav-number">1.5.5.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS%E8%A7%A6%E5%8F%91%E5%A4%AA%E6%99%9A"><span class="nav-number">1.5.5.1.</span> <span class="nav-text">CMS触发太晚</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E7%A2%8E%E7%89%87%E5%A4%AA%E5%A4%9A"><span class="nav-number">1.5.5.2.</span> <span class="nav-text">空间碎片太多</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E4%BA%A7%E7%94%9F%E5%A4%AA%E5%BF%AB"><span class="nav-number">1.5.5.3.</span> <span class="nav-text">垃圾产生太快</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8CMS%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">使用CMS垃圾收集器要注意的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E6%A0%87%E8%AE%B0%E5%81%9C%E9%A1%BF%E6%97%B6%E9%97%B4%E8%BF%87%E9%95%BF"><span class="nav-number">1.6.1.</span> <span class="nav-text">重新标记停顿时间过长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.2.</span> <span class="nav-text">内存碎片问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concurrent-mode-failure"><span class="nav-number">1.6.3.</span> <span class="nav-text">concurrent mode failure</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#promotion-failed"><span class="nav-number">1.6.4.</span> <span class="nav-text">promotion failed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%97%A9%E7%9A%84%E6%99%8B%E5%8D%87%E5%92%8C%E6%99%8B%E5%8D%87%E5%A4%B1%E8%B4%A5"><span class="nav-number">1.6.5.</span> <span class="nav-text">过早的晋升和晋升失败</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-2"><span class="nav-number">1.6.5.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B6%E9%9B%86%E5%99%A8%E5%81%9C%E9%A1%BF%E6%A1%88%E4%BE%8B"><span class="nav-number">1.7.</span> <span class="nav-text">收集器停顿案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90CMS%E6%97%A5%E5%BF%97"><span class="nav-number">1.7.1.</span> <span class="nav-text">分析CMS日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%86%85%E5%AD%98%E4%B8%8D%E5%A4%9F-%E4%BD%BF%E7%94%A8%E4%BA%86swap-%E5%AF%BC%E8%87%B4CMS%E9%95%BF%E6%97%B6%E9%97%B4%E5%81%9C%E9%A1%BF"><span class="nav-number">1.7.2.</span> <span class="nav-text">操作系统内存不够,使用了swap,导致CMS长时间停顿</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#YGC%E6%97%B6-vmstat%E5%91%BD%E4%BB%A4%E8%BE%93%E5%87%BA"><span class="nav-number">1.7.3.</span> <span class="nav-text">YGC时 vmstat命令输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E7%A9%BA%E9%97%B4%E4%B8%8D%E8%B6%B3"><span class="nav-number">1.7.4.</span> <span class="nav-text">堆空间不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E4%B8%AD%E8%B0%83%E7%94%A8%E4%BA%86System-gc"><span class="nav-number">1.7.5.</span> <span class="nav-text">程序中调用了System.gc</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98"><span class="nav-number">1.8.</span> <span class="nav-text">常见面试题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%88%E8%B0%88%E5%AF%B9CMS%E7%9A%84%E8%AE%A4%E7%9F%A5%EF%BC%9F"><span class="nav-number">1.8.1.</span> <span class="nav-text">谈谈对CMS的认知？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E6%94%B6%E9%9B%86%E5%99%A8%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-%E6%AD%A5%E9%AA%A4-%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84"><span class="nav-number">1.8.2.</span> <span class="nav-text">CMS收集器的工作流程(步骤)是什么样的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">1.8.3.</span> <span class="nav-text">CMS的缺点?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E7%A2%8E%E7%89%87%E9%97%AE%E9%A2%98"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">垃圾碎片问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%A8%A1%E5%BC%8F%E5%A4%B1%E8%B4%A5-concurrent-mode-failure"><span class="nav-number">1.8.3.2.</span> <span class="nav-text">并发模式失败(concurrent mode failure)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E6%A0%87%E8%AE%B0%E9%98%B6%E6%AE%B5%E6%97%B6%E9%97%B4%E8%BF%87%E9%95%BF"><span class="nav-number">1.8.3.3.</span> <span class="nav-text">重新标记阶段时间过长</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%85%8D%E7%BD%AE%E4%BA%86CMS-GC-%E5%8D%B4%E8%A7%A6%E5%8F%91%E4%BA%86Full-GC"><span class="nav-number">1.8.4.</span> <span class="nav-text">为什么配置了CMS GC,却触发了Full GC?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMS%E6%80%BB%E7%BB%93"><span class="nav-number">1.9.</span> <span class="nav-text">CMS总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%B8%AA%E9%87%8D%E8%A6%81%E7%9A%84CMS%E5%8F%82%E6%95%B0"><span class="nav-number">1.9.1.</span> <span class="nav-text">几个重要的CMS参数</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">1.9.1.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

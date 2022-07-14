@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Spring中的BeanDefinition BeanDefinition 是 Spring Framework 中定义 Bean 的配置元信息接口.BeanDefinition描述一个bean. 包括bean的属性,构造函数参数列表,依赖bean,是否是单例,bean的类名等等  BeanDefinition元信息   属性 (Property) 说明    Class Bean全类名，必须是具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-BeanDefinition构建与注册IOC">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/06/Spring-BeanDefinition%E6%9E%84%E5%BB%BA%E4%B8%8E%E6%B3%A8%E5%86%8CIOC/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Spring中的BeanDefinition BeanDefinition 是 Spring Framework 中定义 Bean 的配置元信息接口.BeanDefinition描述一个bean. 包括bean的属性,构造函数参数列表,依赖bean,是否是单例,bean的类名等等  BeanDefinition元信息   属性 (Property) 说明    Class Bean全类名，必须是具">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-06T15:42:30.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.057Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/06/Spring-BeanDefinition%E6%9E%84%E5%BB%BA%E4%B8%8E%E6%B3%A8%E5%86%8CIOC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring-BeanDefinition构建与注册IOC | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/06/Spring-BeanDefinition%E6%9E%84%E5%BB%BA%E4%B8%8E%E6%B3%A8%E5%86%8CIOC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring-BeanDefinition构建与注册IOC
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-06 23:42:30" itemprop="dateCreated datePublished" datetime="2022-07-06T23:42:30+08:00">2022-07-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Spring中的BeanDefinition"><a href="#Spring中的BeanDefinition" class="headerlink" title="Spring中的BeanDefinition"></a>Spring中的BeanDefinition</h1><blockquote>
+<p>BeanDefinition 是 Spring Framework 中定义 Bean 的配置元信息接口.BeanDefinition描述一个bean. 包括bean的属性,构造函数参数列表,依赖bean,是否是单例,bean的类名等等</p>
+</blockquote>
+<h2 id="BeanDefinition元信息"><a href="#BeanDefinition元信息" class="headerlink" title="BeanDefinition元信息"></a>BeanDefinition元信息</h2><table>
+<thead>
+<tr>
+<th>属性 (Property)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Class</td>
+<td>Bean全类名，必须是具体类，不能用抽象类或接口</td>
+</tr>
+<tr>
+<td>Name</td>
+<td>Bean的名称或者ID</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>Bean的作用域 (如: singleton, prototype 等)</td>
+</tr>
+<tr>
+<td>Constructor arguments</td>
+<td>Bean构造器参数（用于依赖注入）</td>
+</tr>
+<tr>
+<td>Properties</td>
+<td>Bean属性设置（用于依赖注入）</td>
+</tr>
+<tr>
+<td>Autowiring mode</td>
+<td>Bean自动绑定模式（如：通过名称byName)</td>
+</tr>
+<tr>
+<td>Lazy initialization mode</td>
+<td>Bean延迟初始化模式（延迟和非延迟）</td>
+</tr>
+<tr>
+<td>Initialization method</td>
+<td>Bean初始化回调方法名称</td>
+</tr>
+<tr>
+<td>Destruction method</td>
+<td>Bean销毁回调方法名称</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Copyright 2002-2020 the original author or authors.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="comment"> * you may not use this file except in compliance with the License.</span></span><br><span class="line"><span class="comment"> * You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *      https://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Unless required by applicable law or agreed to in writing, software</span></span><br><span class="line"><span class="comment"> * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></span><br><span class="line"><span class="comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></span><br><span class="line"><span class="comment"> * See the License for the specific language governing permissions and</span></span><br><span class="line"><span class="comment"> * limitations under the License.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> org.springframework.beans.factory.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.BeanMetadataElement;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.MutablePropertyValues;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.AttributeAccessor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.ResolvableType;</span><br><span class="line"><span class="keyword">import</span> org.springframework.lang.Nullable;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * A BeanDefinition describes a bean instance, which has property values,</span></span><br><span class="line"><span class="comment"> * constructor argument values, and further information supplied by</span></span><br><span class="line"><span class="comment"> * concrete implementations.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This is just a minimal interface: The main intention is to allow a</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> BeanFactoryPostProcessor&#125; to introspect and modify property values</span></span><br><span class="line"><span class="comment"> * and other bean metadata.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Juergen Hoeller</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Rob Harrop</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 19.03.2004</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> ConfigurableListableBeanFactory#getBeanDefinition</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> org.springframework.beans.factory.support.RootBeanDefinition</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> org.springframework.beans.factory.support.ChildBeanDefinition</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">BeanDefinition</span> <span class="keyword">extends</span> <span class="title class_">AttributeAccessor</span>, BeanMetadataElement &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Scope identifier for the standard singleton scope: &#123;<span class="doctag">@value</span>&#125;.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Note that extended bean factories might support further scopes.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setScope</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> ConfigurableBeanFactory#SCOPE_SINGLETON</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">SCOPE_SINGLETON</span> <span class="operator">=</span> ConfigurableBeanFactory.SCOPE_SINGLETON;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Scope identifier for the standard prototype scope: &#123;<span class="doctag">@value</span>&#125;.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Note that extended bean factories might support further scopes.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setScope</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> ConfigurableBeanFactory#SCOPE_PROTOTYPE</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">SCOPE_PROTOTYPE</span> <span class="operator">=</span> ConfigurableBeanFactory.SCOPE_PROTOTYPE;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Role hint indicating that a &#123;<span class="doctag">@code</span> BeanDefinition&#125; is a major part</span></span><br><span class="line"><span class="comment">	 * of the application. Typically corresponds to a user-defined bean.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">ROLE_APPLICATION</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Role hint indicating that a &#123;<span class="doctag">@code</span> BeanDefinition&#125; is a supporting</span></span><br><span class="line"><span class="comment">	 * part of some larger configuration, typically an outer</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@link</span> org.springframework.beans.factory.parsing.ComponentDefinition&#125;.</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@code</span> SUPPORT&#125; beans are considered important enough to be aware</span></span><br><span class="line"><span class="comment">	 * of when looking more closely at a particular</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@link</span> org.springframework.beans.factory.parsing.ComponentDefinition&#125;,</span></span><br><span class="line"><span class="comment">	 * but not when looking at the overall configuration of an application.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">ROLE_SUPPORT</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Role hint indicating that a &#123;<span class="doctag">@code</span> BeanDefinition&#125; is providing an</span></span><br><span class="line"><span class="comment">	 * entirely background role and has no relevance to the end-user. This hint is</span></span><br><span class="line"><span class="comment">	 * used when registering beans that are completely part of the internal workings</span></span><br><span class="line"><span class="comment">	 * of a &#123;<span class="doctag">@link</span> org.springframework.beans.factory.parsing.ComponentDefinition&#125;.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">ROLE_INFRASTRUCTURE</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Modifiable attributes</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set the name of the parent definition of this bean definition, if any.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setParentName</span><span class="params">(<span class="meta">@Nullable</span> String parentName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the name of the parent definition of this bean definition, if any.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getParentName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Specify the bean class name of this bean definition.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;The class name can be modified during bean factory post-processing,</span></span><br><span class="line"><span class="comment">	 * typically replacing the original class name with a parsed variant of it.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setParentName</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setFactoryBeanName</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setFactoryMethodName</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setBeanClassName</span><span class="params">(<span class="meta">@Nullable</span> String beanClassName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the current bean class name of this bean definition.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Note that this does not have to be the actual class name used at runtime, in</span></span><br><span class="line"><span class="comment">	 * case of a child definition overriding/inheriting the class name from its parent.</span></span><br><span class="line"><span class="comment">	 * Also, this may just be the class that a factory method is called on, or it may</span></span><br><span class="line"><span class="comment">	 * even be empty in case of a factory bean reference that a method is called on.</span></span><br><span class="line"><span class="comment">	 * Hence, do &lt;i&gt;not&lt;/i&gt; consider this to be the definitive bean type at runtime but</span></span><br><span class="line"><span class="comment">	 * rather only use it for parsing purposes at the individual bean definition level.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #getParentName()</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #getFactoryBeanName()</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #getFactoryMethodName()</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getBeanClassName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Override the target scope of this bean, specifying a new scope name.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #SCOPE_SINGLETON</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #SCOPE_PROTOTYPE</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setScope</span><span class="params">(<span class="meta">@Nullable</span> String scope)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the name of the current target scope for this bean,</span></span><br><span class="line"><span class="comment">	 * or &#123;<span class="doctag">@code</span> null&#125; if not known yet.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getScope</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set whether this bean should be lazily initialized.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;If &#123;<span class="doctag">@code</span> false&#125;, the bean will get instantiated on startup by bean</span></span><br><span class="line"><span class="comment">	 * factories that perform eager initialization of singletons.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setLazyInit</span><span class="params">(<span class="type">boolean</span> lazyInit)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this bean should be lazily initialized, i.e. not</span></span><br><span class="line"><span class="comment">	 * eagerly instantiated on startup. Only applicable to a singleton bean.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isLazyInit</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set the names of the beans that this bean depends on being initialized.</span></span><br><span class="line"><span class="comment">	 * The bean factory will guarantee that these beans get initialized first.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setDependsOn</span><span class="params">(<span class="meta">@Nullable</span> String... dependsOn)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the bean names that this bean depends on.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String[] getDependsOn();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set whether this bean is a candidate for getting autowired into some other bean.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Note that this flag is designed to only affect type-based autowiring.</span></span><br><span class="line"><span class="comment">	 * It does not affect explicit references by name, which will get resolved even</span></span><br><span class="line"><span class="comment">	 * if the specified bean is not marked as an autowire candidate. As a consequence,</span></span><br><span class="line"><span class="comment">	 * autowiring by name will nevertheless inject a bean if the name matches.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setAutowireCandidate</span><span class="params">(<span class="type">boolean</span> autowireCandidate)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this bean is a candidate for getting autowired into some other bean.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isAutowireCandidate</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set whether this bean is a primary autowire candidate.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;If this value is &#123;<span class="doctag">@code</span> true&#125; for exactly one bean among multiple</span></span><br><span class="line"><span class="comment">	 * matching candidates, it will serve as a tie-breaker.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setPrimary</span><span class="params">(<span class="type">boolean</span> primary)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this bean is a primary autowire candidate.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isPrimary</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Specify the factory bean to use, if any.</span></span><br><span class="line"><span class="comment">	 * This the name of the bean to call the specified factory method on.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setFactoryMethodName</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setFactoryBeanName</span><span class="params">(<span class="meta">@Nullable</span> String factoryBeanName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the factory bean name, if any.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getFactoryBeanName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Specify a factory method, if any. This method will be invoked with</span></span><br><span class="line"><span class="comment">	 * constructor arguments, or with no arguments if none are specified.</span></span><br><span class="line"><span class="comment">	 * The method will be invoked on the specified factory bean, if any,</span></span><br><span class="line"><span class="comment">	 * or otherwise as a static method on the local bean class.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setFactoryBeanName</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #setBeanClassName</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setFactoryMethodName</span><span class="params">(<span class="meta">@Nullable</span> String factoryMethodName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return a factory method, if any.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getFactoryMethodName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the constructor argument values for this bean.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;The returned instance can be modified during bean factory post-processing.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> the ConstructorArgumentValues object (never &#123;<span class="doctag">@code</span> null&#125;)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  ConstructorArgumentValues <span class="title function_">getConstructorArgumentValues</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return if there are constructor argument values defined for this bean.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.0.2</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">default</span> <span class="type">boolean</span> <span class="title function_">hasConstructorArgumentValues</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> !getConstructorArgumentValues().isEmpty();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the property values to be applied to a new instance of the bean.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;The returned instance can be modified during bean factory post-processing.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> the MutablePropertyValues object (never &#123;<span class="doctag">@code</span> null&#125;)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  MutablePropertyValues <span class="title function_">getPropertyValues</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return if there are property values defined for this bean.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.0.2</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">default</span> <span class="type">boolean</span> <span class="title function_">hasPropertyValues</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> !getPropertyValues().isEmpty();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set the name of the initializer method.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setInitMethodName</span><span class="params">(<span class="meta">@Nullable</span> String initMethodName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the name of the initializer method.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getInitMethodName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set the name of the destroy method.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setDestroyMethodName</span><span class="params">(<span class="meta">@Nullable</span> String destroyMethodName)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the name of the destroy method.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getDestroyMethodName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set the role hint for this &#123;<span class="doctag">@code</span> BeanDefinition&#125;. The role hint</span></span><br><span class="line"><span class="comment">	 * provides the frameworks as well as tools an indication of</span></span><br><span class="line"><span class="comment">	 * the role and importance of a particular &#123;<span class="doctag">@code</span> BeanDefinition&#125;.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_APPLICATION</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_SUPPORT</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_INFRASTRUCTURE</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setRole</span><span class="params">(<span class="type">int</span> role)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Get the role hint for this &#123;<span class="doctag">@code</span> BeanDefinition&#125;. The role hint</span></span><br><span class="line"><span class="comment">	 * provides the frameworks as well as tools an indication of</span></span><br><span class="line"><span class="comment">	 * the role and importance of a particular &#123;<span class="doctag">@code</span> BeanDefinition&#125;.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_APPLICATION</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_SUPPORT</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #ROLE_INFRASTRUCTURE</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">int</span> <span class="title function_">getRole</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Set a human-readable description of this bean definition.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.1</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">setDescription</span><span class="params">(<span class="meta">@Nullable</span> String description)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return a human-readable description of this bean definition.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getDescription</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Read-only attributes</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return a resolvable type for this bean definition,</span></span><br><span class="line"><span class="comment">	 * based on the bean class or other specific metadata.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;This is typically fully resolved on a runtime-merged bean definition</span></span><br><span class="line"><span class="comment">	 * but not necessarily on a configuration-time definition instance.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> the resolvable type (potentially &#123;<span class="doctag">@link</span> ResolvableType#NONE&#125;)</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 5.2</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> ConfigurableBeanFactory#getMergedBeanDefinition</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  ResolvableType <span class="title function_">getResolvableType</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this a &lt;b&gt;Singleton&lt;/b&gt;, with a single, shared instance</span></span><br><span class="line"><span class="comment">	 * returned on all calls.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #SCOPE_SINGLETON</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isSingleton</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this a &lt;b&gt;Prototype&lt;/b&gt;, with an independent instance</span></span><br><span class="line"><span class="comment">	 * returned for each call.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 3.0</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> #SCOPE_PROTOTYPE</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isPrototype</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return whether this bean is &quot;abstract&quot;, that is, not meant to be instantiated.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">isAbstract</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return a description of the resource that this bean definition</span></span><br><span class="line"><span class="comment">	 * came from (for the purpose of showing context in case of errors).</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  String <span class="title function_">getResourceDescription</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the originating BeanDefinition, or &#123;<span class="doctag">@code</span> null&#125; if none.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Allows for retrieving the decorated bean definition, if any.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Note that this method returns the immediate originator. Iterate through the</span></span><br><span class="line"><span class="comment">	 * originator chain to find the original BeanDefinition as defined by the user.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  BeanDefinition <span class="title function_">getOriginatingBeanDefinition</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="方法解释"><a href="#方法解释" class="headerlink" title="方法解释"></a>方法解释</h2><ul>
+<li><code>String: getBeanClassName</code>: 返回当前 bean definition 定义的类名</li>
+<li><code>ConstructorArgumentValues: getConstructorArgumentValues</code>: 返回 bean 的构造函数参数</li>
+<li><code>String[]: getDependsOn</code>: 返回当前 bean 所依赖的其他 bean 的名称</li>
+<li><code>String: getFactoryBeanName</code>: 返回 factory bean 的名称</li>
+<li><code>String: getFactoryMethodName</code>: 返回工厂方法的名称</li>
+<li><code>BeanDefinition: getOriginatingBeanDefinition</code>: 返回原始的 BeanDefinition, 如果不存在返回<code>null</code></li>
+<li><code>String: getParentName</code>: 返回当前 bean definition 的父 definition 的名字</li>
+<li><code>MutablePropertyValues: getPropertyValues</code>: 返回一个用于新的 bean 实例上的属性值</li>
+<li><code>String: getScope</code>: 返回当前 bean 的目标范围</li>
+<li><code>boolean: isAbstract</code>: 当前 bean 是否是 abstract, 意味着不能被实例化</li>
+<li><code>boolean: isLazyInit</code>: bean 是否是延迟初始化</li>
+<li><code>boolean: isPrimary</code>: bean 是否为自动装配的主要候选 bean</li>
+<li><code>boolean: isPrototype</code>: bean 是否是多实例</li>
+<li><code>boolean: isSingleton</code>: bean 是否是单例</li>
+<li><code>void: setAutowiredCandidate(boolean)</code>: 设置 bean 是否对其他 bean 是自动装配的候选 bean</li>
+<li><code>void: setBeanClassName(String)</code>: 指定 bean definition 的类名</li>
+<li><code>void: setDependsOn(String ...)</code>: 设置当前 bean 初始化所依赖的 beans 的名称</li>
+<li><code>void: setFactoryBeanName(String)</code>: 如果 factory bean 的名称</li>
+<li><code>void: setFactoryMethodName(String)</code>: 设置工厂的方法名</li>
+<li><code>void: setLazyInit(boolean lazyInit)</code>: 设置是否延迟初始化</li>
+<li><code>void: setParentName(String)</code>: 设置父 definition 的名称</li>
+<li><code>void: setPrimary(boolean)</code>: 设置是否主要的候选 bean</li>
+<li><code>void: setScope(String)</code>: 设置 bean 的范围, 如: 单例, 多实例</li>
+</ul>
+<h1 id="Spring中构建BeanDefinition的两种方法"><a href="#Spring中构建BeanDefinition的两种方法" class="headerlink" title="Spring中构建BeanDefinition的两种方法"></a>Spring中构建BeanDefinition的两种方法</h1><h2 id="BeanDefinitionBuilder"><a href="#BeanDefinitionBuilder" class="headerlink" title="BeanDefinitionBuilder"></a>BeanDefinitionBuilder</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.通过BeanDefinitionBuilder</span></span><br><span class="line">BeanDefinitionBuilder bdb=BeanDefinitionBuilder.genericBeanDefinition(Test.class);</span><br><span class="line"><span class="comment">//设置属性</span></span><br><span class="line">bdb.addPropertyValue(<span class="string">&quot;code&quot;</span>,<span class="number">1</span>).addPropertyValue(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line"><span class="comment">//获取BeanDefinition</span></span><br><span class="line">BeanDefinition bd=bdb.getBeanDefinition();</span><br><span class="line"><span class="comment">//后期的BeanDefinition还是可以修改的</span></span><br><span class="line">System.out.println(bd);</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="GenericBeanDefinition"><a href="#GenericBeanDefinition" class="headerlink" title="GenericBeanDefinition"></a>GenericBeanDefinition</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//2.通过GenericBeanDefinition</span></span><br><span class="line"> GenericBeanDefinition gb= <span class="keyword">new</span> <span class="title class_">GenericBeanDefinition</span>();</span><br><span class="line"> <span class="comment">//设置bean</span></span><br><span class="line"> gb.setBeanClass(Test.class);</span><br><span class="line"> <span class="comment">//设置属性</span></span><br><span class="line"> MutablePropertyValues mp=<span class="keyword">new</span> <span class="title class_">MutablePropertyValues</span>();</span><br><span class="line"> mp.add(<span class="string">&quot;code&quot;</span>,<span class="number">1</span>).add(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line"> gb.setPropertyValues(mp);</span><br><span class="line"> System.out.println(gb);</span><br></pre></td></tr></table></figure>
+
+<h1 id="Spring中将BeanDefinition注册到IOC容器中"><a href="#Spring中将BeanDefinition注册到IOC容器中" class="headerlink" title="Spring中将BeanDefinition注册到IOC容器中"></a>Spring中将BeanDefinition注册到IOC容器中</h1><ul>
+<li>XML配置元信息<ul>
+<li>&lt;bean name&#x3D;”…” … &#x2F;&gt;</li>
+</ul>
+</li>
+<li>注解:<ul>
+<li>@Bean,@Component,@Import</li>
+</ul>
+</li>
+<li>命名:<ul>
+<li>BeanDefinitionRegistry#registerBeanDefition</li>
+</ul>
+</li>
+<li>非命名<ul>
+<li>BeanDefinitionReaderUtils#registerWithGeneratedName</li>
+</ul>
+</li>
+<li>AnnotatedBeanDefinitionReader#register</li>
+</ul>
+<h2 id="XMl配置元信息"><a href="#XMl配置元信息" class="headerlink" title="XMl配置元信息"></a>XMl配置元信息</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;test&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.learn.Test&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Bean-Component-Import-注解"><a href="#Bean-Component-Import-注解" class="headerlink" title="@Bean,@Component,@Import 注解"></a>@Bean,@Component,@Import 注解</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(DemoApplication.Config.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoApplication</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span>  <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    AnnotationConfigApplicationContext ac=<span class="keyword">new</span> <span class="title class_">AnnotationConfigApplicationContext</span>();</span><br><span class="line">    ac.register(DemoApplication.class);</span><br><span class="line">    ac.refresh();</span><br><span class="line">    System.out.println(<span class="string">&quot;Test类&quot;</span>+ac.getBeansOfType(Test.class));</span><br><span class="line">    System.out.println(<span class="string">&quot;Config类&quot;</span>+ac.getBeansOfType(Config.class));</span><br><span class="line">    System.out.println(<span class="string">&quot;DemoApplication类&quot;</span>+ac.getBeansOfType(DemoApplication.class));</span><br><span class="line">    ac.close();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Component</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Config</span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> Test <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">      Test r=<span class="keyword">new</span> <span class="title class_">Test</span>();</span><br><span class="line">      r.set(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">      r.setName(<span class="string">&quot;test&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="BeanDefinitionRegistry-registerBeanDefinition"><a href="#BeanDefinitionRegistry-registerBeanDefinition" class="headerlink" title="BeanDefinitionRegistry#registerBeanDefinition"></a>BeanDefinitionRegistry#registerBeanDefinition</h2><h2 id="BeanDefinitionReaderUtils-registerWithGeneratedName"><a href="#BeanDefinitionReaderUtils-registerWithGeneratedName" class="headerlink" title="BeanDefinitionReaderUtils#registerWithGeneratedName"></a>BeanDefinitionReaderUtils#registerWithGeneratedName</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(DemoApplication.Config.class)</span> <span class="comment">//1.注解方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoApplication</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span>  <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">       AnnotationConfigApplicationContext ac=<span class="keyword">new</span> <span class="title class_">AnnotationConfigApplicationContext</span>();</span><br><span class="line">       <span class="comment">//ac.register(DemoApplication.class); //1.注解方式</span></span><br><span class="line">       <span class="comment">// 2.BeanDefinitionReaderUtils#registerWithGeneratedName,BeanDefinitionRegistry#registerBeanDefinition</span></span><br><span class="line">       registryBeanDefinition(ac,<span class="string">&quot;test&quot;</span>);</span><br><span class="line">       registryBeanDefinition(ac,<span class="literal">null</span>);</span><br><span class="line">       ac.refresh();</span><br><span class="line">       System.out.println(<span class="string">&quot;Test&quot;</span>+ac.getBeansOfType(Test.class));</span><br><span class="line">       ac.close();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">registryBeanDefinition</span><span class="params">(BeanDefinitionRegistry reg,String beanName)</span>&#123;</span><br><span class="line">        BeanDefinitionBuilder builder= BeanDefinitionBuilder.genericBeanDefinition(Test.class);</span><br><span class="line">        builder.addPropertyValue(<span class="string">&quot;code&quot;</span>,<span class="string">&quot;1&quot;</span>).addPropertyValue(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span>(StringUtils.isEmpty(beanName))&#123; <span class="comment">//非命名</span></span><br><span class="line">            BeanDefinitionReaderUtils.registerWithGeneratedName(builder.getBeanDefinition(),reg);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="comment">//命名</span></span><br><span class="line">            reg.registerBeanDefinition(beanName,builder.getBeanDefinition());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Component</span> <span class="comment">//1.注解方式</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Config</span>&#123;</span><br><span class="line">       <span class="meta">@Bean</span> <span class="comment">//1.注解方式</span></span><br><span class="line">       <span class="keyword">public</span> Test <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">          Test r=<span class="keyword">new</span> <span class="title class_">Test</span>();</span><br><span class="line">          r.setCode(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">          r.setName(<span class="string">&quot;test&quot;</span>);</span><br><span class="line">          <span class="keyword">return</span> r;</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="AnnotatedBeanDefinitionReader-register"><a href="#AnnotatedBeanDefinitionReader-register" class="headerlink" title="AnnotatedBeanDefinitionReader#register"></a>AnnotatedBeanDefinitionReader#register</h2><ul>
+<li>register —&gt;&gt;this.reader.register</li>
+<li>this.reader —&gt;&gt;private final AnnotatedBeanDefinitionReader reader;</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AnnotationConfigApplicationContext ac=<span class="keyword">new</span> <span class="title class_">AnnotationConfigApplicationContext</span>();</span><br><span class="line">ac.register(DemoApplication.class);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>来源：</p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/spring-beandefinition.html">https://rumenz.com/rumenbiji/spring-beandefinition.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/spring-beandefinition-build.html">https://rumenz.com/rumenbiji/spring-beandefinition-build.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/Spring-registerBeanDefinition.html">https://rumenz.com/rumenbiji/Spring-registerBeanDefinition.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/05/JAVA-List%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%AF%B9%E6%AF%94/" rel="prev" title="JAVA-List实现类对比">
+      <i class="fa fa-chevron-left"></i> JAVA-List实现类对比
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/06/Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E6%96%B9%E5%BC%8F/" rel="next" title="Spring-Bean实例化方式">
+      Spring-Bean实例化方式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E4%B8%AD%E7%9A%84BeanDefinition"><span class="nav-number">1.</span> <span class="nav-text">Spring中的BeanDefinition</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF"><span class="nav-number">1.1.</span> <span class="nav-text">BeanDefinition元信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81"><span class="nav-number">1.2.</span> <span class="nav-text">源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%A7%A3%E9%87%8A"><span class="nav-number">1.3.</span> <span class="nav-text">方法解释</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E4%B8%AD%E6%9E%84%E5%BB%BABeanDefinition%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">Spring中构建BeanDefinition的两种方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinitionBuilder"><span class="nav-number">2.1.</span> <span class="nav-text">BeanDefinitionBuilder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GenericBeanDefinition"><span class="nav-number">2.2.</span> <span class="nav-text">GenericBeanDefinition</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E4%B8%AD%E5%B0%86BeanDefinition%E6%B3%A8%E5%86%8C%E5%88%B0IOC%E5%AE%B9%E5%99%A8%E4%B8%AD"><span class="nav-number">3.</span> <span class="nav-text">Spring中将BeanDefinition注册到IOC容器中</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#XMl%E9%85%8D%E7%BD%AE%E5%85%83%E4%BF%A1%E6%81%AF"><span class="nav-number">3.1.</span> <span class="nav-text">XMl配置元信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bean-Component-Import-%E6%B3%A8%E8%A7%A3"><span class="nav-number">3.2.</span> <span class="nav-text">@Bean,@Component,@Import 注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinitionRegistry-registerBeanDefinition"><span class="nav-number">3.3.</span> <span class="nav-text">BeanDefinitionRegistry#registerBeanDefinition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinitionReaderUtils-registerWithGeneratedName"><span class="nav-number">3.4.</span> <span class="nav-text">BeanDefinitionReaderUtils#registerWithGeneratedName</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnnotatedBeanDefinitionReader-register"><span class="nav-number">3.5.</span> <span class="nav-text">AnnotatedBeanDefinitionReader#register</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

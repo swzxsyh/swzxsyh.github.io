@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Java异常机制作用：使程序中异常处理代码和正常业务代码分离，保证程序代码更加优雅，提高程序健壮性。 异常架构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA-异常机制">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Java异常机制作用：使程序中异常处理代码和正常业务代码分离，保证程序代码更加优雅，提高程序健壮性。 异常架构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/exception.png">
+<meta property="article:published_time" content="2022-07-04T17:01:21.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.654Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/exception.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JAVA-异常机制 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JAVA-异常机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-05 01:01:21" itemprop="dateCreated datePublished" datetime="2022-07-05T01:01:21+08:00">2022-07-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Java异常机制"><a href="#Java异常机制" class="headerlink" title="Java异常机制"></a>Java异常机制</h1><p>作用：使程序中异常处理代码和正常业务代码分离，保证程序代码更加优雅，提高程序健壮性。</p>
+<h2 id="异常架构"><a href="#异常架构" class="headerlink" title="异常架构"></a>异常架构</h2><p><img src="/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/exception.png" alt="exception"></p>
+<span id="more"></span>
+
+<h3 id="一-Throwable"><a href="#一-Throwable" class="headerlink" title="一 Throwable"></a>一 Throwable</h3><p>1.Throwable是java语言中所有错误和异常的超类。</p>
+<p>2.Throwable有两个子类：Error（错误）和Exception（异常）</p>
+<p>3.Throwabl包含了其线程创建时线程执行堆栈的快照，提供了printStackTrace()等接口，用于堆栈信息的跟踪</p>
+<h3 id="二-Error（错误）"><a href="#二-Error（错误）" class="headerlink" title="二 Error（错误）"></a>二 Error（错误）</h3><p>定义：程序中无法处理的错误，表示运行程序出现了严重的错误。</p>
+<p>特点：一般表示代码运行时JVM出现问题，通常有Virtual MachineError（虚拟机运行错误）、NoClassDefFoundError（类定义错误）等。比如 OutOfMemoryError：内存不足错误；StackOverflowError：栈溢出错误。此类错误发生时，JVM 将终止线程。</p>
+<p>这些错误是不受检异常，非代码错误。因此在发生此类错误时，应用程序不应该去处理此类异常。按照java惯例，我们不应实现任何新的Error子类。</p>
+<h3 id="三-Exception（异常）"><a href="#三-Exception（异常）" class="headerlink" title="三 Exception（异常）"></a>三 Exception（异常）</h3><p>程序本身可以捕获并且可以处理的异常。Exception这种异常又分为两类：运行时异常和编译时异常</p>
+<h4 id="运行时异常："><a href="#运行时异常：" class="headerlink" title="运行时异常："></a><strong>运行时异常：</strong></h4><p>定义：RuntimeException类及其子类，表示JVM在运行期间可能发生的异常</p>
+<p>特点：java编译器不会检查它，无论是否声明throws或者try-catch，都会编译通过；比如NullPointerException空指针异常、ArrayIndexOutBoundException数组下标越界异常、ClassCastException类型转换异常、ArithmeticExecption算术异常。此类异常属于不受检异常。一般由程序错误引起。</p>
+<p>RuntimeException异常由java虚拟机自动抛出并自动捕获（即使程序中没有写异常捕获语句运行时也会抛出错误！）</p>
+<h4 id="编译时异常："><a href="#编译时异常：" class="headerlink" title="编译时异常："></a>编译时异常：</h4><p>定义：Exception中除了RuntimeException及其子类以外的异常。</p>
+<p>特点：java编译器会检查它。如果程序中出现此类异常比如 ClassNotFoundException（没有找到指定的类异常），IOException（IO流异常），要么通过throws在方法中抛出，要么通过try-catch进行异常捕获处理，否则不能编译通过。该类异常是我们在代码中必须捕获和处理的异常。</p>
+<h3 id="四-受检异常和非受检异常"><a href="#四-受检异常和非受检异常" class="headerlink" title="四 受检异常和非受检异常"></a>四 受检异常和非受检异常</h3><p>受检异常：编译器要求必须处理的异常</p>
+<p>非受检异常：编译器不会进行检查并且不要求必须处理的异常</p>
+<h3 id="五-面试题"><a href="#五-面试题" class="headerlink" title="五 面试题"></a>五 面试题</h3><h4 id="1-JVM是如何处理异常的"><a href="#1-JVM是如何处理异常的" class="headerlink" title="1.JVM是如何处理异常的"></a>1.JVM是如何处理异常的</h4><p>在一个方法中如果发生异常，这个方法会创建一个异常对象，并转交给JVM。该异常对象包含：异常名称，异常描述以及异常发生时应用程序的状态。创建异常对象并交给JVM的过程叫做抛出异常。可能有一系列的方法调用，最终才进入抛出异常的方法，这一系列方法调用的有序列表叫做调用栈。</p>
+<p>JVM会顺着调用栈去查找是否有可以处理异常的代码，如果有，则调用异常处理代码。如果没有找到，JVM就会将该异常转交给默认的异常处理器（默认处理器是JVM的一部分）默认异常处理器会打印出异常信息并终止程序运行。</p>
+<h4 id="2-finnal、finnally、finalize的区别"><a href="#2-finnal、finnally、finalize的区别" class="headerlink" title="2.finnal、finnally、finalize的区别"></a>2.finnal、finnally、finalize的区别</h4><p>finnal可以修饰类、变量、方法；修饰类，则该类不能被继承；修饰变量，则表示该变量是一个常量，不能被重新赋值；修饰方法，表示该方法不能被重写</p>
+<p>finnally一般作用在try-catch代码中，在异常处理的时候，通常代码一定要执行的方法写在finnaly代码块中，通常写在finnally中的代码一定会被执行。一般写关闭资源的代码语句</p>
+<p>finalize是一个方法，属于Object类，Object类是所有类的父类，java中允许使用finalize()方法<strong>在垃圾收集器将对象从内存中清除出去之前做必要的清理工作</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/05/SpringCloud/" rel="prev" title="Spring Cloud">
+      <i class="fa fa-chevron-left"></i> Spring Cloud
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/05/JAVA-NIO-IO%E4%B8%8EBIO/" rel="next" title="JAVA-NIO,IO与BIO">
+      JAVA-NIO,IO与BIO <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">Java异常机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">异常架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80-Throwable"><span class="nav-number">1.1.1.</span> <span class="nav-text">一 Throwable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C-Error%EF%BC%88%E9%94%99%E8%AF%AF%EF%BC%89"><span class="nav-number">1.1.2.</span> <span class="nav-text">二 Error（错误）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89-Exception%EF%BC%88%E5%BC%82%E5%B8%B8%EF%BC%89"><span class="nav-number">1.1.3.</span> <span class="nav-text">三 Exception（异常）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BC%82%E5%B8%B8%EF%BC%9A"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">运行时异常：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%97%B6%E5%BC%82%E5%B8%B8%EF%BC%9A"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">编译时异常：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B-%E5%8F%97%E6%A3%80%E5%BC%82%E5%B8%B8%E5%92%8C%E9%9D%9E%E5%8F%97%E6%A3%80%E5%BC%82%E5%B8%B8"><span class="nav-number">1.1.4.</span> <span class="nav-text">四 受检异常和非受检异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94-%E9%9D%A2%E8%AF%95%E9%A2%98"><span class="nav-number">1.1.5.</span> <span class="nav-text">五 面试题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-JVM%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8%E7%9A%84"><span class="nav-number">1.1.5.1.</span> <span class="nav-text">1.JVM是如何处理异常的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-finnal%E3%80%81finnally%E3%80%81finalize%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.1.5.2.</span> <span class="nav-text">2.finnal、finnally、finalize的区别</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

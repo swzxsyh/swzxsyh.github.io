@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="方法论一、微服务架构1.一组小的服务 2.独立的进程 3.轻量级通信 4.基于业务能力 5.独立部署 6.无集中式管理 二、微服务的利弊1.利： 1）强模块化边界 2）可独立部署 3）技术多样性 2.弊： 1）分布式复杂性 2）最终一致性 3）运维复杂性 4）测试复杂性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Cloud">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="方法论一、微服务架构1.一组小的服务 2.独立的进程 3.轻量级通信 4.基于业务能力 5.独立部署 6.无集中式管理 二、微服务的利弊1.利： 1）强模块化边界 2）可独立部署 3）技术多样性 2.弊： 1）分布式复杂性 2）最终一致性 3）运维复杂性 4）测试复杂性">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/%E6%88%AA%E5%9B%BE.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/feign.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/ribbon.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/filter.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/req.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/route.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/hystrix.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/principle.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/compare.png">
+<meta property="article:published_time" content="2022-07-04T16:55:47.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.140Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/05/SpringCloud/%E6%88%AA%E5%9B%BE.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/05/SpringCloud/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring Cloud | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/05/SpringCloud/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Cloud
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-05 00:55:47" itemprop="dateCreated datePublished" datetime="2022-07-05T00:55:47+08:00">2022-07-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="方法论"><a href="#方法论" class="headerlink" title="方法论"></a>方法论</h1><h2 id="一、微服务架构"><a href="#一、微服务架构" class="headerlink" title="一、微服务架构"></a>一、微服务架构</h2><p>1.一组小的服务</p>
+<p>2.独立的进程</p>
+<p>3.轻量级通信</p>
+<p>4.基于业务能力</p>
+<p>5.独立部署</p>
+<p>6.无集中式管理</p>
+<h2 id="二、微服务的利弊"><a href="#二、微服务的利弊" class="headerlink" title="二、微服务的利弊"></a>二、微服务的利弊</h2><p>1.利：</p>
+<p>1）强模块化边界</p>
+<p>2）可独立部署</p>
+<p>3）技术多样性</p>
+<p>2.弊：</p>
+<p>1）分布式复杂性</p>
+<p>2）最终一致性</p>
+<p>3）运维复杂性</p>
+<p>4）测试复杂性</p>
+<span id="more"></span>
+
+<h2 id="三、康威法则："><a href="#三、康威法则：" class="headerlink" title="三、康威法则："></a>三、康威法则：</h2><p>设计系统的组织，其产生的设计和架构等同于组织的组织架构</p>
+<h2 id="四、引入微服务的时机："><a href="#四、引入微服务的时机：" class="headerlink" title="四、引入微服务的时机："></a>四、引入微服务的时机：</h2><p>业务规模的复杂性的增加导致单块服务不在适合，单块服务的开发会导致团队合作等一系列问题，最终导致生产力下降，交付能力、效率下降</p>
+<p>1.单块优先 </p>
+<p>2.商业价值被验证过可行</p>
+<p>3.架构是演化出来的</p>
+<h2 id="五、什么样的组织架构更适合微服务"><a href="#五、什么样的组织架构更适合微服务" class="headerlink" title="五、什么样的组织架构更适合微服务"></a>五、什么样的组织架构更适合微服务</h2><p>1.能够围绕微服务组织团队：产品、测试、研发（跨职能的，基于产品）</p>
+<p>2.运维团队，可以交付平台产品（devops&#x2F;网络等）（华为云、阿里云、腾讯云等公有云）</p>
+<p>3.端到端的ownership，who build it,who run it（微服务团队，从设计、开发、review、测试、发布、支持形成闭环）</p>
+<h2 id="六、微服务的层次架构"><a href="#六、微服务的层次架构" class="headerlink" title="六、微服务的层次架构"></a>六、微服务的层次架构</h2><p>6.接入层：APP&#x2F;WEB</p>
+<p>5.网关层：内部网关| H5网关| 无线网关| 第三方网关| 开放平台网关</p>
+<p>4.业务服务层：基础服务–&gt;聚合服务</p>
+<p>3.支撑服务：注册发现| 集中配置| 容错限流| 认证授权| 日志聚合| 监控告警</p>
+<p>2.平台服务：发布系统| 集群资源调度| 镜像治理| 资源治理| IAM</p>
+<p>1.基础设施层：计算| 网络| 存储| NOC监控| 安全| IDC</p>
+<p>微服务依赖：微服务开发框架| 持续交付流水线| 端到端的工具链| 工程实践与规范</p>
+<h2 id="七、网关"><a href="#七、网关" class="headerlink" title="七、网关"></a>七、网关</h2><p>功能：1.反向路由</p>
+<p>​    2.认证安全</p>
+<p>​    3.限流熔断</p>
+<p>​    4.日志监控</p>
+<p>核心：是个servlet</p>
+<h2 id="八、微服务的监控"><a href="#八、微服务的监控" class="headerlink" title="八、微服务的监控"></a>八、微服务的监控</h2><p>1.基础设施层监控：（网络、交换机）</p>
+<p>网络流量| 丢包| 错包| 连接数等</p>
+<p>2.系统层监控（物理机、虚拟机、OS）</p>
+<p>CPU memory| network| disk等</p>
+<p>3.应用层监控</p>
+<p>URL| service| SQL| cache可用率| 响应时间| qps等</p>
+<p>4.业务监控</p>
+<p>核心指标监控| 登录注册| 下单| 支付等</p>
+<p>5.端用户体验监控</p>
+<p>性能| 返回码| 城市| 地区| 运营商| 系统版本等</p>
+<h2 id="九、监控模块"><a href="#九、监控模块" class="headerlink" title="九、监控模块"></a>九、监控模块</h2><p>日志监控| metries监控| 健康检查| 调用链监控| 告警系统</p>
+<p><img src="/2022/07/05/SpringCloud/%E6%88%AA%E5%9B%BE.png"></p>
+<h1 id="各组件核心原理"><a href="#各组件核心原理" class="headerlink" title="各组件核心原理"></a>各组件核心原理</h1><h2 id="一、Eureka："><a href="#一、Eureka：" class="headerlink" title="一、Eureka："></a>一、Eureka：</h2><p>1.Eureka Client：将服务的信息注册到EurekaService上，就是告诉EurekaService自己在哪台机器上、端口号是多少</p>
+<p>2.Eureka Service：注册中心，里面有一个注册列表，保存了各个服务所在的ip和端口号</p>
+<p>原理：服务启动后向Eureka注册，Eureka Server会将注册信息向其他Eureka Server进行同步，当服务消费者要调用服务提供者，则向服务注册中心获取服务提供者地址，然后会将服务提供者地址缓存在本地，下次再调用时，则直接从本地缓存中取，完成一次调用</p>
+<p>当服务注册中心Eureka Server检测到服务提供者因为宕机、网络原因不可用时，则在服务注册中心将服务置为DOWN状态，并把当前服务提供者状态向订阅者发布，订阅过的服务消费者更新本地缓存。</p>
+<p><strong>心跳检测机制****：服务提供者启动后，周期性（默认30秒）向Eureka Server发送心跳</strong>，以证明当前服务是可用状态。Eureka Server在一定的时间<strong>（默认90秒）未收到客户端的心跳</strong>，<strong>则认为服务宕机</strong>，注销该实例。</p>
+<p><strong>自我保护机制</strong>：在默认设置中，Eureka Server在默认90秒没有收到客户端的心跳，则注销该实例，但是往往因为微服务跨进程调用，网络通信往往会面临着各种问题，比如微服务状态正常，但是因为网络分区故障时，Eureka Server注销服务实例则会让大部分微服务不可用，这很危险，因为服务明明没有问题。</p>
+<p>为了解决这个问题，Eureka有自我保护机制，通过Eureka Server配置如下参数，可启动保护机制：</p>
+<p>eureka.server.enable-self-preservation&#x3D;true</p>
+<p>它的原理是，当Eureka Server节点在短时间内丢失过多的客户端时（可能发生了网络故障），那么这个节点将进入自我保护模式，不再注销任何微服务，当网络故障恢复后，该节点会自动退出自我保护模式。</p>
+<p>Eureka保证CAP中的ap</p>
+<p>CAP:</p>
+<p>C：一致性</p>
+<p>A：可用性</p>
+<p>P：分区容错，一般来说分布式系统是分布在多个位置的，因此一般认为分区容错性是不可避免的，所以P是必然存在的。</p>
+<h2 id="二、Feign："><a href="#二、Feign：" class="headerlink" title="二、Feign："></a>二、Feign：</h2><p>首先，如果你的某个接口定义了@FeignClient注解，Feign就会针对这个接口创建一个动态代理（实现InventorySerivice接口），要调用哪个接口，本质上就是调用Feign创建的动态代理</p>
+<p>Feign的动态代理会根据你在接口上的@RequestMapping等注解，动态构造出你要请求的服务的地址，然后针对这个地址发起请求，解析响应</p>
+<p><img src="/2022/07/05/SpringCloud/feign.png" alt="feign"></p>
+<h2 id="三、Ribbon"><a href="#三、Ribbon" class="headerlink" title="三、Ribbon"></a>三、Ribbon</h2><p>功能：实现负载均衡，</p>
+<p>1.默认使用RoundRibbon轮询算法</p>
+<p>2.Ribbon会使用一个定时任务线程池，定时拉取更新数据</p>
+<p><img src="/2022/07/05/SpringCloud/ribbon.png" alt="ribbon"></p>
+<h2 id="zuul网关"><a href="#zuul网关" class="headerlink" title="zuul网关"></a>zuul网关</h2><p><strong>一条请求在网关中处理的声明周期</strong></p>
+<p>网关的三个过滤器：前置路由过滤器，路由过滤器，后置路由过滤器</p>
+<p><img src="/2022/07/05/SpringCloud/filter.png"></p>
+<p><img src="/2022/07/05/SpringCloud/req.png"></p>
+<p><img src="/2022/07/05/SpringCloud/route.png"></p>
+<h2 id="Hystrix架构和实践"><a href="#Hystrix架构和实践" class="headerlink" title="Hystrix架构和实践"></a>Hystrix架构和实践</h2><p><strong>一 基本的容错模式：</strong></p>
+<p>1.超时：主动超时</p>
+<p>2.限流：限制最大并发数</p>
+<p>3.熔断：错误数达到阈值时，类似保险丝熔断</p>
+<p>4.隔离：隔离不同的依赖调用</p>
+<p>5.降级：服务降级</p>
+<p><strong>二 容错理念：</strong></p>
+<p>1.凡是依赖都可能会失败</p>
+<p>2.凡是资源都有限制</p>
+<p>CPU&#x2F;Memory&#x2F;Threads&#x2F;Queue</p>
+<p>3.网络并不可靠</p>
+<p>4.延迟是应用稳定性的杀手</p>
+<p><strong>三 弹性理念：</strong></p>
+<p>对于系统来说，就是在发生容错限流之后的恢复能力，架构师需要弹性理念</p>
+<p><strong>四 隔离机制：</strong></p>
+<p>线程池隔离：</p>
+<p>优点：1.支持排队和超时</p>
+<p>​    2.支持异步调用</p>
+<p>不足：线程调用会产生额外的开销（创建、管理线程池；线程的切换）</p>
+<p>适用：1.不受信客户</p>
+<p>​    2.有限扇出</p>
+<p>信号量隔离：（简单理解就是一个计数器）</p>
+<p>优点：轻量，无额外开销</p>
+<p>不足：1.不支持任务排队和主动超时</p>
+<p>​    2.不支持异步调用</p>
+<p>适用：</p>
+<p>1.受信客户（自己团队开发的项目，对其服务性能心里有数）</p>
+<p>2.高扇出（网关）</p>
+<p>3.高频告诉调用（cache）</p>
+<p><strong>五 主要配置</strong></p>
+<p><img src="/2022/07/05/SpringCloud/hystrix.png" alt="image">    </p>
+<h1 id="调用链监控"><a href="#调用链监控" class="headerlink" title="调用链监控"></a>调用链监控</h1><p><strong>一 产生背景</strong></p>
+<p>1.线上发布了服务，怎么知道一切正常</p>
+<p>2.大量报错，到底哪里产生的，谁才是根因</p>
+<p>3.人工配置错误，通宵排错，劳民伤财</p>
+<p>4.引用程序性能问题，怎么尽早发现</p>
+<p>5.数据库问题，在出问题之前能洞察吗</p>
+<p><strong>二 实践理论支持</strong></p>
+<p>1.要提升，必须先测量；给开发人员一把测量反馈“尺”</p>
+<p>2.研发自主监控：谁构建，谁运行，谁监控</p>
+<p><strong>三 原理</strong></p>
+<p><img src="/2022/07/05/SpringCloud/principle.png"></p>
+<p><strong>四 相关产品的比较</strong></p>
+<p><img src="/2022/07/05/SpringCloud/compare.png" alt="image"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/05/Spring-%E6%BA%90%E7%A0%81%E6%80%BB%E7%BB%93/" rel="prev" title="Spring-源码总结">
+      <i class="fa fa-chevron-left"></i> Spring-源码总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/05/JAVA-%E5%BC%82%E5%B8%B8%E6%9C%BA%E5%88%B6/" rel="next" title="JAVA-异常机制">
+      JAVA-异常机制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">一、微服务架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%88%A9%E5%BC%8A"><span class="nav-number">1.2.</span> <span class="nav-text">二、微服务的利弊</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%BA%B7%E5%A8%81%E6%B3%95%E5%88%99%EF%BC%9A"><span class="nav-number">1.3.</span> <span class="nav-text">三、康威法则：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%BC%95%E5%85%A5%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%97%B6%E6%9C%BA%EF%BC%9A"><span class="nav-number">1.4.</span> <span class="nav-text">四、引入微服务的时机：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E7%BB%84%E7%BB%87%E6%9E%B6%E6%9E%84%E6%9B%B4%E9%80%82%E5%90%88%E5%BE%AE%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.5.</span> <span class="nav-text">五、什么样的组织架构更适合微服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%B1%82%E6%AC%A1%E6%9E%B6%E6%9E%84"><span class="nav-number">1.6.</span> <span class="nav-text">六、微服务的层次架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E7%BD%91%E5%85%B3"><span class="nav-number">1.7.</span> <span class="nav-text">七、网关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E7%9B%91%E6%8E%A7"><span class="nav-number">1.8.</span> <span class="nav-text">八、微服务的监控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E7%9B%91%E6%8E%A7%E6%A8%A1%E5%9D%97"><span class="nav-number">1.9.</span> <span class="nav-text">九、监控模块</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%84%E7%BB%84%E4%BB%B6%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">各组件核心原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Eureka%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">一、Eureka：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Feign%EF%BC%9A"><span class="nav-number">2.2.</span> <span class="nav-text">二、Feign：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Ribbon"><span class="nav-number">2.3.</span> <span class="nav-text">三、Ribbon</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zuul%E7%BD%91%E5%85%B3"><span class="nav-number">2.4.</span> <span class="nav-text">zuul网关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hystrix%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.5.</span> <span class="nav-text">Hystrix架构和实践</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E9%93%BE%E7%9B%91%E6%8E%A7"><span class="nav-number">3.</span> <span class="nav-text">调用链监控</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.XML概述1.1 XML初识 XML介绍以及版本XML是可扩展标记语言(Extensible Markup Language)语言：XML也是一种语言标记：是指标签(Tag)&#x2F;元素(Element),&lt;标签名&gt;&#x2F;&lt;标签名&gt;可扩展：标签可以随意定义 XML版本：XML 1.0(使用)XML 1.1(不使用) XML与HTML的主要差异a.XML主要是用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XML,DOM4j">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/03/30/XML-DOM4j/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.XML概述1.1 XML初识 XML介绍以及版本XML是可扩展标记语言(Extensible Markup Language)语言：XML也是一种语言标记：是指标签(Tag)&#x2F;元素(Element),&lt;标签名&gt;&#x2F;&lt;标签名&gt;可扩展：标签可以随意定义 XML版本：XML 1.0(使用)XML 1.1(不使用) XML与HTML的主要差异a.XML主要是用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2020/03/30/XML-DOM4j/DOM%E6%A0%91%E7%9A%84%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9E%8B.svg">
+<meta property="article:published_time" content="2020-03-29T16:55:35.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.215Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2020/03/30/XML-DOM4j/DOM%E6%A0%91%E7%9A%84%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9E%8B.svg">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/03/30/XML-DOM4j/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>XML,DOM4j | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/03/30/XML-DOM4j/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          XML,DOM4j
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-30 00:55:35" itemprop="dateCreated datePublished" datetime="2020-03-30T00:55:35+08:00">2020-03-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.XML概述<br>1.1 XML初识</p>
+<p>XML介绍以及版本<br>XML是可扩展标记语言(Extensible Markup Language)<br>语言：XML也是一种语言<br>标记：是指标签(Tag)&#x2F;元素(Element),&lt;标签名&gt;&#x2F;&lt;标签名&gt;<br>可扩展：标签可以随意定义</p>
+<p>XML版本：<br>XML 1.0(使用)<br>XML 1.1(不使用)</p>
+<p>XML与HTML的主要差异<br>a.XML主要是用于传输和保存数据(目前更倾向于保存,传输用Json)<br>b.HTML是用来显示数据</p>
+<p>XML入门小案例<br>•需求<br>编写XML文档,保存人员信息,Person人员,SID编号,AGE年龄,Name姓名,Gender性别<br>•编写</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br><?xml version="1.0" encoding="UTF-8" ?><br><Person sid="001"><br>    <AGE>20</AGE>&gt;<br>    <Name>JSW</Name><br>    <Gender>Male</Gender><br></Person><br>•运行<br>使用浏览器打开XML即可</p>
+<p>XML的作用<br>a.XML可以存储数据(也可以传输数据,但目前已用Json传输)<br>b.XML也可以作为配置文件(给框架使用的)</p>
+<p>1.2 XML的语法学习</p>
+<p>XML的组成元素<br>•文档声明<br>什么是文档声明：表面这就是一个XML文件<br>文档声明必须写在XML文件的0行0列(左上角)<br>固定格式:<br>1<br><?xml version="1.0" encoding="UTF-8" ?><br>•元素element<br>格式：<br>1<br>2<br>3<br>4<br>5<br><Element><br>    <other>Tag Body<other><br></other></other></Element>&gt;<br>或<br><Element>自闭合标签,不写任何内容使用此标签<br>命名要求:<br>a.区分大小写<br>b.不能使用空格、冒号等特殊字符<br>c.不建议 以XML,xml,Xml开头</Element></p>
+<p>注意：一个格式良好的XML文档,有且仅有一个根标签</p>
+<p>•属性attribute<br>a.属性是元素的一部分,必须写在元素的开始标签<br>b.格式：属性名 &#x3D; “属性值”,其中属性值必须使用单引号或双引号<br>c.一个元素可以有0-N个属性,但是不能有同名属性,也一样不能使用特殊字符</p>
+<p>•注释</p>
+<p>1</p>
+<!-- -->
+<p>•转义字符</p>
+<p>字符	预定义的转义字符	说明<br>&lt;	&lt;	小于</p>
+<blockquote>
+<p>&gt;	大于<br>“	&quot;	双引号<br>‘	&amp;apos;	单引号<br>&amp;	&amp;	和号<br>•字符区<br>当出现大量需要转义的字符时,不建议逐一转义,会增加复杂度且降低可读性<br>使用CDATA区中写所有字符,会自动转义</p>
+</blockquote>
+<p>1<br>2<br>3<br><!--[CDATA[
+可以使用任何内容
+]]--><br>二.XML约束<br>概述：就是编写XML文件的标签的规则</p>
+<p>2.1 DTD约束</p>
+<p>什么是DTD约束<br>文档类型定义约束,规定我们在编写XML时具体的标签,子标签,属性等</p>
+<p>DTD约束体验<br>a.bookshelf.dtd 这就是DTD约束文件<br>b.创建一个book.xml<br>c.在XML中引入dtd约束<br>d.根据IDE提示,编写出符合DTD约束的XML文件</p>
+<p>1<br>2<br>3<br>4<br>5<br><!ELEMENT 书架 (书+)><br>        <!ELEMENT 书 (书名,作者,售价)><!--约束元素书的子元素必须为书名、作者、售价--><br>        <!ELEMENT 书名 (#PCDATA)><br>        <!ELEMENT 作者 (#PCDATA)><br>        <!ELEMENT 售价 (#PCDATA)><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE 书架 SYSTEM "bookshelf.dtd"><!--指定使用bookshelf.dtd文件约束当前xml文档--> &lt;书架&gt;<br>    &lt;书&gt;<br>        &lt;书名&gt;JavaWeb开发教程&lt;&#x2F;书名&gt;<br>        &lt;作者&gt;张孝祥&lt;&#x2F;作者&gt;<br>        &lt;售价&gt;100.00元&lt;&#x2F;售价&gt;<br>    &lt;&#x2F;书&gt;<br>    &lt;书&gt;<br>    &lt;书名&gt;三国演义&lt;&#x2F;书名&gt;<br>    &lt;作者&gt;罗贯中&lt;&#x2F;作者&gt;<br>    &lt;售价&gt;100.00元&lt;&#x2F;售价&gt;</p>
+<!--    <测试>hello</测试>    不符合约束,书的子元素必须为书名、作者、售价-->
+<pre><code>&lt;/书&gt;
+</code></pre>
+<p>&lt;&#x2F;书架&gt;<br>注意:开发中基本不会写DTD文件,而是由框架提供,根据DTD编写符合要求的XML文件</p>
+<p>DTD约束语法<br>•DTD的引入<br>a.内部DTD(把DTD直接写在XML中,这种方式只能对当前XML有效)<br>1<br>2<br>3<br>4<br><?xml version="1.0" encoding="UTF-8"?><br><!DOCTYPE 根元素 [...//具体语法]><!--内部DTD--><br>&lt;根元素&gt;<br>&lt;&#x2F;根元素&gt;<br>b.外部DTD – 本地DTD<br>1<br>2<br>3<br><?xml version="1.0" encoding="UTF-8"?><br><!DOCTYPE 根元素 SYSTEM "bookshelf.dtd"><!--外部本地DTD--> &lt;根元素&gt;<br>&lt;&#x2F;根元素&gt;<br>c.外部DTD – 公共DTD<br>1<br>2<br>3<br>4<br><?xml version="1.0" encoding="UTF-8"?><br><!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd"><br><web-app><br></web-app><br>•DTD中的数量词</p>
+<p>数量词符号	含义<br>*	表示元素可以出现0到多个<br>+	表示元素可以出现至少1个<br>？	表示元素可以是0或1个<br>,	表示元素需要按照顺序显示<br>|	表示元素需要选择其中的某一个<br>•其他语法</p>
+<p>1<br>2<br>3<br>4<br>5<br>&lt;!ATTLIST 标签名称<br>属性名称1 属性类型1 属性说明1<br>属性名称2 属性类型2 属性说明2<br>…</p>
+<blockquote>
+</blockquote>
+<p>属性类型：</p>
+<p>属性类型：	含义<br>CDATA	代表属性是文本字符串, eg:<br>ID	代码该属性值唯一,不能以数字开头, eg:<br>ENUMERATED	代表属性值在指定范围内进行枚举 Eg:<br>属性说明：</p>
+<p>属性说明	含义<br>#REQUIRED	代表属性是必须有的<br>#IMPLIED	代表属性可有可无<br>#FIXED	代表属性为固定值,实现方式:book_info CDATA #FIXED “固定值”<br>1<br>2<br>3<br>4<br>5<br>6<br>7</p>
+<!ATTLIST 书                        <!--设置"书"元素的的属性列表--><p>id ID #REQUIRED                     <!--"id"属性值为必须有--><br>编号 CDATA #IMPLIED                  <!--"编号"属性可有可无--><br>出版社 (清华|北大|传智播客) “传智播客”   <!--"出版社"属性值是枚举值,默认为“传智播客”--><br>type CDATA #FIXED “IT”              <!--"type"属性为文本字符串并且固定值为"IT"--></p>
+<blockquote>
+</blockquote>
+<p>2.2 Schema约束</p>
+<p>什么是Schema约束<br>也是用于约束XML文件的,是DTD的代替者,添加了 数据类型 的约束<br>本身也是XML,后缀名是.xsd</p>
+<p>Schema的约束体验<br>a.bookshelf.xsd 就是Schema的约束文档<br>b.创建自己的XML文件,把Schema中需要复制的内容复制进去,其实Schema中复制过来是根标签的开始标签,需要补充完整标签</p>
+<p>1<br>2<br>3<br>4</p>
+<!--
+<书架 xmlns="http://www.Oracle.cn"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.Oracle.cn bookshelf.xsd"
+> -->
+<p>bookshelf.xsd</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br><?xml version="1.0" encoding="UTF-8" ?> &lt;!–<br>&lt;书架 xmlns&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn&quot;/">http://www.Oracle.cn&quot;</a><br>xmlns:xsi&#x3D;”<a target="_blank" rel="noopener" href="http://www.w3.org/2001/XMLSchema-instance&quot;">http://www.w3.org/2001/XMLSchema-instance&quot;</a> xsi:schemaLocation&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn/">http://www.Oracle.cn</a> bookshelf.xsd”</p>
+<blockquote>
+<p>–&gt;<br>&lt;xs:schema xmlns:xs&#x3D;”<a target="_blank" rel="noopener" href="http://www.w3.org/2001/XMLSchema&quot;">http://www.w3.org/2001/XMLSchema&quot;</a><br>           targetNamespace&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn&quot;/">http://www.Oracle.cn&quot;</a><br>           elementFormDefault&#x3D;”qualified”&gt;<br>    &lt;xs:element name&#x3D;’书架’ &gt;<br>    <a href="xs:complexType">xs:complexType</a><br>        &lt;xs:sequence maxOccurs&#x3D;’unbounded’ &gt;<br>            &lt;xs:element name&#x3D;’书’ &gt; <a href="xs:complexType">xs:complexType</a><br>                <a href="xs:sequence">xs:sequence</a><br>                    &lt;xs:element name&#x3D;’书名’ type&#x3D;’xs:string’ &#x2F;&gt;<br>                    &lt;xs:element name&#x3D;’作者’ type&#x3D;’xs:string’ &#x2F;&gt;<br>                    &lt;xs:element name&#x3D;’售价’ type&#x3D;’xs:double’ &#x2F;&gt;<br>                <br>            <br>            <br>        <br>    <br>    <br><br>c.根据提示完成自己的XML</p>
+</blockquote>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br><?xml version="1.0" encoding="UTF-8"?><br>&lt;书架<br>        xmlns&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn&quot;/">http://www.oracle.cn&quot;</a> xmlns:xsi&#x3D;”<a target="_blank" rel="noopener" href="http://www.w3.org/2001/XMLSchema-instance&quot;">http://www.w3.org/2001/XMLSchema-instance&quot;</a> xsi:schemaLocation&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn/">http://www.oracle.cn</a> bookshelf.xsd” &gt;<!--指定schema文档约束当前XML文档--><br>    &lt;书&gt;<br>        &lt;书名&gt;JavaScript网页开发&lt;&#x2F;书名&gt;<br>        &lt;作者&gt;张孝祥&lt;&#x2F;作者&gt;<br>        &lt;售价&gt;1&lt;&#x2F;售价&gt;<br>    &lt;&#x2F;书&gt;<br>&lt;&#x2F;书架&gt;<br>Scheme语法和命名空间<br>作用就是处理元素和属性的名称冲突问题,与Java中的包类似,不同命名空间可能有相同的标签</p>
+<p>1<br>2<br>3<br>4<br>5<br>xmlns&#x3D;”<a target="_blank" rel="noopener" href="http://www.oracle.cn&quot;/">http://www.oracle.cn&quot;</a></p>
+<!-- 缺省的名称空间.使用此约束中的元素的时候只需要写元素名即可 例如:<书></书> -->
+
+<p>xmlns:aa&#x3D;”<a target="_blank" rel="noopener" href="http://java.sun.com&quot;/">http://java.sun.com&quot;</a></p>
+<!-- aa就是此约束的别名,使用此约束中的元素的时候就需要加上别名 例如:<aa:书></aa:书> -->
+<p>引用了两个命名空间,<br>如果直接写&lt;书&gt; 表示<a target="_blank" rel="noopener" href="http://www.oracle.cn/">http://www.oracle.cn</a> 命名空间下的书<br>如果写aa:书 表示<a target="_blank" rel="noopener" href="http://java.sun.com/">http://java.sun.com</a> 命名空间下的书</p>
+<p>2.3 XML约束的学习要求:<br>重点是根据框架提供的DTD&#x2F;Scheme约束,编写出符合要求的XML文档</p>
+<p>三.XML解析<br>3.1 什么是XML解析<br>通过代码将XML文件中保存的数据读取出来</p>
+<p>3.2 解析方式和解析器和解析开发包<br>a.解析方式(思想)<br>•DOM解析：把整个XML加载到内存,进行解析,解析后产生一个Document对象<br>优点：元素之前结构得以保留,文档结构完整,可以通过Document对象对标签进行增删改查操作<br>缺点：如果XML文件过大,可能导致内存溢出</p>
+<p>•SAX解析：扫描XML文档,扫描一行解析一行,解析完毕后释放该行资源<br>优点：速度快,可以处理大文件<br>缺点：只能读,逐行读取后释放资源,解析操作繁琐</p>
+<p>•PULL解析：是安卓系统内置的XML解析方式,类似SAX</p>
+<p>b.解析器：根据解析方式,写出对应的解析代码(代码需要考虑解析过程中的每个标签,非常繁琐)</p>
+<p>c.解析开发包：对解析器繁琐API的封装,提供简单方便的API</p>
+<p>常见的解析开发包：<br>•JAXP:sun公司提供支持DOM和SAX开发包<br>•Dom4j:比较简单的的解析开发包(常用)<br>•JDom:与Dom4j类似<br>•Jsoup:功能强大DOM方式的XML解析开发包,尤其对HTML解析更加方便</p>
+<p>3.3 Dom4j的基本使用</p>
+<p>DOM的解析原理<br>将整个XML稳定加载到内存，进行解析，解析之后生成一个Document对象(道理的DOM树)</p>
+<p>DOM树的结构模型</p>
+<p><img src="/2020/03/30/XML-DOM4j/DOM%E6%A0%91%E7%9A%84%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9E%8B.svg" alt="image"></p>
+<p>DOM4j的jar包和常用API<br>在模块下创建一个lib文件夹(必须叫lib),然后把dom4j-1.6.1.jar包放入lib中(Day22&#x2F;lib&#x2F;dom4j-1.6.1.jar)<br>将lib下的jar包添加到模块中：<br>a.选中右键 –&gt; add as library<br>b.点击File –&gt; Project Structure –&gt; 先在Library添加jar包 –&gt; 然后在Moudle加入即可<br>SAXReader对象</p>
+<p>核心类	作用<br>new SAXReader()	构造器<br>Document read(File file)	加载执行xml文档<br>Document对象</p>
+<p>方法	作用<br>Element getRootElement()	获得根元素<br>Element对象</p>
+<p>方法	作用<br>List elements([String ele] )	获得指定名称的所有子元素。可以不指定名称<br>Element element([String ele])	获得指定名称第一个子元素。可以不指定名称<br>String getName()	获得当前元素的元素名<br>String attributeValue(String attrName)	获得指定属性名的属性值<br>String elementText(Sting ele)	获得指定名称子元素的文本值<br>String getText()	获得当前元素的文本内容<br>DOM4j的代码演示</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>public class DOM4JDemo {<br>    public static void main(String[] args) throws DocumentException {<br>        &#x2F;&#x2F;1.创建核心对象<br>        SAXReader reader &#x3D; new SAXReader();<br>        &#x2F;&#x2F;2.读取xml文件<br>        Document document &#x3D; reader.read(new File(“books.xml”));<br>        &#x2F;&#x2F;3.获取根标签<br>        Element rootElement &#x3D; document.getRootElement();<br>        System.out.println(“根标签是:”+rootElement.getName());<br>        &#x2F;&#x2F;4.获取book标签<br>        List<Element> bookElements &#x3D; rootElement.elements();<br>        &#x2F;&#x2F;5.遍历集合<br>        for (Element bookElement : bookElements) {<br>            &#x2F;&#x2F;6.获取标签名<br>            String bookElementName &#x3D; bookElement.getName();<br>            System.out.println(“子标签:”+bookElementName);<br>            &#x2F;&#x2F;7.获取id属性值<br>            String idValue &#x3D; bookElement.attributeValue(“id”);<br>            System.out.println(“属性id:”+idValue);<br>            &#x2F;&#x2F;8.继续获取子标签<br>            List<Element> elements &#x3D; bookElement.elements();<br>            &#x2F;&#x2F;9.遍历<br>            for (Element element : elements) {<br>                &#x2F;&#x2F;10.获取标签名<br>                System.out.println(element.getName());<br>                &#x2F;&#x2F;11.获取文本<br>                System.out.println(element.getText());<br>            }<br>        }<br>    }<br>}<br>3.4 Dom4j结合XPath解析XML</Element></Element></p>
+<p>什么是XPath<br>XML的路径表达式，可以快速从N层标签中选出需要的标签</p>
+<p>Xpath使用步骤<br>在模块下创建一个lib文件夹(必须叫lib),然后把jaxen-1.1.2.jar包放入lib中(Day22&#x2F;lib&#x2F;jaxen-1.1.2.jar)<br>将lib下的jar包添加到模块中：<br>a.选中右键 –&gt; add as library<br>b.点击File –&gt; Project Structure –&gt; 先在Library添加jar包 –&gt; 然后在Moudle加入即可</p>
+<p>和XPath相关的API介绍：<br>List</p>
+<p>方法	作用<br>List selectNodes(“表达式”)	获取符合表达式的元素集合<br>Element selectSingleNode(“表达式”)	获取符合表达式的唯一元素<br>XPath语法<br>获取XML文档节点元素一共有如下4种XPath语法方式:<br>绝对路径表达式方式 例如: &#x2F;元素&#x2F;子元素&#x2F;子子元素…<br>相对路径表达式方式 例如: 子元素&#x2F;子子元素.. 或者 .&#x2F;子元素&#x2F;子子元素..<br>全文搜索路径表达式方式 例如: &#x2F;&#x2F;子元素&#x2F;&#x2F;子子元素<br>谓语(条件筛选)方式 例如: &#x2F;&#x2F;元素[@attr1&#x3D;value]<br>演示<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>public class XPathDemo {<br>    public static void main(String[] args) throws DocumentException {<br>        &#x2F;&#x2F;1.创建核心对象<br>        SAXReader reader &#x3D; new SAXReader();<br>        &#x2F;&#x2F;2.读取xml文件<br>        Document document &#x3D; reader.read(new File(“books.xml”));<br>        &#x2F;&#x2F;3.使用Xpath<br>        &#x2F;&#x2F;全文搜索路径表达式<br>        List<Element> list &#x3D; document.selectNodes(“&#x2F;&#x2F;sale”);<br>        for (Element element : list) {<br>            System.out.println(element.getText());<br>        }<br>        &#x2F;&#x2F;谓语表达式<br>        Element ele &#x3D; (Element) document.selectSingleNode(“&#x2F;&#x2F;book[@id&#x3D;’0001’]&#x2F;sale”);<br>        System.out.println(ele.getText());<br>    }<br>}</Element></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/28/Java-%E5%8F%8D%E5%B0%84-%E6%B3%A8%E8%A7%A3/" rel="prev" title="Java 反射 & 注解">
+      <i class="fa fa-chevron-left"></i> Java 反射 & 注解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/31/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%88%9D%E8%AF%86/" rel="next" title="Java 设计模式 初识">
+      Java 设计模式 初识 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

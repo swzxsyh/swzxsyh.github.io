@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.SpringBoot简介1.1 Spring Boot 整合了所有的框架以及中间件SpringBoot不是对Spring功能的增强，而是提供一种快速使用Spring的开发方式。 springboot与第三方框架以及MOM（中间件 MQ、Redis）进行了集成（整合）开发过程中简化开发:无需编写框架相关以及框架整合配置文件了jar无需管理springboot开发的程序：只需要“run”一下就能发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot入门">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/07/11/SpringBoot%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.SpringBoot简介1.1 Spring Boot 整合了所有的框架以及中间件SpringBoot不是对Spring功能的增强，而是提供一种快速使用Spring的开发方式。 springboot与第三方框架以及MOM（中间件 MQ、Redis）进行了集成（整合）开发过程中简化开发:无需编写框架相关以及框架整合配置文件了jar无需管理springboot开发的程序：只需要“run”一下就能发">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-10T17:53:05.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.133Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/07/11/SpringBoot%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringBoot入门 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/11/SpringBoot%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-11 01:53:05" itemprop="dateCreated datePublished" datetime="2020-07-11T01:53:05+08:00">2020-07-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.SpringBoot简介<br>1.1 Spring Boot 整合了所有的框架以及中间件<br>SpringBoot不是对Spring功能的增强，而是提供一种快速使用Spring的开发方式。</p>
+<p>springboot与第三方框架以及MOM（中间件 MQ、Redis）进行了集成（整合）<br>开发过程中简化开发:<br>无需编写框架相关以及框架整合配置文件了<br>jar无需管理<br>springboot开发的程序：<br>只需要“run”一下就能发布一个应用（项目启动起来）—内嵌tomcat<br>建议打jar包<br>1.2 小结：<br>快速构建项目（引入jar依赖）<br>对主流开发框架的无配置集成（开箱即用）<br>项目可独立运行，无需依赖外部的servlet容器（tomcat）<br>提供运行时的应用监控【dubbo admin】<br>极大的提高了开发效率、部署效率</p>
+<span id="more"></span>
+
+<p>二.SpringBoot快速入门<br>2.1 需求<br>开发一个web应用并完成字符串“hello boot”在浏览器显示。</p>
+<p>2.2 步骤<br>创建jar工程<br>添加依赖<br>添加starter-parent<br>添加web依赖（加载springmvc相关依赖）<br>编写启动类<br>编写Controller<br>2.3 SpringBoot实现<br>2.3.1 构建工程方式一<br>2.3.1.1 创建maven工程<br>创建maven工程 springboot_day01_demo1_quickstart</p>
+<p>添加起步依赖</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7</p>
+<!--添加起步依赖-->
+<!--该依赖中包含了集成主流框架的jar的版本-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+添加web依赖
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</p>
+<!--添加web依赖-->
+<!--该依赖中已包含了springmvc需要常见jar包-->
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+</dependencies>
+2.3.1.2 工程jar依赖情况
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+#
+spring-boot-starter-2.1.4.RELEASE.jar
+#springboot程序启动需要
+spring-boot-starter-web-2.1.4.RELEASE.jar
+#Jackson解析
+spring-boot-starter-json-2.1.4.RELEASE.jar
+#内嵌Tomcat服务器
+spring-boot-starter-tomcat-2.1.4.RELEASE.jar
+#服务器数据校验
+hibernate-validator-6.0.16.Final.jar
+#Springmvc相关依赖
+spring-web-5.1.6.RELEASE.jar
+spring-webmvc-5.1.6.RELEASE.jar
+2.3.1.3 编写启动类
+1
+2
+3
+4
+5
+6
+7
+8
+// 只需要run一下，就能发布一个springboot应用
+// 相当于之前将web工程发布到tomcat服务器，只是在springboot中集成了tomcat插件
+@SpringBootApplication
+public class QuickStartApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(QuickStartApplication.class,args);
+  }
+}
+2.3.1.4 编写HelloController
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+@RestController
+@RequestMapping("/HelloController")
+public class HelloController {
+
+<p>  @RequestMapping(“&#x2F;hello”)<br>  public String hello(){<br>    System.out.println(“Done”);<br>    return “AAA”;<br>  }<br>}<br>2.3.1.5 测试<br>运行main方法，访问 localhost:8080&#x2F;springboot&#x2F;hello</p>
+<p>2.4 总结<br>springboot入门程序：</p>
+<p>创建工程<br>编写启动类<br>编写配置文件（application.properties&#x2F;yml&#x2F;yaml）<br>编写相关业务代码<br>如有页面和静态资源：在resources目录下创建：<br>templates：存放HTML页面<br>static：存放静态资源</p>
+<p>三.SpringBoot版本控制原理<br>版本控制（添加了parent工程 spring-boot-starter-parent 规定了jar的版本）</p>
+<p>3.1 spring-boot-starter-parent<br>起步依赖：SpringBoot工程继承Spring-boot-starter-parent后，已经锁定了版本等配置。起步依赖的作用是进行依赖传递 。</p>
+<p>3.2 @SpringBootApplication<br>复合注解,内部如下</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>@Target({ElementType.TYPE})<br>@Retention(RetentionPolicy.RUNTIME)<br>@Documented<br>@Inherited<br>&#x2F;&#x2F;与之前@Configuration注解一样，声明为一个配置类<br>@SpringBootConfiguration<br>&#x2F;**自动配置<br>*自动将相关的bean注册到spring IoC容器中<br>*开发人员可以直接使用jedis&#x2F;jedispool&#x2F;jediscluster&#x2F;RedisTemplate&#x2F;JdbcTemplate<br>*&#x2F;<br>@EnableAutoConfiguration<br>&#x2F;&#x2F;spring IoC容器的扫描包，默认扫描引导程序下的包以及子包，如果我们写的程序不在该包范围内，可以通过该注解指定。<br>@ComponentScan(<br>  excludeFilters &#x3D; {@Filter(<br>    type &#x3D; FilterType.CUSTOM,<br>    classes &#x3D; {TypeExcludeFilter.class}<br>  ), @Filter(<br>    type &#x3D; FilterType.CUSTOM,<br>    classes &#x3D; {AutoConfigurationExcludeFilter.class}<br>  )}<br>)<br>自动装配：最好不配置，默认的配置都给配好了。<br>四.SpringBoot配置文件使用<br>springboot应用配置文件格式：两种</p>
+<p>系统级别<br>bootstrap.properites<br>应用级别<br>application.properties&#x2F;application.yml&#x2F;yaml<br>4.1 application.properties<br>4.1.1 语法<br>格式：key&#x3D;value</p>
+<p>如果是修改SpringBoot中的默认配置，那么key则不能任意编写，必须参考SpringBoot官方文档。</p>
+<p>application.properties官方文档</p>
+<p>docs.spring.io&#x2F;spring-boot&#x2F;docs&#x2F;2.1.14.RELEASE&#x2F;reference&#x2F;html</p>
+<p>4.1.2 案例<br>在springboot-day01-demo1-quickstart工程的resources目录下添加application.properties文件</p>
+<p>application.properties</p>
+<p>1<br>2<br>3<br>4<br>#tomcat port<br>server.port&#x3D;8081<br>#app context<br>server.servlet.context-path&#x3D;&#x2F;demo<br>启动后地址更改为 localhost:8081&#x2F;demo&#x2F;springboot&#x2F;hello</p>
+<p>4.2 application.yml&#x2F;yaml<br>4.2.1 语法<br>要求：<br>区分大小写<br>数据值前必须有空格，作为分隔符<br>缩进的空格数目不重要，只需要对齐即可<br>4.2.2 案例<br>首先删除application.properties文件，properties优先级高于yml&#x2F;yaml，会被覆盖</p>
+<p>application.yml</p>
+<p>1<br>2<br>3<br>4<br>server:<br>  port: 8082<br>  servlet:<br>    context-path: &#x2F;testYaml<br>4.3 获取配置文件中的值<br>获取值的方式：<br>@Value注解的方式<br>注入Environment的方式<br>@ConfigurationProperties<br>4.3.1 在yml文件中配置如下内容<br>application.yml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</p>
+<h1 id="基本格式-key-value"><a href="#基本格式-key-value" class="headerlink" title="基本格式 key: value"></a>基本格式 key: value</h1><p>name: A</p>
+<h1 id="数组-用于区分"><a href="#数组-用于区分" class="headerlink" title="数组   - 用于区分"></a>数组   - 用于区分</h1><p>city:</p>
+<ul>
+<li>B</li>
+<li>C</li>
+<li>D</li>
+<li>E</li>
+</ul>
+<h1 id="集合中的元素是对象形式"><a href="#集合中的元素是对象形式" class="headerlink" title="集合中的元素是对象形式"></a>集合中的元素是对象形式</h1><p>students:</p>
+<ul>
+<li>name: F<br>age: 18<br>score: 99.99</li>
+<li>name: G<br>age: 19<br>score: 88</li>
+<li>name: H<br>age: 20<br>score: 90</li>
+</ul>
+<h1 id="map集合形式"><a href="#map集合形式" class="headerlink" title="map集合形式"></a>map集合形式</h1><p>maps: {“name”:”I”, “age”: 21}</p>
+<h1 id="参数引用"><a href="#参数引用" class="headerlink" title="参数引用"></a>参数引用</h1><p>person:<br>  name: ${name} # 该值可以获取到上边的name定义的值<br>4.3.2 通过@Value取值<br>HelloController</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>@RestController<br>@RequestMapping(“&#x2F;HelloController”)<br>public class HelloController {</p>
+<p>  @Value(“${name}”)<br>  private String name;</p>
+<p>  @Value(“${city[0]}”)<br>  private String city0;</p>
+<p>  @Value(“${students[1].name}”)<br>  private String student1Name;</p>
+<p>  @Value(“${maps.age}”)<br>  private Integer age;</p>
+<p>  @Value(“${person.name}”)<br>  private String personName;</p>
+<p>  @RequestMapping(“&#x2F;hello”)<br>  public String hello(){<br>    System.out.println(“Done”);</p>
+<pre><code>System.out.println(name);
+System.out.println(city0);
+System.out.println(student1Name);
+System.out.println(age);
+System.out.println(personName);
+
+return &quot;AAA&quot;;
+</code></pre>
+<p>  }<br>}<br>4.3.3 通过Environment取值<br>HelloController</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>@RestController<br>@RequestMapping(“&#x2F;HelloController”)<br>public class HelloController {<br>  &#x2F;&#x2F; 通过注入Environment取值<br>  @Autowired<br>  private Environment env;</p>
+<p>  @RequestMapping(“&#x2F;hello2”)<br>  public String hello2(){<br>    System.out.println(“Done”);</p>
+<pre><code>System.out.println(env.getProperty(&quot;name&quot;));
+System.out.println(env.getProperty(&quot;city[0]&quot;));
+System.out.println(env.getProperty(&quot;students[1].name&quot;));
+System.out.println(env.getProperty(&quot;maps.age&quot;));
+System.out.println(env.getProperty(&quot;person.name&quot;));
+
+return &quot;BBB&quot;;
+</code></pre>
+<p>  }<br>}<br>4.3.4@ConfigurationProperties取值<br>作用：前缀定义了哪些外部属性将绑定到指定类的字段上</p>
+<p>使用场景：</p>
+<p>如果只是某个业务中需要获取配置文件中的某项值或者设置具体值，可以使用@Value或Environment；<br>如果一个JavaBean中大量属性值要和配置文件进行映射，可以使用@ConfigurationProperties；<br>4.3.4.1 在yml文件中添加如下内容<br>1<br>2<br>3<br>4<br>myapp:<br>  mail:<br>    address: <a href="mailto:&#97;&#98;&#x63;&#64;&#116;&#x65;&#115;&#116;&#x2e;&#99;&#111;&#109;">&#97;&#98;&#x63;&#64;&#116;&#x65;&#115;&#116;&#x2e;&#99;&#111;&#109;</a><br>    message: This is test<br>4.3.4.2 创建一个pojo<br>Mail.java</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@Component<br>@ConfigurationProperties(prefix &#x3D; “myapp.mail”)<br>public class Mail {<br>  private String address;<br>  private String message;</p>
+<p>&#x2F;&#x2F;TODO getter &amp; setter<br>}<br>4.3.4.3 取值<br>HelloController</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>@RestController<br>@RequestMapping(“&#x2F;HelloController”)<br>public class HelloController {</p>
+<p>  @Autowired<br>  private Mail mail;</p>
+<p>  @RequestMapping(“&#x2F;hello3”)<br>  public String hello3(){<br>    System.out.println(“Done”);</p>
+<pre><code>System.out.println(mail.getAddress());
+System.out.println(mail.getMessage());
+
+return &quot;CCC&quot;;
+</code></pre>
+<p>  }<br>}<br>4.4 spring.profiles.active指定开发环境<br>spring.profiles.active&#x3D;test&#x2F;dev&#x2F;pro<br>test，测试环境<br>dev，开发环境<br>pro，生产环境<br>4.4.1 properties文件<br>application.properties</p>
+<p>1<br>2</p>
+<h1 id="指定开发环境-test：测试环境-dev：开发环境-pro：生产环境"><a href="#指定开发环境-test：测试环境-dev：开发环境-pro：生产环境" class="headerlink" title="指定开发环境 test：测试环境  dev：开发环境  pro：生产环境"></a>指定开发环境 test：测试环境  dev：开发环境  pro：生产环境</h1><p>spring.profiles.active&#x3D;test<br>application-dev.properties</p>
+<p>1<br>server.port&#x3D;8082<br>application-pro.properties</p>
+<p>1<br>server.port&#x3D;8081<br>application-test.properties</p>
+<p>1<br>server.port&#x3D;8080<br>五.SpringBoot与其他框架集成<br>5.1 集成mybatis<br>5.1.1 需求<br>查询所有用户列表。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>create database springboot_quickstart;<br>use springboot_quickstart;</p>
+<p>DROP TABLE IF EXISTS <code>user</code>;<br>CREATE TABLE <code>user</code> (<br>  <code>id</code> int(11) NOT NULL AUTO_INCREMENT,<br>  <code>username</code> varchar(50) DEFAULT NULL,<br>  <code>password</code> varchar(50) DEFAULT NULL,<br>  <code>address</code> varchar(50) DEFAULT NULL,<br>  PRIMARY KEY (<code>id</code>)<br>) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;1 DEFAULT CHARSET&#x3D;utf8;</p>
+<p>INSERT INTO <code>user</code> VALUES (‘1’, ‘zhangsan’, ‘123’, ‘北京’);<br>INSERT INTO <code>user</code> VALUES (‘2’, ‘lisi’, ‘123’, ‘上海’);<br>5.1.2 创建Maven工程并添加依赖<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36</p>
+<!--添加起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>2.0.1</version>
+  </dependency>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>
+  </dependency>
+  <dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+5.1.3 编写启动类
+MybatisApplication
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>@SpringBootApplication<br>public class MybatisApplication {<br>  public static void main(String[] args) {<br>    SpringApplication.run(MybatisApplication.class, args);<br>  }<br>}<br>5.1.4 添加application.properties文件<br>application.properties</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>#连接数据库<br>spring.datasource.driver-class-name&#x3D;com.mysql.cj.jdbc.Driver<br>spring.datasource.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost&#x2F;springboot_quickstart?useUnicode&#x3D;true&amp;characterEncoding&#x3D;UTF-8&amp;serverTimezone&#x3D;UTC<br>spring.datasource.username&#x3D;root<br>spring.datasource.password&#x3D;root<br>#mybatis别名<br>mybatis.type-aliases-package&#x3D;com.test.pojo<br>#加载映射文件<br>mybatis.mapper-locations&#x3D;classpath:mapper&#x2F;*.xml<br>#设置日志，com.test：只查看该包下程序的日志<br>logging.level.com.test&#x3D;debug<br>5.1.5 编写pojo<br>User.java</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private String password;<br>    private String address;<br>    &#x2F;&#x2F; TODO getters、setters<br>}<br>5.1.6 编写mapper接口以及映射文件<br>在接口中添加@Mapper注解（标记该类是一个Mapper接口，可以被SpringBoot自动扫描）</p>
+<p>1<br>2<br>3<br>4<br>@Mapper<br>public interface UserDao {<br>    List<User> findUsers();<br>}<br>编写映射文件：在工程的resources&#x2F;mapper目录下创建UserDao.xml</User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.UserDao"></mapper></p>
+  <select id="findUsers" resulttype="com.test.pojo.User">
+    SELECT * FROM user
+  </select>
+
+5.1.7 编写service接口以及实现类
+UserService.java
+
+<p>1<br>2<br>3<br>public interface UserService {<br>    List<User> findUsers();<br>}<br>UserServiceImpl.java</User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>@Service<br>public class UserServiceImpl implements UserService{</p>
+<p>  @Autowired(required &#x3D; false)<br>  private UserDao userDao;</p>
+<p>  @Override<br>  public List<User> findUsers() {<br>    return userDao.findUsers();<br>  }<br>}<br>5.1.8 编写controller<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>@RestController<br>@RequestMapping(“&#x2F;user”)<br>public class UserController {</User></p>
+<p>  @Autowired<br>  private UserService userService;</p>
+<p>  @RequestMapping(“&#x2F;findUsers”)<br>  public List<User> findUsers(){<br>    System.out.println(“AAAAA”);<br>    List<User> users &#x3D; userService.findUsers();</User></User></p>
+<pre><code>return users;
+</code></pre>
+<p>  }<br>}<br>5.2 集成Spring Data Redis<br>Spring Data</p>
+<p>Spring 的一个子项目。用于简化数据库访问，支持NoSQL和关系数据库存储。其主要目标是使数据库的访问变得方便快捷。</p>
+<p>5.2.1 在同一工程Maven文件中配置Redis启动器<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</p>
+<!--redis-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<!--json解析-->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.51</version>
+</dependency>
+5.2.2 配置application.properties
+application.properties
+
+<p>1<br>2<br>3<br>#redis，本地可以不配置，默认配置<br>spring.redis.host&#x3D;localhost<br>spring.redis.port&#x3D;6379<br>5.2.3 更新UserServiceImpl<br>UserServiceImpl.java</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>@Service<br>public class UserServiceImpl implements UserService {</p>
+<p>  @Autowired(required &#x3D; false)<br>  private UserDao userDao;</p>
+<p>  @Autowired<br>  private StringRedisTemplate stringRedisTemplate;</p>
+<p>  @Autowired<br>  private RedisTemplate redisTemplate;</p>
+<p>  @Override<br>  public List<User> findUsers() {<br>    &#x2F;&#x2F; 首先判断缓存中是否有数据<br>    String text &#x3D; stringRedisTemplate.boundValueOps(“A:springboot:user:id:1”).get();<br>    List<User> users &#x3D; JSON.parseArray(text, User.class);<br>    if (users &#x3D;&#x3D; null) {<br>      &#x2F;&#x2F; 从数据库中查询<br>      users &#x3D; userDao.findUsers();<br>      &#x2F;&#x2F; 放入缓存      		<br>      stringRedisTemplate.boundValueOps(“A:springboot:user:id:1”).set(JSON.toJSONString(users));<br>    }</User></User></p>
+<pre><code>return users;
+</code></pre>
+<p>  }<br>}<br>5.2.5 扩展-了解<br>使用RedisTemplate对象操作Redis服务，代码如下</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@Autowired<br>private RedisTemplate redisTemplate;</p>
+<p>@Override<br>public List<User> findUsers() {<br>    List<User> users &#x3D; (List<User>) redisTemplate.boundValueOps(“A:springboot:user:id:1”).get();<br>    if (users &#x3D;&#x3D; null) {<br>        users &#x3D; userDao.findUsers();<br>        redisTemplate.boundValueOps(“A:springboot:user:id:1”).set(users);<br>    }<br>    return users;<br>}<br>需要对User实现序列化接口，否则报未序列化错误，同时清除缓存，否则报序列号错误</User></User></User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class User implements Serializable {<br>  private Integer id;<br>  private String username;<br>  private String password;<br>  private String address;<br>  &#x2F;&#x2F;TODO getter&#x2F;setter<br>}<br>RedisTemplate 和 StringRedisTemplate的区别</p>
+<p>RedisTemplate 的序列化采用的是 JdkSerializationRedisSerializer,在存储到 Redis 的时候会将 对象 序列化为 字节数组</p>
+<p>StringRedisTemplate 的序列化采用的是 StringRedisSerializer,适用于存储的 value 为 String 的情况</p>
+<p>结论：<br>Redis 中存储对象使用 RedisTemplate ，存储字符串使用 StringRedisTemplate</p>
+<p>JdkSerializationRedisSerializer 和 StringRedisSerializer</p>
+<p>JdkSerializationRedisSerializer底层还是通过调用JDK的IO操作ObjectInputStream和ObjectOutputStream类实现POJO的序列化和反序列化，优点是反序列化时不需要提供类型信息(class)，但缺点是需要实现Serializable接口，还有序列化后的结果非常庞大，是JSON格式的5倍左右，这样就会消耗redis服务器的大量内存。</p>
+<p>使用Jackson库将对象序列化为JSON字符串。优点是速度快，序列化后的字符串短小精悍，不需要实现Serializable接口。但缺点也非常致命，那就是此类的构造函数中有一个类型参数，必须提供要序列化对象的类型信息(.class对象)</p>
+<p>5.3 集成定时器<br>在SpringBoot启动类中添加开启定时任务注解：@EnableScheduling</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>@SpringBootApplication<br>@EnableScheduling<br>public class MybatisApplication {<br>  public static void main(String[] args) {<br>    SpringApplication.run(MybatisApplication.class, args);<br>  }<br>}<br>TimeProgarm.java</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>@Component<br>public class TimeProgarm {<br>  &#x2F;**<br>     * 掌握：cron表达式是一个字符串，字符串以5或6个空格隔开，分开共6或7个域，每一个域代表一个含义<br>     *  [秒] [分] [小时] [日] [月] [周] [年]<br>     *  [年]不是必须的域，可以省略[年]，则一共7个域<br>     *<br>     * 了解：<br>     *  fixedDelay：上一次执行完毕时间点之后多长时间再执行（单位：毫秒）<br>     *  fixedDelayString：同等，唯一不同的是支持占位符，在配置文件中必须有time.fixedDelay&#x3D;5000<br>     *  fixedRate：上一次开始执行时间点之后多长时间再执行<br>     *  fixedRateString：同等，唯一不同的是支持占位符<br>     *  initialDelay：第一次延迟多长时间后再执行<br>     *  initialDelayString：同等，唯一不同的是支持占位符<br>     *&#x2F;<br>  &#x2F;&#x2F;    @Scheduled(fixedDelay &#x3D; 5000)<br>  &#x2F;&#x2F;    @Scheduled(fixedDelayString &#x3D; “5000”)<br>  &#x2F;&#x2F;    @Scheduled(fixedDelayString &#x3D; “${time.fixedDelay}”)<br>  &#x2F;&#x2F;    @Scheduled(fixedRate &#x3D; 5000)<br>  &#x2F;&#x2F;    &#x2F;&#x2F; 第一次延迟1秒后执行，之后按fixedRate的规则每5秒执行一次<br>  &#x2F;&#x2F;    @Scheduled(initialDelay&#x3D;1000, fixedRate&#x3D;5000)<br>  @Scheduled(cron &#x3D; “30 45 15 08 07 *”)<br>  public void myTask(){<br>    System.out.println(“DDD”);<br>  }<br>}<br>5.4 集成单元测试<br>5.4.1 添加依赖<br>1<br>2<br>3<br>4<br>5<br><dependency><br>    <groupId>org.springframework.boot</groupId><br>    <artifactId>spring-boot-starter-test</artifactId><br>    <scope>test</scope><br></dependency><br>5.4.2 编写单元测试<br>单元测试类需要在启动类包或者子包下</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>@RunWith(SpringRunner.class)<br>@SpringBootTest<br>public class MybatisTest {</p>
+<pre><code>@Autowired
+private UserService userService;
+
+@Test
+public void contextLoad()&#123;
+    List&lt;User&gt; users = userService.findUsers();
+    for (User user : users) &#123;
+        System.out.println(user);
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>六.SpringBoot自动配置使用<br>6.1 自动注入RedisTemplate<br>6.1.1 需求<br>6.1.2 代码实现<br>6.1.2.1 创建maven工程并添加依赖<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</p>
+<!--起步依赖-->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+    <!--加入springboot的starter起步依赖-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <!--Redis依赖-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+</dependencies>
+6.1.2.2 创建启动类
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+@SpringBootApplication
+public class AutoConfigApplication {
+
+<pre><code>public static void main(String[] args) &#123;
+    // 获取Spring IoC容器
+    ConfigurableApplicationContext context = SpringApplication.run(AutoConfigApplication.class, args);
+    // 获取容器中的bean
+    Object redisTemplate = context.getBean(&quot;redisTemplate&quot;);
+    System.out.println(redisTemplate);
+&#125;
+</code></pre>
+<p>}<br>6.1.2.3 启动服务并测试<br>1<br>org.springframework.data.redis.core.RedisTemplate@5d1b9c3d<br>如果将pom文件中的redis启动器的依赖给注释掉，我们在启动服务则报错</p>
+<p>6.1.3 总结<br>通过SpringBoot开发程序，需要获取Spring容器中注册的Bean，那么我们只需要在pom文件中添加相关的启动器即可。如果没有该启动器，我们可以自定义。</p>
+<p>6.2 Spring之Conditional条件注解<br>Conditional 是在spring4.0 增加的条件注解，当你注册bean时，可以对这个bean添加一定的自定义条件，当满足这个条件时，注册这个bean，否则不注册。</p>
+<p>6.2.1 需求<br>在Spring的IoC容器中注入User的Bean，但是要求如下：</p>
+<p>如果pom文件中依赖了Jedis则创建该User实例<br>如果pom文件中没有依赖了Jedis则不创建该User实例<br>6.2.2 代码实现<br>6.2.2.1 添加依赖<br>1<br>2<br>3<br>4<br>5</p>
+<!--Jedis依赖-->
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+</dependency>
+6.2.2.2 创建User对象
+1
+2
+public class User {
+}
+6.2.2.3 创建ClassCondition
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+public class ClassCondition implements Condition {
+
+<p>  @Override<br>  public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {<br>    boolean flag &#x3D; false;</p>
+<pre><code>try &#123;
+   // 判断是否有该jedis字节码
+  Class&lt;?&gt; aClass = Class.forName(&quot;redis.clients.jedis.Jedis&quot;);
+  flag=true;
+&#125; catch (ClassNotFoundException e) &#123;
+  e.printStackTrace();
+&#125;
+return flag;
+</code></pre>
+<p>  }<br>}<br>6.2.2.3 创建配置类<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>@Configuration<br>public class UserConfig {</p>
+<p>  @Bean<br>  &#x2F;&#x2F; 判断ClassCondition中内容是否成立，如果成立则创建user的bean，否则不创建<br>  @Conditional(value &#x3D; {ClassCondition.class})<br>  public User user() {<br>    return new User();<br>  }<br>}<br>6.2.3 代码优化<br>在ClassCondition类中，只能判断是否有jedis依赖，我们的代码硬编码了。因此我们可以对该程序优化。</p>
+<p>6.2.3.1 分析<br>在实现类ClassCondition的matches方法中有个annotationTypeMetadata参数，而该参数的作用是获取注解中的属性值的。那么我们可以从这里下手。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</p>
+<p>&#x2F;**     </p>
+<ul>
+<li>@param conditionContext      上下文对象，获取属性值、获取类加载器、获取BeanFactory</li>
+<li>@param annotatedTypeMetadata 元数据对象，获取注解属性<br>*&#x2F;</li>
+</ul>
+<p>@Override<br>public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {<br>}<br>6.2.3.2 自定义Conditional注解<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>&#x2F;&#x2F;注解的作用目标<br>&#x2F;&#x2F;@Target(ElementType.TYPE)——接口、类、枚举、注解<br>&#x2F;&#x2F;@Target(ElementType.METHOD)——方法<br>@Target({ElementType.TYPE, ElementType.METHOD})<br>&#x2F;&#x2F;@Retention作用是定义被它所注解的注解声明周期<br>&#x2F;&#x2F;注解不仅被保存到class文件中，jvm加载class文件之后，仍然存在<br>@Retention(RetentionPolicy.RUNTIME)<br>&#x2F;&#x2F;生成接口文档带有注释<br>@Documented<br>@Conditional(value &#x3D; {ClassCondition.class})<br>public @interface ConditionOnClass {<br>    String[] value() default {};<br>}<br>6.2.3.3 修改UserConfig<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>@Configuration<br>public class UserConfig {</p>
+<p>  @Bean<br>  &#x2F;&#x2F; 判断ClassCondition中内容是否成立，如果成立则创建user的bean，否则不创建<br>  @ConditionOnClass(value &#x3D; {“redis.clients.jedis.Jedis”})<br>  public User user() {<br>    return new User();<br>  }<br>}<br>6.2.3.4 修改ClassCondition<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>public class ClassCondition implements Condition {<br>  @Override<br>  public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {<br>    boolean flag &#x3D; false;<br>    try {<br>      Map&lt;String, Object&gt; map &#x3D; annotatedTypeMetadata.getAnnotationAttributes(ConditionOnClass.class.getName());<br>      &#x2F;&#x2F;获取该注解中的属性值<br>      String[] values &#x3D; (String[]) map.get(“value”);<br>      for (String className : values) {<br>        Class&lt;?&gt; aClass &#x3D; Class.forName(className);<br>      }<br>      flag&#x3D;true;<br>    } catch (ClassNotFoundException e) {<br>      e.printStackTrace();<br>    }<br>    return flag;<br>  }<br>}<br>七.SpringBoot自动配置原理<br>7.1 SpringBoot常用条件注解<br>ConditionalOnBean	判断spring容器中有某个bean时初始化该Bean<br>ConditionalOnClass	判断程序中有某个class字节码文件时初始化该Bean<br>ConditionalOnMissingBean	判断spring容器中没有该Bean时会初始化该Bean<br>ConditionalOnMissingClass	判断程序中没有某个class字节码文件时初始化该Bean<br>ConditionalOnProperty	判断配置文件中是否有对应的属性和值才初始化该bean<br>spring-boot-autoconfigure</p>
+<p>org.springframework.boot:spring-boot-autoconfigure:2.1.4.RELEASE<br>⬇<br>org.springframework.boot.autoconfigure<br>⬇<br>condition<br>⬇<br>ConditionalOnClass<br>ConditionalOnMissingClass<br>ConditionalOnBean<br>ConditionalOnMissingBean<br>ConditionalOnProperty<br>7.2 如何初始化RedisTemplate<br>查看spring-boot-autoconfigure源码</p>
+<p>org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>@Configuration<br>@ConditionalOnClass(RedisOperations.class)<br>@EnableConfigurationProperties(RedisProperties.class)<br>@Import({ LettuceConnectionConfiguration.class, JedisConnectionConfiguration.class })<br>public class RedisAutoConfiguration {</p>
+<p>  @Bean<br>  &#x2F;&#x2F; 如果spring的IoC容器中没有该对象，则实例化RedisTemplate对象<br>  @ConditionalOnMissingBean(name &#x3D; “redisTemplate”)<br>  public RedisTemplate&lt;Object, Object&gt; redisTemplate(<br>    RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {<br>    RedisTemplate&lt;Object, Object&gt; template &#x3D; new RedisTemplate&lt;&gt;();<br>    template.setConnectionFactory(redisConnectionFactory);<br>    return template;<br>  }</p>
+<p>  @Bean<br>  @ConditionalOnMissingBean<br>  public StringRedisTemplate stringRedisTemplate(<br>    RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {<br>    StringRedisTemplate template &#x3D; new StringRedisTemplate();<br>    template.setConnectionFactory(redisConnectionFactory);<br>    return template;<br>  }<br>}<br>八.SpringBoot切换内置服务器<br>SpringBoot提供了4种内置服务器供我们选择，我们可以很方便的进行切换。</p>
+<p>Tomcat	默认使用tomcat作为内置服务器<br>Tomcat	一个开源的servlet容器，它为基于Java的web容器<br>Netty	Netty是由JBOSS提供的一个java开源框架。Netty 是一个基于NIO的客户、服务器端的编程框架，使用Netty 可以确保你快速和简单的开发出一个网络应用，例如实现了某种协议的客户、服务端应用。Netty相当于简化和流线化了网络应用的编程开发过程，例如：基于TCP和UDP的socket服务开发。<br>Undertow	红帽公司开发的一款基于 NIO 的高性能 Web 嵌入式服务器<br>jboss	<br>org&#x2F;springframework&#x2F;boot&#x2F;autoconfigure&#x2F;web&#x2F;embedded</p>
+<p>UndertowWebServerFactoryCustomizer<br>JettyWebServerFactoryCustomizer<br>TomcatWebServerFactoryCustomizer<br>NettyWebServerFactoryCustomizer</p>
+<p>8.1 默认使用<br>springBoot的web环境默认使用tomcat作为内置服务器。我们只需要在工程中的pom文件中添加如下依赖即可</p>
+<p>1<br>2<br>3<br>4<br>5</p>
+<!--添加web依赖-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+8.2 切换其他服务器
+在pom文件中，排除掉tomcat依赖
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</p>
+<!--添加web依赖-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <!--排除掉tomcat依赖-->
+    <exclusions>
+        <exclusion>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <groupId>org.springframework.boot</groupId>
+        </exclusion>
+    </exclusions>
+</dependency>
+在pom文件中添加jetty依赖
+
+<p>1<br>2<br>3<br>4<br>5</p>
+<!--添加jetty依赖-->
+<dependency>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+    <groupId>org.springframework.boot</groupId>
+</dependency>
+思考：打成war包，properties配置文件是否还生效？
+
+<p>如果打成了war包，放到外部的tomcat中运行。<br>使用的端口是tomcat中配置文件中的端口（server.xml文件）<br>九.@SpringBootApplication注解<br>9.1 注册第三方Bean的三种方式<br>@ComponentScan(basePackages &#x3D; {“扫描的包”})<br>@Import(T.class)<br>@EnableUser：自定义注解<br>9.1.1 需求<br>SpringBoot工程是否可以直接获取第三方jar包中的bean</p>
+<p>9.1.2 代码实现<br>9.1.2.1 创建maven工程springboot_enable_other<br>pom.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</p>
+<!--起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+</dependencies>
+创建User
+
+<p>1<br>2<br>public class User {<br>}<br>创建UserConfig配置类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@Configuration<br>public class UserConfig {</p>
+<pre><code>@Bean
+public User user()&#123;
+    return new User();
+&#125;
+</code></pre>
+<p>}<br>9.1.2.2 创建maven工程springboot_enable<br>pom.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</p>
+<!--起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+  <!--依赖第三方jar包-->
+  <dependency>
+    <groupId>org.example</groupId>
+    <artifactId>springboot_enable_other</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+创建SpringBootEnableApplication启动类获取该bean的实例
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>@SpringBootApplication<br>public class SpringBootEnableApplication {</p>
+<p>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);<br>    Object user &#x3D; context.getBean(“user”);<br>    &#x2F;&#x2F; 可以查看Spring IoC容器中的内容<br>    &#x2F;&#x2F; Map&lt;String, User&gt; map &#x3D; context.getBeansOfType(User.class);<br>    System.out.println(user);<br>  }<br>}<br>9.1.2.3 启动服务并测试<br>无法获取该bean的实例</p>
+<p>9.1.2.4 @ComponentScan注解<br>无法获取该bean的实例原因是，启动类默认加载当前包以及子包下的类。而我们的User&#x2F;UserConfig与启动类并不在同一个包下，因此我们可以通过@ComponentScan指定扫描的包。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>@SpringBootApplication<br>@ComponentScan(basePackages &#x3D; {“org.example”})<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>Object user = context.getBean(&quot;user&quot;);
+
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>即可获取</p>
+<p>9.1.2.5 @Import注解<br>可以通过@Import注解，直接指定UserConfig.class字节码文件。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@SpringBootApplication<br>@Import(UserConfig.class)<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>Object user = context.getBean(&quot;user&quot;);
+
+Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>9.1.2.6 自定注解@EnableUser<br>我们可以自定义注解，本质上就是封装@Import注解而已。</p>
+<p>enable-other工程：在annotation包下自定注解EnableUser</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>@Target({ElementType.TYPE})<br>@Retention(RetentionPolicy.RUNTIME)<br>@Documented<br>@Import(UserConfig.class)<br>public @interface EnableUser {<br>}<br>enable工程：在启动类上开启该注解@EnableUser</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@SpringBootApplication<br>@EnableUser<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code> Object user = context.getBean(&quot;user&quot;);
+
+Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>9.2 @Import注解使用方式<br>9.2.1 直接注入Bean<br>注意：如果直接注入Bean，那么Spring Ioc容器中的bean的名称则为该类的全限定名称。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>@SpringBootApplication<br>@Import(User.class)<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>// 通过@Import直接导入Bean，那么Spring IoC容器中的bean的名称则为该类的全限定名称
+//        Object user = context.getBean(&quot;com.test.pojo.User&quot;);
+// 也可以通过类型获取该Bean
+User user = context.getBean(User.class);
+System.out.println(user);
+// 可以查看Spring IoC容器中的内容
+Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>9.2.2 导入配置类<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@SpringBootApplication<br>@Import(UserConfig.class)<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>User user = context.getBean(User.class);
+System.out.println(user);
+
+Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>9.2.3 导入ImportSelector实现类<br>ImportSelector接口只定义了一个selectImports()，用于指定需要注册为bean的Class名称（类的权限定名称，然后进行反射进行实例化）。然后在启动类上使用@Import引入了一个ImportSelector实现类后，会把实现类中返回的Class名称都定义为bean。</p>
+<p>9.2.3.1 创建MyImportSelector<br>在enable-other工程中创建MyImportSelector</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>public class MyImportSelector implements ImportSelector {<br>  @Override<br>  public String[] selectImports(AnnotationMetadata annotationMetadata) {<br>    return new String[]{“com.test.pojo.User”};<br>  }<br>}<br>9.2.3.2 更新启动类<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@SpringBootApplication<br>@Import(MyImportSelector.class)<br>public class SpringBootEnableApplication {<br>    public static void main(String[] args) {<br>        ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>    User user = context.getBean(User.class);
+    System.out.println(user);
+
+    Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+    System.out.println(map);
+&#125;
+</code></pre>
+<p>}<br>9.2.4 导入ImportBeanDefinitionRegistrar实现类<br>ImportBeanDefinitionRegistrar的实现类，则会调用接口方法，将其中要注册的类注册成bean</p>
+<p>9.2.4.1创建MyImportBeanDefinitionRegistrar<br>enable-other工程中创建MyImportBeanDefinitionRegistrar</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {<br>  @Override<br>  public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry beanDefinitionRegistry) {<br>    AbstractBeanDefinition beanDefinition &#x3D; BeanDefinitionBuilder.rootBeanDefinition(User.class).getBeanDefinition();<br>    beanDefinitionRegistry.registerBeanDefinition(“user”,beanDefinition);<br>  }<br>}<br>9.2.4.2 更新启动类<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@SpringBootApplication<br>@Import(MyImportBeanDefinitionRegistrar.class)<br>public class SpringBootEnableApplication {<br>  public static void main(String[] args) {<br>    ConfigurableApplicationContext context &#x3D; SpringApplication.run(SpringBootEnableApplication.class, args);</p>
+<pre><code>User user = context.getBean(User.class);
+System.out.println(user);
+
+Map&lt;String, User&gt; map = context.getBeansOfType(User.class);
+System.out.println(map);
+</code></pre>
+<p>  }<br>}<br>9.3 @EnableAutoConfiguration注解详解<br>SpringBoot中提供了很多以@Enable开头的注解，这些*注解都是用于启动某些功能的**。而其底层是使用@Import注解导入了一些配置类，实现Bean的动态加载。</p>
+<p>例如，@EnableAutoConfiguration。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@Target({ElementType.TYPE})<br>@Retention(RetentionPolicy.RUNTIME)<br>@Documented<br>@Inherited<br>@AutoConfigurationPackage<br>@Import({AutoConfigurationImportSelector.class})<br>public @interface EnableAutoConfiguration {<br>  String ENABLED_OVERRIDE_PROPERTY &#x3D; “spring.boot.enableautoconfiguration”;</p>
+<p>  Class&lt;?&gt;[] exclude() default {};</p>
+<p>  String[] excludeName() default {};<br>}<br>可以继续查看AutoConfigurationImportSelector的源码</p>
+<p>selectImport方法：选择导入的配置类并转成一个数组</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>public String[] selectImports(AnnotationMetadata annotationMetadata) {<br>  if (!this.isEnabled(annotationMetadata)) {<br>    return NO_IMPORTS;<br>  } else {<br>    AutoConfigurationMetadata autoConfigurationMetadata &#x3D; AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);<br>    AutoConfigurationImportSelector.AutoConfigurationEntry autoConfigurationEntry &#x3D; this.getAutoConfigurationEntry(autoConfigurationMetadata, annotationMetadata);<br>    return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());<br>  }<br>}<br>getAutoConfigurationEntry方法：获取配置类实体对象</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>protected AutoConfigurationImportSelector.AutoConfigurationEntry getAutoConfigurationEntry(AutoConfigurationMetadata autoConfigurationMetadata, AnnotationMetadata annotationMetadata) {<br>  if (!this.isEnabled(annotationMetadata)) {<br>    return EMPTY_ENTRY;<br>  } else {<br>    AnnotationAttributes attributes &#x3D; this.getAttributes(annotationMetadata);<br>    List<String> configurations &#x3D; this.getCandidateConfigurations(annotationMetadata, attributes);<br>    configurations &#x3D; this.removeDuplicates(configurations);<br>    Set<String> exclusions &#x3D; this.getExclusions(annotationMetadata, attributes);<br>    this.checkExcludedClasses(configurations, exclusions);<br>    configurations.removeAll(exclusions);<br>    configurations &#x3D; this.filter(configurations, autoConfigurationMetadata);<br>    this.fireAutoConfigurationImportEvents(configurations, exclusions);<br>    return new AutoConfigurationImportSelector.AutoConfigurationEntry(configurations, exclusions);<br>  }<br>}<br>getCandidateConfigurations：获取配置文件中的需要加载的类</String></String></p>
+<p>1<br>2<br>3<br>4<br>5<br>protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {<br>  List<String> configurations &#x3D; SpringFactoriesLoader.loadFactoryNames(this.getSpringFactoriesLoaderFactoryClass(), this.getBeanClassLoader());<br>  Assert.notEmpty(configurations, “No auto configuration classes found in META-INF&#x2F;spring.factories. If you are using a custom packaging, make sure that file is correct.”);<br>  return configurations;<br>}<br>SpringFactoriesLoader.loadFactoryNames，加载META-INF&#x2F;spring.factories文件中所有bean的名称，并且放入map中（IoC容器就是一个map）</String></String></p>
+<p>META-INF&#x2F;spring.factories文件内容如下</p>
+<p>查看Redis</p>
+<p>当服务启动时，就会自动注册RedisTemplate的bean到Spring的IoC容器中</p>
+<p>十.SpringBoot自定义第三方starter<br>10.1 思路分析<br>SpringBoot启动器starter命名规则：</p>
+<p>自带的：spring-boot-starter-xxx，例如Redis启动器：spring-boot-starter-data-redis<br>第三方：xxx-spring-boot-starter，例如mybatis启动器：mybatis-spring-boot-starter<br>参考第三方的mybatis的starter。我们可以在任意一个SpringBoot工程中添加mybatis启动器依赖。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6</p>
+<!--mybatis启动器-->
+<dependency>
+  <groupId>org.mybatis.spring.boot</groupId>
+  <artifactId>mybatis-spring-boot-starter</artifactId>
+  <version>2.0.1</version>
+</dependency>
+10.1.1 myredis_spring_boot_starter
+该工程就是pom文件，负责定义规范，指定mybatis需要依赖的jar包，不需要编码。
+
+<p>10.1.2 myredis_spring_boot_starter_autoconfigure<br>spring.factories文件：指定需要加载的Bean<br>MyRedisAutoConfiguration：自动创建redis的相关的Bean（例如：SqlSessionFactoryBean）<br>MyRedisProperties：连接redis信息<br>10.2 结论<br>如果我们想要自定义第三方的starter，例如我们本次创建自定义的Redis的starter。因此我们需要实现的步骤如下</p>
+<p>创建myredis-spring-boot-starter-autoconfigure工程</p>
+<p>创建META-INF&#x2F;spring.factories文件</p>
+<p>创建MyRedisAutoConfiguration</p>
+<p>创建MyRedisProperties</p>
+<p>创建myredis-spring-boot-starter工程，并且需要依赖autoconfigure工程</p>
+<p>在测试工程中引入myredis-spring-boot-starter依赖，并且进行测试</p>
+<p>10.3 代码实现<br>10.3.1 创建myredis-spring-boot-starter-autoconfigure工程<br>10.3.1.1 创建工程并且添加依赖<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</p>
+<!--起步依赖-->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+    <!--springboot的starter-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+<pre><code>&lt;!--redis的依赖jedis--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;redis.clients&lt;/groupId&gt;
+    &lt;artifactId&gt;jedis&lt;/artifactId&gt;
+    &lt;version&gt;3.2.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+</dependencies>
+10.3.1.2 创建MyRedisProperties
+1
+2
+3
+4
+5
+6
+7
+8
+@ConfigurationProperties(prefix = "myredis")
+public class MyRedisProperties {
+
+<pre><code>private String host = &quot;localhost&quot;;
+private int port = 6379;
+</code></pre>
+<p>&#x2F;&#x2F; TODO setter&#x2F;getter<br>}<br>10.3.1.3 创建MyRedisAutoConfiguration<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>&#x2F;&#x2F; 配置类<br>@Configuration<br>&#x2F;&#x2F; 加载Redis配置<br>@EnableConfigurationProperties(MyRedisProperties.class)<br>public class MyRedisAutoConfiguration {<br>    @Bean<br>    @ConditionalOnMissingBean(name &#x3D; “myJedis”)<br>    public Jedis myJedis(MyRedisProperties myRedisProperties){<br>        System.out.println(myRedisProperties.getHost());<br>        System.out.println(myRedisProperties.getPort());<br>        return new Jedis(myRedisProperties.getHost(),myRedisProperties.getPort());<br>    }<br>}<br>10.3.1.4 创建spring.factories文件<br>在工程的resources下创建&#96;&lt;META-INF&#x2F;spring.factories文件</p>
+<p>1<br>2<br>3</p>
+<h1 id="Auto-Configure"><a href="#Auto-Configure" class="headerlink" title="Auto Configure"></a>Auto Configure</h1><p>org.springframework.boot.autoconfigure.EnableAutoConfiguration&#x3D;<br>com.test.spring.boot.autoconfigure.MyRedisAutoConfiguration<br>10.3.2 创建myredis-spring-boot-starter工程<br>创建该工程，什么都不用写，我们只需要在pom文件中添加相关依赖即可。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</p>
+<!--起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+  <!--springboot的starter-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+
+  <!--依赖myredis autoconfigure工程-->
+  <dependency>
+    <groupId>org.example</groupId>
+    <artifactId>springboot_day02_demo03_myredis_spring_boot_starter_autoconfigure</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+10.4 测试
+10.4.1 创建测试工程
+创建测试工程myredis-test工程，并且添加依赖
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br><groupId>org.example</groupId><br><artifactId>springboot_day02_demo03_myredis_test</artifactId><br><version>1.0-SNAPSHOT</version></p>
+<!--起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+  <!--springboot的starter-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+
+  <!--依赖自定义的myredis的starter-->
+  <dependency>
+    <groupId>org.example</groupId>
+    <artifactId>springboot_day02_demo03_myredis_spring_boot_starter</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+10.4.2 测试bean是否自动配置
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+@SpringBootApplication
+public class MyRedisApplication {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(MyRedisApplication.class, args);
+        Jedis myJedis = (Jedis) context.getBean("myJedis");
+
+<pre><code>    myJedis.set(&quot;A&quot;,&quot;B&quot;);
+    System.out.println(myJedis.get(&quot;A&quot;));
+&#125;
+</code></pre>
+<p>}<br>10.4.3 测试配置文件是否生效<br>myredis-test工程中创建application.properties文件</p>
+<p>1<br>myredis.port&#x3D;6666<br>结果证明：可以获取配置文件中的属性信息。后期可以根据redis环境不同配置不同的地址以及端口。</p>
+<p>十一.SpringBoot事件监听<br>11.1 介绍<br>在实际的场景中，在服务启动时经常会加载一些数据和执行一些应用的初始化动作，如：删除临时文件，清除缓存信息，读取配置文件信息，数据库连接等等。而SpringBoot提供了了4个常见的监听器接口，我们可以实现这些接口在项目启动时完成一些初始化工作。该4个接口如下：CommandLineRunner、ApplicationRunner、ApplicationContextInitializer、SpringApplicationRunListener</p>
+<p>11.2 CommandLineRunner和ApplicationRunner使用<br>11.2.1 创建maven工程<br>创建springboot-listener工程，并且添加pom依赖</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</p>
+<!--起步依赖-->
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+</dependencies>
+11.2.2 编写启动类
+1
+2
+3
+4
+5
+6
+7
+@SpringBootApplication
+public class ListenerDemoApplication {
+
+<pre><code>public static void main(String[] args) &#123;
+    SpringApplication.run(ListenerDemoApplication.class, args);
+&#125;
+</code></pre>
+<p>}<br>11.2.3 自定义监听器<br>MyCommandLineRunner</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@Component<br>public class MyCommandLineRunner implements CommandLineRunner {<br>    @Override<br>    public void run(String… args) throws Exception {<br>        System.out.println(“MyCommandLineRunner”);<br>        System.out.println(Arrays.asList(args));<br>    }<br>}<br>MyApplicationRunner</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>@Component<br>public class MyApplicationRunner implements ApplicationRunner {<br>    @Override<br>    public void run(ApplicationArguments args) throws Exception {<br>        System.out.println(“MyApplicationRunner”);<br>        String[] sourceArgs &#x3D; args.getSourceArgs();<br>        System.out.println(Arrays.asList(sourceArgs));<br>    }<br>}<br>11.2.4 启动测试可以看到控制台打印信息<br>11.3 SpringApplicationRunListenerer和ApplicationContextInitializ使用<br>11.3.1 自定义监听器<br>创建MyApplicationContextInitializer、MySpringApplicationRunListener两个监听器</p>
+<p>MyApplicationContextInitializer</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>public class MyApplicationContextInitializer implements ApplicationContextInitializer {<br>    @Override<br>    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {<br>        System.out.println(“MyApplicationContextInitializer”);<br>    }<br>}<br>MySpringApplicationRunListener</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>public class MySpringApplicationRunListener implements SpringApplicationRunListener {</p>
+<p>  &#x2F;&#x2F; 需要提供该构造方法，否则该方法无法运行<br>  public MySpringApplicationRunListener(SpringApplication springApplication, String[] args){<br>  }</p>
+<p>  @Override<br>  public void starting() {<br>    System.out.println(“MySpringApplicationRunListener … starting”);<br>  }</p>
+<p>  @Override<br>  public void environmentPrepared(ConfigurableEnvironment environment) {<br>    System.out.println(“MySpringApplicationRunListener … environmentPrepared”);<br>  }</p>
+<p>  @Override<br>  public void contextPrepared(ConfigurableApplicationContext context) {<br>    System.out.println(“MySpringApplicationRunListener … contextPrepared”);<br>  }</p>
+<p>  @Override<br>  public void contextLoaded(ConfigurableApplicationContext context) {<br>    System.out.println(“MySpringApplicationRunListener … contextLoaded”);<br>  }</p>
+<p>  @Override<br>  public void started(ConfigurableApplicationContext context) {<br>    System.out.println(“MySpringApplicationRunListener … started”);<br>  }</p>
+<p>  @Override<br>  public void running(ConfigurableApplicationContext context) {<br>    System.out.println(“MySpringApplicationRunListener … running”);<br>  }</p>
+<p>  @Override<br>  public void failed(ConfigurableApplicationContext context, Throwable exception) {<br>    System.out.println(“MySpringApplicationRunListener … failed”);<br>  }<br>}<br>11.3.2 创建spring.factories文件<br>在resources目录下创建META-INF&#x2F;spring.factories文件</p>
+<p>1<br>2<br>org.springframework.boot.SpringApplicationRunListener&#x3D;com.test.listener.MySpringApplicationRunListener<br>org.springframework.context.ApplicationContextInitializer&#x3D;com.test.listener.MyApplicationContextInitializer<br>11.3.3 启动服务并测试，可以发现控制台打印信息包含Listener输出<br>11.4 总结<br>CommandLineRunner和ApplicationRunner</p>
+<p>外部资源的一些初始化工作(例如：缓存预热、清除缓存、清除临时文件等等—应用级别)</p>
+<p>SpringApplicationRunListenerer和ApplicationContextInitializ</p>
+<p>系统级别的应用初始化工作（判断是否为web环境、初始化Spring工厂等等—系统&#x2F;框架级别）</p>
+<p>十二.SpringBoot监控<br>12.1 介绍<br>SpringBoot自带监控功能Actuator，可以帮助实现对程序内部运行情况监控，比如监控状况、Bean加载情况、环境变量、日志信息、线程信息等。</p>
+<p>12.2 Actuator入门<br>12.2.1 创建maven工程<br>创建 springboot-actuator工程，添加依赖并且编写启动类。</p>
+<p>pom.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</p>
+<!--起步依赖-->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.4.RELEASE</version>
+</parent>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+<pre><code>&lt;!--web依赖--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!--springboot监控--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+</dependencies>
+ActuatorApplication
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>@SpringBootApplication<br>public class ActuatorApplication {</p>
+<p>  public static void main(String[] args) {<br>    SpringApplication.run(ActuatorApplication.class, args);<br>  }<br>}<br>12.2.2 启动服务并访问 localhost:8080&#x2F;actuator<br>可以看到页面中有应用信息</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83<br>84<br>85<br>86<br>87<br>88<br>89<br>90<br>91<br>92<br>93<br>94<br>95<br>{<br>  “_links”: {<br>    “self”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator&quot;">http://localhost:8080/actuator&quot;</a>,<br>      “templated”: false<br>    },<br>    “auditevents”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/auditevents&quot;">http://localhost:8080/actuator/auditevents&quot;</a>,<br>      “templated”: false<br>    },<br>    “beans”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/beans&quot;">http://localhost:8080/actuator/beans&quot;</a>,<br>      “templated”: false<br>    },<br>    “caches-cache”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/caches/%7Bcache%7D&quot;">http://localhost:8080/actuator/caches/{cache}&quot;</a>,<br>      “templated”: true<br>    },<br>    “caches”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/caches&quot;">http://localhost:8080/actuator/caches&quot;</a>,<br>      “templated”: false<br>    },<br>    &#x2F;&#x2F;应用的健康状态信息<br>    “health”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/health&quot;">http://localhost:8080/actuator/health&quot;</a>,<br>      “templated”: false<br>    },<br>    “health-component”: {<br>      &#x2F;&#x2F;应用中其他组件的健康信息<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/health/%7Bcomponent%7D&quot;">http://localhost:8080/actuator/health/{component}&quot;</a>,<br>      “templated”: true<br>    },<br>    “health-component-instance”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/health/%7Bcomponent%7D/%7Binstance%7D&quot;">http://localhost:8080/actuator/health/{component}/{instance}&quot;</a>,<br>      “templated”: true<br>    },<br>    “conditions”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/conditions&quot;">http://localhost:8080/actuator/conditions&quot;</a>,<br>      “templated”: false<br>    },<br>    “configprops”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/configprops&quot;">http://localhost:8080/actuator/configprops&quot;</a>,<br>      “templated”: false<br>    },<br>    “env-toMatch”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/env/%7BtoMatch%7D&quot;">http://localhost:8080/actuator/env/{toMatch}&quot;</a>,<br>      “templated”: true<br>    },<br>    “env”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/env&quot;">http://localhost:8080/actuator/env&quot;</a>,<br>      “templated”: false<br>    },<br>    &#x2F;&#x2F;配置文件中info相关信息<br>    “info”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/info&quot;">http://localhost:8080/actuator/info&quot;</a>,<br>      “templated”: false<br>    },<br>    “loggers-name”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/loggers/%7Bname%7D&quot;">http://localhost:8080/actuator/loggers/{name}&quot;</a>,<br>      “templated”: true<br>    },<br>    “loggers”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/loggers&quot;">http://localhost:8080/actuator/loggers&quot;</a>,<br>      “templated”: false<br>    },<br>    “heapdump”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/heapdump&quot;">http://localhost:8080/actuator/heapdump&quot;</a>,<br>      “templated”: false<br>    },<br>    “threaddump”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/threaddump&quot;">http://localhost:8080/actuator/threaddump&quot;</a>,<br>      “templated”: false<br>    },<br>    “metrics-requiredMetricName”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/metrics/%7BrequiredMetricName%7D&quot;">http://localhost:8080/actuator/metrics/{requiredMetricName}&quot;</a>,<br>      “templated”: true<br>    },<br>    “metrics”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/metrics&quot;">http://localhost:8080/actuator/metrics&quot;</a>,<br>      “templated”: false<br>    },<br>    “scheduledtasks”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/scheduledtasks&quot;">http://localhost:8080/actuator/scheduledtasks&quot;</a>,<br>      “templated”: false<br>    },<br>    “httptrace”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/httptrace&quot;">http://localhost:8080/actuator/httptrace&quot;</a>,<br>      “templated”: false<br>    },<br>    “mappings”: {<br>      “href”: “<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/mappings&quot;">http://localhost:8080/actuator/mappings&quot;</a>,<br>      “templated”: false<br>    }<br>  }<br>}<br>12.3 Actuator使用说明<br>12.3.1 info信息<br>info配置相关信息 localhost:8080&#x2F;actuator&#x2F;info，在application.properties文件中配置内容</p>
+<p>1<br>2<br>3</p>
+<h1 id="info相关配置"><a href="#info相关配置" class="headerlink" title="info相关配置"></a>info相关配置</h1><p>info.name&#x3D;test<br>info.age&#x3D;18<br>12.3.2 健康信息<br>应用以及组件健康状态信息 localhost:8080&#x2F;actuator&#x2F;health,在application.peroperties文件中开启端点详情</p>
+<p>1<br>2</p>
+<h1 id="显示暴露的端点详情"><a href="#显示暴露的端点详情" class="headerlink" title="显示暴露的端点详情"></a>显示暴露的端点详情</h1><p>management.endpoint.health.show-details&#x3D;always<br>1<br>2<br>3<br>4<br>5<br>6<br>还可以在pom文件中添加redis依赖，然后再去查看健康状态信息。</p>
+<!--Redis依赖-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+12.3.3 开放web相关端点信息
+在application.properties文件中配置
+
+<p>1<br>2</p>
+<h1 id="开放web相关的端点信息"><a href="#开放web相关的端点信息" class="headerlink" title="开放web相关的端点信息"></a>开放web相关的端点信息</h1><p>management.endpoints.web.exposure.include&#x3D;*<br>12.3.4 Actuator暴露的端点说明<br>Actuator提供了以下端点，默认除了&#x2F;shutdown都是Enabled。使用时需要加&#x2F;actuator前缀，</p>
+<p>ID	Description	Enabled by default<br>auditevents	显示当前应用程序的审计事件信息	Yes<br>beans	显示应用上下文中创建的所有Bean	Yes<br>caches	获取缓存信息	Yes<br>conditions	显示配置类和自动配置类(configuration and auto-configuration classes) 的状态及它们被应用或未被应用的原因	Yes<br>configprops	该端点用来获取应用中配置的属性信息报告 （所有@ConfigurationProperties的集合列表）	Yes<br>env	获取应用所有可用的环境属性报告。包括： 环境变量、JVM属性、应用的配置配置、命令行中的参数	Yes<br>flyway	显示数据库迁移路径（如果有）	Yes<br>health	显示应用的健康信息	Yes<br>httptrace	返回基本的HTTP跟踪信息。 (默认最多100 HTTP request-response exchanges).	Yes<br>info	返回一些应用自定义的信息，我们可以在application.properties 配置文件中通过info前缀来设置这些属性：info.app.name&#x3D;spring-boot-hello	Yes<br>integrationgraph	Shows the Spring Integration graph.	Yes<br>loggers	Shows and modifies the configuration of loggers in the application.	Yes<br>liquibase	Shows any Liquibase database migrations that have been applied.	Yes<br>metrics	返回当前应用的各类重要度量指标，比如：内存信息、线程信息、垃圾回收信息等	Yes<br>mappings	返回所有Spring MVC的控制器映射关系报告 （所有@RequestMapping路径的集合列表）	Yes<br>scheduledtasks	显示应用程序中的计划任务	Yes<br>sessions	允许从Spring会话支持的会话存储中检索和删除(retrieval and deletion) 用户会话。使用Spring Session对反应性Web应用程序的支持时不可用	Yes<br>shutdown	允许应用以优雅的方式关闭（默认情况下不启用）	No<br>threaddump	执行一个线程dump	Yes<br>如果使用web应用(Spring MVC, Spring WebFlux, 或者 Jersey)，还可以使用以下端点：</p>
+<p>ID	Description	Enabled by default<br>heapdump	返回一个GZip压缩的hprof堆dump文件	Yes<br>jolokia	通过HTTP暴露JMX beans（当Jolokia在类路径上时，WebFlux不可用）	Yes<br>logfile	返回日志文件内容（如果设置了logging.file或logging.path属性的话）， 支持使用HTTP Range头接收日志文件内容的部分信息	Yes<br>prometheus	以可以被Prometheus服务器抓取的格式显示metrics信息	Yes<br>12.4 Spring Boot Admin<br>12.4.1 介绍<br>类似dubbo admin，用于管理和监控SpringBoot应用程序。</p>
+<p>应用程序作为Spring Boot Admin Client向为Spring Boot Admin Server注册（通过HTTP）或使用SpringCloud注册中心（例如Eureka，Consul）发现。 UI是的AngularJs应用程序，展示Spring Boot Admin Client的Actuator端点上的一些监控。</p>
+<p>12.4.2 入门程序<br>12.4.2.1 创建admin server工程<br>创建工程springboot-admin-server并且添加依赖</p>
+<p>pom.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br><parent><br>  <groupId>org.springframework.boot</groupId><br>  <artifactId>spring-boot-starter-parent</artifactId><br>  <version>2.1.4.RELEASE</version><br></parent></p>
+<dependencies>
+  <!--spring boot启动器-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+
+  <!--web依赖-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+
+  <!--admin server-->
+  <dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-server</artifactId>
+    <version>2.1.6</version>
+  </dependency>
+
+</dependencies>
+编写AdminServerApplication
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@SpringBootApplication<br>@EnableAdminServer      &#x2F;&#x2F; 开启admin服务<br>public class AdminServerApplication {</p>
+<p>  public static void main(String[] args) {<br>    SpringApplication.run(AdminServerApplication.class, args);<br>  }<br>}<br>编写application.properties</p>
+<p>1<br>2</p>
+<h1 id="tomcat端口"><a href="#tomcat端口" class="headerlink" title="tomcat端口"></a>tomcat端口</h1><p>server.port&#x3D;9090<br>12.4.2.2 创建admin client工程<br>创建工程 springboot-admin-client 并且添加依赖</p>
+<p>pom.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br><parent><br>  <groupId>org.springframework.boot</groupId><br>  <artifactId>spring-boot-starter-parent</artifactId><br>  <version>2.1.4.RELEASE</version><br></parent></p>
+<dependencies>
+  <!--spring boot启动器-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+  </dependency>
+
+  <!--web依赖-->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+
+  <!--admin client-->
+  <dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-client</artifactId>
+    <version>2.1.6</version>
+  </dependency>
+</dependencies>
+编写application.properties
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
+<h1 id="配置注册到的admin-server的地址"><a href="#配置注册到的admin-server的地址" class="headerlink" title="配置注册到的admin server的地址"></a>配置注册到的admin server的地址</h1><p>spring.boot.admin.client.url&#x3D;<a target="_blank" rel="noopener" href="http://localhost:9090/">http://localhost:9090</a></p>
+<h1 id="启用健康检查-默认就是true"><a href="#启用健康检查-默认就是true" class="headerlink" title="启用健康检查 默认就是true"></a>启用健康检查 默认就是true</h1><p>management.endpoint.health.enabled&#x3D;true</p>
+<h1 id="配置显示所有的监控详情"><a href="#配置显示所有的监控详情" class="headerlink" title="配置显示所有的监控详情"></a>配置显示所有的监控详情</h1><p>management.endpoint.health.show-details&#x3D;always</p>
+<h1 id="开放所有端点"><a href="#开放所有端点" class="headerlink" title="开放所有端点"></a>开放所有端点</h1><p>management.endpoints.web.exposure.include&#x3D;*</p>
+<h1 id="设置应用的名称"><a href="#设置应用的名称" class="headerlink" title="设置应用的名称"></a>设置应用的名称</h1><p>spring.application.name&#x3D;test<br>编写启动类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>@SpringBootApplication<br>public class AdminClientApplication {</p>
+<pre><code>public static void main(String[] args) &#123;
+    SpringApplication.run(AdminClientApplication.class, args);
+&#125;
+</code></pre>
+<p>}<br>编写HelloController</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>@RestController<br>@RequestMapping(“&#x2F;hello”)<br>public class HelloController {</p>
+<pre><code>@RequestMapping(&quot;/show&quot;)
+public String show()&#123;
+    return &quot;success&quot;;
+&#125;
+</code></pre>
+<p>}<br>12.4.3 测试<br>启动SpringBoot Admin Server<br>启动SpringBoot Admin Client<br>访问 localhost:9090<br>先点击【应用名称】—&gt;在点击【实例id】即可查看到详细信息</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/" rel="prev" title="Apache Dubbo 初识">
+      <i class="fa fa-chevron-left"></i> Apache Dubbo 初识
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/" rel="next" title="SpringCloud入门">
+      SpringCloud入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A0%BC%E5%BC%8F-key-value"><span class="nav-number">1.</span> <span class="nav-text">基本格式 key: value</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E7%BB%84-%E7%94%A8%E4%BA%8E%E5%8C%BA%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">数组   - 用于区分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E4%B8%AD%E7%9A%84%E5%85%83%E7%B4%A0%E6%98%AF%E5%AF%B9%E8%B1%A1%E5%BD%A2%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">集合中的元素是对象形式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#map%E9%9B%86%E5%90%88%E5%BD%A2%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">map集合形式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%BC%95%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">参数引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83-test%EF%BC%9A%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-dev%EF%BC%9A%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83-pro%EF%BC%9A%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83"><span class="nav-number">6.</span> <span class="nav-text">指定开发环境 test：测试环境  dev：开发环境  pro：生产环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Auto-Configure"><span class="nav-number">7.</span> <span class="nav-text">Auto Configure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#info%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE"><span class="nav-number">8.</span> <span class="nav-text">info相关配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%98%BE%E7%A4%BA%E6%9A%B4%E9%9C%B2%E7%9A%84%E7%AB%AF%E7%82%B9%E8%AF%A6%E6%83%85"><span class="nav-number">9.</span> <span class="nav-text">显示暴露的端点详情</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E6%94%BEweb%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AB%AF%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-number">10.</span> <span class="nav-text">开放web相关的端点信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tomcat%E7%AB%AF%E5%8F%A3"><span class="nav-number">11.</span> <span class="nav-text">tomcat端口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%B3%A8%E5%86%8C%E5%88%B0%E7%9A%84admin-server%E7%9A%84%E5%9C%B0%E5%9D%80"><span class="nav-number">12.</span> <span class="nav-text">配置注册到的admin server的地址</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E7%94%A8%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5-%E9%BB%98%E8%AE%A4%E5%B0%B1%E6%98%AFtrue"><span class="nav-number">13.</span> <span class="nav-text">启用健康检查 默认就是true</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%98%BE%E7%A4%BA%E6%89%80%E6%9C%89%E7%9A%84%E7%9B%91%E6%8E%A7%E8%AF%A6%E6%83%85"><span class="nav-number">14.</span> <span class="nav-text">配置显示所有的监控详情</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E6%89%80%E6%9C%89%E7%AB%AF%E7%82%B9"><span class="nav-number">15.</span> <span class="nav-text">开放所有端点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%9A%84%E5%90%8D%E7%A7%B0"><span class="nav-number">16.</span> <span class="nav-text">设置应用的名称</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

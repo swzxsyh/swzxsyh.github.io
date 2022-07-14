@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="JVM垃圾回收器概念System.gc() 默认情况下，如果程序中显式的调用Sysytem.gc()或者Runtime.getRuntime.gc()可能会触发 Full GC，垃圾收集器会同时新生代和老年代进行垃圾回收操作，尝试释放被丢弃对象占用的内存资源。但是调用Sysytem.gc()不一定会发生 Full GC，所以它无法保证对垃圾收集器的调用。  12345678910public fi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM-GC概念">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/JVM-GC/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="JVM垃圾回收器概念System.gc() 默认情况下，如果程序中显式的调用Sysytem.gc()或者Runtime.getRuntime.gc()可能会触发 Full GC，垃圾收集器会同时新生代和老年代进行垃圾回收操作，尝试释放被丢弃对象占用的内存资源。但是调用Sysytem.gc()不一定会发生 Full GC，所以它无法保证对垃圾收集器的调用。  12345678910public fi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/JVM-GC/1617029902.png">
+<meta property="article:published_time" content="2022-06-30T15:10:58.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.717Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/JVM-GC/1617029902.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/JVM-GC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JVM-GC概念 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/JVM-GC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM-GC概念
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:10:58" itemprop="dateCreated datePublished" datetime="2022-06-30T23:10:58+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="JVM垃圾回收器概念"><a href="#JVM垃圾回收器概念" class="headerlink" title="JVM垃圾回收器概念"></a>JVM垃圾回收器概念</h1><h2 id="System-gc"><a href="#System-gc" class="headerlink" title="System.gc()"></a>System.gc()</h2><blockquote>
+<p>默认情况下，如果程序中显式的调用<code>Sysytem.gc()</code>或者<code>Runtime.getRuntime.gc()</code>可能会触发 Full GC，垃圾收集器会同时新生代和老年代进行垃圾回收操作，尝试释放被丢弃对象占用的内存资源。但是调用<code>Sysytem.gc()</code>不一定会发生 Full GC，所以它无法保证对垃圾收集器的调用。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">System</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">gc</span><span class="params">()</span> &#123;</span><br><span class="line">    Runtime.getRuntime().gc();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Runtime</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Runtime</span> <span class="variable">currentRuntime</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runtime</span>();</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">gc</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>最终程序调用的是一个本地方法<code>gc()</code>，垃圾回收的工作是交给操作系统完成的</p>
+<p>Java 中垃圾回收是自动进行的，因此并不推荐通过调用<code>Sysytem.gc()</code>来决定 JVM 的 GC 操作。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="内存溢出和内存泄漏"><a href="#内存溢出和内存泄漏" class="headerlink" title="内存溢出和内存泄漏"></a>内存溢出和内存泄漏</h2><h3 id="内存溢出"><a href="#内存溢出" class="headerlink" title="内存溢出"></a>内存溢出</h3><blockquote>
+<p>内存溢出可能出现在堆中，也可能出现在栈和方法区中，但重点关注的区域是堆空间。一般情况下，只有当应用程序消耗内存的速度超过了垃圾回收的速度，程序才可能抛出 OOM 异常。大多数情况下，GC 会进行各个年龄段的垃圾回收，如果分代回收无法满足内存分配需求，此时就会触发 Full GC。</p>
+<p>javadoc 中对 OutOfMemoryError 的解释是， 没有空闲内存， 并且垃圾收集器也无法提供更多内存。其中没有空闲内存的原因有：</p>
+</blockquote>
+<ul>
+<li>Java 虚拟机的堆内存设置不够：例如堆的大小设置不合理、内存泄漏、处理的数据量太大……</li>
+<li>程序中创建了大量的大对象（Big Object），并且长时间不能被垃圾收集器回收。例如，当不断的往永久代中添加新类型，而 JVM 对永久代回收不积极时，永久代就会出现 OOM；或者使用<code>intern()</code>生成的字符串缓存占用了太多的空间，也会导致 OOM</li>
+<li>对于使用直接内存的元空间来说，当系统内存不够分配时，程序也会抛出 OOM 异常</li>
+</ul>
+<blockquote>
+<p>但并不是在任何情况下垃圾收集器都会被触发。比如， 我们去分配一个超大对象， 类似一个超大数组超过堆的最大值， JVM 可以判断出垃圾收集并不能解决这个问题， 所以直接抛出 OutOfMemoryError。</p>
+</blockquote>
+<h3 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h3><blockquote>
+<p>内存泄漏（Memory Leak）指只有对象不会再被程序使用到，但垃圾收集器又无法回收它们时，才称为发生了内存泄漏。实际情况中一些操作可能会导致对象的生命周期变得很长甚至导致 OOM，也可以叫做宽泛意义上的 “内存泄漏”。</p>
+<p>尽管内存泄漏并不会立刻引起程序崩溃，但是一旦发生内存泄漏，程序中的可用内存就会被逐步蚕食，直至耗尽所有内存， 最终出现 OutOfMemory 异常，导致程序崩溃。</p>
+</blockquote>
+<p>例如：</p>
+<ul>
+<li>单例模式：单例的生命周期和应用程序是一样长的，所以单例程序中，如果持有对外部对象的引用的话，那么这个外部对象是不能被回收的，则会导致内存泄漏的产生</li>
+<li>一些提供 close 的资源未关闭：数据库连接 (data Sourse.getConnection() ) 、 网络连接 (socket) 和 io 连接必须手动 close， 否则是不能被回收的</li>
+</ul>
+<h2 id="STW"><a href="#STW" class="headerlink" title="STW"></a>STW</h2><blockquote>
+<p>Stop-the-World 简称 STW，它指的是在 GC 操作执行的过程中会产生应用程序的停顿，停顿时整个应用程序线程都会被暂停，没有任何响应。</p>
+<p>例如在可达性分析算法中枚举根节点 (GC Roots) 会导致 STW 现象的发生，此时的分析工作必须在一个能确保一致性的快照中进行一致性指整个分析期间整个执行系统看起来像被冻结在某个时间点上如果出现分析过程中对象引用关系还在不断变化，则分析结果的准确性无法保证。</p>
+<p>STW 会出现在每一类的垃圾收集其中，被 STW 中断的应用程序线程会在完成 GC 之后恢复， 但频繁中断会影响用户体验，因此应尽量避免 STW 现象的出现。</p>
+</blockquote>
+<h2 id="GC-的并发和并行"><a href="#GC-的并发和并行" class="headerlink" title="GC 的并发和并行"></a>GC 的并发和并行</h2><p><img src="/2022/06/30/JVM-GC/1617029902.png"></p>
+<blockquote>
+<p>操作系统中的<strong>并发</strong>指的是一个时间段中有几个程序都处于已启动运行到运行完毕之间，且这几个程序都是在同一个处理器上运行。并发不是真正意义上的 “同时进行”， 只是 CPU 把一个时间段划分成几个时间片段 (时间区间) ， 然后在这几个时间区间之间来回切换。只是由于 CPU 处理的速度非常快， 只要时间间隔处理得当，即可让用户感觉是多个应用程序同时在进行。</p>
+<p>当系统有一个以上 CPU 时， 当一个 CPU 执行一个进程时， 另一个 CPU 可以执行另一个进程，两个进程互不抢占 CPU 资源， 可以同时进行， 我们称之为并行 (Parallel) 。因此，并发是一种宏观上的概念，并行是一种微观上的概念。</p>
+<p>GC 中的并行指的是多条垃圾收集线程并行工作， 但此时用户线程仍处于等待状态。并发指用户线程与垃圾收集线程同时执行 (但不一定是并行的， 可能会交替执行)，垃圾回收线程在执行时不会停顿用户程序的运行。用户程序在继续运行， 而垃圾收集程序线程运行于另一个 CPU 上。</p>
+</blockquote>
+<h2 id="5-安全点和安全区域"><a href="#5-安全点和安全区域" class="headerlink" title="5. 安全点和安全区域"></a>5. 安全点和安全区域</h2><h3 id="安全点"><a href="#安全点" class="headerlink" title="安全点"></a>安全点</h3><blockquote>
+<p>安全点（Safe Point）指的是程序可以停下来执行 GC 操作的特定位置。Safe Point 的选择很重要， 如果太少可能导致 GC 等待的时间太长， 如果太频繁可能导致运行时的性能问题。大部分指令的执行时间都非常短暂，通常会根据 “是否具有让程序长时间执行的特征” 为标准。比如：选择一些执行时间较长的指令作为 Safe Point， 如方法调用、循环跳转和异常跳转等。</p>
+<p>一般采用的方式是主动式中断：设置一个中断标志， 各个线程运行到 SafePoint 的时候主动轮询这个标志，如果中断标志为真，则将自己进行中断挂起。</p>
+</blockquote>
+<h3 id="安全区域"><a href="#安全区域" class="headerlink" title="安全区域"></a>安全区域</h3><blockquote>
+<p>安全区域是指在一段代码片段中，对象的引用关系不会发生变化，在这个区域中的任何位置开始 GC 都是安全的。实际执行时：</p>
+</blockquote>
+<ul>
+<li>当线程运行到 Safe Region 的代码时， 首先标识已经进入了 Safe Region，如果这段时间内发生 GC， JVM 会忽略标识为 Safe Region 状态的线程</li>
+<li>当线程即将离开 Safe Region 时， 会检查 JVM 是否已经完成 GC， 如果完成了， 则继续运行， 否则线程必须等待直到收到可以安全离开 Safe Region 的信号为止</li>
+</ul>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><blockquote>
+<p>Java 中的引用按照引用的强度可以分为：</p>
+</blockquote>
+<ul>
+<li>强引用（<strong>Strong Reference</strong>）：指在程序代码之中普遍存在的引用赋值，即类似 “Object obj&#x3D;new Object() ” 这种引用关系。无论任何情况下，只要强引用关系还存在，垃圾收集器就永远不会回收掉被引用的对象</li>
+<li>软引用（<strong>Soft Reference</strong>）：：在系统将要发生内存溢出之前， 将会把这些对象列入回收范围之中进行第二次回收。如果这次回收后还没有足够的内存，才会抛出内存溢出异常</li>
+<li>弱引用（<strong>Weak Reference</strong>）：：在系统将要发生内存溢出之前， 将会把这些对象列入回收范围之中进行第二次回收。如果这次回收后还没有足够的内存，才会抛出内存溢出异常</li>
+<li>虚引用（<strong>Phantom Reference</strong>）：：一个对象是否有虚引用的存在， 完全不会对其生存时间构成影响，也无法通过虚引用来获得一个对象的实例。为一个对象设置虚引用关联的唯一目的就是能在这个对象被收集器回收时收到一个系统通知</li>
+</ul>
+<blockquote>
+<p>除强引用外， 其他 3 种引用都定义在在 java.lang.ref 包中。</p>
+</blockquote>
+<h3 id="Java为什么要设计这四种引用"><a href="#Java为什么要设计这四种引用" class="headerlink" title="Java为什么要设计这四种引用"></a>Java为什么要设计这四种引用</h3><p>Java的内存分配和内存回收，由JVM去负责，一个对象是否可以被回收，主要看是否有引用指向此对象，即可达性分析。</p>
+<p>Java设计这四种引用的主要目的有两个：</p>
+<ol>
+<li>可以让程序员通过代码的方式来决定某个对象的生命周期；</li>
+<li>有利于垃圾回收。</li>
+</ol>
+<h3 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h3><blockquote>
+<p>强引用是 Java 程序中最常见的引用类型，同时也是默认的引用类型。当在 Java 语言中使用 new 操作符创建一个新的对象， 并将其赋值给一个变量的时候，这个变量就成为指向该对象的一个强引用。强引用的对象是可触及的，垃圾收集器就永远不会回收掉被引用的对象。相对的，软引用、弱引用和虚引用的对象是软可触及、弱可触及和虚可触及的，在一定条件下， 都是可以被回收的。所以， 强引用是造成 Java 内存泄漏的主要原因之一。</p>
+<p>对于一个普通的对象来说，如果没有其他的引用关系，只要超过了引用的作用域或者显式的将引用赋值为null了，就可以被 GC。</p>
+<p>例如在下面的程序中，str 和 str1 都指向了保存在堆中的 StringBuffer 对象，它们两个都是强引用。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StrongReferenceTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">StringBuffer</span> <span class="variable">str</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span> (<span class="string">&quot;Hello, Forlogen&quot;</span>);</span><br><span class="line">    <span class="type">StringBuffer</span> <span class="variable">str1</span> <span class="operator">=</span> str;</span><br><span class="line">    str = <span class="literal">null</span>;</span><br><span class="line">    System.gc();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(str1);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>强引用具备以下特点：</p>
+</blockquote>
+<ul>
+<li>强引用可以直接访问目标对象</li>
+<li>强引用所指向的对象在任何时候都不会被系统回收，虚拟机宁愿抛出 OOM 异常， 也不会回收强引用所指向对象</li>
+<li>强引用可能导致内存泄漏</li>
+</ul>
+<h3 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h3><blockquote>
+<p>软引用是用来描述一些还有用、但非必需的对象，只被软引用关联着的对象，在系统将要发生内存溢出异常前，会把这些对象列进回收范围之中进行第二次回收，如果这次回收还没有足够的内存，才会抛出内存溢出异常。</p>
+<p>软引用通常用来实现内存敏感的缓存。比如：高速缓存就有用到软引用。如果还有空闲内存，就可以暂时保留缓存，当内存不足时清理掉，这样就保证了使用缓存的同时，不会耗尽内存。</p>
+<p>垃圾回收器在某个时刻决定回收软可达的对象的时候，会清理软引用，并可选地把引用存放到一个引用队列 (Reference Queue) 。类似弱引用， 只不过 Java 虚拟机会尽量让软引用的存活时间长一些， 迫不得已才清理。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SoftReferenceTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">User</span><span class="params">(<span class="type">int</span> id, String name)</span> &#123;</span><br><span class="line">      <span class="built_in">this</span>.id = id;</span><br><span class="line">      <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> id;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&quot;[id=&quot;</span> + id + <span class="string">&quot;, name=&quot;</span> + name + <span class="string">&quot;] &quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="comment">//创建对象，建立软引用</span></span><br><span class="line">    SoftReference&lt;User&gt; userSoftRef = <span class="keyword">new</span> <span class="title class_">SoftReference</span>&lt;User&gt;(<span class="keyword">new</span> <span class="title class_">User</span>(<span class="number">1</span>, <span class="string">&quot;songhk&quot;</span>));</span><br><span class="line">    <span class="comment">//从软引用中重新获得强引用对象</span></span><br><span class="line">    System.out.println(userSoftRef.get());</span><br><span class="line">    System.gc();</span><br><span class="line">    System.out.println(<span class="string">&quot;After GC:&quot;</span>);</span><br><span class="line">    <span class="comment">//垃圾回收之后获得软引用中的对象</span></span><br><span class="line">    System.out.println(userSoftRef.get());<span class="comment">//由于堆空间内存足够，所有不会回收软引用的可达对象。</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">//让系统认为内存资源紧张、不够</span></span><br><span class="line">      <span class="type">byte</span>[] b = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span> * <span class="number">1024</span> * <span class="number">7</span>];</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      <span class="comment">//再次从软引用中获取数据</span></span><br><span class="line">      System.out.println(userSoftRef.get());<span class="comment">//在报OOM之前，垃圾回收器会回收软引用的可达对象。</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h3><blockquote>
+<p>弱引用也是用来描述那些非必需对象，只被弱引用关联的对象只能生存到下一次垃圾收集发生为止。在系统 GC 时，只要发现弱引用，不管系统堆空间使用是否充足，都会回收掉只被弱引用关联的对象。但是，由于垃圾回收器的线程通常优先级很低，因此，并不一定能很快地发现持有弱引用的对象。在这种情况下，弱引用对象可以存在较长的时间。</p>
+<p>弱引用和软引用一样，在构造弱引用时，也可以指定一个引用队列，当弱引用对象被回收时，就会加入指定的引用队列，通过这个队列可以跟踪对象的回收情况。软引用、弱引用都非常适合来保存那些可有可无的缓存数据。如果这么做，当系统内存不足时，这些缓存数据会被回收，不会导致内存溢出。而当内存资源充足时，这些缓存数据又可以存在相当长的时间，从而起到加速系统的作用。</p>
+</blockquote>
+<h3 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h3><blockquote>
+<p>虚引用也称为 “幽灵引用” 或者 “幻影引用”，是所有引用类型中最弱的一个。一个对象是否有虚引用的存在，完全不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它和没有引用几乎是一样的，随时都可能被垃圾回收器回收。它不能单独使用，也无法通过虚引用来获取被引用的对象。当试图通过虚引用的 get() 方法取得对象时， 总是 null。为一个对象设置虚引用关联的唯一目的在于跟踪垃圾回收过程。比如：能在这个对象被收集器回收时收到一个系统通知。</p>
+<p>虚引用必须和引用队列一起使用。虚引用在创建时必须提供一个引用队列作为参数。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象后，将这个虚引用加入引用队列，以通知应用程序对象的回收情况。由于虚引用可以跟踪对象的回收时间，因此，也可以将一些资源释放操作放置在虚引用中执行和记录。</p>
+</blockquote>
+<h3 id="终结器引用"><a href="#终结器引用" class="headerlink" title="终结器引用"></a>终结器引用</h3><blockquote>
+<p>终结器引用用以实现对象的 finalize() 方法， 也可以称为终结器引用。无需手动编码，其内部配合引用队列使用。在 GC 时， 终结器引用入队。由 Finalizer 线程通过终结器引用找到被引用对象并调用它的 finalize() 方法， 第二次 GC 时才能回收被引用对象。</p>
+</blockquote>
+<p>来源：</p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-garbage-collection-concept.html">https://rumenz.com/rumenbiji/jvm-garbage-collection-concept.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/CodeBear/p/12447554.html">https://www.cnblogs.com/CodeBear/p/12447554.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/30/JAVA-JVM/" rel="prev" title="JAVA-JVM">
+      <i class="fa fa-chevron-left"></i> JAVA-JVM
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/02/MySQL-%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="next" title="MySQL-面试题">
+      MySQL-面试题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">JVM垃圾回收器概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#System-gc"><span class="nav-number">1.1.</span> <span class="nav-text">System.gc()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%92%8C%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">内存溢出和内存泄漏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">1.2.1.</span> <span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">内存泄漏</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#STW"><span class="nav-number">1.3.</span> <span class="nav-text">STW</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC-%E7%9A%84%E5%B9%B6%E5%8F%91%E5%92%8C%E5%B9%B6%E8%A1%8C"><span class="nav-number">1.4.</span> <span class="nav-text">GC 的并发和并行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%AE%89%E5%85%A8%E7%82%B9%E5%92%8C%E5%AE%89%E5%85%A8%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.5.</span> <span class="nav-text">5. 安全点和安全区域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E7%82%B9"><span class="nav-number">1.5.1.</span> <span class="nav-text">安全点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.5.2.</span> <span class="nav-text">安全区域</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.</span> <span class="nav-text">引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E8%AE%BE%E8%AE%A1%E8%BF%99%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.1.</span> <span class="nav-text">Java为什么要设计这四种引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.2.</span> <span class="nav-text">强引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.3.</span> <span class="nav-text">软引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%B1%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.4.</span> <span class="nav-text">弱引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.5.</span> <span class="nav-text">虚引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%88%E7%BB%93%E5%99%A8%E5%BC%95%E7%94%A8"><span class="nav-number">1.6.6.</span> <span class="nav-text">终结器引用</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

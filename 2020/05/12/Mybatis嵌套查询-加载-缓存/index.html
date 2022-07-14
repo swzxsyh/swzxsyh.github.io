@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.Mybatis嵌套查询1.1 什么事嵌套查询嵌套查询就是将原来多表查询中的联合查询语句拆成多个单表的查询，再使用mybatis的语法嵌套在一起。 例 需求:查询一个订单，与此同时查询出该订单所属的用户 关联查询: 1select * from orders o inner join user u on o.uid &#x3D; u.id where o.id &#x3D; 1;缺点:sql语句">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis嵌套查询 &amp; 加载 &amp; 缓存">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.Mybatis嵌套查询1.1 什么事嵌套查询嵌套查询就是将原来多表查询中的联合查询语句拆成多个单表的查询，再使用mybatis的语法嵌套在一起。 例 需求:查询一个订单，与此同时查询出该订单所属的用户 关联查询: 1select * from orders o inner join user u on o.uid &#x3D; u.id where o.id &#x3D; 1;缺点:sql语句">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-11T17:37:47.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.964Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mybatis嵌套查询 & 加载 & 缓存 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mybatis嵌套查询 & 加载 & 缓存
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-12 01:37:47" itemprop="dateCreated datePublished" datetime="2020-05-12T01:37:47+08:00">2020-05-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.Mybatis嵌套查询<br>1.1 什么事嵌套查询<br>嵌套查询就是将原来多表查询中的联合查询语句拆成多个单表的查询，再使用mybatis的语法嵌套在一起。</p>
+<p>例</p>
+<p>需求:查询一个订单，与此同时查询出该订单所属的用户</p>
+<p>关联查询:</p>
+<p>1<br>select * from orders o inner join user u on o.uid &#x3D; u.id where o.id &#x3D; 1;<br>缺点:<br>sql语句编写难度大</p>
+<p>数据量过大，笛卡尔积数量倍增，可能造成内存溢出</p>
+<p>嵌套查询</p>
+<p>1<br>2<br>3<br>4<br>5<br>–根据订单id查询订单表<br>  select * from orders where id &#x3D; 1;<br>–再根据订单表中uid(外键)查询用户表<br>    select * from user where id &#x3D; 订单表uid;<br>–最后由mybatis框架进行嵌套组合<br>优点</p>
+<p>sql语句编写简单</p>
+<p>没有多表关联，不会产生笛卡尔积</p>
+<p>1.2 一对一嵌套查询<br>需求</p>
+<p>查询一个订单，与此同时查询出该订单所属的用户</p>
+<p>sql语句</p>
+<p>1<br>2<br>3<br>4<br>– 1.根据订单id查询订单表<br>    select * from orders where id &#x3D; 1;<br>– 2.再根据订单表中uid(外键)查询用户表<br>    select * from user where id &#x3D; 41;<br>OrderMapper接口</p>
+<p>1<br>2<br>3<br>4<br>public interface OrderMapper {</p>
+<pre><code>//一对一嵌套查询
+public Order findByIdWithUser(Integer id);
+</code></pre>
+<p>OrderMapper映射</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.OrderMapper"></mapper></p>
+<pre><code>&lt;resultMap id=&quot;orderMap&quot; type=&quot;Order&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;&gt;&lt;/id&gt;
+    &lt;result column=&quot;ordertime&quot; property=&quot;ordertime&quot;&gt;&lt;/result&gt;
+    &lt;result column=&quot;money&quot; property=&quot;money&quot;&gt;&lt;/result&gt;
+
+    &lt;!--通过mybatis嵌套查询user表--&gt;
+    &lt;association property=&quot;user&quot; javaType=&quot;User&quot; column=&quot;uid&quot; select=&quot;com.test.dao.OrderMapper.findById&quot;&gt;
+
+    &lt;/association&gt;
+&lt;/resultMap&gt;
+</code></pre>
+<!--    一对一嵌套查询-->
+<pre><code>&lt;!--    resultType:单表映射封装 --&gt;
+&lt;!--    resultMap:多表查询必须手动映射封装--&gt;
+
+&lt;select id=&quot;findByIdWithUser&quot; parameterType=&quot;int&quot; resultMap=&quot;orderMap&quot;&gt;
+    SELECT * FROM orders WHERE id=#&#123;id&#125;
+&lt;/select&gt;
+</code></pre>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>public interface UserMapper {<br>    &#x2F;&#x2F; 根据用户id查询user对象<br>    public User findById(Integer id);<br>UserMapper映射</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
+<mapper namespace="com.test.dao.UserMapper">
+
+<pre><code>&lt;!--    根据用户id查询user对象--&gt;
+&lt;select id=&quot;findById&quot; parameterType=&quot;int&quot; resultType=&quot;User&quot;&gt;
+SELECT * FROM user WHERE id=#&#123;id&#125;
+    &lt;/select&gt;
+</code></pre>
+<p>通过mybatis进行嵌套组合</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><resultMap id="orderMap" type="Order"><br>    <id column="id" property="id"></id><br>    <result column="ordertime" property="ordertime"></result><br>    <result column="money" property="money"></result></resultMap></p>
+<pre><code>&lt;!--通过mybatis嵌套查询user表
+一对一association
+column=&quot;uid&quot; 订单查询的用户外键字段，需要作为条件
+select=&quot;com.test.dao.OrderMapper.findById&quot;查询用户表(用户接口+执行方法名)
+--&gt;
+&lt;association property=&quot;user&quot; javaType=&quot;User&quot; column=&quot;uid&quot; select=&quot;com.test.dao.UserMapper.findById&quot;/&gt;
+
+
+&lt;/association&gt;
+</code></pre>
+
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>public class OrderMapperTest extends BaseMapperTest {</p>
+<pre><code>// 一对一嵌套测试
+@Test
+public void testFindByIdWithUser() throws Exception &#123;
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+    // 根据id查询
+    Order order = orderMapper.findByIdWithUser(1);
+    System.out.println(order);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>[2020-05-12 21:21:03,060] DEBUG o.OrderMapper.findByIdWithUser  - &#x3D;&#x3D;&gt;  Preparing: </p>
+<p>&#x2F;&#x2F;先查询订单<br>SELECT * FROM orders WHERE id&#x3D;? </p>
+<p>[2020-05-12 21:21:03,111] DEBUG o.OrderMapper.findByIdWithUser  - &#x3D;&#x3D;&gt; Parameters: 1(Integer)<br>[2020-05-12 21:21:03,159] DEBUG     com.test.dao.UserMapper  - Cache Hit Ratio [com.test.dao.UserMapper]: 0.0<br>[2020-05-12 21:21:03,159] DEBUG theima.dao.UserMapper.findById  - &#x3D;&#x3D;&#x3D;&#x3D;&gt;  Preparing: </p>
+<p>&#x2F;&#x2F;再查询用户<br>SELECT * FROM user WHERE id&#x3D;? </p>
+<p>[2020-05-12 21:21:03,159] DEBUG theima.dao.UserMapper.findById  - &#x3D;&#x3D;&#x3D;&#x3D;&gt; Parameters: 41(Integer)<br>[2020-05-12 21:21:03,162] DEBUG theima.dao.UserMapper.findById  - &lt;&#x3D;&#x3D;&#x3D;&#x3D;      Total: 1<br>[2020-05-12 21:21:03,165] DEBUG o.OrderMapper.findByIdWithUser  - &lt;&#x3D;&#x3D;      Total: 1</p>
+<p>&#x2F;&#x2F;用mybatis嵌套组合在一起<br>Order{id&#x3D;1, ordertime&#x3D;Mon May 20 15:58:02 CST 2019, money&#x3D;999.5, user&#x3D;User{id&#x3D;41, username&#x3D;’老王’, birthday&#x3D;Tue May 28 06:47:08 CST 2019, sex&#x3D;’男’, address&#x3D;’北京’, orderList&#x3D;null, roleList&#x3D;null}}<br>嵌套关系</p>
+<p>步骤	<br>&#x2F;&#x2F;一对一嵌套查询<br>public Order findByIdWithUser(Integer id);<br>&#x2F;&#x2F; 根据用户id查询user对象<br>public User findById(Integer id);<br>用mybatis嵌套组合在一起<br><association property="”user”" javatype="”User”" column="”uid”" select="”com.test.dao.UserMapper.findById”" fetchtype="”eager”/"><br>1.3 一对多嵌套查询<br>需求</association></p>
+<p>查询一个用户，与此同时查询出该用户具有的订单</p>
+<p>sql语句</p>
+<p>1<br>2<br>3<br>4<br>– 1. 先根据用户id，查询用户表(一个)<br>    SELECT * FROM USER WHERE id &#x3D; 41;<br>– 2. 再根据用户id，查询订单表(多个)<br>    SELECT * FROM orders WHERE uid &#x3D; 41;<br>UserMapper接口</p>
+<p>1<br>2<br>&#x2F;&#x2F; 一对多嵌套查询<br>public User findByIdWithOrders(Integer id);<br>UserMapper映射</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><resultMap id="userWithOrdersMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!--一对多嵌套组合--><br>    <collection property="orderList" oftype="Order" column="id" select="com.test.dao.OrderMapper.findByUid"><br></collection></result></result></result></result></id></resultMap></p>
+<!--一对多嵌套查询-->
+<select id="findByIdWithOrders" parametertype="int" resultmap="userWithOrdersMap">
+    SELECT * FROM user WHERE id=#{id}
+</select>
+OrderMapper接口
+
+<p>1<br>2<br>&#x2F;&#x2F; 根据用户id，查询订单列表<br>public List<Order> findByUid(Integer id);<br>OrderMapper映射</Order></p>
+<p>1<br>2<br>3<br><select id="findByUid" parametertype="int" resulttype="Order"><br>    SELECT * FROM orders WHERE uid&#x3D;#{uid}<br></select><br>通过mybatis进行嵌套组合</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br><resultMap id="userWithOrdersMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!--一对多嵌套组合
+    collection
+    column="id" 根据用户查询的结果，id作为条件
+    select="com.test.dao.OrderMapper.findByUid" 去查询订单表(映射接口+执行方法)
+    --><br>    <collection property="orderList" oftype="Order" column="id" select="com.test.dao.OrderMapper.findByUid"><br></collection></result></result></result></result></id></resultMap><br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public class UserMapperTest extends BaseMapperTest {</p>
+<pre><code>@Test
+public void testFindByIdWithOrders() throws Exception &#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    User user = userMapper.findByIdWithOrders(41);
+    System.out.println(user);
+&#125;
+</code></pre>
+<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;先查询用户<br>    SELECT * FROM USER WHERE id &#x3D; 41;<br>&#x2F;&#x2F;再查询订单<br>    SELECT * FROM orders WHERE uid &#x3D; 41;<br>&#x2F;&#x2F;用mybatis嵌套组合在一起<br>嵌套关系</p>
+<p>步骤	<br>&#x2F;&#x2F;先查询用户<br>public User findByIdWithOrders(Integer id);<br>&#x2F;&#x2F; 再查询订单<br>public List<Order> findByUid(Integer id);<br>用mybatis嵌套组合在一起<br><collection property="”orderList”" oftype="”Order”" column="”id”" select="”com.test.dao.OrderMapper.findByUid”/"><br>1.4 多对多嵌套查询<br>需求</collection></Order></p>
+<p>查询用户同时查询出该用户的所有角色</p>
+<p>mybatis的实现方案就是(一对多)，区别在于sql语句不同</p>
+<p>sql语句</p>
+<p>1<br>2<br>3<br>4<br>– 1. 先根据用户id，查询用户表(一个)<br>SELECT * FROM USER WHERE id &#x3D; 41;<br>– 2. 再根据用户id，查询角色表(多个)<br>SELECT * FROM role r INNER JOIN user_role ur ON ur.<code>rid</code> &#x3D; r.<code>id</code> WHERE ur.<code>uid</code> &#x3D; 41;<br>UserMapper接口</p>
+<p>1<br>2<br>&#x2F;&#x2F; 多对多嵌套查询<br>public User findByIdWithRoles(Integer id);<br>UserMapper映射</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br><resultMap id="userWithRolesMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!-- 多对多嵌套--><br>    <collection property="roleList" oftype="Role" column="id" select="com.test.dao.RoleMapper.findByUid"></collection><br></result></result></result></result></id></resultMap></p>
+<select id="findByIdWithRoles" parametertype="int" resultmap="userWithRolesMap">
+    SELECT * FROM user WHERE id=#{id}
+</select>
+RoleMapper接口
+
+<p>1<br>2<br>3<br>4<br>5<br>public interface RoleMapper {</p>
+<pre><code>// 根据用户id，查询角色列表
+public List&lt;Role&gt; findByUid(Integer id);
+</code></pre>
+<p>}<br>RoleMapper映射</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.RoleMapper"></mapper></p>
+<pre><code>&lt;resultMap id=&quot;roleResultMap&quot; type=&quot;Role&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
+    &lt;result column=&quot;role_name&quot; property=&quot;roleName&quot;/&gt;
+    &lt;result column=&quot;role_desc&quot; property=&quot;roleDesc&quot;/&gt;
+&lt;/resultMap&gt;
+
+&lt;!--    根据用户id，查询角色列表--&gt;
+&lt;select id=&quot;findByUid&quot; parameterType=&quot;int&quot; resultMap=&quot;roleResultMap&quot;&gt;
+    SELECT * FROM role r INNER JOIN user_role ur ON ur.`rid`=r.`id` WHERE ur.`uid`=#&#123;uid&#125;
+&lt;/select&gt;
+</code></pre>
+</mapper>
+通过mybatis进行嵌套组合
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
+<mapper namespace="com.test.dao.UserMapper">
+
+<pre><code>&lt;cache&gt;&lt;/cache&gt;
+
+&lt;resultMap id=&quot;userWithOrdersMap&quot; type=&quot;User&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
+    &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
+    &lt;result column=&quot;sex&quot; property=&quot;sex&quot;/&gt;
+    &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;/&gt;
+    &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
+    &lt;!--一对多嵌套组合
+    collection
+    column=&quot;id&quot; 根据用户查询的结果，id作为条件
+    select=&quot;com.test.dao.OrderMapper.findByUid&quot; 去查询订单表(映射接口+执行方法)
+    --&gt;
+    &lt;collection property=&quot;orderList&quot; ofType=&quot;Order&quot; column=&quot;id&quot; select=&quot;com.test.dao.OrderMapper.findByUid&quot;/&gt;
+&lt;/resultMap&gt;
+
+
+&lt;resultMap id=&quot;userWithRolesMap&quot; type=&quot;User&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
+    &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
+    &lt;result column=&quot;sex&quot; property=&quot;sex&quot;/&gt;
+    &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;/&gt;
+    &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
+    &lt;!-- 多对多嵌套
+    column=&quot;id&quot; 用户id作为条件
+    select=&quot;com.test.dao.RoleMapper.findByUid&quot;查询角色表(角色映射接口+执行方法)
+    --&gt;
+    &lt;collection property=&quot;roleList&quot; ofType=&quot;Role&quot; column=&quot;id&quot;
+                select=&quot;com.test.dao.RoleMapper.findByUid&quot;&gt;&lt;/collection&gt;
+&lt;/resultMap&gt;
+
+
+&lt;!--    根据用户id查询user对象--&gt;
+&lt;select id=&quot;findById&quot; parameterType=&quot;int&quot; resultType=&quot;User&quot;&gt;
+SELECT * FROM user WHERE id=#&#123;id&#125;
+</code></pre>
+
+
+<pre><code>&lt;!--一对多嵌套查询--&gt;
+&lt;select id=&quot;findByIdWithOrders&quot; parameterType=&quot;int&quot; resultMap=&quot;userWithOrdersMap&quot;&gt;
+    SELECT * FROM user WHERE id=#&#123;id&#125;
+&lt;/select&gt;
+
+&lt;select id=&quot;findByIdWithRoles&quot; parameterType=&quot;int&quot; resultMap=&quot;userWithRolesMap&quot;&gt;
+    SELECT * FROM user WHERE id=#&#123;id&#125;
+&lt;/select&gt;
+</code></pre>
+</mapper>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>&#x2F;&#x2F; 多对多测试(根据用户查询角色)<br>@Test<br>public void testFindByIdWithRoles() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>User user = userMapper.findByIdWithRoles(41);
+System.out.println(user);
+</code></pre>
+<p>}<br>嵌套关系</p>
+<p>步骤	<br>&#x2F;&#x2F;先查询用户<br>public User findByIdWithRoles(Integer id);<br>&#x2F;&#x2F; 再查询角色列表<br>public List<Order> findByUid(Integer id);<br>用mybatis嵌套组合在一起<br><collection property="”roleList”" oftype="”Role”" column="”id”" select="”com.test.dao.RoleMapper.findByUid”/"><br>1.5 知识小结<br>步骤:一对多举例</collection></Order></p>
+<p>先查询(一方)单表&#x3D;&gt;再查询(多方)单表&#x3D;&gt;最后由mybatis嵌套组合</p>
+<p>配置	<br>一对一配置	使用<resultMap>+<association>做配置，通过column条件，执行select查询<br>一对多配置	使用<resultMap>+<collection>做配置，通过column条件，执行select查询<br>多对多配置	使用<resultMap>+<collection>做配置，通过column条件，执行select查询<br>优点:	缺点<br>简化sql语句编写<br>不会产生笛卡尔积	麻烦<br>开发中到底使用哪一种</collection></resultMap></collection></resultMap></association></resultMap></p>
+<p>传统开发，数据量小</p>
+<p>使用关联查询</p>
+<p>互联网开发，数据量大</p>
+<p>使用嵌套查询</p>
+<p>二.Mybatis加载策略<br>2.1 什么是加载策略<br>当多个模型(表)之间存在关联关系时, 加载一个模型(表)的同时, 是否要立即加载其关联的模型, 我们把这种决策 称为加载策略</p>
+<p>如果加载一个模型(表)的时候, 需要立即加载出其关联的所有模型(表), 这种策略称为立即加载</p>
+<p>如果加载一个模型的时候, 不需要立即加载出其关联的所有模型, 等到真正需要的时候再加载, 这种策略称为延迟加载(懒加载)<br>Mybatis中的加载策略有两种:立即加载和延迟加载, 默认是立即加载</p>
+<p>注意:延迟加载是在嵌套查询基础上实现的</p>
+<p>什么样的场景使用立即加载</p>
+<p>一对一</p>
+<p>什么样的场景使用延迟加载(什么时候用，什么时候查询，提高数据库性能)</p>
+<p>一对多、多对多</p>
+<p>2.2 配置延迟加载<br>2.2.1 全局<br>SqlMapConfig.xml,设置开启全局延迟加载</p>
+<p>1<br>2<br>3<br>4<br>5<br><settings><br>    <!--开启延迟(懒)加载 true 开始 false(默认值) 关闭--><br>    <setting name="lazyLoadingEnabled" value="true"></setting></settings></p>
+
+2.2.2 局部
+mapper映射文件，指定某一个select标签配置
+
+<p>1<br>2<br>3<br>4<br>5<br><association></association> 标签<br><collection></collection> 标签<br>fetchType&#x3D;””属性<br>    eager 立即加载<br>    lazy 延迟加载<br>注意:局部优先级高于全局，就近原则</p>
+<p>2.3 触发加载<br>有这样一个全局配置 lazyLoadTriggerMethods ,它定义的方法会触发立即加载</p>
+<p>也就说当你调用它定义的方法时, 会执行数据加载, 它的默认值是 equals,clone,hashCode,toString</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br><settings><br>    <!--开启延迟(懒)加载 true 开始 false(默认值) 关闭--><br>    <setting name="lazyLoadingEnabled" value="true"><br>    <!--触发立即加载的配置
+      默认值:equals,clone,hashCode,toString
+      value="" 覆盖了默认值，表示在执行上述四个方法时，不会触发立即加载
+      只有在执行get方法获取时，触发数据加载
+    --><br>    <setting name="lazyLoadTriggerMethods" value><br></setting></setting></settings><br>三.Mybatis缓存<br>什么是缓存</p>
+<p>服务器内存(硬盘)中的一块区域</p>
+<p>为什么使用缓存</p>
+<p>提高查询效率</p>
+<p>什么样的数据适合做缓存</p>
+<p>经常访问但又不经常修改的数据</p>
+<p>缓存是用来提高查询效率的，所有的持久层框架基本上都有缓存机制 Mybatis也提供了缓存策略，分为一级缓存，二 级缓存</p>
+<p>3.1 一级缓存<br>3.1.1 介绍<br>MyBatis一级缓存是:SqlSession级别的缓存，默认开启，不需要手动配置</p>
+<p>3.1.2 验证<br>需求</p>
+<p>根据id查询用户</p>
+<p>一级缓存测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>&#x2F;&#x2F; 一级缓存测试<br>@Test<br>public void testFindByIdWithBufferLevel1() throws Exception {<br>    &#x2F;&#x2F;需要用工具类开启&#x2F;关闭session，否则会出现session错误<br>    SqlSession sqlSession &#x3D; MyBatisUtils.openSession();<br>    UserMapper userMapper1 &#x3D; sqlSession.getMapper(UserMapper.class);<br>    &#x2F;&#x2F; 走数据库<br>    User user1 &#x3D; userMapper1.findById(41);<br>    System.out.println(user1);</p>
+<pre><code>// 清除缓存(自己测试增、删、改)
+sqlSession.clearCache();
+
+// 获取第二个代理对象
+UserMapper userMapper2 = sqlSession.getMapper(UserMapper.class);
+// 走缓存(如果上面清除缓存，还是走数据库)
+User user2 = userMapper2.findById(41);
+System.out.println(user2);
+
+// sqlSession关闭(清除缓存)
+MyBatisUtils.close(sqlSession);
+</code></pre>
+<p>}<br>3.1.3 分析<br>一级缓存是SqlSession范围的缓存，不同的SqlSession之间的缓存区域是互相不影响的，执行SqlSession的C(增</p>
+<p>加)U(更新)D(删除)操作，或者调用clearCache()、commit()、close()方法，都会清空缓存</p>
+<p>SqlSession对象		LocalCache(Map集合)<br>第一次查询	写入<br>➡	LocalCache<br>如果中间发生了DML(增删改)事务操作，清除缓存	清除<br>➡	LocalCache<br>第N次查询	读取<br>⬅	LocalCache<br>一级缓存源码</p>
+<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;org.apache.ibatis.cache.impl.PerpetualCache</p>
+<p>public class PerpetualCache implements Cache {<br>    private final String id;<br>    private Map&lt;Object, Object&gt; cache &#x3D; new HashMap();<br>3.2 二级缓存<br>3.2.1 介绍<br>MyBatis的二级缓存虽然是默认开启的，但需要在映射文件中配置 <cache> 标签才能使用，而且要求实体类的必须 实现序列化接口</cache></p>
+<p>3.2.2 验证<br>mybatis全局配置，默认值就是开启了二级缓存</p>
+<p>指定需要开启二级缓存的映射配置文件</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
+<mapper namespace="com.test.dao.UserMapper">
+
+<pre><code>&lt;!--    当前映射文件，使用二级缓存--&gt;
+&lt;cache&gt;&lt;/cache&gt;
+</code></pre>
+<p>指定User实现序列化接口</p>
+<p>1<br>public class User implements Serializable<br>二级缓存测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>&#x2F;&#x2F; 二级缓存测试<br>@Test<br>public void testFindByIdWithBufferLevel2() throws Exception {<br>&#x2F;&#x2F;需要用工具类开启&#x2F;关闭session，否则会出现session错误<br>    &#x2F;&#x2F; 模拟第一个用户<br>    SqlSession sqlSession1 &#x3D; MyBatisUtils.openSession();<br>    UserMapper userMapper1 &#x3D; sqlSession1.getMapper(UserMapper.class);<br>    User user1 &#x3D; userMapper1.findById(41);<br>    System.out.println(user1);</p>
+<pre><code>sqlSession1.close();
+
+// 模拟第二个用户
+SqlSession sqlSession2 = MyBatisUtils.openSession();
+UserMapper userMapper2 = sqlSession2.getMapper(UserMapper.class);
+User user2 = userMapper2.findById(41);
+System.out.println(user2);
+sqlSession2.close();
+</code></pre>
+<p>}<br>3.2.3 分析<br>二级缓存是mapper映射级别的缓存，多个SqlSession去操作同一个Mapper映射的sql语句，多个SqlSession可以共</p>
+<p>用二级缓存，二级缓存是跨SqlSession的。</p>
+<p>二级缓存相比一级缓存的范围更大(按namespace来划分)</p>
+<p>3.3 知识小结</p>
+<p>mybatis的缓存，不需要手动存储和获取数据。mybatis自动维护的。</p>
+<p>使用mybatis，如果是中小型项目，使用自带缓存的机制是可以满足需求的。如果是大型(分布式)项目，mybatis的 缓存灵活性不足，需要使用第三方的缓存技术解决问题。</p>
+<p>四.核心配置文件回顾<br>4.1 properties标签<br>加载外部的properties文件</p>
+<p>1<br><properties resource="jdbc.properties"></properties><br>4.2 settings标签<br>全局参数配置</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br><settings></settings></p>
+<!--开启懒加载-->
+<setting name="lazyLoadingEnabled" value="true">
+<!-- 指定触发延迟加载的方法，只有get方法执行时才会触发立即加载 --> <setting name="lazyLoadTriggerMethods" value> <!--开启二级缓存 true开启(默认) false关闭-->
+<setting name="cacheEnabled" value="true">
+
+4.3 typeAliases标签
+1
+2
+3
+4
+5
+6
+7
+8
+<!-- 单个定义别名 -->
+<typeAliases>
+<typeAlias type="cn.itcast.domain.User" alias="user"></typeAlias>
+    </typeAliases>
+<!-- 使用包的形式批量定义别名 -->
+<typeAliases>
+<package name="cn.itcast.domain"></package>
+    </typeAliases>
+4.4 mappers标签
+加载映射配置
+
+<p>1<br>2<br>3<br>4</p>
+<ol>
+<li>加载指定的src目录下的映射文件，例如:<mapper resource="com/test/mapper/UserMapper.xml"></mapper></li>
+<li>加载并扫描指定包下所有的映射文件(接口)，例如: <package name="com.test.mapper">
+4.5 environments标签
+数据源环境配置</package></li>
+</ol>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</p>
+<!--数据库环境配置-->
+<environments default="mysql">
+    <!--使用MySQL环境-->
+    <environment id="mysql">
+        <!--事务管理器,底层JDBC-->
+        <transactionManager type="JDBC">
+        <!--连接池,内置POOLED-->
+        <dataSource type="POOLED">
+            <property name="driver" value="${jdbc.driver}">
+            <property name="url" value="${jdbc.url}">
+            <property name="username" value="${jdbc.user}">
+            <property name="password" value="${jdbc.password}">
+        </property></property></property></property></dataSource>
+    </transactionManager></environment>
+</environments>
+总结
+## 一 MyBatis嵌套查询
+
+<h3 id="将原来多表查询中的联合查询语句，拆成多个单表的查询"><a href="#将原来多表查询中的联合查询语句，拆成多个单表的查询" class="headerlink" title="将原来多表查询中的联合查询语句，拆成多个单表的查询"></a>将原来多表查询中的联合查询语句，拆成多个单表的查询</h3><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ul>
+<li><p>一对一配置：使用<resultMap>+<association>做配置，通过column条件，执行select查询</association></resultMap></p>
+</li>
+<li><p>一对多配置：使用<resultMap>+<collection>做配置，通过column条件，执行select查询</collection></resultMap></p>
+</li>
+<li><p>多对多配置：使用<resultMap>+<collection>做配置，通过column条件，执行select查询</collection></resultMap></p>
+</li>
+</ul>
+<h2 id="二-MyBatis加载策略"><a href="#二-MyBatis加载策略" class="headerlink" title="二 MyBatis加载策略"></a>二 MyBatis加载策略</h2><h3 id="全局延迟加载"><a href="#全局延迟加载" class="headerlink" title="全局延迟加载"></a>全局延迟加载</h3><ul>
+<li><settings></settings></li>
+</ul>
+<p>​ &lt;!–开启全局延迟加载功能–&gt;</p>
+<p>​ <setting name="”lazyLoadingEnabled”" value="”true”/"></setting></p>
+
+
+<h3 id="局部延迟加载"><a href="#局部延迟加载" class="headerlink" title="局部延迟加载"></a>局部延迟加载</h3><ul>
+<li><association> 和 <collection> 标签</collection></association></li>
+</ul>
+<p>​ - fetchType&#x3D;”lazy | eager”</p>
+<ul>
+<li>局部的加载策略优先级高于全局的加载策略。</li>
+</ul>
+<h2 id="三-MyBatis缓存"><a href="#三-MyBatis缓存" class="headerlink" title="三 MyBatis缓存"></a>三 MyBatis缓存</h2><h3 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h3><ul>
+<li>是SqlSession级别的缓存</li>
+</ul>
+<h3 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h3><ul>
+<li>是mapper映射级别的缓存，需要手动配置且实体类实现serializable接口</li>
+</ul>
+<h2 id="四-核心配置文件回顾"><a href="#四-核心配置文件回顾" class="headerlink" title="四 核心配置文件回顾"></a>四 核心配置文件回顾</h2><h3 id="properties标签"><a href="#properties标签" class="headerlink" title="properties标签"></a>properties标签</h3><ul>
+<li>加载外部的properties文件</li>
+</ul>
+<h3 id="settings标签"><a href="#settings标签" class="headerlink" title="settings标签"></a>settings标签</h3><ul>
+<li>全局参数配置</li>
+</ul>
+<h3 id="typeAliases标签"><a href="#typeAliases标签" class="headerlink" title="typeAliases标签"></a>typeAliases标签</h3><ul>
+<li>为 Java 类型设置一个别名</li>
+</ul>
+<h3 id="mappers标签"><a href="#mappers标签" class="headerlink" title="mappers标签"></a>mappers标签</h3><ul>
+<li>加载映射配置</li>
+</ul>
+<h3 id="environments标签"><a href="#environments标签" class="headerlink" title="environments标签"></a>environments标签</h3><ul>
+<li>数据源环境配置</li>
+</ul>
+</setting></setting></setting></mapper>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/10/Mybatis%E8%A1%A8%E5%8D%95%E6%9F%A5%E8%AF%A2/" rel="prev" title="Mybatis表单查询">
+      <i class="fa fa-chevron-left"></i> Mybatis表单查询
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/" rel="next" title="MyBatis注解">
+      MyBatis注解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E5%8E%9F%E6%9D%A5%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2%E4%B8%AD%E7%9A%84%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%EF%BC%8C%E6%8B%86%E6%88%90%E5%A4%9A%E4%B8%AA%E5%8D%95%E8%A1%A8%E7%9A%84%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.</span> <span class="nav-text">将原来多表查询中的联合查询语句，拆成多个单表的查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C-MyBatis%E5%8A%A0%E8%BD%BD%E7%AD%96%E7%95%A5"><span class="nav-number"></span> <span class="nav-text">二 MyBatis加载策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.</span> <span class="nav-text">全局延迟加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">局部延迟加载</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89-MyBatis%E7%BC%93%E5%AD%98"><span class="nav-number"></span> <span class="nav-text">三 MyBatis缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="nav-number">1.</span> <span class="nav-text">一级缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="nav-number">2.</span> <span class="nav-text">二级缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B-%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%9B%9E%E9%A1%BE"><span class="nav-number"></span> <span class="nav-text">四 核心配置文件回顾</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#properties%E6%A0%87%E7%AD%BE"><span class="nav-number">1.</span> <span class="nav-text">properties标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#settings%E6%A0%87%E7%AD%BE"><span class="nav-number">2.</span> <span class="nav-text">settings标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#typeAliases%E6%A0%87%E7%AD%BE"><span class="nav-number">3.</span> <span class="nav-text">typeAliases标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mappers%E6%A0%87%E7%AD%BE"><span class="nav-number">4.</span> <span class="nav-text">mappers标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#environments%E6%A0%87%E7%AD%BE"><span class="nav-number">5.</span> <span class="nav-text">environments标签</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="RocketMQRocketMQ 用 Java 语言实现，在设计时参考了 Kafka，并做出了自己的改进，在消息可靠性上比 Kafka 更好，目前最新版本为 4.3.1。RocketMQ 已经被业界多个大型互联网公司采用。 在阿里内部，RocketMQ 很好地服务了集团大大小小上千个应用，在每年的双十一当天，更有不可思议的万亿级消息通过 RocketMQ 流转（在 2017 年的双 11 当天，整">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MessageQueue-RocketMQ">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="RocketMQRocketMQ 用 Java 语言实现，在设计时参考了 Kafka，并做出了自己的改进，在消息可靠性上比 Kafka 更好，目前最新版本为 4.3.1。RocketMQ 已经被业界多个大型互联网公司采用。 在阿里内部，RocketMQ 很好地服务了集团大大小小上千个应用，在每年的双十一当天，更有不可思议的万亿级消息通过 RocketMQ 流转（在 2017 年的双 11 当天，整">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/640.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/rocketmq.jpeg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/rocketmq1.jpeg">
+<meta property="article:published_time" content="2022-07-02T09:03:00.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.912Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/640.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MessageQueue-RocketMQ | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-RocketMQ/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MessageQueue-RocketMQ
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 17:03:00" itemprop="dateCreated datePublished" datetime="2022-07-02T17:03:00+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h1><p>RocketMQ 用 Java 语言实现，在设计时参考了 Kafka，并做出了自己的改进，在消息可靠性上比 Kafka 更好，目前最新版本为 4.3.1。RocketMQ 已经被业界多个大型互联网公司采用。</p>
+<p>在阿里内部，RocketMQ 很好地服务了集团大大小小上千个应用，在每年的双十一当天，更有不可思议的万亿级消息通过 RocketMQ 流转（在 2017 年的双 11 当天，整个阿里巴巴集团通过 RocketMQ 流转的线上消息达到了万亿级，峰值 TPS 达到 5600 万），在阿里大中台策略上发挥着举足轻重的作用。</p>
+<h2 id="重要概念"><a href="#重要概念" class="headerlink" title="重要概念"></a>重要概念</h2><ul>
+<li><strong>Name 服务器（NameServer）：</strong>充当注册中心，类似 Kafka 中的 Zookeeper。</li>
+<li><strong>Broker：</strong>一个独立的 RocketMQ 服务器就被称为 broker，broker 接收来自生产者的消息，为消息设置偏移量。</li>
+<li><strong>主题（Topic）：</strong>消息的第一级类型，一条消息必须有一个 Topic。</li>
+<li><strong>子主题（Tag）：</strong>消息的第二级类型，同一业务模块不同目的的消息就可以用相同 Topic 和不同的 Tag 来标识。</li>
+<li><strong>分组（Group）：</strong>一个组可以订阅多个 Topic，包括生产者组（Producer Group）和消费者组（Consumer Group）。</li>
+<li><strong>队列（Queue）：</strong>可以类比 Kafka 的分区 Partition。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>RcoketMQ 是一款低延迟、高可靠、可伸缩、易于使用的消息中间件。具有以下特性：</p>
+<ol>
+<li>支持发布&#x2F;订阅（Pub&#x2F;Sub）和点对点（P2P）消息模型；</li>
+<li>队列中有着可靠的先进先出（FIFO）和严格的顺序传递；</li>
+<li>支持拉（Pull）和推（Push）两种消息模式；</li>
+<li>单一队列百万消息的堆积能力；</li>
+<li>支持多种消息协议，如 JMS、MQTT 等；</li>
+<li>分布式高可用的部署架构，满足至少一次消息传递语义；</li>
+<li>提供 Docker 镜像用于隔离测试和云集群部署；</li>
+<li>提供配置、指标和监控等功能丰富的 Dashboard。</li>
+</ol>
+<h2 id="RocketMQ-工作原理"><a href="#RocketMQ-工作原理" class="headerlink" title="RocketMQ 工作原理"></a>RocketMQ 工作原理</h2><p>RockerMQ 中的消息模型就是按照主题模型所实现的，包括 Producer Group、Topic、Consumer Group 三个角色。</p>
+<p>为了提高并发能力，一个 Topic 包含多个 Queue，生产者组根据主题将消息放入对应的 Topic，下图是采用轮询的方式找到里面的 Queue。</p>
+<p>RockerMQ 中的消费群组和 Queue，可以类比 Kafka 中的消费群组和 Partition：不同的消费者组互不干扰，一个 Queue 只能被一个消费者消费，一个消费者可以消费多个 Queue。</p>
+<p>消费 Queue 的过程中，通过偏移量记录消费的位置。</p>
+<p><img src="/2022/07/02/MessageQueue-RocketMQ/640.png"></p>
+<h2 id="RocketMQ-架构"><a href="#RocketMQ-架构" class="headerlink" title="RocketMQ 架构"></a>RocketMQ 架构</h2><p>RocketMQ 技术架构中有四大角色 NameServer、Broker、Producer 和 Consumer，下面主要介绍 Broker。</p>
+<p>Broker 用于存放 Queue，一个 Broker 可以配置多个 Topic，一个 Topic 中存在多个 Queue。</p>
+<p>如果某个 Topic 消息量很大，应该给它多配置几个 Queue，并且尽量多分布在不同 broker 上，以减轻某个 broker 的压力。</p>
+<p>Topic 消息量都比较均匀的情况下，如果某个 broker 上的队列越多，则该 broker 压力越大。</p>
+<p><img src="/2022/07/02/MessageQueue-RocketMQ/rocketmq.jpeg"></p>
+<p><img src="/2022/07/02/MessageQueue-RocketMQ/rocketmq1.jpeg"></p>
+<p>NameServer 集群</p>
+<p>NameServer 是一个功能齐全的服务器，其角色类似 Kafka 中的 ZooKeeper，支持 Broker 的动态注册与发现。主要包括两个功能：</p>
+<ul>
+<li>Broker 管理。NameServer 接受 Broker 集群的注册信息并且保存下来作为路由信息的基本数据。然后提供心跳检测机制，检查 Broker 是否还存活。</li>
+<li>路由信息管理。每个 NameServer 将保存关于 Broker 集群的整个路由信息和用于客户端查询的队列信息。然后 Producer 和 Conumser 通过 NameServer 就可以知道整个 Broker 集群的路由信息，从而进行消息的投递和消费。</li>
+</ul>
+<p>NameServer 通常也是集群的方式部署，各实例间相互不进行信息通讯。Broker 向每一台 NameServer 注册自己的路由信息，所以每一个 NameServer 实例上面都保存一份完整的路由信息。当某个 NameServer 因某种原因下线，Broker 仍然可以向其它 NameServer 同步其路由信息，Produce、Consumer 仍然可以动态感知 Broker 的路由信息。</p>
+<h3 id="Broker-集群"><a href="#Broker-集群" class="headerlink" title="Broker 集群"></a>Broker 集群</h3><p>Broker 主要负责消息的存储、投递、查询以及服务高可用保证。为了实现这些功能 Broker 包含了以下几个重要子模块。</p>
+<ul>
+<li>Remoting Module：整个 Broker 的实体，负责处理来自 Clients 端的请求；</li>
+<li>Client Manager：负责管理客户端（Producer、Consumer）和 Consumer 的 Topic 订阅信息；</li>
+<li>Store Service：提供方便简单的 API 接口处理消息存储到物理硬盘和查询功能；</li>
+<li>HA Service：高可用服务，提供 Master Broker 和 Slave Broker 之间的数据同步功能；</li>
+<li>Index Service：根据特定的 Message Key 对投递到 Broker 的消息进行索引服务，以提供消息的快速查询。</li>
+</ul>
+<h3 id="Producer-集群"><a href="#Producer-集群" class="headerlink" title="Producer 集群"></a>Producer 集群</h3><p>充当消息生产者的角色，支持分布式集群方式部署。Producers 通过 MQ 的负载均衡模块选择相应的 Broker 集群队列进行消息投递。投递的过程支持快速失败并且低延迟。</p>
+<h3 id="Consumer-集群"><a href="#Consumer-集群" class="headerlink" title="Consumer 集群"></a>Consumer 集群</h3><p>充当消息消费者的角色，支持分布式集群方式部署。支持以 Push、pull 两种模式对消息进行消费。同时也支持集群方式和广播形式的消费，它提供实时消息订阅机制，可以满足大多数用户的需求。</p>
+<h3 id="RocketMQ-高可用实现原理"><a href="#RocketMQ-高可用实现原理" class="headerlink" title="RocketMQ 高可用实现原理"></a>RocketMQ 高可用实现原理</h3><p>毫无悬念，RocketMQ 实现高可用（HA）的方案仍然是基于最淳朴的“副本思想”，但与 Kafka、Redis、Etcd 采用的副本机制有所不同：RocketMQ 的 Master 和 Slave 没有 Election 机制，也没有 Failover 机制。</p>
+<p>RocketMQ 不具备选举功能，在集群模式下，Master、Slave 角色需预先设置，是固定的；Master 与 Slave 配对是通过指定相同的 brokerName 参数来实现，Master 的 BrokerId 必须是 0，Slave 的 BrokerId 必须是大于 0 的数。一个 Master 下面可以挂载多个 Slave，同一个 Master 下的多个 Slave 通过指定不同的 BrokerId 来区分。当 Master 节点宕机后，消费者仍然可以从 Slave 消费，从而保证生产者已经 Push 的消息不丢失；由于该 Master 宕机，生产者将消息 Push 到其它 Master，不影响可用性。RocketMQ 的 Broker 有 4 种部署方式。</p>
+<ol>
+<li>单个 Master 模式</li>
+</ol>
+<p>除了配置简单，没什么优点。</p>
+<p>它的缺点是不可靠。该机器重启或宕机，将导致整个服务不可用，因此，生产环境几乎不采用这种方案。</p>
+<ol>
+<li>多个 Master 模式</li>
+</ol>
+<p>配置简单，性能最高，是它的优点。</p>
+<p>它的缺点是：可能会有少量消息丢失（异步刷盘丢失少量消息，同步刷盘不丢失），单台机器重启或宕机期间，该机器下未被消费的消息在机器恢复前不可订阅，影响消息实时性。</p>
+<p>特别说明：当使用多 Master 无 Slave 的集群搭建方式时，Master 的 brokerRole 配置必须为 ASYNC_MASTER。如果配置为 SYNC_MASTER，则 producer 发送消息时，返回值的 SendStatus 会一直是 SLAVE_NOT_AVAILABLE。</p>
+<ol>
+<li>多 Master 多 Slave 模式：异步复制</li>
+</ol>
+<p>其优点为：即使磁盘损坏，消息丢失得非常少，消息实时性不会受影响，因为 Master 宕机后，消费者仍然可以从 Slave 消费，此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样。</p>
+<p>它的缺点为：<code>Master 宕机或磁盘损坏时会有少量消息丢失</code>。</p>
+<ol>
+<li>多 Master 多 Slave 模式：同步双写</li>
+</ol>
+<p>其优点为：数据与服务都无单点，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高。</p>
+<p>其缺点为：性能比异步复制模式稍低，大约低 10% 左右，发送单个消息的 RT 会稍高，目前主宕机后，备机不能自动切换为主机，后续会支持自动切换功能。</p>
+<h2 id="RocketMQ-优缺点"><a href="#RocketMQ-优缺点" class="headerlink" title="RocketMQ 优缺点"></a>RocketMQ 优缺点</h2><p>优点主要包括以下几点。</p>
+<ol>
+<li>单机支持 1 万以上持久化队列；</li>
+<li>RocketMQ 的所有消息都是持久化的，先写入系统 Page Cache，然后刷盘，可以保证内存与磁盘都有一份数据，访问时，直接从内存读取；</li>
+<li>模型简单，接口易用（JMS 的接口很多场合并不太实用）；</li>
+<li>性能非常好，可以大量堆积消息在 Broker 中；</li>
+<li>支持多种消费模式，包括集群消费、广播消费等；</li>
+<li>各个环节分布式扩展设计，主从 HA；</li>
+<li>社区较活跃，版本更新较快。</li>
+</ol>
+<p>缺点主要有：</p>
+<ol>
+<li>支持的客户端语言不多，目前是 Java、C++ 和 Go，后两种尚不成熟；</li>
+<li>没有 Web 管理界面，提供了 CLI（命令行界面）管理工具来进行查询、管理和诊断各种问题；</li>
+<li>没有在 MQ 核心中实现 JMS 等接口。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/02/MessageQueue-Kafka/" rel="prev" title="MessageQueue-Kafka">
+      <i class="fa fa-chevron-left"></i> MessageQueue-Kafka
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/02/MessageQueue-RabbitMQ/" rel="next" title="MessageQueue-RabbitMQ">
+      MessageQueue-RabbitMQ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RocketMQ"><span class="nav-number">1.</span> <span class="nav-text">RocketMQ</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">重要概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RocketMQ-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">RocketMQ 工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RocketMQ-%E6%9E%B6%E6%9E%84"><span class="nav-number">1.4.</span> <span class="nav-text">RocketMQ 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker-%E9%9B%86%E7%BE%A4"><span class="nav-number">1.4.1.</span> <span class="nav-text">Broker 集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer-%E9%9B%86%E7%BE%A4"><span class="nav-number">1.4.2.</span> <span class="nav-text">Producer 集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer-%E9%9B%86%E7%BE%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">Consumer 集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RocketMQ-%E9%AB%98%E5%8F%AF%E7%94%A8%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.4.</span> <span class="nav-text">RocketMQ 高可用实现原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RocketMQ-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.5.</span> <span class="nav-text">RocketMQ 优缺点</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

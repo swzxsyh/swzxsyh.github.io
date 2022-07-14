@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.DQL高级查询创建表1.1 排序语法:12select … from 表名 order by 排序列 [asc|desc],排序列 [asc|dex]asc:升序 (默认值) desc:降序注意:多字段排序，后面的排序结果是在前面排序的基础之上1234– 查询所有数据,使用年龄降序排序select * from Day44.student order by age desc;– 查询所有数据,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL查询 &amp; 约束 &amp; 多表">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/04/29/MySQL%E6%9F%A5%E8%AF%A2-%E7%BA%A6%E6%9D%9F-%E5%A4%9A%E8%A1%A8/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.DQL高级查询创建表1.1 排序语法:12select … from 表名 order by 排序列 [asc|desc],排序列 [asc|dex]asc:升序 (默认值) desc:降序注意:多字段排序，后面的排序结果是在前面排序的基础之上1234– 查询所有数据,使用年龄降序排序select * from Day44.student order by age desc;– 查询所有数据,">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-28T17:31:57.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.963Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/04/29/MySQL%E6%9F%A5%E8%AF%A2-%E7%BA%A6%E6%9D%9F-%E5%A4%9A%E8%A1%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQL查询 & 约束 & 多表 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/29/MySQL%E6%9F%A5%E8%AF%A2-%E7%BA%A6%E6%9D%9F-%E5%A4%9A%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL查询 & 约束 & 多表
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-29 01:31:57" itemprop="dateCreated datePublished" datetime="2020-04-29T01:31:57+08:00">2020-04-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.DQL高级查询<br>创建表<br>1.1 排序<br>语法:<br>1<br>2<br>select … from 表名 order by 排序列 [asc|desc],排序列 [asc|dex]<br>asc:升序 (默认值) desc:降序<br>注意:<br>多字段排序，后面的排序结果是在前面排序的基础之上<br>1<br>2<br>3<br>4<br>– 查询所有数据,使用年龄降序排序<br>select * from Day44.student order by age desc;<br>– 查询所有数据,在年龄降序排序的基础上，如果年龄相同再以数学成绩降序排序<br>SELECT * FROM student ORDER BY  age DESC,math DESC ;<br>1.2 聚合函数<br>作用:对一列数据进行计算，返回一个结果，忽略null值<br>语法:<br>关键字	说明<br>count(列名)	统计一列个数<br>max(列名)	求出一列的最大值<br>min(列名)	求出一列的最小值<br>sum(列名)	对一列求和<br>avg(列名)	求出一列的平均值<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</p>
+<h1 id="聚合函数"><a href="#聚合函数" class="headerlink" title="聚合函数"></a>聚合函数</h1><p>– 查询学生总数（null值处理）<br>SELECT COUNT(id) FROM student;<br>SELECT COUNT(isnull(english)) FROM student;<br>SELECT COUNT(<em>) FROM student;<br>– 查询年龄大于40的总数<br>SELECT COUNT(</em>) FROM student WHERE age&gt;40;</p>
+<p>– 查询数学成绩总分<br>SELECT SUM(math) FROM student;<br>– 查询数学成绩平均分<br>SELECT AVG(math) FROM student;<br>– 查询数学成绩最高分<br>SELECT MAX(math) FROM student;</p>
+<p>– 查询数学成绩最低分<br>SELECT MIN(math) FROM student;<br>1.3 分组<br>作用:对一列数据进行分组，相同的内容分为一组，通常与聚合函数一起使用，完成统计工作<br>语法:<br>1<br>select 分组列 from 表名 group by 分组列 having 分组后的过滤条件;<br>where和having区别<br>where在分组前进行条件过滤，不支持聚合函数 having在分组后今天条件过滤，支持聚合函数<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</p>
+<h1 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h1><p>– 按性别分组<br>SELECT sex FROM student GROUP BY sex;</p>
+<p>– 查询男女各多少人<br>SELECT sex,COUNT(*) FROM student GROUP BY sex;</p>
+<p>– 查询年龄大于25岁的人,按性别分组,统计每组的人数<br>SELECT sex,COUNT(*) FROM student WHERE age&gt;25 GROUP BY sex;</p>
+<p>– 查询年龄大于25岁的人,按性别分组,统计每组的人数,并只显示性别人数大于2的数据<br>SELECT sex,COUNT(<em>) FROM student WHERE age&gt;25 GROUP BY sex having COUNT(</em>)&gt;2;<br>1.4 分页<br>语法:<br>1<br>select … from 表名 limit 开始索引,每页显示个数;<br>索引特点:<br>索引是从0开始，0也是默认值，可以省略<br>分页索引公式:<br>索引 &#x3D; (当前页-1) × 每页个数<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</p>
+<h1 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h1><p>– 查询学生表中数据，显示前6条<br>SELECT * FROM student LIMIT 0,6;<br>SELECT * FROM student LIMIT 6;</p>
+<p>– 查询学生表中数据，从第三条开始显示，显示6条<br>SELECT * FROM student LIMIT 2,6;</p>
+<p>– 模拟百度分页，一页显示5条<br>SELECT * FROM student LIMIT 5;<br>SELECT * FROM student LIMIT 5,5;<br>SELECT * FROM student LIMIT 10,5;<br>1.5 知识小结<br>1<br>select * from 表名 where 条件 group by 分组 having 分组后条件 order by 排序 limit 分页;<br>二.数据库约束<br>2.1 概述<br>作用<br>对表中的数据进行限定，保证数据的正确性、有效性和完整性。<br>关键字	说明<br>primary key	主键约束。要求表中有一个字段 唯一 且 非空，通常我们使用id作为主键<br>unique	唯一约束<br>not null	非空约束<br>default	默认值<br>foreign key	外键约束<br>2.2 实现<br>2.2.1 主键约束<br>作用:限定某一列的值非空且唯一， 主键就是表中记录的唯一标识。<br>设置主键约束<br>1)创建表<br>1<br>2<br>3<br>4<br>create table 表名(<br>id int primary key, …<br>…<br>);<br>2)已有表<br>1<br>alter tabe 表名 add primary key(id);<br>特点: 一张表只能有一个主键约束，但是我们可以设置联合主键(多个字段)<br>自增器<br>1)创建表<br>1<br>2<br>3<br>4<br>create table 表名(<br>id int priamry key auto_increment, …<br>…<br>);<br>2)特点:自增器起始值为1，可以手动指定<br>1<br>alter table 表名 auto_increment&#x3D;起始值;<br>删除主键约束<br>语法:<br>1<br>alter table 表名 drop primary key;<br>1<br>2<br>3<br>4<br>5</p>
+<h1 id="1-先移出自增器"><a href="#1-先移出自增器" class="headerlink" title="1)先移出自增器"></a>1)先移出自增器</h1><p>alter table stu3 modify id int;</p>
+<h1 id="2-才能删除主键约束"><a href="#2-才能删除主键约束" class="headerlink" title="2)才能删除主键约束"></a>2)才能删除主键约束</h1><p>alter table stu3 drop primary key;</p>
+<h1 id="解释-因为只有主键约束才有意义设置自增器…-保证唯一性…"><a href="#解释-因为只有主键约束才有意义设置自增器…-保证唯一性…" class="headerlink" title="解释:因为只有主键约束才有意义设置自增器…(保证唯一性….)"></a>解释:因为只有主键约束才有意义设置自增器…(保证唯一性….)</h1><p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>– 主键约束<br>– 给student表添加主键约束<br>ALTER TABLE student ADD PRIMARY KEY(id);<br>– 创建表时指定主键约束<br>CREATE TABLE stu1(<br>id INT PRIMARY KEY,<br><code>name</code> VARCHAR(32)<br>);<br>– 插入数据测试<br>INSERT INTO stu1 VALUES(1,’jack’);<br>– Duplicate entry ‘1’ for key ‘PRIMARY’ 错误:主键不能重复<br>INSERT INTO stu1 VALUES(1,’lucy’);<br>– Column ‘id’ cannot be null 错误:主键不能为空<br>INSERT INTO stu1 VALUES(NULL,’lucy’);<br>– 我想让name字段，也作为主键使用…<br>– Multiple primary key defined – 错误:主键被重复定义了<br>ALTER TABLE stu1 ADD PRIMARY KEY(<code>name</code>);</p>
+<p>– 联合主键(主键字段完全相同，在进行约束的限定) CREATE TABLE stu2(<br>id INT ,<br><code>name</code> VARCHAR(32),<br>PRIMARY KEY(id,<code>name</code>)<br>);<br>– 插入数据测试<br>INSERT INTO stu2 VALUES(1,’jack’);<br>INSERT INTO stu2 VALUES(1,’lucy’);<br>– Duplicate entry ‘1-lucy’ for key ‘PRIMARY’ 错误<br>INSERT INTO stu2 VALUES(1,’lucy’);</p>
+<p>– 自增器<br>CREATE TABLE stu3(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32)<br>);<br>– 插入数据测试<br>INSERT INTO stu3 VALUES(1,’jack’);<br>INSERT INTO stu3 VALUES(NULL,’jack’);<br>INSERT INTO stu3 VALUES(3,’jack’);<br>INSERT INTO stu3 VALUES(NULL,’jack’);<br>INSERT INTO stu3 VALUES(10,’jack’);<br>INSERT INTO stu3 VALUES(NULL,’jack’);<br>– 设置自增器起始值<br>ALTER TABLE stu3 AUTO_INCREMENT&#x3D;1000;<br>INSERT INTO stu3 VALUES(NULL,’jack’);</p>
+<p>– delete(橡皮擦) 和 truncat(撕纸) 区别<br>DELETE FROM stu3;<br>INSERT INTO stu3 VALUES(NULL,’jack’);<br>TRUNCATE TABLE stu3;<br>INSERT INTO stu3 VALUES(NULL,’jack’);</p>
+<p>– 1)先移出自增器<br>ALTER TABLE stu3 MODIFY id INT;<br>– 2)才能删除主键约束<br>ALTER TABLE stu3 DROP PRIMARY KEY;<br>2.2.2 唯一约束<br>作用:限定某一列的值不能重复，可以出现多个null<br>创建表时设置唯一约束<br>1<br>2<br>3<br>4<br>create table 表名(<br>列名 数据类型 unique, …<br>…<br>);<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>– 唯一约束<br>CREATE TABLE stu4(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32) UNIQUE<br>);<br>INSERT INTO stu4 VALUES(1,’jack’);<br>– Duplicate entry ‘jack’ for key ‘name’ 错误:名称重复了<br>INSERT INTO stu4 VALUES(2,’jack’);<br>INSERT INTO stu4 VALUES(3,NULL);<br>INSERT INTO stu4 VALUES(4,NULL);</p>
+<p>– 删除唯一约束<br>ALTER TABLE stu4 DROP INDEX name;</p>
+<p>– 创建表后添加唯一约束<br>ALTER TABLE stu4 MODIFY name VARCHAR(20) UNIQUE ;<br>2.2.3 非空约束<br>作用:限定某一列的值不能为null<br>创建表时设置非空约束<br>1<br>2<br>3<br>4<br>create table 表名(<br>列名 数据类型 not null,– 非空约束<br>列名 数据类型 unique not null,– (唯一+非空)<br>);<br>注意:唯一 + 非空 !&#x3D; 主键，主键约束一张表只能有一个，唯一+非空 设置多个</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>– 唯一+非空<br>CREATE TABLE stu5(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32) UNIQUE NOT NULL<br>);<br>INSERT INTO stu5 VALUES(1,’jack’);<br>– Column ‘name’ cannot be null 错误:名称不能为空<br>INSERT INTO stu5 VALUES(2,NULL);</p>
+<p>– 移除非空约束<br>ALTER TABLE stu5 MODIFY name VARCHAR(20);<br>– 恢复<br>ALTER TABLE stu5 MODIFY name VARCHAR(20) NOT NULL;</p>
+<p>2.2.4 默认值<br>创建表设置默认值<br>1<br>2<br>3<br>4<br>create table 表名(<br>列名 数据类型 default 默认值, …<br>…<br>);<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>– 默认值<br>CREATE TABLE stu6(<br>id INT PRIMARY KEY AUTO_INCREMENT, <code>name</code> VARCHAR(32),<br>sex VARCHAR(5) DEFAULT ‘男’<br>);<br>INSERT INTO stu6(id,<code>name</code>) VALUES(1,’小张’);<br>INSERT INTO stu6(id,<code>name</code>,sex) VALUES(2,’小刘’,’女’); – 因为我们指定了默认值为男，你再插入null，会把默认值覆盖…<br>INSERT INTO stu6 VALUES(3,’小王’,NULL);<br>三.表关系<br>3.1 概述<br>简称:关系型数据库(Relation DBMS)<br>3.2 实现<br>3.2.1 一对多<br>在多的一方建立外键，指向一的一方的主键<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>– 创建新库<br>CREATE DATABASE day19_pro; USE day19_pro;<br>– 一对多<br>– 班级表(主表)<br>CREATE TABLE class(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32)<br>);<br>INSERT INTO class VALUES(1,’java一班’);<br>INSERT INTO class VALUES(2,’java二班’);<br>– 学生表(从表)<br>CREATE TABLE student(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32),<br>class_id INT – 外键字段<br>);<br>INSERT INTO student VALUES(1,’流川枫’,1);<br>INSERT INTO student VALUES(2,’樱木花道’,1);<br>INSERT INTO student VALUES(3,’大猩猩’,2);<br>INSERT INTO student VALUES(4,’赤木晴子’,2);<br>– 通过班级找学生<br>SELECT * FROM student WHERE class_id &#x3D;1;<br>– 通过学生找班级<br>SELECT * FROM class WHERE id &#x3D; 2;<br>– 给学生表添加外键约束<br>ALTER TABLE student ADD CONSTRAINT class_id_fk FOREIGN KEY(class_id) REFERENCES class(id);<br>– 删除学生表的外键约束<br>ALTER TABLE student DROP FOREIGN KEY class_id_fk;<br>3.2.2 多对多<br>多对多关系实现需要借助第三张表。中间表至少包含2个字段，这两个字段作为第三张表的外键，分别指向两张表的主键<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>– 多对多<br>– 课程表(主表)<br>CREATE TABLE course(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32)<br>);<br>INSERT INTO course VALUES(1,’java’);<br>INSERT INTO course VALUES(2,’ui’);<br>INSERT INTO course VALUES(3,’美容美发’);<br>INSERT INTO course VALUES(4,’挖掘机’);<br>– 中间表(从表)<br>CREATE TABLE sc(<br>  s_id INT,<br>  c_id INT,<br>  PRIMARY KEY(s_id,c_id)<br>);<br>INSERT INTO sc VALUES(1,1);<br>INSERT INTO sc VALUES(1,2);<br>INSERT INTO sc VALUES(2,1);<br>INSERT INTO sc VALUES(2,3);<br>– 联合主键，可以帮我们校验重复选修问题<br>INSERT INTO sc VALUES(1,1);<br>– 给中间表增加外键约束<br>ALTER TABLE sc ADD CONSTRAINT s_id_fk FOREIGN KEY(s_id) REFERENCES student(id);<br>ALTER TABLE sc ADD CONSTRAINT c_id_fk FOREIGN KEY(c_id) REFERENCES course(id);<br>– 流川枫不能选修，不存在的课程<br>INSERT INTO sc VALUES(1,6);<br>3.2.3 一对一<br>一对一关系实现，可以在任意一方添加唯一外键指向另一方的主键<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>– 一对一<br>– 公司表<br>CREATE TABLE company(<br>id INT PRIMARY KEY AUTO_INCREMENT,<br><code>name</code> VARCHAR(32)<br>);<br>INSERT INTO company VALUES(1,’拼多多’);<br>INSERT INTO company VALUES(2,’传智播客’);<br>– 地址表<br>CREATE TABLE address(<br>id INT PRIMARY KEY AUTO_INCREMENT, – 同时也作为外键<br><code>name</code> VARCHAR(32),<br>CONSTRAINT id_fk FOREIGN KEY(id) REFERENCES company(id)<br>);<br>INSERT INTO address VALUES(1,’上海’);<br>INSERT INTO address VALUES(2,’江苏沭阳’);<br>3.3 外键约束<br>作用:限定二张表有关系的数据，保证数据的正确性、有效性和完整性<br>在从表中添加外键约束<br>1)创建表<br>1<br>2<br>create table 表名( 列名 数据类型,<br>[constraint] [约束名] foreign key(外键列) references 主表(主键) );<br>2)已有表<br>1<br>alter table 表名 add [constraint] [约束名] foreign key(外键列) references 主表(主键);<br>外键约束特点<br>1)主表不能删除从表已引用的数据<br>2)从表不能添加主表未拥有的数据<br>3)先添加主表数据再添加从表数据<br>4)先删除从表数据再删除主表数据<br>5)外键约束允许为空但不能是错的<br>删除外键约束<br>1<br>alter table 表名 drop foreign key 约束名;<br>总结<br>dql单表高级查询<br>排序<br>select … from 表名 order by 排序列 [asc | desc]</p>
+<p>asc 升序 默认值<br>desc 降序<br>聚合函数<br>count</p>
+<p>count(*) ，统计包含null数据<br>max</p>
+<p>min</p>
+<p>sum</p>
+<p>avg</p>
+<p>分组<br>select 分组 表名 group by 分组 having 分组后条件</p>
+<p>where在分组前条件过滤，不能使用聚合函数<br>having在分组后条件过滤，可以使用聚合函数<br>分页<br>select … from 表名 limit 开始索引,每页显示个数</p>
+<p>索引公式：</p>
+<p>索引&#x3D; （当前页-1）× 每页显示个数<br>数据库约束<br>对数据进一步限定，保证数据的正确性，有效性和完整性<br>分类<br>1）主键</p>
+<p>primary key</p>
+<p>给每一条记录增加唯一标识，非空且唯一<br>2）唯一</p>
+<p>unique<br>3）非空</p>
+<p>not null<br>4）默认值</p>
+<p>default<br>5）外键</p>
+<p>foreign key<br>创建表时候设置主键约束<br>create table 表名(</p>
+<p>id int primary key auto_increment,</p>
+<p>…</p>
+<p>..</p>
+<p>);</p>
+<p>表关系<br>一对多<br>应用场景</p>
+<p>班级和学生<br>部门和员工<br>实例</p>
+<p>一个班级下面有多名学生，多名学生属于同一个班级<br>建表原则</p>
+<p>在从表中添加一个字段（列），字段名（主表名_id）类型与主表的主键一致，这个字段称为外键，通过外键指向主表的主键，建立关联关系<br>多对多<br>应用场景</p>
+<p>老师和学生<br>学生和课程<br>实例</p>
+<p>一个学生可以选修多门课程，一门课程可以被多个学生选修<br>建表原则</p>
+<p>多对多其实由二个一对多组成<br>需要借助于第三张表（中间表），需要有二个外键字段分别指向各自的主键，通常还会作为联合主键<br>一对一<br>应用场景</p>
+<p>公民和身份证号<br>公司和注册地<br>实例</p>
+<p>一个公民只能有一个身份证号，一个身份证号只能属于一个公民<br>建表原则</p>
+<p>主键是外键</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/27/MySQL%E5%9F%BA%E7%A1%80/" rel="prev" title="MySQL基础">
+      <i class="fa fa-chevron-left"></i> MySQL基础
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/30/MySQL%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2/" rel="next" title="MySQL多表查询">
+      MySQL多表查询 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E5%87%BD%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">聚合函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%BB%84"><span class="nav-number">2.</span> <span class="nav-text">分组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E9%A1%B5"><span class="nav-number">3.</span> <span class="nav-text">分页</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%85%88%E7%A7%BB%E5%87%BA%E8%87%AA%E5%A2%9E%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">1)先移出自增器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E6%89%8D%E8%83%BD%E5%88%A0%E9%99%A4%E4%B8%BB%E9%94%AE%E7%BA%A6%E6%9D%9F"><span class="nav-number">5.</span> <span class="nav-text">2)才能删除主键约束</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A-%E5%9B%A0%E4%B8%BA%E5%8F%AA%E6%9C%89%E4%B8%BB%E9%94%AE%E7%BA%A6%E6%9D%9F%E6%89%8D%E6%9C%89%E6%84%8F%E4%B9%89%E8%AE%BE%E7%BD%AE%E8%87%AA%E5%A2%9E%E5%99%A8%E2%80%A6-%E4%BF%9D%E8%AF%81%E5%94%AF%E4%B8%80%E6%80%A7%E2%80%A6"><span class="nav-number">6.</span> <span class="nav-text">解释:因为只有主键约束才有意义设置自增器…(保证唯一性….)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.Mybatis表单查询1.1 resultMap标签如果数据库返回结果的列名和要封装的实体的属性名完全一致的话用 resultType 属性 如果数据库返回结果的列名和要封装的实体的属性名有不一致的情况用 resultMap 属性 使用resultMap手动建立对象关系映射 UserMapper接口 1234public interface UserMapper {    public Lis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis表单查询">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/05/10/Mybatis%E8%A1%A8%E5%8D%95%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.Mybatis表单查询1.1 resultMap标签如果数据库返回结果的列名和要封装的实体的属性名完全一致的话用 resultType 属性 如果数据库返回结果的列名和要封装的实体的属性名有不一致的情况用 resultMap 属性 使用resultMap手动建立对象关系映射 UserMapper接口 1234public interface UserMapper {    public Lis">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-09T17:37:18.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.964Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/05/10/Mybatis%E8%A1%A8%E5%8D%95%E6%9F%A5%E8%AF%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mybatis表单查询 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/10/Mybatis%E8%A1%A8%E5%8D%95%E6%9F%A5%E8%AF%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mybatis表单查询
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-10 01:37:18" itemprop="dateCreated datePublished" datetime="2020-05-10T01:37:18+08:00">2020-05-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.Mybatis表单查询<br>1.1 resultMap标签<br>如果数据库返回结果的列名和要封装的实体的属性名完全一致的话用 resultType 属性</p>
+<p>如果数据库返回结果的列名和要封装的实体的属性名有不一致的情况用 resultMap 属性</p>
+<p>使用resultMap手动建立对象关系映射</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>public interface UserMapper {<br>    public List<User> findAll();<br>    &#x2F;&#x2F;ResultSet标签<br>    public List<User> findAllResultMap();<br>UserMapper.xml</User></User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br><mapper namespace="com.test.dao.UserMapper"><br>    <!--查询所有--><br>    <select id="findAll" resulttype="User"><br>        SELECT * FROM user<br>    </select></mapper></p>
+<pre><code>&lt;!--    resultMap手动建立映射
+id=&quot;userResultMap&quot;
+type=&quot;com.test.domain.User&quot;建立映射的java类型
+id 标签 主键
+id column=&quot;uid&quot; 列名
+property=&quot;id&quot;实体属性名
+result 标签 普通字段
+column=&quot;gender&quot;  列名
+property=&quot;sex&quot; 实体属性名
+--&gt;
+
+&lt;resultMap id=&quot;userResultMap&quot; type=&quot;User&quot;&gt;
+    &lt;id column=&quot;uid&quot; property=&quot;id&quot;/&gt;
+    &lt;result column=&quot;name&quot; property=&quot;username&quot;/&gt;
+    &lt;result column=&quot;bir&quot; property=&quot;birthday&quot;/&gt;
+    &lt;result column=&quot;gender&quot; property=&quot;sex&quot;/&gt;
+    &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
+&lt;/resultMap&gt;
+
+&lt;!--    模拟表与实体的属性名不一致情况--&gt;
+&lt;select id=&quot;findAllResultMap&quot; resultMap=&quot;userResultMap&quot;&gt;
+    SELECT id AS uid,username AS `name`,birthday AS bir,sex AS gender,address FROM `user`
+&lt;/select&gt;
+</code></pre>
+<p>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>public class UserMapperTest {</p>
+<pre><code>private SqlSession sqlSession = null;
+
+// 此方法在测试方法执行之前，执行
+@Before
+public void before() &#123;
+    // 获取sqlSession对象
+    // 此方法必须线程内独享
+    sqlSession = MyBatisUtils.openSession();
+&#125;
+
+// 此方法在测试地方法执行之后，执行
+@After
+public void after() &#123;
+    // 关闭sqlSession
+    MyBatisUtils.close(sqlSession);
+&#125;
+
+@Test
+public void testFindAll() throws Exception &#123;
+    // 需要通过mybatis帮你根据接口规范创建实现类
+    // 创建代理对象(实现类)
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    // 执行sql
+    List&lt;User&gt; list = userMapper.findAll();
+    System.out.println(list);
+&#125;
+
+//resultMap标签
+@Test
+public void testFindAllResultMap() throws Exception &#123;
+    UserMapper sessionMapper = sqlSession.getMapper(UserMapper.class);
+    List&lt;User&gt; list = sessionMapper.findAllResultMap();
+    for (User user : list) &#123;
+        System.out.println(user);
+    &#125;
+&#125;
+</code></pre>
+<p>1.2 多条件查询<br>需求</p>
+<p>根据id和username查询user表</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;多条件查询:方式一<br>public List<User> findByIdAndUsernameV1(@Param(“id”) Integer id, @Param(“username”) String username);</User></p>
+<p>&#x2F;&#x2F;多条件查询:方式二<br>public List<User> findByIdAndUsernameV2(User user);<br>UserMapper.xml</User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
+<!--    多条件查询方式
+如果传递多个参数，属性省略不写-->
+<select id="findByIdAndUsernameV1" resulttype="User">
+SELECT * FROM user WHERE id=#{id} AND username=#{username}
+</select>
+  
+
+<select id="findByIdAndUsernameV2" parametertype="User" resulttype="User">
+SELECT * FROM user WHERE id=#{id} AND username=#{username}
+</select>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>&#x2F;&#x2F;多条件查询<br>&#x2F;&#x2F;V1<br>@Test<br>public void testfindByIdAndUsernameV1() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    List<User> list &#x3D; userMapper.findByIdAndUsernameV1(41, “老王”);<br>    System.out.println(list);<br>}</User></p>
+<p>&#x2F;&#x2F;V2<br>@Test<br>public void testfindByIdAndUsernameV2() throws Exception {<br>    UserMapper sessionMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    User user &#x3D; new User();<br>    user.setId(41);<br>    user.setUsername(“W”);<br>    List<User> list &#x3D; sessionMapper.findByIdAndUsernameV2(user);<br>    System.out.println(list);<br>}<br>1.3 模糊查询<br>需求</User></p>
+<p>根据username模糊查询user表</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>&#x2F;&#x2F; 模糊查询，方式一<br>public List<User> findByUsername1(String username);</User></p>
+<p>&#x2F;&#x2F; 模糊查询，方式二<br>public List<User> findByUsername2(String username);</User></p>
+<p>&#x2F;&#x2F; 模糊查询，方式三<br>public List<User> findByUsername3(String username);</User></p>
+<p>&#x2F;&#x2F; 模糊查询，方式四<br>public List<User> findByUsername4(String username);<br>UserMapper.xml</User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>    <!--    模糊查询，方式一
+    java代码与sql语句有耦合--><br>    <select id="findByUsername1" parametertype="string" resulttype="User"><br>SELECT * FROM user WHERE username like #{username}<br>    </select></p>
+<pre><code>&lt;!--    模糊查询，方式二
+mysql5.5版本之前，此拼接不支持多个单引号
+oracle数据库，除了别名的位置，其余位置都不能使用双引号--&gt;
+&lt;select id=&quot;findByUsername2&quot; parameterType=&quot;string&quot; resultType=&quot;User&quot;&gt;
+</code></pre>
+<p>SELECT * FROM user WHERE username like “%” #{username} “%”<br>    </p>
+<pre><code>&lt;!--    此方式，会出现sql注入
+$&#123;&#125; 字符串拼接，如果接收的简单数据类型，表达式名称必须是value
+--&gt;
+&lt;select id=&quot;findByUsername3&quot; parameterType=&quot;string&quot; resultType=&quot;User&quot;&gt;
+</code></pre>
+<p>SELECT * FROM user WHERE username like ‘%${value}%’<br>    </p>
+<pre><code>&lt;!--    模糊查询，方式四【掌握】--&gt;
+&lt;!--    使用concat()函数拼接--&gt;
+&lt;!--    注意:oracle数据库 concat()函数只能传递二个参数,可以使用函数嵌套来解决--&gt;
+&lt;select id=&quot;findByUsername4&quot; parameterType=&quot;string&quot; resultType=&quot;User&quot;&gt;
+</code></pre>
+<p>SELECT * FROM user WHERE username like concat(concat(‘%’,#{username}),’%’)<br>    <br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>@Test<br>public void testfindByUsername1() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    List<User> list &#x3D; userMapper.findByUsername1(“%王%”);<br>    System.out.println(list);<br>}<br>@Test<br>public void testfindByUsername2() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    List<User> list &#x3D; userMapper.findByUsername2(“王”);<br>    System.out.println(list);<br>}<br>@Test<br>public void testfindByUsername3() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    List<User> list &#x3D; userMapper.findByUsername3(“王”);<br>    System.out.println(list);<br>}<br>@Test<br>public void testfindByUsername4() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    List<User> list &#x3D; userMapper.findByUsername4(“王”);<br>    System.out.println(list);<br>}<br>1.4 ${} 与 #{} 区别<br>${} :底层 Statement</User></User></User></User></p>
+<p>sql与参数拼接在一起，会出现sql注入问题<br>每次执行sql语句都会编译一次<br>接收简单数据类型，命名:{value}<br>接收引用数据类型，命名: ${属性名}<br>字符串类型需要加 ‘${value}’<br>#{}底层 PreparedStatement</p>
+<p>sql与参数分离，不会出现sql注入问题<br>sql只需要编译一次<br>接收简单数据类型，命名:#{随便写}<br>接收引用数据类型，命名:#{属性名}<br>二.Mybatis映射文件深入<br>2.1 返回主键<br>应用场景</p>
+<p>向数据库保存一个user对象后, 然后在控制台记录下此新增user的主键值(id)</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>public interface UserMapper {<br>&#x2F;&#x2F;    返回主键，方式一<br>    public void save1(User user);<br>&#x2F;&#x2F;    返回主键，方式二<br>    public void save2(User user);<br>}<br>UserMapper.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
+<mapper namespace="com.test.dao.UserMapper">
+    <!--
+    返回主键，方式一
+    useGeneratedKeys属性
+    useGeneratedKeys="true" 开启新增主键返回功能
+    keyColumn="id" user表中主键列
+    keyProperty="id" user实体主键属性
+    注意:仅支持主键自增类型的数据库 MySQL 和 SqlServer ， oracle不支持-->
+
+<pre><code>&lt;insert id=&quot;save1&quot; parameterType=&quot;User&quot; useGeneratedKeys=&quot;true&quot; keyColumn=&quot;id&quot; keyProperty=&quot;id&quot;&gt;
+    INSERT INTO user (username,birthday,sex,address) VALUES (#&#123;username&#125;,#&#123;birthday&#125;,#&#123;sex&#125;,#&#123;address&#125;)
+&lt;/insert&gt;
+
+&lt;insert id=&quot;save2&quot; parameterType=&quot;User&quot;&gt;
+    &lt;selectKey keyColumn=&quot;id&quot; keyProperty=&quot;id&quot; resultType=&quot;int&quot; order=&quot;AFTER&quot;&gt;
+        SELECT LAST_INSERT_ID()
+    &lt;/selectKey&gt;
+    INSERT INTO user (username,birthday,sex,address) VALUES (#&#123;username&#125;,#&#123;birthday&#125;,#&#123;sex&#125;,#&#123;address&#125;)
+&lt;/insert&gt;
+</code></pre>
+</mapper>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>public class UserMapperTest {</p>
+<pre><code>private SqlSession sqlSession=null;
+@Before
+public void before()&#123;
+    sqlSession= MyBatisUtils.openSession();
+&#125;
+@After
+public void after()&#123;
+    MyBatisUtils.close(sqlSession);
+&#125;
+
+@Test
+public void testSave1() throws Exception&#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+    User user = new User();
+    user.setUsername(&quot;Johe Eve&quot;);
+    user.setBirthday(new Date());
+    user.setAddress(&quot;SZ&quot;);
+    user.setSex(&quot;Male&quot;);
+
+    userMapper.save1(user);
+    System.out.println(&quot;When Insert,Primary Key Returns: &quot;+user.getId());
+&#125;
+
+@Test
+public void testSave2() throws Exception&#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+    User user = new User();
+    user.setUsername(&quot;Johe Eve&quot;);
+    user.setBirthday(new Date());
+    user.setAddress(&quot;SZ&quot;);
+    user.setSex(&quot;Male&quot;);
+
+    userMapper.save2(user);
+    System.out.println(&quot;When Insert,Primary Key Returns: &quot;+user.getId());
+&#125;
+</code></pre>
+<p>}<br>2.2 动态SQL<br>2.2.1 什么是动态SQL<br>需求</p>
+<p>把id和username封装到user对象中，将user对象中不为空的属性作为查询条件</p>
+<p>这个时候我们执行的sql就有多种可能</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>– 如果id和用户名不为空<br>select * from user where id&#x3D; #{id} and username &#x3D; #{username}<br>– 如果只有id<br>select * from user where id&#x3D; #{id}<br>– 如果只有用户名<br>select * from user where username &#x3D; #{username}<br>– 如果id和用户名都为空<br>select * from user<br>像上面这样, 根据传入的参数不同, 需要执行的SQL的结构就会不同，这就是动态SQL</p>
+<p>2.2.2 if 条件判断<br>需求</p>
+<p>把id和username封装到user对象中，将user对象中不为空的属性作为查询条件</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>&#x2F;&#x2F; if 条件判断<br>public List<User> findByIdAndUsernameIf(User user);<br>UserMapper.xml</User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</p>
+<!--
+if标签 条件判断
+where标签 相当于 where 1=1 功能，如果没有条件情况下 where语句不在sql语句拼接
+可以去掉第一个 and 或者 or
+-->
+<select id="findByIdAndUsernameIf" parametertype="User" resulttype="User">
+    SELECT * FROM user
+    <where>
+        <if test="id != null">
+            AND id=#{id}
+        </if>
+        <if test="username != null">
+            AND username = #{username}
+        </if>
+    </where>
+</select>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>&#x2F;&#x2F; if判断<br>@Test<br>public void testfindByIdAndUsernameIf() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>// 拼接条件
+User param = new User();
+param.setId(41);
+param.setUsername(&quot;老王&quot;);
+
+List&lt;User&gt; list = userMapper.findByIdAndUsernameIf(param);
+
+for (User user : list) &#123;
+    System.out.println(user);
+&#125;
+</code></pre>
+<p>}<br>2.2.3 set 用于update语句<br>需求</p>
+<p>动态更新user表数据，如果该属性有值就更新，没有值不做处理</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>&#x2F;&#x2F; set 更新<br>public void updateIf(User user);<br>UserMapper.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</p>
+<!--    set标签 更新 ，将条件中的最后一个逗号抹除-->
+<update id="updateIf" parametertype="User">
+    update user
+    <set>
+        <if test="username != null">
+            username=#{username},
+        </if>
+        <if test="birthday != null">
+            birthday=#{birthday},
+        </if>
+        <if test="sex != null">
+            sex=#{sex},
+        </if>
+        <if test="address != null">
+            address=#{address},
+        </if>
+    </set>
+    where id = #{id}
+</update>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>&#x2F;&#x2F;update<br>@Test<br>public void testUpdateIf() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>// 设置更新内容
+User user = new User();
+user.setId(57);
+user.setUsername(&quot;Steve&quot;);
+
+userMapper.updateIf(user);
+</code></pre>
+<p>}<br>2.2.4 foreach 用于循环遍历<br>需求</p>
+<p>根据多个id查询，user对象的集合</p>
+<p>1<br>SELECT * FROM user WHERE id IN (41,43,46);<br><foreach>标签用于遍历集合	属性<br>collection	代表要遍历的集合元素<br>open	代表语句的开始部分<br>close	代表结束部分<br>item	代表遍历集合的每个元素，生成的变量名<br>sperator	代表分隔符<br>练习三个版本</foreach></p>
+<p>普通list集合	普通array数组	实体属性list集合<br>domain&#x2F;QueryVo</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>&#x2F;*<br>    根据页面查询条件封装到实体中 View Object<br> *&#x2F;<br>public class QueryVo {</p>
+<pre><code>private List&lt;Integer&gt; ids;
+
+public List&lt;Integer&gt; getIds() &#123;
+    return ids;
+&#125;
+
+public void setIds(List&lt;Integer&gt; ids) &#123;
+    this.ids = ids;
+&#125;
+</code></pre>
+<p>}<br>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>&#x2F;&#x2F; foreach标签，普通list集合<br>public List<User> findByList(List<Integer> ids);<br>&#x2F;&#x2F; foreach标签，普通array数组<br>public List<User> findByArray(Integer [] ids);<br>&#x2F;&#x2F; foreach标签，实体属性list集合<br>public List<User> findByQueryVo(QueryVo queryVo);<br>UserMapper.xml</User></User></Integer></User></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</p>
+<!-- foreach标签，普通list集合
+    传递 普通类型list集合 collection="list"
+    属性取值:collection、list
+-->
+<select id="findByList" parametertype="list" resulttype="User">
+    SELECT * FROM user WHERE id in
+    <foreach collection="list" open="(" close=")" item="id" separator=",">
+        #{id}
+    </foreach>
+</select>
+
+<!--    foreach标签，普通array数组
+     传统 普通类型array数组 collection="array"
+     属性取值 array-->
+<select id="findByArray" parametertype="int" resulttype="User">
+    SELECT * FROM user WHERE id in
+    <foreach collection="array" open="(" close=")" item="id" separator=",">
+        #{id}
+    </foreach>
+</select>
+
+<!--    foreach标签，实体属性list集合
+     传递 实体中list属性集合的话，collection="ids"
+     取值，实体的属性名-->
+<select id="findByQueryVo" parametertype="QueryVo" resulttype="User">
+    SELECT * FROM user WHERE id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">
+        #{id}
+    </foreach>
+</select>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>&#x2F;&#x2F; foreach标签，普通list集合<br>@Test<br>public void testFindByList() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>List ids = new ArrayList();
+ids.add(41);
+ids.add(46);
+List list = userMapper.findByList(ids);
+System.out.println(list);
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; foreach标签，普通array数组<br>@Test<br>public void testFindByArray() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>Integer[] ids = &#123;41, 46, 49&#125;;
+List&lt;User&gt; list = userMapper.findByArray(ids);
+System.out.println(list);
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F;    foreach标签，实体属性list集合<br>@Test<br>public void testFindByQueryVo() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>List ids= new ArrayList();
+ids.add(41);
+ids.add(46);
+QueryVo queryVo = new QueryVo();
+queryVo.setIds(ids);
+List&lt;User&gt; list = userMapper.findByQueryVo(queryVo);
+System.out.println(list);
+</code></pre>
+<p>}<br>2.3 SQL片段<br>应用场景</p>
+<p>映射文件中可将重复的 sql 提取出来，使用时用 include 引用即可，最终达到 sql 重用的目的</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>    <!-- foreach标签，普通list集合
+        传递 普通类型list集合 collection="list"
+        属性取值:collection、list
+    --><br>    <select id="findByList" parametertype="list" resulttype="User"><br>        <include refid="selectUser"></include><br>        WHERE id in<br>        <foreach collection="list" open="(" close=")" item="id" separator=","><br>            #{id}<br>        </foreach><br>    </select></p>
+<pre><code>&lt;!--    foreach标签，普通array数组
+     传统 普通类型array数组 collection=&quot;array&quot;
+     属性取值 array--&gt;
+&lt;select id=&quot;findByArray&quot; parameterType=&quot;int&quot; resultType=&quot;User&quot;&gt;
+    &lt;include refid=&quot;selectUser&quot;&gt;&lt;/include&gt;
+    WHERE id in
+    &lt;foreach collection=&quot;array&quot; open=&quot;(&quot; close=&quot;)&quot; item=&quot;id&quot; separator=&quot;,&quot;&gt;
+        #&#123;id&#125;
+    &lt;/foreach&gt;
+&lt;/select&gt;
+
+&lt;!--    foreach标签，实体属性list集合
+     传递 实体中list属性集合的话，collection=&quot;ids&quot;
+     取值，实体的属性名--&gt;
+&lt;select id=&quot;findByQueryVo&quot; parameterType=&quot;QueryVo&quot; resultType=&quot;User&quot;&gt;
+    &lt;include refid=&quot;selectUser&quot;&gt;&lt;/include&gt;
+    WHERE id in
+    &lt;foreach collection=&quot;ids&quot; open=&quot;(&quot; close=&quot;)&quot; item=&quot;id&quot; separator=&quot;,&quot;&gt;
+        #&#123;id&#125;
+    &lt;/foreach&gt;
+&lt;/select&gt;
+
+&lt;!-- 将当前映射文件的共同的sql代码抽取一个片段，实现sql的复用性...
+</code></pre>
+<p>id&#x3D;”selectUser” 当前sql片段的唯一标识 –&gt;<br>    <sql id="selectUser"><br>     select id,username,birthday,sex,address from user<br>    </sql><br>2.4 知识小结<br>MyBatis映射文件配置</p>
+<p>关键字	配置<br><select>	查询<br><insert>	插入<br><update>	修改<br><delete>	删除<br><selectKey>	返回主键<br><where>	where条件<br><if>	if判断<br><foreach>	for循环<br><set>	set设置<br><sql>	sql片段抽取<br>三.表关系回顾<br>在关系型数据库当中，表关系分为三种</sql></set></foreach></if></where></selectKey></delete></update></insert></select></p>
+<p>关系	说明<br>特殊情况	一个订单只能从属于一个用户，mybatis框架就把这个多对一看做成一对一来实现<br>数据建立表关系	通过主外键关联<br>实体建立关系	通过属性关联</p>
+<p>四.Mybatis多表查询<br>4.1 一对一(多对一)<br>一对一查询模型</p>
+<p>用户表和订单表的关系为，一个用户有多个订单，一个订单只从属于一个用户</p>
+<p>一对一查询的需求:查询一个订单，与此同时查询出该订单所属的用户</p>
+<p>实体和表映射关系</p>
+<p>1<br>SELECT * FROM orders o INNER JOIN <code>user</code> u ON o.<code>uid</code> &#x3D; u.<code>id</code> WHERE o.<code>id</code> &#x3D; 1<br>Order实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>public class Order {<br>    private Integer id;<br>    private Date ordertime;<br>    private Double money;</p>
+<pre><code>// 一个订单从属于一个用户
+private User user;
+</code></pre>
+<p> &#x2F;&#x2F;此处省略getter&#x2F;setter，toString，User实体类<br>OrderMapper接口</p>
+<p>1<br>2<br>3<br>4<br>public interface OrderMapper {<br>    &#x2F;&#x2F; 一对一关联查询<br>    public Order findByIdWithUser(Integer id);<br>}<br>OrderMapper.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.OrderMapper"></mapper></p>
+<pre><code>&lt;resultMap id=&quot;orderMap&quot; type=&quot;Order&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
+    &lt;result column=&quot;ordertime&quot; property=&quot;ordertime&quot;/&gt;
+    &lt;result column=&quot;money&quot; property=&quot;money&quot;/&gt;
+
+    &lt;!--
+    一对一多表关联 association标签
+    property=&quot;user&quot; 关联实体的属性名 javaType=&quot;cn.test.domain.User&quot; 关联实体java类型
+    --&gt;
+    &lt;association property=&quot;user&quot; javaType=&quot;User&quot;&gt;
+        &lt;id column=&quot;uid&quot; property=&quot;id&quot;/&gt;
+        &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
+        &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;/&gt;
+        &lt;result column=&quot;sex&quot; property=&quot;sex&quot;/&gt;
+        &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
+    &lt;/association&gt;
+&lt;/resultMap&gt;
+
+&lt;!--    一对一关联查询
+    resultType:单表映射封装
+    resultMap:多表查询必须手动映射封装--&gt;
+&lt;select id=&quot;findByIdWithUser&quot; parameterType=&quot;int&quot; resultMap=&quot;orderMap&quot;&gt;
+    SELECT * FROM orders o INNER JOIN `user` u ON o.`uid`=u.`id` WHERE o.`id`=#&#123;id&#125;
+&lt;/select&gt;
+</code></pre>
+
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>public class OrderMapperTest {<br>    private SqlSession sqlSession &#x3D; null;</p>
+<pre><code>@Before
+public void before() &#123;
+    sqlSession = MyBatisUtils.openSession();
+&#125;
+
+@After
+public void after() &#123;
+    MyBatisUtils.close(sqlSession);
+&#125;
+
+// 一对一关联测试
+@Test
+public void testFindByIdWithUser() throws Exception&#123;
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+
+    Order order = orderMapper.findByIdWithUser(1);
+    System.out.println(order);
+&#125;
+</code></pre>
+<p>}<br>4.2 一对多<br>一对多查询模型</p>
+<p>用户表和订单表的关系为，一个用户有多个订单，一个订单只从属于一个用户</p>
+<p>一对多查询的需求：查询一个用户，与此同时查询出该用户具有的订单</p>
+<p>实体和表关系</p>
+<p>1<br>SELECT *,o.id AS oid FROM <code>user</code> u INNER JOIN orders o ON u.<code>id</code> &#x3D; o.<code>uid</code> WHERE u.<code>id</code>&#x3D;41<br>User实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private Date birthday;<br>    private String sex;<br>    private String address;</p>
+<pre><code>// 一个用户具有多个订单
+private List&lt;Order&gt; orderList;
+</code></pre>
+<p>  &#x2F;&#x2F;此处省略getter&#x2F;setter,toString<br>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>public interface UserMapper {<br>    &#x2F;&#x2F; 一对多关联<br>    public User findByIdWithOrders(Integer id);<br>}<br>UserMapper.xml</p>
+<p>有多少记录，就创建多少order对象<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
+<mapper namespace="com.test.dao.UserMapper">
+
+<pre><code>&lt;resultMap id=&quot;userMap&quot; type=&quot;User&quot;&gt;
+    &lt;id column=&quot;id&quot; property=&quot;id&quot;&gt;&lt;/id&gt;
+    &lt;result column=&quot;username&quot; property=&quot;username&quot;&gt;&lt;/result&gt;
+    &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;&gt;&lt;/result&gt;
+    &lt;result column=&quot;sex&quot; property=&quot;sex&quot;&gt;&lt;/result&gt;
+    &lt;result column=&quot;address&quot; property=&quot;address&quot;&gt;&lt;/result&gt;
+
+    &lt;!--
+    一对多关联 collection标签
+    property=&quot;orderList&quot; 关联实体集合的属性名
+    ofType=&quot;cn.itcast.domain.Order&quot; 关联实体的java类型(集合泛型的类型)
+    --&gt;
+    &lt;collection property=&quot;orderList&quot; ofType=&quot;Order&quot;&gt;
+        &lt;id column=&quot;oid&quot; property=&quot;id&quot;&gt;&lt;/id&gt;
+        &lt;result column=&quot;ordertime&quot; property=&quot;ordertime&quot;&gt;&lt;/result&gt;
+        &lt;result column=&quot;money&quot; property=&quot;money&quot;&gt;&lt;/result&gt;
+    &lt;/collection&gt;
+&lt;/resultMap&gt;
+
+&lt;!--       一对多关联--&gt;
+&lt;select id=&quot;findByIdWithOrders&quot; parameterType=&quot;int&quot; resultMap=&quot;userMap&quot;&gt;
+    SELECT *,o.id AS oid FROM `user` u INNER JOIN orders `o` ON u.`id`=o.`uid` WHERE u.`id`=#&#123;id&#125;
+&lt;/select&gt;
+</code></pre>
+</mapper>
+测试
+
+<p>test&#x2F;BaseMapperTest</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public class BaseMapperTest {<br>    protected SqlSession sqlSession &#x3D; null;</p>
+<pre><code>@Before
+public void before() &#123;
+    sqlSession = MyBatisUtils.openSession();
+&#125;
+
+@After
+public void after() &#123;
+    MyBatisUtils.close(sqlSession);
+&#125;
+</code></pre>
+<p>}<br>UserMapperTest</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class UserMapperTest extends BaseMapperTest{</p>
+<pre><code>// 一对多测试
+@Test
+public void testFindByIdWithOrders() throws Exception&#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    User user = userMapper.findByIdWithOrders(41);
+    System.out.println(user);
+&#125;
+</code></pre>
+<p>}<br>4.3 多对多(由二个一对多组成)<br>实体和表关系</p>
+<p>1<br>2<br>3<br>4<br>SELECT * FROM <code>user</code> u<br>INNER JOIN user_role ur ON u.<code>id</code> &#x3D; ur.<code>uid</code> – 用户连接中间表<br>INNER JOIN role r ON ur.<code>rid</code> &#x3D; r.<code>id</code> – 再根据中间表连接角色<br>WHERE u.id &#x3D; 41 – 用户id 作为条件<br>User和Role实体</p>
+<p>Role</p>
+<p>1<br>2<br>3<br>4<br>5<br>public class Role {<br>    private Integer id;<br>    private String roleName;<br>    private String roleDesc;<br>}<br>User</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private Date birthday;<br>    private String sex;<br>    private String address;</p>
+<pre><code>// 一个用户具有多个订单
+private List&lt;Order&gt; orderList;
+
+// 一个用户具有多个角色
+private List&lt;Role&gt; roleList;
+</code></pre>
+<p>UserMapper接口</p>
+<p>1<br>2<br>&#x2F;&#x2F; 多对多关联<br>public User findByIdWithRoles(Integer id);<br>UserMapper.xml</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br><resultMap id="userWithRoleMap" type="User"><br>    <id column="id" property="id"></id><br>    <result column="username" property="username"></result><br>    <result column="birthday" property="birthday"></result><br>    <result column="sex" property="sex"></result><br>    <result column="address" property="address"></result></resultMap></p>
+<pre><code>&lt;!--多对多实现步骤和一对多是一样的(区别在于sql语句)--&gt;
+&lt;collection property=&quot;roleList&quot; ofType=&quot;Role&quot;&gt;
+    &lt;id column=&quot;rid&quot; property=&quot;id&quot;&gt;&lt;/id&gt;
+    &lt;result column=&quot;role_name&quot; property=&quot;roleName&quot;&gt;&lt;/result&gt;
+    &lt;result column=&quot;role_desc&quot; property=&quot;roleDesc&quot;&gt;&lt;/result&gt;
+&lt;/collection&gt;
+</code></pre>
+
+
+
+<select id="findByIdWithRoles" parametertype="int" resultmap="userWithRoleMap">
+    SELECT * FROM `user` u INNER JOIN user_role ur
+    ON u.`id`=ur.`uid` INNER JOIN role r ON ur.`rid`=r.`id`
+    WHERE u.id=#{id}
+</select>
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>@Test<br>public void testFindByIdWithRoles() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>User user = userMapper.findByIdWithRoles(41);
+System.out.println(user);
+</code></pre>
+<p>}<br>4.4 知识小结<br>一对一配置:使用<resultMap>+<association>做配置			<br>association:		<br>property	关联的实体属性名<br>javaType	关联的实体类型(别名)<br>一对多配置:使用<resultMap>+<collection>做配置			<br>collection:		<br>property	关联的集合属性名<br>ofType	关联的集合泛型类型(别名)<br>多对多配置:使用<resultMap>+<collection>做配置			<br>collection:		<br>property	关联的集合属性名<br>ofType	关联的集合泛型类型(别名)<br>多对多的配置跟一对多很相似，难度在于SQL语句的编写。</collection></resultMap></collection></resultMap></association></resultMap></p>
+<p>4.5 优化测试<br>BaseMapperTest</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public class BaseMapperTest {<br>    protected SqlSession sqlSession &#x3D; null;</p>
+<pre><code>@Before
+public void before() &#123;
+    sqlSession = MyBatisUtils.openSession();
+&#125;
+
+@After
+public void after() &#123;
+    MyBatisUtils.close(sqlSession);
+&#125;
+</code></pre>
+<p>}<br>OrderMapperTest</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>public class OrderMapperTest extends BaseMapperTest{<br>    &#x2F;&#x2F; 一对一关联测试<br>    @Test<br>    public void testFindByIdWithUser() throws Exception{<br>        OrderMapper orderMapper &#x3D; sqlSession.getMapper(OrderMapper.class);</p>
+<pre><code>    Order order = orderMapper.findByIdWithUser(1);
+    System.out.println(order);
+&#125;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/09/Mybatis%E5%85%A5%E9%97%A8/" rel="prev" title="Mybatis入门">
+      <i class="fa fa-chevron-left"></i> Mybatis入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/" rel="next" title="Mybatis嵌套查询 & 加载 & 缓存">
+      Mybatis嵌套查询 & 加载 & 缓存 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="数据类型 基本类型 String（字符串） Hash（哈希） List（列表） Set（集合） Zset（有序集合）   特殊的数据结构类型 Geospatial Hyperloglog Bitmap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis-数据类型与数据结构">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="数据类型 基本类型 String（字符串） Hash（哈希） List（列表） Set（集合） Zset（有序集合）   特殊的数据结构类型 Geospatial Hyperloglog Bitmap">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/6d02acda6ef70270173c837a5188f1678a7591ce336d1ceab60ac194635448cb.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/cf90936f50d81ab9ae541c3c175fadecfa1f3db16faa7c68520a8f8b278b883f.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/214807c72dd83f1a131571623261bbba746181321ff80e246d3f8a7dd893b9d0.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/86bd88e9ca6e999934fa31e187da6927bde1867180c7df7e945e783430dcc9c1.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/ad56ac414c40d703ad9cbe419e8705a5ffedbe0eccc394c8acf126ccf9eb2e21.png">
+<meta property="article:published_time" content="2022-06-30T09:20:20.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.028Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/6d02acda6ef70270173c837a5188f1678a7591ce336d1ceab60ac194635448cb.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis-数据类型与数据结构 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis-数据类型与数据结构
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:20:20" itemprop="dateCreated datePublished" datetime="2022-06-30T17:20:20+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><ul>
+<li>基本类型<ul>
+<li>String（字符串）</li>
+<li>Hash（哈希）</li>
+<li>List（列表）</li>
+<li>Set（集合）</li>
+<li>Zset（有序集合）</li>
+</ul>
+</li>
+<li>特殊的数据结构类型<ul>
+<li>Geospatial</li>
+<li>Hyperloglog</li>
+<li>Bitmap</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><ul>
+<li><p>Object</p>
+</li>
+<li><p>SDS</p>
+<ul>
+<li>简单动态字符串 simple dynamic string</li>
+<li>C语言字符串缺陷<ul>
+<li>以 ’\0‘ 结束。因此字符串包含\0时会提早结束，因此不能保存图片、音频等数据。同时 strlen 获取字符串长度的复杂度为O（N）。</li>
+<li>缓冲区溢出。C语言的字符串本身不记录自身缓冲区的大小，当程序执行strcat函数时，C语言假定已经分配好足够的内存，一旦超出这部分内存就可能发生缓冲区溢出从而造成程序终止</li>
+<li>对字符串的操作效率不高，需要遍历字符串</li>
+</ul>
+</li>
+<li>数据结构包含字符串长度、分配的空间长度、sds类型、字节数组<img src="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/6d02acda6ef70270173c837a5188f1678a7591ce336d1ceab60ac194635448cb.png" alt="image"><ul>
+<li>len, 记录了字符串的长度。这样获取字符串长度直接返回该变量即可，时间复杂度为O(1)</li>
+<li>alloc, 分配给字符数组的空间长度。这样在修改字符串的时候可以通过减去len计算出剩余空间大小。空间不足时自动扩展</li>
+<li>flags,用来表示不同类型的SDS。一共有5种，sdshdr5、sdshdr8、sdshdr16、sdsgdr32、sdshdr64</li>
+<li>buf[], 字符数组，用来保存实际数据</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>链表list</p>
+<p>Redis 在listNode结构体基础上又封装了lisy这个数据结构，使得操作起来更方便。list结构为链表提供了链表头指针head、链表尾节点tail，链表节点数量len，以及可自定义实现的dup、free、match函数<img src="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/cf90936f50d81ab9ae541c3c175fadecfa1f3db16faa7c68520a8f8b278b883f.png" alt="image"></p>
+<ul>
+<li><p>优点：</p>
+<ul>
+<li>listNode链表节点里带有prev和next指针，获取前置和后置节点的时间复杂度只需O(1)</li>
+<li>list 结构提供了链表头节点head和尾节点tail指针，所以获取链表的头尾节点的时间复杂度为O(1)</li>
+<li>list 结构体提供了链表节点数量len，所以获取链表中的节点数量时间复杂都为O(1)</li>
+<li>listNode链表节点使用void* 指针保存节点值，并且可以通过dup、free、match函数指针为节点设置该节点的特殊类型的函数。因此链表节点可以保存不同类型的值</li>
+</ul>
+</li>
+<li><p>缺点：</p>
+<ul>
+<li>节点内存不连续，无法很好利用CPU缓存</li>
+<li>保存每一个节点都需要一盒链表节点结构头的分配，内存开销较大。因此Redis3.0的List对象会在数据量较少的情况下使用【压缩列表】</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>压缩列表ziplist</p>
+<ul>
+<li><p>它是内存紧凑型的数据结构，占用一块连续的内存空间，不仅可以利用CPU缓存，而且会针对不同长度的数据进行相应的编码</p>
+</li>
+<li><p>但不能保存过多的元素，否则查询效率就会降低。<br>新增或修改某个元素时，压缩列表占用的内存空间需要重新分配，甚至可能引发【连锁更新】</p>
+</li>
+<li><p>结构设计</p>
+<ul>
+<li><p>压缩列表在表头有三个字段，zlbytes、zltail、zllen、zlend。因此查找第一个元素和最后一个元素可以直接定位，复杂度为O(1),而查找其他元素只能遍历查找，复杂度为O(N)，因此不适合保存过多的元素</p>
+<ul>
+<li><p>zlbytes，记录整个压缩列表占用的内存字节数</p>
+</li>
+<li><p>zltail，记录压缩列表尾部节点距离起始地址有多少字节，即偏移量</p>
+</li>
+<li><p>zllen，记录压缩列表包含的节点数量</p>
+</li>
+<li><p>zlend，标记压缩列表的结束点，固定值 0xFF(十进制255)</p>
+</li>
+<li><p>entry，压缩列表的节点，包含三部分内容</p>
+<ul>
+<li>prevlen，记录前一个节点的长度。<br>如果前一个节点长度小于254字节，prevlen需要用1字节来保存长度值；大于等于254字节，则需要5字节</li>
+<li>encoding，记录当前节点实际数据的类型及长度.<br>节点数据是整数,则需要1字节进行编码,如果是字符串,则根据字符串长度使用1&#x2F;2&#x2F;5字节进行编码</li>
+<li>data，记录当前节点的实际数据</li>
+</ul>
+</li>
+<li><p>当往压缩列表插入数据时，会根据数据是字符串还是整数以及数据的大小，使用不同空间大小的prevlen和encoding这两个元素保存信息</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>连锁更新</p>
+</li>
+<li><p>压缩列表新增或修改某个元素时,如果空间不够,压缩列表所占用的空间就需要重新分配.当插入的元素较大时,可能会导致后续元素的prevlen占用的空间都发生变化,从而导致每个元素空间都需要重新分配,造成性能下降</p>
+</li>
+</ul>
+</li>
+<li><p>哈希表hash</p>
+<ul>
+<li>实际上是数组,哈希值相同时通过链表的形式连接起来</li>
+<li>rehash(负载因子大于等1,且没有执行bgsave或bgrewriteaof命令时,会进行负载因子大于等于5时,强制进行)<ul>
+<li>Redis 设计的时候会使用两个hash表,正常服务请求阶段,插入的数据都会被写到哈希表1,此时哈希表2并没有分配空间</li>
+<li>随着数据增多,触发rehash操作后,会:<br>1.给哈希表2分配空间,一般是哈希表1的2倍<br>2.将哈希表1的数据迁移到哈希表2中<br>3.迁移完成后,哈希表1的空间会被释放,并把哈希表2设置为哈希表1,然后创建一个空白的哈希表,为下一次rehash做准备</li>
+<li>如果哈希表数据量非常大,则在迁移到哈希表2时会因大数据量的拷贝而造成阻塞</li>
+</ul>
+</li>
+<li>渐进式rehash<ul>
+<li>分次迁移数据<br>1.给哈希表2分配空间<br>2.在rehash期间,每次哈希表元素进行新增删除查询或更新操作时,redis除了会执行对应操作外,还会顺序将哈希表1中索引位置上的所有key-value迁移<br>3.随着处理客户端发起的哈希表操作请求数量越来越多,最终在某个时间点内,完成迁移</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>跳表zskiplist</p>
+<ul>
+<li>跳表是在链表基础上改进的多层有序链表.链表的查找复杂度是O(N),而跳表的查找复杂度是O(logN)</li>
+<li>跳表是一个带有层级关系的链表,每一层可以包含多个节点,每一个节点通过指针连接起来<img src="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/214807c72dd83f1a131571623261bbba746181321ff80e246d3f8a7dd893b9d0.png" alt="image"><ul>
+<li>图中头节点有L0 L1 L2三个头指针,分别指向了不同层级的节点,然后每个层级的节点都通过指针连接起来<br>L0层级共有5个节点: 节点1 2 3 4 5<br>L1层级共有3个节点: 节点2 3 5<br>L2层级共有1个节点: 节点3</li>
+<li>如果采用链表结构查找节点4需要查找4次,而使用跳表之后,只需查找2次即可,因为可以在头节点L2层级跳到节点3,然后在往前遍历找到节点4</li>
+</ul>
+</li>
+<li>查询过程<ul>
+<li>查询跳表节点的过程时,跳表会从头节点的最高层开始,逐层遍历.在遍历某一层的跳表节点时,会用跳表节点中的SDS类型元素和权重进行判断<ul>
+<li>如果当前节点的权重小于要查找元素的权重时,跳表就会访问该层上的下一个节点</li>
+<li>如果当前节点的权重等于要查找的权重时,且节点的SDS类型数据小于要查找的数据时,跳表就会访问该层上的下一个节点</li>
+</ul>
+</li>
+<li>如果上面两个条件都不满足,或者下一个节点为空,跳表会使用目前遍历到的节点的level数组里的下一层指针,验证下一层指针继续查找</li>
+</ul>
+</li>
+<li>跳表的相邻两层的节点数量最理想的比例是2:1,查找复杂度可以降低到O(logN)<ul>
+<li>如果采用新增节点或者删除节点时,来调整跳表节点以维持比例的方法的话,会带来额外开销</li>
+<li>Redis在跳表创建节点的时候,随机生成每个节点的层数,并没有严格维持相邻两层的比例为2:1<ul>
+<li>创建节点时,会生成0~1范围的随机数,如果这个随机数小于0.25,那么层数就加1,然后继续生成下一个随机数,直到随机数的结果大于0.25,最终去顶层数.这样相当于每增加一层的概率不超过25%,层数越高,概率越低,最大限制是64层</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>整数集合inset</p>
+</li>
+<li><p>quicklist</p>
+<ul>
+<li>双向链表 + 压缩列表<br>通过控制每个链表节点中的压缩列表的大小或者元素个数来规避连锁更新问题.因为压缩列表元素越少或越小,连锁更新带来的影响就会越小</li>
+<li>quiclListNode里包含了前一个节点和下一个节点的指针<img src="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/86bd88e9ca6e999934fa31e187da6927bde1867180c7df7e945e783430dcc9c1.png" alt="image"><ul>
+<li>在向quicklist添加一个元素时,会先检查插入位置的压缩列表是否能够容纳该元素,如果能够容纳就直接保存到该节点的压缩列表中,如果不能容纳则新建一个接待你</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>listpack(Redis 5.0)</p>
+<ul>
+<li>listpack还是用一块连续的内存空间来紧凑地保存数据,但节点会采用不同的编码方式来保存不同大小的数据<img src="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/ad56ac414c40d703ad9cbe419e8705a5ffedbe0eccc394c8acf126ccf9eb2e21.png" alt="image"></li>
+<li>listpack的节点包含三部分内容<ul>
+<li>encoding,定义该元素的编码类型</li>
+<li>data,实际存放的数据</li>
+<li>len,encoding + data的总长度<ul>
+<li>不在记录前一个节点的长度,当向listpack加入一个新元素时,不会影响其他接待你的长度字段变化,从而避免连锁更新问题</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/" rel="prev" title="Redis-持久化方案">
+      <i class="fa fa-chevron-left"></i> Redis-持久化方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/" rel="next" title="Redis-高可用与主从同步">
+      Redis-高可用与主从同步 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">数据结构</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

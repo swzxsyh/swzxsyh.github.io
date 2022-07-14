@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="思想枚举根节点，做可达性分析  根节点类加载器、Thread、虚拟机栈的本地变量表、static 成员、常量引用、本地方法栈的变量等等  算法引用计数法JVM中没有使用 在创建对象和将对象赋值给某个变量时，将对象的引用计数+1，在移除对象和某个变量的引用关系时，将对象的运营计数-1，当对象的引用计数变为0时，递归地将该对象引用的子对象的引用计数器减1，并把该对象的内存块加入空闲链表中。在通过增减对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM-垃圾回收算法">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="思想枚举根节点，做可达性分析  根节点类加载器、Thread、虚拟机栈的本地变量表、static 成员、常量引用、本地方法栈的变量等等  算法引用计数法JVM中没有使用 在创建对象和将对象赋值给某个变量时，将对象的引用计数+1，在移除对象和某个变量的引用关系时，将对象的运营计数-1，当对象的引用计数变为0时，递归地将该对象引用的子对象的引用计数器减1，并把该对象的内存块加入空闲链表中。在通过增减对">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/1604237177.png">
+<meta property="article:published_time" content="2022-07-04T09:00:46.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.725Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/1604237177.png">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JVM-垃圾回收算法 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM-垃圾回收算法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-04 17:00:46" itemprop="dateCreated datePublished" datetime="2022-07-04T17:00:46+08:00">2022-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h1><p>枚举根节点，做可达性分析</p>
+<ul>
+<li>根节点<br>类加载器、Thread、虚拟机栈的本地变量表、static 成员、常量引用、本地方法栈的变量等等</li>
+</ul>
+<h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><h2 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h2><p><strong>JVM中没有使用</strong></p>
+<p>在创建对象和将对象赋值给某个变量时，将对象的引用计数+1，在移除对象和某个变量的引用关系时，将对象的运营计数-1，当对象的引用计数变为0时，递归地将该对象引用的子对象的引用计数器减1，并把该对象的内存块加入空闲链表中。在通过增减对象的引用计数器来判别活跃对象和非活跃对象，然后在计数器值为0的时候回收对象，这种做法可以在对象不活跃的时候立即回收它。</p>
+<ul>
+<li><p>优点</p>
+<ul>
+<li>可以立即回收垃圾。因为每个对象在被引用次数为0的时候，是立即就可以知道的。</li>
+<li>没有暂停时间。这个很容易理解，对象的回收根本不需要另外的GC线程专门去做，业务线程自己就搞定了。所以不需要stop the world，当然，在多线程的情况下，必要的同步和互斥操作还是需要的。</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>在每次赋值操作的时候都要做相当大的计算，尤其这里面还有递归调用。这是比较麻烦的。</li>
+<li>一个致命缺陷是循环引用，就是， objA引用了objB，objB也引用了objA，但是除此之外，再没有其他的地方引用这两个对象了，这两个对象的引用计数就都是1。这种情况下，这两个对象是不能被回收的。</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+
+
+<h2 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h2><p>当堆中的有效空间被耗尽时,JVM就会停止整个程序(也被称为stop the world),然后开始两项工作.一是:<code>标记</code>, 而是:<code>清除</code></p>
+<p>作为标记清除的变形，还有一种叫做标记压缩（Mark and Compact）的算法，它不是将被标记的对象清除，而是将它们不断压缩。</p>
+<h3 id="标记"><a href="#标记" class="headerlink" title="标记"></a>标记</h3><blockquote>
+<p>遍历所有GC Roots,将所有GC Roots可达的对象都标记为存活对象.</p>
+</blockquote>
+<h3 id="清除"><a href="#清除" class="headerlink" title="清除"></a>清除</h3><blockquote>
+<p>遍历堆中所有的对象把没有标记的对象全部清除，然后重新唤醒应用程序.</p>
+</blockquote>
+<ul>
+<li><p>优点</p>
+<p>算法简单</p>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>效率低下,需要遍历整个堆.进行GC的时候需要停止应用程序</li>
+</ul>
+</li>
+<li><p>垃圾回收后的内存空间是不连续的,产生碎片，碎片太多会导致提前GC. 为了解决这个问题,JVM不得不维护一个空闲链表,又会导致额外的开销</p>
+</li>
+</ul>
+<h2 id="复制收集算法"><a href="#复制收集算法" class="headerlink" title="复制收集算法"></a>复制收集算法</h2><p>复制算法使用了两块同等大小的内存空间,每次只用一块,垃圾回收的时候,把存活的对象直接另外一块内存,然后剩余的垃圾对象全部一次性清除.</p>
+<ul>
+<li><p>优点</p>
+<p>实现简单，运行高效</p>
+</li>
+<li><p>缺点</p>
+<p>不适用于存活对象较多的场合，如老年代</p>
+<p>空间利用率低</p>
+</li>
+</ul>
+<blockquote>
+<p>现在的虚拟机一般都用复制算法回收新生代,IBM的研究发现,新生代中的对象98%都是朝生夕死,所以并不需要1:1分配对象,而是将内存分为一个大的Eden和两块小的Survivor空间,每次只使用Eden和一块Survivor. 当进行垃圾回收时,将存活对象一次性复制到一块Survivor空间,最后清除掉Eden和使用过的Survivor空间. </p>
+<p>HotSpot虚拟机Eden:Survivor&#x3D;8:1,也就新生代可用的内存达到90%,只会有10%的浪费.当然98%的对象可被回收只是一般的场景,并没有办法保证每次Survivor都能存放的下存活对象,若Survivor空间不够时,需要依靠老年代进行分配担保.</p>
+<p><img src="/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/1604237177.png" alt="image"></p>
+</blockquote>
+<h2 id="标记整理"><a href="#标记整理" class="headerlink" title="标记整理"></a>标记整理</h2><p>标记阶段：与“标记-清除”算法一样</p>
+<p>整理阶段：将所有的存活对象压缩到内存的一段，之后清理边界外所有的空间</p>
+<ul>
+<li><p>优点</p>
+<p>没有内存碎片</p>
+<p>适合用于存活对象较多的场合，如老年代</p>
+</li>
+<li><p>缺点</p>
+<p>整理内存比较耗时</p>
+</li>
+</ul>
+<h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>Java堆是JVM管理的最大一块内存空间，主要存放对象实例。</p>
+<p>堆被分为两块区域,堆大小&#x3D;新生代+老年代  （新生代占堆空间的1&#x2F;3、老年代占堆空间2&#x2F;3）</p>
+<p>Young 区用复制算法<br>Old 区用标记清除或者标记整理</p>
+<h3 id="新生代-young"><a href="#新生代-young" class="headerlink" title="新生代 young"></a>新生代 young</h3><ul>
+<li><p>新生代几乎是所有JAVA对象出生的地方，JAVA对象申请的内存和存放都是在这个地方</p>
+</li>
+<li><p>eden、from survivor、to survivor(8:1:1)  </p>
+<p>JVM每次只会使用eden和其中一块survivor来为对象服务，所以无论什么时候，都会有一块survivor空间，因此新生代实际可用空间只有90%</p>
+<p>设置 Survivor 空间的目的是让那些中等寿命的对象尽量在 Minor GC 时被干掉，最终在总体上减少虚拟机的垃圾收集过程 对用户程序的影响。 </p>
+</li>
+<li><p>minor gc – 指发生在新生代的垃圾回收动作，minor gc非常频繁，使用复制算法快速的回收。</p>
+</li>
+<li><p>当对象在eden(其中包括一个survivor，假如是from)，当此对象经过一次minor gc后仍然存活，并且能够被另外一块survivor所容纳（这里survivor则是to了），则使用复制算法将这些仍然存活的对象复制到to survior区域中，然后清理掉eden和from survivor区域，并将这些存活的对象年龄+1，以后对象在survivor中每熬过一次gc则增加1，当年龄达到某个值时（默认15，通过设置参数-xx:maxtenuringThreshold来设置），这些对象就会成为老年代。但是当一些较大的对象（需要分配连续的内存空间）则直接进入老年代。</p>
+</li>
+</ul>
+<h3 id="老年代old"><a href="#老年代old" class="headerlink" title="老年代old"></a>老年代old</h3><ul>
+<li>major gc – 指发生在老年代的垃圾回收动作，用的是“标记–整理”算法。</li>
+</ul>
+<h3 id="为什么不是1个-Survivor-空间"><a href="#为什么不是1个-Survivor-空间" class="headerlink" title="为什么不是1个 Survivor 空间"></a>为什么不是1个 Survivor 空间</h3><p>Eden区域清理后，将对象移入Survivor，此刻 Survivor 空间作为对象“出生地”，很容易触发 Minor GC ，不但没能在总体上降低 Minor GC 的频率，还会把 gc 的时间间隔搞得很不平均。</p>
+<h3 id="为什么2个-Survivor-空间可以达到要求？"><a href="#为什么2个-Survivor-空间可以达到要求？" class="headerlink" title="为什么2个 Survivor 空间可以达到要求？"></a>为什么2个 Survivor 空间可以达到要求？</h3><p>无论 Eden 和 Survivor 的比例怎么设置，在只有一个 Survivor 的情况下，总体上看在新生代空间满一半的时候就会触发一次 Minor GC 。</p>
+<p>Eden : From Survivor : To Survivor 空间大小设成 8 : 1 : 1 ，对象总是在 Eden 区出生， From Survivor 保存当前的幸存对象， To Survivor 为空。一次 gc 发生后：<br>​    1）Eden 区活着的对象 ＋ From Survivor 存储的对象被复制到 To Survivor ；<br>​    2) 清空 Eden 和 From Survivor ；<br>​    3) 颠倒 From Survivor 和 To Survivor 的逻辑关系： From 变 To ， To 变 From 。 </p>
+<p>​	只有在 Eden 空间快满的时候才会触发 Minor GC 。而 Eden 空间占新生代的绝大部分，所以 Minor GC 的频率得以降低。当然，使用两个 Survivor 这种方式我们也付出了一定的代价，如 10% 的空间浪费、复制对象的开销等。</p>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/kzadmxz/article/details/96574203">https://blog.csdn.net/kzadmxz/article/details/96574203</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/04/JVM-%E8%B0%83%E4%BC%98/" rel="prev" title="JVM-调优">
+      <i class="fa fa-chevron-left"></i> JVM-调优
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/04/JAVA-HashMap%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="next" title="JAVA-HashMap面试题">
+      JAVA-HashMap面试题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%9D%E6%83%B3"><span class="nav-number">1.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4"><span class="nav-number">2.2.</span> <span class="nav-text">标记清除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0"><span class="nav-number">2.2.1.</span> <span class="nav-text">标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E9%99%A4"><span class="nav-number">2.2.2.</span> <span class="nav-text">清除</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">复制收集算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E6%95%B4%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">标记整理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E4%BB%A3%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="nav-number">2.5.</span> <span class="nav-text">分代收集算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E7%94%9F%E4%BB%A3-young"><span class="nav-number">2.5.1.</span> <span class="nav-text">新生代 young</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%81%E5%B9%B4%E4%BB%A3old"><span class="nav-number">2.5.2.</span> <span class="nav-text">老年代old</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%98%AF1%E4%B8%AA-Survivor-%E7%A9%BA%E9%97%B4"><span class="nav-number">2.5.3.</span> <span class="nav-text">为什么不是1个 Survivor 空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%882%E4%B8%AA-Survivor-%E7%A9%BA%E9%97%B4%E5%8F%AF%E4%BB%A5%E8%BE%BE%E5%88%B0%E8%A6%81%E6%B1%82%EF%BC%9F"><span class="nav-number">2.5.4.</span> <span class="nav-text">为什么2个 Survivor 空间可以达到要求？</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">2.5.4.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.PreparedStatement1.1 概述SQL注入问题 我们让用户输入的信息和SQL语句进行字符串拼接。用户输入的内容作为了SQL语句语法的一部分，改变了原有SQL 真正的意义，以上问题称为SQL注入。 123– 这条sql语句原有的含义是根据用户名和密码查询– 现在用户输入了一些特殊字符，改变了sql原有的含义，这种行为成为sql注入SELECT * FROM USER WHERE u">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PreparedStatement &amp; 连接池">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.PreparedStatement1.1 概述SQL注入问题 我们让用户输入的信息和SQL语句进行字符串拼接。用户输入的内容作为了SQL语句语法的一部分，改变了原有SQL 真正的意义，以上问题称为SQL注入。 123– 这条sql语句原有的含义是根据用户名和密码查询– 现在用户输入了一些特殊字符，改变了sql原有的含义，这种行为成为sql注入SELECT * FROM USER WHERE u">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-07T17:35:47.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.965Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>PreparedStatement & 连接池 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PreparedStatement & 连接池
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-08 01:35:47" itemprop="dateCreated datePublished" datetime="2020-05-08T01:35:47+08:00">2020-05-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.PreparedStatement<br>1.1 概述<br>SQL注入问题</p>
+<p>我们让用户输入的信息和SQL语句进行字符串拼接。用户输入的内容作为了SQL语句语法的一部分，改变了原有SQL</p>
+<p>真正的意义，以上问题称为SQL注入。</p>
+<p>1<br>2<br>3<br>– 这条sql语句原有的含义是根据用户名和密码查询<br>– 现在用户输入了一些特殊字符，改变了sql原有的含义，这种行为成为sql注入<br>SELECT * FROM USER WHERE username &#x3D;’admin’# ‘ and password &#x3D;’’<br>解决SQL注入问题</p>
+<p>我们就不能让用户输入的信息和SQL语句进行字符串拼接。需要使用PreparedSatement对象解决SQL注入。</p>
+<p>1<br>2<br>3<br>4<br>– 在java语言中修复sql注入问题，通过占位符代替实际参数<br>SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?<br>– 仅仅模拟sql解决思想，非真实解决方案<br>SELECT * FROM USER WHERE username &#x3D; “admin’#” AND PASSWORD &#x3D; “”<br>PreparedSatement基础语法</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>&#x2F;&#x2F; 1.获取连接<br>&#x2F;&#x2F; 2.编写sql【占位符代替实际参数】<br>String sql &#x3D; “SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?”;<br>&#x2F;&#x2F; 3.获取sql预编译执行对象，先发送给数据库进行预编译<br>PreparedStatement pstmt &#x3D; connection.prepareStatement(sql);<br>&#x2F;&#x2F; 4.设置占位符实际参数<br>pstmt.setString(1,”admin’#”);<br>pstmt.setString(2,””);<br>&#x2F;&#x2F; 5.执行sql语句，并返回结果【注意，不需要传递sql参数】<br>ResultSet resultSet &#x3D; pstmt.executeQuery();<br>&#x2F;&#x2F; 6.处理结果 &#x2F;&#x2F; 7.释放资源<br>优点</p>
+<p>防止sql注入，提高安全性</p>
+<p>参数与sql分离，提高代码可读性</p>
+<p>减少编译次数，提高性能</p>
+<p>1.2 操作<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83</p>
+<p>public class CRUD_DEMO {<br>    &#x2F;&#x2F;新增<br>    @Test<br>    public void testInsert() throws Exception {<br>        &#x2F;&#x2F;获取连接<br>        Connection connection &#x3D; JdbcUtils.getConnection();<br>        &#x2F;&#x2F;编写sql<br>        String sql &#x3D; “INSERT INTO user VALUES (NULL ,?,?);”;<br>        &#x2F;&#x2F;获取sql预编译执行对象<br>        PreparedStatement preparedStatement &#x3D; connection.prepareStatement(sql);<br>        &#x2F;&#x2F;设计实际参数<br>        preparedStatement.setString(1, “Jerry”);<br>        preparedStatement.setString(2, “999”);<br>        &#x2F;&#x2F;执行sql并返回结果<br>        int i &#x3D; preparedStatement.executeUpdate();<br>        &#x2F;&#x2F;处理结果<br>        if (i &gt; 0) {<br>            System.out.println(“First Recording Add Successful”);<br>        }<br>        preparedStatement.setString(1, “Ming”);<br>        preparedStatement.setString(2, “999”);<br>        i &#x3D; preparedStatement.executeUpdate();<br>        if (i &gt; 0) {<br>            System.out.println(“Second Recording Add Successful”);<br>        }<br>        &#x2F;&#x2F;释放资源<br>        JdbcUtils.close(preparedStatement, connection);<br>    }</p>
+<pre><code>//修改
+@Test
+public void testUpdate() throws Exception &#123;
+    //获取连接
+    Connection connection = JdbcUtils.getConnection();
+    //编写sql
+    String sql = &quot;UPDATE user SET username = ? where id = ?;&quot;;
+    //获取预编译sql执行对
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    //设计实际参数
+    preparedStatement.setString(1, &quot;RRR&quot;);
+    preparedStatement.setInt(2, 3);
+    //执行sql,并返回结果
+    int i = preparedStatement.executeUpdate();
+    //处理结果
+    if (i &gt; 0) &#123;
+        System.out.println(&quot;Update Successful&quot;);
+    &#125;
+    //释放资源
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+
+//删除
+@Test
+public void testDelete() throws Exception &#123;
+    Connection connection = JdbcUtils.getConnection();
+    String sql = &quot;DELETE FROM user WHERE id=?&quot;;
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    preparedStatement.setInt(1, 6);
+    int i = preparedStatement.executeUpdate();
+    if (i &gt; 0) &#123;
+        System.out.println(&quot;Delete Successful&quot;);
+    &#125;
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+
+//查询
+@Test
+public void testFindAll() throws Exception &#123;
+    Connection connection = JdbcUtils.getConnection();
+    String sql = &quot;SELECT * FROM user;&quot;;
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    ResultSet resultSet = preparedStatement.executeQuery();
+    while (resultSet.next()) &#123;
+        int id = resultSet.getInt(&quot;id&quot;);
+        String username = resultSet.getString(&quot;username&quot;);
+        String password = resultSet.getString(&quot;password&quot;);
+        System.out.println(&quot;\tID:&quot; + id + &quot;\tUSERNAME:&quot; + username + &quot;\tPASSWORD:&quot; + password);
+
+    &#125;
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+</code></pre>
+<p>}<br>二.连接池<br>2.1 概述<br>连接池其实就是一个容器(集合)，存放数据库连接的容器。</p>
+<p>当系统初始化好后，容器被创建，容器中会申请一些连接对象，当用户来访问数据库时，从容器中获取连接对象，用 户访问完之后，会将连接对象归还给容器。</p>
+<p>优点</p>
+<p>节约资源，减轻服务器压力</p>
+<p>提高连接复用性，用户访问高效</p>
+<p>常见连接池</p>
+<p>DBCP	Apache提供的数据库连接池技术。<br>C3P0	数据库连接池技术，目前使用它的开源项目有Hibernate、Spring等。<br>HikariCP	日本开发的连接池技术，性能之王,目前使用它的开源项目有SpringBoot等。<br>Druid(德鲁伊)	阿里巴巴提供的数据库连接池技术<br>实现</p>
+<p>Java为数据库连接池提供了公共的接口: DataSource ，各个连接池厂商去实现这套接口，提供jar包。</p>
+<p>功能	<br>获取连接	Connection getConnection()<br>归还连接	connection.close()<br>若连接对象通过连接池获取，执行 connection.close() 方法时，是归还到连接池，非销毁对象<br>底层通过动态代理技术对close()方法进行了增强<br>2.2 Druid连接池<br>2.2.1 快速入门<br>导入jar包</p>
+<p>druid-1.1.10.jar</p>
+<p>mysql-connector-java-8.0.16.jar</p>
+<p>编写测试代码(耦合版本)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>public class DruidDemo1 {<br>    public static void main(String[] args) throws SQLException {</p>
+<pre><code>    // 1.创建druid连接池对象
+    DruidDataSource dataSource = new DruidDataSource();
+
+    // 2.与mysql建立连接(初始化一些连接个数)，设置数据库基本四项
+    dataSource.setDriverClassName(&quot;com.mysql.jdbc.Driver&quot;);
+    dataSource.setUrl(&quot;jdbc:mysql://localhost:3306/Day48&quot;);
+    dataSource.setUsername(&quot;root&quot;);
+    dataSource.setPassword(&quot;root&quot;);
+
+    // 3.从连接池中获取连接
+    Connection connection = dataSource.getConnection();
+
+    // 4.处理业务
+    System.out.println(connection);
+    // 5.归还连接,注意，非销毁
+    connection.close();
+
+&#125;
+</code></pre>
+<p>}<br>2.2.2 配置文件<br>参数设置	作用<br>initialSize	初始化建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时<br>maxActivve	最大连接池数量<br>MinIdle	最小连接池数量<br>maxWait	获取连接时最大等待时间，ms<br>定义配置文件</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>#druid.properties<br>#基本4项，必须有，左边名称限定<br>driverClassName&#x3D;com.mysql.jdbc.Driver<br>url&#x3D;jdbc:mysql:&#x2F;&#x2F;127.0.0.1:3306&#x2F;Day48<br>username&#x3D;root<br>password&#x3D;root</p>
+<h1 id="初始化个数"><a href="#初始化个数" class="headerlink" title="初始化个数"></a>初始化个数</h1><p>initialSize&#x3D;5<br>#最大连接个数<br>maxActivve&#x3D;10<br>#等待时间，ms<br>maxWait&#x3D;3000<br>编写代码(解耦合版)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>public class DruidDemo2 {</p>
+<pre><code>public static void main(String[] args) throws Exception &#123;
+    // 通过类加载器读取src目录下配置文件，获取io流
+    InputStream is = DruidDemo2.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
+    // 创建 Properties对象
+    Properties properties = new Properties();
+    properties.load(is);
+
+    // druid连接池工厂对象，初始化连接池
+    DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
+
+    // 获取连接
+    for (int i = 0; i &lt;= 11; i++) &#123;
+        Connection connection = dataSource.getConnection();
+        System.out.println(connection);
+        if (i == 10) &#123;
+            connection.close();
+        &#125;
+    &#125;
+        // 归还连接
+        //connection.close();
+
+&#125;
+</code></pre>
+<p>}<br>2.3 连接工具类<br>我们每次操作数据库都需要创建连接池，获取连接，关闭资源，都是重复的代码。我们可以将创建连接池和获取连接</p>
+<p>池的代码放到一个工具类中。</p>
+<p>保证连接池对象，只创建一次</p>
+<p>目的:简化书写，提高效率</p>
+<p>1<br>2<br>3<br>4<br>5<br>public class JdbcUtils{<br>&#x2F;&#x2F; 1.初始化连接池对象(druid)，一个项目只有一个 static{} &#x2F;&#x2F; 2.提供获取连接池对象静态方法<br>&#x2F;&#x2F; 3.提供连接对象的静态方法<br>&#x2F;&#x2F; 4.提供释放资源的静态方法(connection是归还)<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>public class JdbcUtils {</p>
+<pre><code>private static DataSource dataSource = null;
+
+// 1.初始化连接池对象(druid)，一个项目只有一个 static&#123;&#125;
+static &#123;
+    try &#123;
+        // 通过类加载器读取src目录下配置文件，获取io流
+        InputStream is = JdbcUtils.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
+        // 创建 Properties对象
+        Properties properties = new Properties();
+        properties.load(is);
+        // druid连接池工厂对象，初始化连接池
+        dataSource = DruidDataSourceFactory.createDataSource(properties);
+    &#125; catch (Exception e) &#123;
+        e.printStackTrace();
+    &#125;
+&#125;
+
+// 2.提供获取连接池对象静态方法
+public static DataSource getDataSource() &#123;
+    return dataSource;
+&#125;
+
+// 3.提供连接对象的静态方法
+public static Connection getConnection() throws SQLException &#123;
+    return dataSource.getConnection();
+&#125;
+
+// 4.提供释放资源的静态方法(connection是归还)
+public static void close(ResultSet resultSet, Statement statement, Connection connection) &#123;
+    if (resultSet != null) &#123;
+        try &#123;
+            resultSet.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+    if (statement != null) &#123;
+        try &#123;
+            statement.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+    if (connection != null) &#123;
+        try &#123;
+            connection.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+&#125;
+
+// 重载关闭方法
+public static void close(Statement statement, Connection connection) &#123;
+    close(null, statement, connection);
+&#125;
+</code></pre>
+<p>}<br>三.案例:用户登录<br>需求</p>
+<p>使用三层架构+JDBC连接池技术(面向接口编程)，实现用户登录案例</p>
+<p>3.1 需求分析<br>Login.jsp			Server			数据库<br>web层	service层	dao层		<br>UserName<br>Password	➡<br>⬅	Servlet接口	UserService接口	UserDao接口	➡<br>⬅	SQL<br>Login		⬆	⬆	⬆		<br>LoginServlet<br>1.接收请求<br>2.调用service<br>3.判断转发&#x2F;重定向	UserServiceImpl实现类	UserDaoImpl实现类		<br>Login.jsp			Server			数据库<br>LoginServlet	UserServiceImpl	UserDaoImpl		<br>UserName<br>Password	➡<br>⬅	实现了Servlet接口	实现了UserService接口	实现了UserDao接口	➡<br>⬅	SQL<br>Login		1.接收请求参数<br>username<br>password<br>2.调用service，返回User对象<br>3.判断User对象<br>转发，提示用户名&#x2F;密码错误<br>重定向list.jsp	public User login(user, pwd) {<br>调用dao，返回user对象<br>}	public User login(user, pwd) {<br>使用JDBC连接池获取连接<br>查询数据库<br>将结果封装到user对象中 }		<br>3.2 环境搭建<br>使用昨天的数据库和user表</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>CREATE TABLE USER<br>(<br>    id       INT PRIMARY KEY AUTO_INCREMENT,<br>    username VARCHAR(50),<br>    password VARCHAR(50)<br>);<br>INSERT INTO USER (username, password)<br>VALUES (‘admin’, ‘123’),<br>       (‘tom’, ‘123’),<br>       (‘jack’, ‘123’);</p>
+<p>创建web工程，导入相关jar包</p>
+<p>commons-beanutils-1.8.3.jar</p>
+<p>commons-logging-1.1.1.jar</p>
+<p>druid-1.1.10.jar</p>
+<p>javax.servlet.jsp.jstl.jar</p>
+<p>jstl-impl.jar</p>
+<p>mysql-connector-java-8.0.16.jar</p>
+<p>导入页面资源</p>
+<p>创建三层包目录结构</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>src<br>├── com<br>│   └── case<br>│       ├── dao<br>│       │   ├── UserDao.java<br>│       │   └── UserDaoImpl.java<br>│       ├── domain<br>│       │   └── User.java<br>│       ├── service<br>│       │   ├── UserService.java<br>│       │   └── UserServiceImpl.java<br>│       ├── util<br>│       │   └── JdbcUtils.java<br>│       └── web<br>│           ├── filter<br>│           │   └── EncodeFilter.java<br>│           └── servlet<br>│               └── LoginServlet.java<br>└── druid.properties</p>
+<p>9 directories, 9 files<br>导入JbdcUtils工具类</p>
+<p>编写User实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private String password;</p>
+<pre><code>//省略getter/setter，toString，全参构造
+</code></pre>
+<p>3.3 代码实现<br>LoginServlet<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>@WebServlet(“&#x2F;LoginServlet”)<br>public class LoginServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    // 处理编码
+</code></pre>
+<p>&#x2F;&#x2F;        req.setCharacterEncoding(“utf-8”);<br>&#x2F;&#x2F;        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);</p>
+<pre><code>    // 1.接收请求参数
+    String username = req.getParameter(&quot;username&quot;);
+    String password = req.getParameter(&quot;password&quot;);
+
+    // 2.调用service
+    UserServiceImpl userService = new UserServiceImpl();
+    User user = userService.login(username, password);
+
+    // 3.判断
+    if(user==null)&#123;
+        // 登录失败，友情提示
+        req.setAttribute(&quot;error&quot;,&quot;Username/Password Wrong&quot;);
+        req.getRequestDispatcher(&quot;/login.jsp&quot;).forward(req,resp);
+    &#125;else &#123;
+        // 登录成功
+        req.getSession().setAttribute(&quot;user&quot;,user);
+        resp.sendRedirect(req.getContextPath()+&quot;/list.jsp&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>UserService 接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>public interface UserService {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}</p>
+<p>UserServiceImpl 实现类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public User login(String username, String password) {<br>        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        return userDao.login(username,password);<br>    }<br>}<br>UserDao 接口</p>
+<p>1<br>2<br>3<br>4<br>public interface UserDao {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}<br>UserDaoImpl 实现类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public User login(String username, String password) {<br>        Connection connection &#x3D; null;<br>        PreparedStatement preparedStatement &#x3D; null;<br>        ResultSet resultSet &#x3D; null;</p>
+<pre><code>    try &#123;
+        // 1.获取连接【从连接池】
+        connection = JdbcUtils.getConnection();
+        // 2.编写sql
+        String sql = &quot;SELECT * FROM user WHERE username= ? AND password = ?;&quot;;
+        // 3.获取sql预编译执行对象
+        preparedStatement = connection.prepareStatement(sql);
+        // 4.设置实际参数
+        preparedStatement.setString(1, username);
+        preparedStatement.setString(2, password);
+        // 5.执行sql并返回结果
+        resultSet = preparedStatement.executeQuery();
+        // 6.处理结果
+        User user = null;
+
+        if (resultSet.next()) &#123;
+            // 获取 id 用户名、密码
+            int id = resultSet.getInt(&quot;id&quot;);
+            username = resultSet.getString(&quot;username&quot;);
+            password = resultSet.getString(&quot;password&quot;);
+            user = new User();
+            user.setId(id);
+            user.setUsername(username);
+            user.setPassword(password);
+        &#125;
+        return user;
+
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125; finally &#123;
+        // 7.释放资源
+        JdbcUtils.close(resultSet, preparedStatement, connection);
+    &#125;
+    return null;
+&#125;
+</code></pre>
+<p>}<br>总结</p>
+<h2 id="PreparedStatement"><a href="#PreparedStatement" class="headerlink" title="PreparedStatement"></a>PreparedStatement</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>预编译sql执行对象</li>
+</ul>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>1）防止sql注入，提高安全性</p>
+</li>
+<li><p>2）减少编译次数，提高效率</p>
+</li>
+<li><p>3）参数与sql语句分离，提高可读性</p>
+</li>
+</ul>
+<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li><p>1）注册驱动</p>
+</li>
+<li><p>2）建立连接</p>
+</li>
+<li><p>3）编写sql ?占位符代替参数</p>
+</li>
+<li><p>4）获取sql预编译执行对象 先将sql发送到数据库</p>
+</li>
+<li><p>5）设置实际参数</p>
+</li>
+<li><p>6）执行sql并返回结果</p>
+</li>
+<li><p>7）处理结果</p>
+</li>
+<li><p>8）释放资源</p>
+</li>
+</ul>
+<h3 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h3><ul>
+<li><p>重写登录案例</p>
+</li>
+<li><p>CRUD练习</p>
+</li>
+</ul>
+<h2 id="datasource"><a href="#datasource" class="headerlink" title="datasource"></a>datasource</h2><h3 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h3><ul>
+<li>在系统初始化时，创建一个连接池生成一些连接对象，用户访问数据库时，从连接池获取连接，使用完毕归还到连接池</li>
+</ul>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>1）减轻服务器压力</p>
+</li>
+<li><p>2）提高连接复用性</p>
+</li>
+</ul>
+<h3 id="dataSource"><a href="#dataSource" class="headerlink" title="dataSource"></a>dataSource</h3><ul>
+<li>是sun公司提供连接池规范（接口），连接池厂商根据接口编写实现类</li>
+</ul>
+<p>​ - c3p0</p>
+<p>​ - hikariCP</p>
+<p>​ - Druid</p>
+<h3 id="作业-1"><a href="#作业-1" class="headerlink" title="作业"></a>作业</h3><ul>
+<li>druid快速入门</li>
+</ul>
+<p>​ - 1）导入jar包</p>
+<p>​ - 2）定义配置文件</p>
+<p>​ - 3）编写代码</p>
+<ul>
+<li>druid连接池工具类</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/06/JDBC%E5%9F%BA%E7%A1%80/" rel="prev" title="JDBC基础">
+      <i class="fa fa-chevron-left"></i> JDBC基础
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/09/Mybatis%E5%85%A5%E9%97%A8/" rel="next" title="Mybatis入门">
+      Mybatis入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%AA%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">初始化个数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PreparedStatement"><span class="nav-number">1.1.</span> <span class="nav-text">PreparedStatement</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">1.1.2.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.1.3.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%9A"><span class="nav-number">1.1.4.</span> <span class="nav-text">作业</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#datasource"><span class="nav-number">1.2.</span> <span class="nav-text">datasource</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">介绍：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dataSource"><span class="nav-number">1.2.3.</span> <span class="nav-text">dataSource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%9A-1"><span class="nav-number">1.2.4.</span> <span class="nav-text">作业</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

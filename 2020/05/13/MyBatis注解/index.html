@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.MyBatis注解1.1 MyBatis常用注解注解	作用@Insert	实现新增，代替了@Update	实现更新，代替了@Delete	实现删除，代替了@Select	实现查询，代替了@Result	实现结果集封装，代替了@Results	可以与@Result 一起使用，封装多个结果集，代替了@One	实现一对一结果集封装，代替了@Many	实现一对多结果集封装，代替了1.2 MyBatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis注解">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一.MyBatis注解1.1 MyBatis常用注解注解	作用@Insert	实现新增，代替了@Update	实现更新，代替了@Delete	实现删除，代替了@Select	实现查询，代替了@Result	实现结果集封装，代替了@Results	可以与@Result 一起使用，封装多个结果集，代替了@One	实现一对一结果集封装，代替了@Many	实现一对多结果集封装，代替了1.2 MyBatis">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-12T17:38:24.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.924Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MyBatis注解 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/13/MyBatis%E6%B3%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MyBatis注解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-13 01:38:24" itemprop="dateCreated datePublished" datetime="2020-05-13T01:38:24+08:00">2020-05-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一.MyBatis注解<br>1.1 MyBatis常用注解<br>注解	作用<br>@Insert	实现新增，代替了<insert></insert><br>@Update	实现更新，代替了<update></update><br>@Delete	实现删除，代替了<delete></delete><br>@Select	实现查询，代替了<select></select><br>@Result	实现结果集封装，代替了<result></result><br>@Results	可以与@Result 一起使用，封装多个结果集，代替了<resultMap></resultMap><br>@One	实现一对一结果集封装，代替了<association></association><br>@Many	实现一对多结果集封装，代替了<collection></collection><br>1.2 MyBatis 单表操作<br>需求</p>
+<p>基于user模块通过注解实现，增删改查</p>
+<p>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>public interface UserMapper {</p>
+<pre><code>//查询所有
+@Select(&quot;SELECT id AS uid,username AS uname,birthday AS bir,sex AS gender,address AS addr FROM user&quot;)
+@Results(value = &#123;
+        //resultMap标签手动映射封装
+        @Result(column = &quot;uid&quot;, property = &quot;id&quot;, id = true),
+        @Result(column = &quot;uname&quot;, property = &quot;username&quot;),
+        @Result(column = &quot;bir&quot;, property = &quot;birthday&quot;),
+        @Result(column = &quot;gender&quot;, property = &quot;sex&quot;),
+        @Result(column = &quot;addr&quot;, property = &quot;address&quot;)
+&#125;)
+public List&lt;User&gt; findAll();
+
+
+//id查询
+@Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)
+public User findById(Integer id);
+
+
+//新增
+@Insert(&quot;INSERT INTO user (username,birthday,sex,address) VALUES(#&#123;username&#125;,#&#123;birthday&#125;,#&#123;sex&#125;,#&#123;address&#125;)&quot;)
+public void save(User user);
+
+
+//修改(动态sql推荐使用xml)
+@Update(&quot;UPDATE user SET username=#&#123;username&#125;,birthday=#&#123;birthday&#125;,sex=#&#123;sex&#125;,address=#&#123;address&#125; WHERE id = #&#123;id&#125;&quot;)
+public void update(User user);
+
+//删除
+@Delete(&quot;DELETE FROM user WHERE id = #&#123;id&#125;&quot;)
+public void delete(Integer id);
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>public class UserMapperTest extends BaseMapperTest {<br>    &#x2F;&#x2F;单表测试<br>    @Test<br>    public void testFindAll() throws Exception {<br>        UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>        List<User> list &#x3D; userMapper.findAll();<br>        System.out.println(list);<br>    }</User></p>
+<pre><code>//单表测试,查询一个
+@Test
+public void testFindById() throws Exception &#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    User user = userMapper.findById(41);
+    System.out.println(user);
+&#125;
+
+//新增
+@Test
+public void testInsert() throws Exception &#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+    User user = new User();
+    user.setUsername(&quot;A&quot;);
+    user.setBirthday(new Date());
+    user.setAddress(&quot;GZ&quot;);
+    user.setSex(&quot;Male&quot;);
+    userMapper.save(user);
+&#125;
+
+//修改
+@Test
+public void testUpdate() throws Exception &#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+    User user = new User();
+    user.setId(58);
+    user.setUsername(&quot;B&quot;);
+    userMapper.save(user);
+&#125;
+
+//删除
+@Test
+public void testDelete() throws Exception &#123;
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+    userMapper.delete(58);
+&#125;
+</code></pre>
+<p>}<br>1.3 MyBatis多表操作<br>注解多表操作是基于嵌套查询来实现</p>
+<p>注解	说明<br>@Results	结果映射的列表，包含了一个特别结果列如何被映射到属性或字段的详情。属性有：value, id。value 属性是 Result 注解的数组。这个 id 的属性是结果映射的名称。<br>@Result	在列和属性或字段之间的单独结果映射。属性有：id, column, javaType, jdbcType, typeHandler, one, many。id 属性是一个布尔值，来标识应该被用于比较（和在 XML 映射中的相似）的属性。one 属性是单独的联系，和 相似，而 many 属性是对集合而言的，和相似。它们这样命名是为了避免名称冲突。<br>@One	复杂类型的单独属性值映射。属性有：select，已映射语句（也就是映射器方法）的全限定名，它可以加载合适类型的实例。fetchType会覆盖全局的配置参数 lazyLoadingEnabled。注意 联合映射在注解 API中是不支持的。这是因为 Java 注解的限制,不允许循环引用。<br>@Many	映射到复杂类型的集合属性。属性有：select，已映射语句（也就是映射器方法）的全限定名，它可以加载合适类型的实例的集合，fetchType 会覆盖全局的配置参数 lazyLoadingEnabled。注意 联合映射在注解 API中是不支持的。这是因为 Java 注解的限制，不允许循环引用<br>1.3.1 一对一查询<br>需求</p>
+<p>查询一个订单，与此同时查询出该订单所属的用户</p>
+<p>一对一查询语句</p>
+<p>1<br>2<br>SELECT * FROM orders where id &#x3D; #{id};<br>SELECT * FROM <code>user</code> WHERE id &#x3D; #{订单的uid};<br>OrderMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>public interface OrderMapper {</p>
+<pre><code>//一对一嵌套注解
+@Select(&quot;SELECT * FROM orders WHERE id = #&#123;id&#125;&quot;)
+@Results(value = &#123;
+        //resultMap标签手动映射封装
+        @Result(column = &quot;uid&quot;, property = &quot;id&quot;, id = true),
+        @Result(column = &quot;uname&quot;, property = &quot;username&quot;),
+        @Result(column = &quot;bir&quot;, property = &quot;birthday&quot;),
+        @Result(column = &quot;gender&quot;, property = &quot;sex&quot;),
+        @Result(column = &quot;addr&quot;, property = &quot;address&quot;),
+        @Result(property = &quot;user&quot;, javaType = User.class, column = &quot;uid&quot;, one = @One(select = &quot;com.test.dao.UserMapper.findById&quot;,fetchType = FetchType.EAGER))
+
+&#125;)
+public Order findByIdWithUsers(Integer id);
+</code></pre>
+<p>}<br>UserMapper接口</p>
+<p>1<br>2<br>3<br>&#x2F;&#x2F;id查询<br>@Select(“SELECT * FROM user WHERE id &#x3D; #{id}”)<br>public User findById(Integer id);<br>注解嵌套</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>public interface OrderMapper {</p>
+<pre><code>//一对一嵌套注解
+@Select(&quot;SELECT * FROM orders WHERE id = #&#123;id&#125;&quot;)
+@Results(value = &#123;
+        //resultMap标签手动映射封装
+        @Result(column = &quot;uid&quot;, property = &quot;id&quot;, id = true),
+        @Result(column = &quot;uname&quot;, property = &quot;username&quot;),
+        @Result(column = &quot;bir&quot;, property = &quot;birthday&quot;),
+        @Result(column = &quot;gender&quot;, property = &quot;sex&quot;),
+        @Result(column = &quot;addr&quot;, property = &quot;address&quot;),
+  
+  //注解嵌套
+  @Result(property = &quot;user&quot;, javaType = User.class, column = &quot;uid&quot;, one = @One(select = &quot;com.test.dao.UserMapper.findById&quot;,fetchType = FetchType.EAGER))
+  
+
+&#125;)
+public Order findByIdWithUsers(Integer id);
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>public class OrderMapperTest extends BaseMapperTest {</p>
+<pre><code>//一对一嵌套注解测试
+@Test
+public void testFindByIdWithUsers() throws Exception &#123;
+    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+    Order order = orderMapper.findByIdWithUsers(1);
+    System.out.println(order);
+&#125;
+</code></pre>
+<p>}<br>1.3.2 一对多查询<br>需求</p>
+<p>查询一个用户，与此同时查询出该用户具有的订单</p>
+<p>一对多查询语句</p>
+<p>1<br>2<br>SELECT * FROM <code>user</code> where id &#x3D; #{id};<br>SELECT * FROM orders where uid &#x3D; #{用户id};<br>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>&#x2F;&#x2F;一对多注解嵌套查询<br>@Select(“SELECT * FROM user WHERE id &#x3D; #{id}”)<br>@Results({ &#x2F;&#x2F; resultMap标签手动映射<br>        @Result(column &#x3D; “id”,property &#x3D; “id”,id&#x3D;true), &#x2F;&#x2F; result标签映射封装<br>        @Result(column &#x3D; “username”,property &#x3D; “username”),<br>        @Result(column &#x3D; “birthday”,property &#x3D; “birthday”),<br>        @Result(column &#x3D; “sex”,property &#x3D; “sex”),<br>        @Result(column &#x3D; “address”,property &#x3D; “address”),<br>        @Result(property &#x3D; “orderList”,javaType &#x3D; List.class,column &#x3D; “id”,many &#x3D; @Many(select &#x3D; “com.test.dao.OrderMapper.findByUid”))<br>})<br>public User findByIdWithOrders(Integer id);</p>
+<p>OrderMapper接口</p>
+<p>1<br>2<br>@Select(“SELECT * FROM orders WHERE uid &#x3D; #{id}”)<br>public List<Order> findByUid(Integer id);<br>注解嵌套</Order></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>    &#x2F;&#x2F;一对多注解嵌套查询<br>    @Select(“SELECT * FROM user WHERE id &#x3D; #{id}”)<br>    @Results({ &#x2F;&#x2F; resultMap标签手动映射<br>            @Result(column &#x3D; “id”,property &#x3D; “id”,id&#x3D;true), &#x2F;&#x2F; result标签映射封装<br>            @Result(column &#x3D; “username”,property &#x3D; “username”),<br>            @Result(column &#x3D; “birthday”,property &#x3D; “birthday”),<br>            @Result(column &#x3D; “sex”,property &#x3D; “sex”),<br>            @Result(column &#x3D; “address”,property &#x3D; “address”),</p>
+<p>@Result(property &#x3D; “orderList”,javaType &#x3D; List.class,column &#x3D; “id”,many &#x3D; @Many(select &#x3D; “com.test.dao.OrderMapper.findByUid”))<br>    })<br>    public User findByIdWithOrders(Integer id);</p>
+<p>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>&#x2F;&#x2F;一对多注解测试<br>@Test<br>public void testFindByIdWithOrders() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);<br>    User user &#x3D; userMapper.findByIdWithOrders(41);<br>    System.out.println(user);<br>    System.out.println(user.getOrderList());<br>}<br>1.3.3 多对多查询<br>需求</p>
+<p>查询用户同时查询出该用户的所有角色</p>
+<p>多对多查询语句</p>
+<p>1<br>2<br>3<br>SELECT * FROM <code>user</code> where id &#x3D; #{id};<br>SELECT * FROM role r INNER JOIN user_role ur ON r.<code>id</code> &#x3D; ur.<code>rid</code><br>    WHERE ur.<code>uid</code> &#x3D; #{用户id};<br>UserMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>&#x2F;&#x2F;多对多注解嵌套查询<br>@Select(“SELECT * FROM user WHERE id &#x3D; #{id}”)<br>@Results({ &#x2F;&#x2F; resultMap标签手动映射<br>        @Result(column &#x3D; “id”,property &#x3D; “id”,id&#x3D;true), &#x2F;&#x2F; result标签映射封装<br>        @Result(column &#x3D; “username”,property &#x3D; “username”),<br>        @Result(column &#x3D; “birthday”,property &#x3D; “birthday”),<br>        @Result(column &#x3D; “sex”,property &#x3D; “sex”),<br>        @Result(column &#x3D; “address”,property &#x3D; “address”),<br>        @Result(property &#x3D; “roleList”,javaType &#x3D; List.class,column &#x3D; “id”,many &#x3D; @Many(select &#x3D; “com.test.dao.OrderMapper.findByUid”))<br>})<br>public User findByIdWithRoles(Integer id);</p>
+<p>RoleMapper接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>public interface RoleMapper {<br>    @Select(“SELECT * FROM role r INNER JOIN user_role ur ON ur.<code>rid = r.</code>id<code> WHERE ur.</code>uid&#96;&#x3D;#{uid}”)<br>    @Results(value &#x3D; {<br>            @Result(column &#x3D; “id”,property &#x3D; “id”,id &#x3D; true),<br>            @Result(column &#x3D; “role_name”,property &#x3D; “roleName”),<br>            @Result(column &#x3D; “role_desc”,property &#x3D; “roleDesc”)<br>    })<br>    public List<Role> findByUid(Integer id);</Role></p>
+<p>}<br>注解嵌套</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>    &#x2F;&#x2F;多对多注解嵌套查询<br>    @Select(“SELECT * FROM user WHERE id &#x3D; #{id}”)<br>    @Results({ &#x2F;&#x2F; resultMap标签手动映射<br>            @Result(column &#x3D; “id”,property &#x3D; “id”,id&#x3D;true), &#x2F;&#x2F; result标签映射封装<br>            @Result(column &#x3D; “username”,property &#x3D; “username”),<br>            @Result(column &#x3D; “birthday”,property &#x3D; “birthday”),<br>            @Result(column &#x3D; “sex”,property &#x3D; “sex”),<br>            @Result(column &#x3D; “address”,property &#x3D; “address”),</p>
+<p>@Result(property &#x3D; “roleList”,javaType &#x3D; List.class,column &#x3D; “id”,many &#x3D; @Many(select &#x3D; “com.test.dao.OrderMapper.findByUid”))<br>    })<br>    public User findByIdWithRoles(Integer id);</p>
+<p>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>&#x2F;&#x2F; 多对多注解测试<br>@Test<br>public void testFindByIdWithRoles() throws Exception{<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
+<pre><code>User user = userMapper.findByIdWithRoles(41);
+System.out.println(user);
+System.out.println(user.getOrderList());
+</code></pre>
+<p>}<br>1.4 延迟加载<br>不管是一对多还是多对多 ，在注解配置中都有fetchType的属性</p>
+<p>fetchType &#x3D; FetchType.LAZY 表示懒加载</p>
+<p>fetchType &#x3D; FetchType.EAGER 表示立即加载</p>
+<p>fetchType &#x3D; FetchType.DEFAULT 表示使用全局配置</p>
+<p>1.5 二级缓存<br>配置SqlMapConfig.xml文件开启二级缓存的支持</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br><settings><br>    <!--
+        因为cacheEnabled的取值默认就为true，所以这一步可以省略不配置。
+        为true代表开启二级缓存；为false代表不开启二级缓存。
+    --><br>    <setting name="cacheEnabled" value="true"><br></setting></settings><br>在Mapper接口中使用注解配置二级缓存</p>
+<p>1<br>2<br>@CacheNamespace<br>public interface UserMapper {…}<br>1.6 知识小结<br>注解开发和xml配置相比，从开发效率来说，注解编写更简单，效率更高。</p>
+<p>从可维护性来说，注解如果要修改，必须修改源码，会导致维护成本增加。xml维护性更强。</p>
+<p>经验：单表简单CRUD可以使用注解、多表及动态sql就用xml</p>
+<p>二.MyBatis案例练习<br>2.1 编程风格<br>浏览器：Chrome、Firefox</p>
+<p>包目录：cn(com).公司名.项目名（都是小写）</p>
+<p>类：大驼峰式命名</p>
+<p>方法名：小驼峰式命名</p>
+<p>2.2 环境搭建<br>编写中文过滤器</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>@WebFilter(“&#x2F;*”)<br>public class EncodeFilter implements Filter {<br>    @Override<br>    public void init(FilterConfig filterConfig) throws ServletException {</p>
+<pre><code>&#125;
+
+@Override
+public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException &#123;
+    servletRequest.setCharacterEncoding(&quot;UTF-8&quot;);
+    filterChain.doFilter(servletRequest, servletResponse);
+&#125;
+
+@Override
+public void destroy() &#123;
+
+&#125;
+</code></pre>
+<p>}<br>2.3 查询所有<br>2.3.1 需求和效果实现<br>通过三层架构+接口+mybatis，查询员工信息，在页面展示</p>
+<p>2.3.2需求分析<br>index.jsp–&gt;EmpServlet–&gt;EmpService接口EmpServiceImp实现类–&gt;EmpDao接口+EmpDao映射，最终返给list.jsp</p>
+<p>2.3.3 代码实现<br>index.jsp</p>
+<p>1<br><a href="${pageContext.request.contextPath}/emp?action=findAll">员工列表</a><br>Emp实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public class Emp {<br>    private Integer id;<br>    private String name;<br>    private String sex;<br>    private String joindate;<br>    private Double salary;<br>    private String address;<br>&#x2F;&#x2F;此处省略getter&#x2F;setter，toString<br>EmpServlet</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>@WebServlet(“&#x2F;EmpServlet”)<br>public class EmpServlet extends HttpServlet {</p>
+<pre><code>// 重写service方法
+@Override
+protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException &#123;
+    // 获取action请求参数
+    String action = request.getParameter(&quot;action&quot;);
+    // 判断
+    if (action.equals(&quot;findAll&quot;)) &#123;
+        this.findAll(request, response);
+    &#125;
+&#125;
+
+// 查询所有
+protected void findAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException &#123;
+    // 1.调用service查询
+    EmpService empService = new EmpServiceImpl();
+    List&lt;Emp&gt; list = empService.findAll();
+    // 2.将list写入request域
+    request.setAttribute(&quot;list&quot;, list);
+    // 3.转发
+    request.getRequestDispatcher(&quot;/list.jsp&quot;).forward(request, response);
+&#125;
+</code></pre>
+<p>}<br>EmpServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>public class EmpServiceImpl implements EmpService {</p>
+<pre><code>@Override
+public List&lt;Emp&gt; findAll() &#123;
+    // 通过mybatis工具类获取sqlSession
+    SqlSession sqlSession = MyBatisUtils.openSession();
+    // 创建EmpDao代理对象
+    EmpDao empDao = sqlSession.getMapper(EmpDao.class);
+    // 查询
+    List&lt;Emp&gt; list= empDao.findAll();
+    // 关闭sqlSession
+    MyBatisUtils.close(sqlSession);
+    return list;
+&#125;
+</code></pre>
+<p>}<br>EmpDao（接口+映射）</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.EmpDao"><br>    <select id="findAll" resulttype="Emp"><br>        SELECT * FROM emp<br>    </select><br></mapper><br>list.jsp</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>&lt;c:forEach items&#x3D;”${list}” var&#x3D;”emp”&gt;<br>    <tr><br>        <td>${emp.id}</td><br>        <td>${emp.ename}</td><br>        <td>${emp.joindate}</td><br>        <td>${emp.salary}</td><br>        <td>${emp.address}</td><br>    </tr><br><br>2.4 分页查询<br>2.4.1 导入数据<br>2.4.2 分页介绍<br>在实际开发中，如果数据库数据太多，一般我们需要进行分页查询，提高效率</p>
+<p>分页技术实现</p>
+<p>物理分页：数据库实现（MySQL、Oracle）</p>
+<p>内存分页：查询全部，在通过java代码进行分页</p>
+<p>使用MySQL操作物理分页</p>
+<p>语法： select * from 表名 limit 开始索引,每页个数;</p>
+<p>模拟百度分页，一个显示5条，数据库共有16条记录</p>
+<p>第一页</p>
+<p>select * from 表名 limit 0,5;</p>
+<p>第二页</p>
+<p>select * from 表名 limit 5,5;</p>
+<p>第三页</p>
+<p>select * from 表名 limit 10,5;</p>
+<p>第四页</p>
+<p>select * from 表名 limit 15,5;</p>
+<p>索引公式</p>
+<p>开始索引&#x3D;(当前页-1) × 每页个数</p>
+<p>如何获得当前页和每页个数</p>
+<p>前端页提供</p>
+<p>2.4.3 需求和效果实现<br>通过mysql物理分页，一个显示5条，数据库共有16条记录</p>
+<p>2.4.3 需求分析</p>
+<p>后端代码流程图</p>
+<p>2.4.4 代码实现<br>index.jsp</p>
+<p>1<br>2<br>3<br>4</p>
+<body>
+<%--<a href="${pageContext.request.contextPath}/EmpServlet?action=findAll">员工列表--%>
+<a href="${pageContext.request.contextPath}/EmpServlet?action=findByPage&currentPage=1&pageSize=5">员工列表</a>
+</%--<a></body>
+PageBean
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public class PageBean<E> {</E></p>
+<pre><code>private Integer totalCount; // 总记录数
+
+private Integer totalPage;// 总页数
+
+private List&lt;E&gt; list; // 结果集
+
+private Integer currentPage; // 当前页
+
+private Integer pageSize; // 每页个数
+</code></pre>
+<p>  &#x2F;&#x2F;此处省略getter&#x2F;setter，toString<br>EmpServlet</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>@WebServlet(“&#x2F;EmpServlet”)<br>public class EmpServlet extends HttpServlet {</p>
+<pre><code>// 重写service方法
+@Override
+protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    // 获取action请求参数
+    String action = req.getParameter(&quot;action&quot;);
+    // 判断
+    if (action.equals(&quot;findAll&quot;)) &#123;
+        this.findAll(req, resp);
+    &#125; else if (action.equals(&quot;findByPage&quot;)) &#123;
+        this.findByPage(req, resp);
+    &#125;
+&#125;
+
+EmpService empService = new EmpServiceImpl();
+
+// 分页查询
+protected void findByPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    // 1.接收请求参数
+    String currentPageStr = req.getParameter(&quot;currentPage&quot;);
+    String pageSizeStr = req.getParameter(&quot;pageSize&quot;);
+    // 2.转为整型
+    int currentPage = Integer.parseInt(currentPageStr);
+    int pageSize = Integer.parseInt(pageSizeStr);
+    // 3.调用service查询
+    PageBean&lt;Emp&gt; pb = empService.findByPage(currentPage, pageSize);
+    // 4.设置到request域
+    req.setAttribute(&quot;pb&quot;, pb);
+    // 5.转发
+    req.getRequestDispatcher(&quot;/list.jsp&quot;).forward(req, resp);
+&#125;
+</code></pre>
+<p>EmpServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>public class EmpServiceImpl implements EmpService {<br>    @Override<br>    public List<Emp> findAll() {<br>        &#x2F;&#x2F; 通过mybatis工具类获取sqlSession<br>        SqlSession sqlSession &#x3D; MyBatisUtils.openSession();<br>        &#x2F;&#x2F; 创建EmpDao代理对象<br>        EmpDao empDao &#x3D; sqlSession.getMapper(EmpDao.class);<br>        &#x2F;&#x2F; 查询<br>        List<Emp> list &#x3D; empDao.findAll();<br>        &#x2F;&#x2F; 关闭sqlSession<br>        MyBatisUtils.close(sqlSession);<br>        return list;<br>    }<br>    @Override<br>    public PageBean<Emp> findByPage(int currentPage,int pageSize){<br>        &#x2F;&#x2F; 通过mybatis工具类获取sqlSession<br>        SqlSession sqlSession &#x3D; MyBatisUtils.openSession();</Emp></Emp></Emp></p>
+<pre><code>    // 创建EmpDao代理对象
+    EmpDao empDao = sqlSession.getMapper(EmpDao.class);
+
+    // 1.创建 PageBean
+    PageBean&lt;Emp&gt; pageBean = new PageBean();
+
+    // 2.封装当前页和每页个数
+    pageBean.setCurrentPage(currentPage);
+    pageBean.setPageSize(pageSize);
+
+    // 3.调用dao查询总记录数并封装
+    Integer totalCount = empDao.findCount();
+    pageBean.setTotalCount(totalCount);
+
+    // 4.计算并封装总页数
+    int totalPage = (int)Math.ceil(totalCount*1.0/pageSize);
+    pageBean.setTotalPage(totalPage);
+
+    // 5.计算开始索引
+    int index = (currentPage - 1) * pageSize;
+
+    // 6.调用dao查询结果集并封装
+    List&lt;Emp&gt; list = empDao.findList(index,pageSize);
+    pageBean.setList(list);
+
+    // 关闭sqlSession
+    MyBatisUtils.close(sqlSession);
+    // 7.返回pageBean对象
+    return pageBean;
+&#125;
+</code></pre>
+<p>}<br>EmpDao（接口+映射）</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>public interface EmpDao {<br>    List<Emp> findAll();</Emp></p>
+<pre><code>//查看总记录
+Integer findCount();
+
+//分页查询结果
+List&lt;Emp&gt; findList(@Param(&quot;index&quot;) int index,@Param(&quot;pageSize&quot;) int pageSize);
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.EmpDao"><br>    <select id="findAll" resulttype="Emp"><br>        SELECT * FROM emp<br>    </select></mapper></p>
+<pre><code>&lt;!--  查看总记录数 --&gt;
+&lt;select id=&quot;findCount&quot; resultType=&quot;java.lang.Integer&quot;&gt;
+    SELECT count(*) FROM emp
+&lt;/select&gt;
+
+&lt;!--    查看结果集--&gt;
+&lt;select id=&quot;findList&quot; resultType=&quot;com.test.domain.Emp&quot;&gt;
+    SELECT * FROM emp limit #&#123;index&#125;,#&#123;pageSize&#125;
+&lt;/select&gt;
+</code></pre>
+
+list.jsp
+
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">&quot;text/html;charset=UTF-8&quot;</span> language=<span class="string">&quot;java&quot;</span> %&gt;</span><br><span class="line">&lt;%@ taglib prefix=<span class="string">&quot;c&quot;</span> uri=<span class="string">&quot;http://java.sun.com/jsp/jstl/core&quot;</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Title&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">        table &#123;</span><br><span class="line">            margin: 30px auto;</span><br><span class="line">            text-align: center;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #page td &#123;</span><br><span class="line">            width: 20px;</span><br><span class="line">            border: 1px solid gray;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;table border=<span class="string">&quot;1&quot;</span> cellpadding=<span class="string">&quot;0&quot;</span> cellspacing=<span class="string">&quot;0&quot;</span> width=<span class="string">&quot;600px&quot;</span>&gt;</span><br><span class="line">    &lt;tr&gt;</span><br><span class="line">        &lt;td&gt;姓名&lt;/td&gt;</span><br><span class="line">        &lt;td&gt;性别&lt;/td&gt;</span><br><span class="line">        &lt;td&gt;入职日期&lt;/td&gt;</span><br><span class="line">        &lt;td&gt;薪资&lt;/td&gt;</span><br><span class="line">        &lt;td&gt;住址&lt;/td&gt;</span><br><span class="line">    &lt;c:forEach items=<span class="string">&quot;$&#123;emps&#125;&quot;</span> <span class="keyword">var</span>=<span class="string">&quot;emp&quot;</span>&gt;</span><br><span class="line">        &lt;tr&gt;</span><br><span class="line">            &lt;td&gt;$&#123;emp.name&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;$&#123;emp.sex&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;$&#123;emp.joindate&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;$&#123;emp.salary&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;$&#123;emp.address&#125;&lt;/td&gt;</span><br><span class="line">        &lt;/tr&gt;</span><br><span class="line">    &lt;/c:forEach&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line">&lt;table&gt;</span><br><span class="line">    &lt;tr&gt;</span><br><span class="line">        &lt;td style=<span class="string">&quot;text-align: left&quot;</span>&gt;总共检索到$&#123;pb.totalCount&#125;条记录,共分$&#123;pb.totalPage&#125;页&lt;/td&gt;</span><br><span class="line">    &lt;/tr&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line">&lt;table id=<span class="string">&quot;page&quot;</span>&gt;</span><br><span class="line">    &lt;tr&gt;</span><br><span class="line">        &lt;c:<span class="keyword">if</span> test=<span class="string">&quot;$&#123;pb.currentPage&gt;1&#125;&quot;</span>&gt;</span><br><span class="line">            &lt;td style=<span class="string">&quot;width:50px&quot;</span>&gt;</span><br><span class="line">                &lt;a style=<span class="string">&quot;text-decoration: none&quot;</span></span><br><span class="line">                   href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;pb.currentPage-1&#125;&amp;pageSize=5&quot;</span>&gt;上一页&lt;/a&gt;</span><br><span class="line">            &lt;/td&gt;</span><br><span class="line">        &lt;/c:<span class="keyword">if</span>&gt;</span><br><span class="line">        &lt;c:forEach begin=<span class="string">&quot;1&quot;</span> end=<span class="string">&quot;$&#123;pb.totalPage&#125;&quot;</span> <span class="keyword">var</span>=<span class="string">&quot;page&quot;</span>&gt;</span><br><span class="line">            &lt;c:<span class="keyword">if</span> test=<span class="string">&quot;$&#123;page == pb.currentPage&#125;&quot;</span>&gt;</span><br><span class="line">                &lt;td bgcolor=<span class="string">&quot;#ffd700&quot;</span>&gt;</span><br><span class="line">                    &lt;a style=<span class="string">&quot;text-decoration: none&quot;</span></span><br><span class="line">                       href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;page&#125;&amp;pageSize=5&quot;</span>&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">                &lt;/td&gt;</span><br><span class="line">            &lt;/c:<span class="keyword">if</span>&gt;</span><br><span class="line">            &lt;c:<span class="keyword">if</span> test=<span class="string">&quot;$&#123;page != pb.currentPage&#125;&quot;</span>&gt;</span><br><span class="line">                &lt;td&gt;</span><br><span class="line">                    &lt;a style=<span class="string">&quot;text-decoration: none&quot;</span></span><br><span class="line">                       href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;page&#125;&amp;pageSize=5&quot;</span>&gt;$&#123;page&#125;&lt;/a&gt;</span><br><span class="line">                &lt;/td&gt;</span><br><span class="line">            &lt;/c:<span class="keyword">if</span>&gt;</span><br><span class="line"></span><br><span class="line">        &lt;/c:forEach&gt;</span><br><span class="line">        &lt;c:<span class="keyword">if</span> test=<span class="string">&quot;$&#123;pb.currentPage &lt; pb.totalPage&#125;&quot;</span>&gt;</span><br><span class="line">            &lt;td style=<span class="string">&quot;width:50px&quot;</span>&gt;</span><br><span class="line">                &lt;a style=<span class="string">&quot;text-decoration: none&quot;</span></span><br><span class="line">                   href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/EmpServlet?action=findByPage&amp;currentPage=$&#123;pb.currentPage+1&#125;&amp;pageSize=5&quot;</span>&gt;下一页&lt;/a&gt;</span><br><span class="line">            &lt;/td&gt;</span><br><span class="line">        &lt;/c:<span class="keyword">if</span>&gt;</span><br><span class="line">    &lt;/tr&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="type">var</span> <span class="variable">txt</span> <span class="operator">=</span> document.getElementById(<span class="string">&quot;uname&quot;</span>);</span><br><span class="line">    <span class="comment">// var txt = document.querySelector（&quot;#uname&quot;）;</span></span><br><span class="line">    txt.innerText = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/" rel="prev" title="Mybatis嵌套查询 & 加载 & 缓存">
+      <i class="fa fa-chevron-left"></i> Mybatis嵌套查询 & 加载 & 缓存
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/14/Maven%E5%9F%BA%E7%A1%80/" rel="next" title="Maven基础">
+      Maven基础 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

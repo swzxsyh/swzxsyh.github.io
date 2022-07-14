@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一. Object类1.1 Object介绍Object类是所有类的父类，所有对象（包括数组）都具有该类中的11种方法。 构造方法：public Object(); 为什么之前说子类的构造方法默认访问的是父类的无参构造方法，因为它们的顶级父类只有无参构造方法 如果一个类我们没有指定其父类，那么默认继承Object 12public class Dog &#x2F;*extends Object*&#x2F;&amp;#123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java学习基础-常用API">
+<meta property="og:url" content="https://swzxsyh.github.io/2020/03/06/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%B8%B8%E7%94%A8API/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="一. Object类1.1 Object介绍Object类是所有类的父类，所有对象（包括数组）都具有该类中的11种方法。 构造方法：public Object(); 为什么之前说子类的构造方法默认访问的是父类的无参构造方法，因为它们的顶级父类只有无参构造方法 如果一个类我们没有指定其父类，那么默认继承Object 12public class Dog &#x2F;*extends Object*&#x2F;&amp;#123">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-05T16:26:11.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.829Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2020/03/06/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%B8%B8%E7%94%A8API/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java学习基础-常用API | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/03/06/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%B8%B8%E7%94%A8API/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java学习基础-常用API
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-06 00:26:11" itemprop="dateCreated datePublished" datetime="2020-03-06T00:26:11+08:00">2020-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一. Object类<br>1.1 Object介绍<br>Object类是所有类的父类，所有对象（包括数组）都具有该类中的11种方法。</p>
+<p>构造方法：<br>public Object();</p>
+<p>为什么之前说子类的构造方法默认访问的是父类的无参构造方法，因为它们的顶级父类只有无参构造方法</p>
+<p>如果一个类我们没有指定其父类，那么默认继承Object</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Dog</span> <span class="comment">/*extends Object*/</span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>1.2 toString方法<br>作用：返回该对象的字符串表示（调用的对象）<br>默认字符串表示的形式：<br>包名.类名@地址值<br>com.test.Demo01.Dog@61bbe9ba</p>
+<p>在实际开发中，我们通常会重写toString方法，将本类返回的地址值改回返回对象的内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;Dog&#123;&quot;</span> +</span><br><span class="line">    <span class="string">&quot;age=&quot;</span> + age +</span><br><span class="line">    <span class="string">&quot;, name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">    <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  <span class="type">Dog</span> <span class="variable">dd</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="number">10</span>,<span class="string">&quot;a&quot;</span>);</span><br><span class="line">  <span class="type">String</span>  <span class="variable">ss</span> <span class="operator">=</span> dd.toString();</span><br><span class="line">  System.out.println(ss);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Dog{age&#x3D;10, name&#x3D;’a’}<br>Dog{age&#x3D;20, name&#x3D;’b’}</p>
+<p>注意：重写toString方法之后，当调用对象的toString方法时，返回的不再是地址值，而是具体的属性值。<br>实际上，不需要手动调用toString方法，可以简写为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Dog</span> <span class="variable">d</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Dog</span>();</span><br><span class="line">System.out.println(d);</span><br></pre></td></tr></table></figure>
+
+
+<p>打印变量d，会自动调用d.toString()，其实就是打印toString方法值的返回值</p>
+<p>总结：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(ss2.toString());</span><br><span class="line"><span class="comment">//等同于</span></span><br><span class="line">System.out.println(ss2);</span><br></pre></td></tr></table></figure>
+
+
+<p>1.3 equals方法<br>作用：判断其他对象是否是此对象“相等”。<br>默认比较的是两个对象的地址值<br>equals源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在实际开发中， 也会重写equals方法，将本来的比较地址值改为比较内容（属性值）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object o)</span> &#123;</span><br><span class="line">  <span class="comment">//合法性判断</span></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">    this --- age1</span></span><br><span class="line"><span class="comment">    o    --- age2</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">  <span class="comment">//比较地址是否相同</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span> == o) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  <span class="comment">//判断参数是否为null</span></span><br><span class="line">  <span class="comment">//getClass判断是否来自同一个类(对比字节码Class文件)</span></span><br><span class="line">  <span class="keyword">if</span> (o == <span class="literal">null</span> || getClass() != o.getClass()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  <span class="comment">//向下转型</span></span><br><span class="line">  <span class="type">Cat</span> <span class="variable">cat</span> <span class="operator">=</span> (Cat) o;</span><br><span class="line">  <span class="comment">//判断时，必须当前对象的age和比较对象的age相同，切当前name和比较对象name相同，才返回true</span></span><br><span class="line">  <span class="type">return</span> <span class="variable">age</span> <span class="operator">=</span>= cat.age &amp;&amp;</span><br><span class="line">    Objects.equals(name, cat.name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>方法名	说明<br>public String toString();	返回对象的字符串形式表示。建议所有子类重写该方法，IDE自动生成<br>public boolean equals(Object obj);	比较对象是否相等，默认比较地址，重写可以比较内容，IDE自动生成<br>1.4 native本地方法<br>有native修饰的方法，称为本地方法，不是用Java写的，是使用底层C&#x2F;C++写的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span></span><br></pre></td></tr></table></figure>
+
+
+<p>1.5 扩展（equals和&#x3D;&#x3D;的区别）<br>对于基本类型：<br>&#x3D;&#x3D; 比较的是数值<br>没有equals方法<br>对于引用类型：<br>&#x3D;&#x3D; 比较的是地址值<br>equals默认情况下比较的是地址值，@override后，就按照重写的比较规则比较（一般比较属性值）</p>
+<p>1.6 Objects类<br>Objects类，称之为工具类（内部所有的方法都是静态的）<br>在Objects中有一个方法：<br>public static boolean equals(Object a, Object b);<br>用于判断两个对象是否“相等”，并避免类空指针异常，该方法源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object a, Object b)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span>( a == b ) || ( a != <span class="literal">null</span> &amp;&amp; a.equals(b));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>二. Date 类<br>2.1 Date类的介绍<br>包：java.util.Date<br>作用：代表某一个时间点，可以精确到毫秒</p>
+<p>2.2 Date类的构造方法</p>
+<p>方法名	说明<br>public Date();	创建一个Date对象，并初始化，代表当前的系统时间，精确到毫秒。<br>public Date(long date);	创建一个Date对象，代表距离国际基准设计millis后的时间。<br>2.3 Date类的常用方法</p>
+<p>方法名	说明<br>public void getTime();	获取当前Date对象距离基准时间(1910-1-1 00:00:00)的毫秒值。<br>public void setTime(long date);	设置时间，修改当前Date对象距离基准时间的毫秒值<br>三. DateFormat类<br>3.1 DateFormat类的作用<br>让时间&#x2F;日期和具体的文本直接来回转换</p>
+<p>SimpleDateFormat是一个具体的类，用于以区域设置敏感的方式格式化和解析日前。</p>
+<p>日前和时间格式由日期和时间模式字符串指定，在日期和时间模式字符串中，从’A’到’Z’以及从’a’到’z’引号的字母被解释为表示日期或时间字符串的组件的模式字母</p>
+<p>格式化：将 Date对象 转成具体的 时间文本字符串<br>解析：将 时间字符串 转回 Date对象</p>
+<p>3.2 DateFormat类的构造方法<br>DateFormat is an abstract class for date&#x2F;time</p>
+<p>DateFromat是抽象类，使用其子类（SimpleDateFormat）<br>public SimpleDateFormat(String pattern,<br>DateFormatSymbols formatSymbols);<br>这里的pattern表示我们想要的时间字符串格式&#x2F;模式</p>
+<p>方法名	说明<br>public SimpleDateFormat();	构造一个SimpleDateFormat，使用默认模式和日期格式<br>public SimpleDateFormat(String pattern);	构造一个SimpleDateFormat使用给定的模式和默认的日期格式<br>Letter	Date or Time Component	Presentation	Examples<br>G	Era designator	Text	AD<br>y	Year	Year	1996; 96<br>Y	Week year	Year	2009; 09<br>M	Month in year (context sensitive)	Month	July; Jul; 07<br>L	Month in year (standalone form)	Month	July; Jul; 07<br>w	Week in year	Number	27<br>W	Week in month	Number	2<br>D	Day in year	Number	189<br>d	Day in month	Number	10<br>F	Day of week in month	Number	2<br>E	Day name in week	Text	Tuesday; Tue<br>u	Day number of week (1 &#x3D; Monday, …, 7 &#x3D; Sunday)	Number	1<br>a	Am&#x2F;pm marker	Text	PM<br>H	Hour in day (0-23)	Number	0<br>k	Hour in day (1-24)	Number	24<br>K	Hour in am&#x2F;pm (0-11)	Number	0<br>h	Hour in am&#x2F;pm (1-12)	Number	12<br>m	Minute in hour	Number	30<br>s	Second in minute	Number	55<br>S	Millisecond	Number	978<br>z	Time zone	General time zone	Pacific Standard Time; PST; GMT-08:00<br>Z	Time zone	RFC 822 time zone	-0800<br>X	Time zone	ISO 8601 time zone	-08; -0800; -08:00<br>主要：<br>y – 年<br>M – 月<br>d – 日<br>H – 时<br>m – 分<br>s – 秒</p>
+<p>3.3 DateFormat类的成员方法</p>
+<p>方法名	说明<br>public String format(Date date);	格式化方法，将日期格式化成日期&#x2F;时间字符串<br>public Date parse(String date);	解析方法，从给定字符串的开始解析文本以及生成日期</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ParseException &#123;</span><br><span class="line">  <span class="type">SimpleDateFormat</span> <span class="variable">sdf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy年MM月dd日 HH:mm:ss&quot;</span>);</span><br><span class="line">  <span class="type">Date</span> <span class="variable">now</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line">  <span class="type">String</span> <span class="variable">nowStr</span> <span class="operator">=</span> sdf.format(now);</span><br><span class="line">  System.out.println(nowStr);</span><br><span class="line">  <span class="type">Date</span> <span class="variable">date</span> <span class="operator">=</span> sdf.parse(<span class="string">&quot;2020年04月07日 11:18:09&quot;</span>);</span><br><span class="line">  System.out.println(date);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>四. Calendar类<br>4.1 Calendar的介绍和获取对象方式：<br>概述：<br>Calendar为某一时刻和一组日历字段直接的转换提供了一些方法，并为操作日历字段提供了一些方法</p>
+<p>作用：表示某个时间点<br>获取对象的方式：<br>创建其子类GregorianCalendar类的对象（目前不使用）</p>
+<p>使用Calendar的静态方法【推荐方式】：<br>Calendar c &#x3D; Calendar.getInstance();创建一个子类对象，返回</p>
+<p>注意：在Calendar类中，月份（0-11），代表我们的（1-12）</p>
+<p>4.2 Calendar类中常见的方法</p>
+<p>方法名	说明<br>public int get(int field);	返回给定日历字段的值<br>public abstract void add(int field,int amount);	根据日历的规则，将指定的时间量添加或减去给定的日历字段<br>public final void set(int year,int month,int date);	设置当前的日历年月日</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  <span class="comment">//获取一个Calendar对象</span></span><br><span class="line">  <span class="type">Calendar</span> <span class="variable">c</span> <span class="operator">=</span> Calendar.getInstance();<span class="comment">//多态形式</span></span><br><span class="line">  System.out.println(c);</span><br><span class="line">  <span class="comment">//获取Calendar对象中的某个数值</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">year</span> <span class="operator">=</span> c.get(Calendar.YEAR);</span><br><span class="line">  System.out.println(<span class="string">&quot;Year:&quot;</span>+year);</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> <span class="variable">month</span> <span class="operator">=</span> c.get(Calendar.MONTH );</span><br><span class="line">  System.out.println(<span class="string">&quot;Month: &quot;</span>+month);</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> <span class="variable">day</span> <span class="operator">=</span> c.get(Calendar.DAY_OF_MONTH);</span><br><span class="line">  System.out.println(<span class="string">&quot;Day: &quot;</span>+day);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  <span class="comment">//获取一个Calendar对象</span></span><br><span class="line">  <span class="type">Calendar</span> <span class="variable">c</span> <span class="operator">=</span> Calendar.getInstance();</span><br><span class="line">  System.out.println(c);</span><br><span class="line">  <span class="comment">//修改Calendar对象中某个成员的值</span></span><br><span class="line">  c.set(Calendar.YEAR,<span class="number">3000</span>);</span><br><span class="line">  c.set(Calendar.MONTH,<span class="number">3</span>);</span><br><span class="line">  c.set(Calendar.DAY_OF_MONTH,<span class="number">20</span>);</span><br><span class="line">  print(c);</span><br><span class="line">  <span class="comment">//增加Calendar对象中某个成员的值</span></span><br><span class="line">  c.add(Calendar.YEAR,<span class="number">20</span>);</span><br><span class="line">  c.add(Calendar.MONTH,<span class="number">3</span>);</span><br><span class="line">  c.add(Calendar.DAY_OF_MONTH,<span class="number">20</span>);</span><br><span class="line">  print(c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：<br>a.Calender类中，month从0-11，我们是1-12<br>b.时间日期，也有大小之分，时间越靠后，我们认为其越大</p>
+<p>五. Math类<br>5.1 Math类的介绍<br>Math中主要包含了一些数学运算相关的方法<br>Math类中这些方法都是静态的（通过类名就可以直接调用,Math当作一个工具类）</p>
+<p>5.2 常用方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">abs</span><span class="params">(<span class="type">double</span> d)</span>;<span class="comment">//求绝对值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">ceil</span><span class="params">(<span class="type">double</span> d)</span>;<span class="comment">//向上取整</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">floor</span><span class="params">(<span class="type">double</span> d)</span>;<span class="comment">//向下取整</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">round</span><span class="params">(<span class="type">float</span> d)</span>;<span class="comment">//四舍五入到整数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">max</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span>;<span class="comment">//返回两个int值中的较大值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">min</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span>;<span class="comment">//返回两个int值中的较小值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">pow</span><span class="params">(<span class="type">double</span> a,<span class="type">double</span> b)</span>;<span class="comment">//求次幂,返回a的b次幂的值</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">random</span><span class="params">()</span>;<span class="comment">//返回值为double的正值，[0.0,1.0]</span></span><br></pre></td></tr></table></figure>
+
+
+<p>注意：<br>ceil只要有小数部分不是0，就向整数位进1<br>floor无论如何，小数部分不要，只要整数部分<br>Math.ceil(3.0);&#x3D;&#x3D;&gt; 3.0<br>Math.floor(3.0);&#x3D;&#x3D;&gt; 3.0</p>
+<p>六. System<br>6.1 System类的介绍<br>The System class contains several useful class fields and methods. It cannot be instantiated.<br>System类中包含几个静态到变量和静态到方法，且该类不能被实例化（无法被创建对象）</p>
+<p>方法名	说明<br>public static void exit(int status);	终止当前运行的Java虚拟机，非0表示异常终止<br>public static long currentTimeMillis();	返回当前时间(以毫秒为单位)<br>System源码表示构造被私有化，故而无法创建对象<br>源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Don&#x27;t let anyone instantiate this class */</span></span><br><span class="line"><span class="keyword">private</span> <span class="title function_">System</span><span class="params">()</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>6.2 System类到常见用法</p>
+<p>1<br>public static void exit(int status);<br>作用：退出Java虚拟机</p>
+<p>1<br>public static long currentTimeMillis()<br>作用：获取当前系统毫秒值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="variable">start_new</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">s1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">  s1.append(i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">long</span> <span class="variable">end_new</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;time:&quot;</span>+(end_new-start_new));</span><br></pre></td></tr></table></figure>
+
+<p>总结：<br>1.Object：所有类的父类<br>toString：默认返回的字符串表示，包名.类名@地址名<br>开发中一般会重写toString，返回对象的内容（command+n自动生成）<br>注意：实际上不需要手动调用toString方法，因为在使用对象时，编译器会自动调用toString()方法</p>
+<p>equals默认比较的是两个对象的地址值，在开发中一般会@override，比较两个对象的内容（属性值）</p>
+<p>2.Date &amp; DateFormat</p>
+<p>构造方法：<br>public Date();&#x2F;&#x2F;当前系统时间<br>public Date(long millins);&#x2F;&#x2F;距离基准时间millis毫秒后的时间</p>
+<p>成员方法：<br>public long getTime();&#x2F;&#x2F;获取当前Date对象距离基准时间的毫秒值<br>public long setTime(long millins);&#x2F;&#x2F;设置当前Date对象距离基准时间的毫秒值</p>
+<p>SimpleDateFormat&lt;子类&gt; extends DateFormat&lt;抽象类&gt;<br>构造方法：<br>public SimpleDateFormat(String 模式&#x2F;格式);&#x2F;&#x2F;“yyyy-MM-dd HH:mm:ss”</p>
+<p>成员方法：<br>格式化：<br>public String format(Date date);<br>解析：<br>public Date parse(String time);</p>
+<p>3.Calendar<br>获取对象：<br>Calendar c &#x3D; Calendar.getinstance();&#x2F;&#x2F;返回Calendar的子类对象<br>成员方法：<br>public void get(int field);<br>public void set(int field,int value);<br>public void add(int field,int value);</p>
+<p>4.Math<br>Math类中方法都是静态的<br>public static double abs(double d);<br>public static double ceil(double d);<br>public static double floor(double d);<br>public static double rount(double d);<br>public static double pow(double d);</p>
+<p>5.System<br>System类中方法都是静态的<br>public static void exit(0);&#x2F;&#x2F;退出JVM<br>public static long currentTimeMills();&#x2F;&#x2F;获取当前时间的毫秒值（用于计算某段代码的运行时间）</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/04/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%A4%9A%E6%80%81%E3%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E3%80%81%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6%E3%80%81%E4%BB%A3%E7%A0%81%E5%9D%97/" rel="prev" title="Java学习基础-多态、内部类、权限修饰符、代码块">
+      <i class="fa fa-chevron-left"></i> Java学习基础-多态、内部类、权限修饰符、代码块
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/07/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%B8%B8%E7%94%A8API%E3%80%81%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%E5%B0%8F%E7%BB%93/" rel="next" title="Java学习基础-常用API、引用类型小结">
+      Java学习基础-常用API、引用类型小结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

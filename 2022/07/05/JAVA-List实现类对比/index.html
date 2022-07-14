@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="ListLinkedList vs ArrayListInternal implementation这两个集合都允许重复的元素并维持元素的插入顺序。  LinkedList使用doubly-linked list LinkedList实现它。 ArrayList使用dynamically resizing array实现它。 这将导致性能上的进一步差异。 PerformanceAdd operat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA-List实现类对比">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/05/JAVA-List%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%AF%B9%E6%AF%94/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="ListLinkedList vs ArrayListInternal implementation这两个集合都允许重复的元素并维持元素的插入顺序。  LinkedList使用doubly-linked list LinkedList实现它。 ArrayList使用dynamically resizing array实现它。 这将导致性能上的进一步差异。 PerformanceAdd operat">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-05T14:48:38.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:01.626Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/05/JAVA-List%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%AF%B9%E6%AF%94/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JAVA-List实现类对比 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/05/JAVA-List%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%AF%B9%E6%AF%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JAVA-List实现类对比
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-05 22:48:38" itemprop="dateCreated datePublished" datetime="2022-07-05T22:48:38+08:00">2022-07-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:01" itemprop="dateModified" datetime="2022-07-15T01:08:01+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="List"><a href="#List" class="headerlink" title="List"></a>List</h1><h2 id="LinkedList-vs-ArrayList"><a href="#LinkedList-vs-ArrayList" class="headerlink" title="LinkedList vs ArrayList"></a>LinkedList vs ArrayList</h2><h3 id="Internal-implementation"><a href="#Internal-implementation" class="headerlink" title="Internal implementation"></a>Internal implementation</h3><p>这两个集合都允许重复的元素并维持元素的插入顺序。 </p>
+<p><code>LinkedList</code>使用<strong>doubly-linked list</strong> <code>LinkedList</code>实现它。 <code>ArrayList</code>使用<strong>dynamically resizing array</strong>实现它。 这将导致性能上的进一步差异。</p>
+<h3 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h3><h4 id="Add-operation"><a href="#Add-operation" class="headerlink" title="Add operation"></a>Add operation</h4><p>如果不需要调整Array的大小，则在ArrayList中添加元素是<code>O(1)</code>操作。 如果调整数组大小，则它变为<code>O(log(n))</code> 。 </p>
+<p>在LinkedList中添加元素是<code>O(1)</code>操作，因为它不需要任何导航。 </p>
+<span id="more"></span>
+
+<h4 id="Remove-operation"><a href="#Remove-operation" class="headerlink" title="Remove operation"></a>Remove operation</h4><p>当我们从ArrayList中移除一个元素（在后备数组中）时，它将所有元素向右移动。 在最坏的情况下（删除第一个元素），它接近<code>O(n)</code> ；在最好的情况下（删除最后一个元素），它接近<code>O(n)</code> ）。 </p>
+<p>LinkedList删除操作提供<code>O(1)</code>性能，因为它只需要重置上一个和下一个节点的指针。 无需复制或移动。 </p>
+<h4 id="Iteration"><a href="#Iteration" class="headerlink" title="Iteration"></a>Iteration</h4><p>迭代是LinkedList和ArrayList的<code>O(n)</code>操作，其中n是元素的数量。 </p>
+<h4 id="Get-operation"><a href="#Get-operation" class="headerlink" title="Get operation"></a>Get operation</h4><p>ArrayList提供<code>get(int index)</code>方法，该方法可以直接在给定索引位置找到元素。 它的阶数为<strong>O(1)</strong> 。 </p>
+<p>LinkedList还提供<code>get(int index)</code>方法，但它首先遍历所有节点以到达正确的节点。 它使性能可变。 最好的情况是<code>O(1)</code> ，最坏的情况是<code>O(n)</code> 。</p>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>在不处理大量数据之前，这两个类都将为您提供相同的性能水平。 两者都提供有序集合，并且两者也不同步。 </p>
+<p><code>LinkedList</code>实现<code>Deque</code>接口，因此它通过诸如<code>peek()</code>和<code>poll()</code>方法提供<strong>queue</strong>如<strong>FIFO</strong>功能。 </p>
+<p>从性能比较中可以看出， <code>ArrayList</code>更适合存储和访问数据。 <code>LinkedList</code>更适合处理数据。</p>
+<h2 id="ArrayList-vs-Vector"><a href="#ArrayList-vs-Vector" class="headerlink" title="ArrayList vs Vector"></a>ArrayList vs Vector</h2><h3 id="Thread-safety"><a href="#Thread-safety" class="headerlink" title="Thread safety"></a>Thread safety</h3><p><strong><code>Vector</code>是一个同步集合，而<code>ArrayList</code>不是</strong> 。 </p>
+<p>这仅表示在并发应用程序上工作时，我们可以使用Vector，而无需开发人员使用<code>synchronized</code>关键字实现任何其他同步控件。 矢量内部的公共方法被定义为<code>synchronized</code> ，这使得矢量中的所有操作对于并发需求都是安全的。 </p>
+<p>要在并发应用程序中使用arraylist，我们必须显式控制对实例的线程访问，以使应用程序按预期工作。 如果要获取arraylist的同步版本，则可以使用<code>Collections.synchronizedList()</code>方法。 </p>
+<p>返回的列表是<code>List</code>接口的内部实现，与arraylist不同。 但是它具有与arraylist类相同的功能。</p>
+<h3 id="Capacity-increment"><a href="#Capacity-increment" class="headerlink" title="Capacity increment"></a>Capacity increment</h3><p>默认情况下，当vector需要增加容量以添加元素时（填充现有容量时），其容量会增加<strong>100%.</strong> 这意味着矢量大小增长到以前的容量的两倍。 我们可以使用构造函数<code>public Vector(int initialCapacity, int capacityIncrement)</code> CapacityIncrement）覆盖默认容量。 这里的第二个参数是向量溢出时容量增加的数量。 </p>
+<p>在ArrayList中，默认情况下，容量将增加现有容量的<code>50%</code> 。 在arraylist中，我们可以定义初始容量，但不能定义容量增加因子</p>
+<h3 id="Performance-1"><a href="#Performance-1" class="headerlink" title="Performance"></a>Performance</h3><p>这两个集合都有一个后备数组，它们在其上存储和搜索元素。 因此，本质上， <strong>add</strong>和<strong>get</strong>操作的性能差异不大。 </p>
+<p>当我们考虑同步时，就会出现真正的性能差异。 <code>ArrayList</code>是不同步的，因此线程安全性没有时间流逝。 <code>Vector</code>是<code>synchronized</code> ，因此它在线程管理&#x2F;锁定等方面有一些开销。</p>
+<h3 id="ConcurrentModificationException"><a href="#ConcurrentModificationException" class="headerlink" title="ConcurrentModificationException"></a>ConcurrentModificationException</h3><p>这些合集如何处理迭代而集合仍由程序修改时有一个区别。 </p>
+<p><code>ArrayList</code>提供迭代器，它们是<strong>fail-fast</strong> 。 一旦我们修改了arraylist结构（添加或删除元素），迭代器就会抛出<strong>ConcurrentModificationException</strong>错误。 </p>
+<p><code>Vector</code>提供<strong>iterator</strong>以及<strong>enumeration</strong> 。 迭代器是快速失败的，而枚举不是。 如果我们在枚举迭代期间修改向量，则它不会失败。</p>
+<h6 id="来源"><a href="#来源" class="headerlink" title="来源:"></a>来源:</h6><p><a target="_blank" rel="noopener" href="https://rumenz.com/java-topic/java/collections/arraylist/linkedlist-vs-arraylist/index.html">https://rumenz.com/java-topic/java/collections/arraylist/linkedlist-vs-arraylist/index.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://rumenz.com/java-topic/java/collections/arraylist/arraylist-vs-vector/index.html">https://rumenz.com/java-topic/java/collections/arraylist/arraylist-vs-vector/index.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/05/SpringCloud-%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="prev" title="SpringCloud-面试题">
+      <i class="fa fa-chevron-left"></i> SpringCloud-面试题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/06/Spring-BeanDefinition%E6%9E%84%E5%BB%BA%E4%B8%8E%E6%B3%A8%E5%86%8CIOC/" rel="next" title="Spring-BeanDefinition构建与注册IOC">
+      Spring-BeanDefinition构建与注册IOC <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#List"><span class="nav-number">1.</span> <span class="nav-text">List</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedList-vs-ArrayList"><span class="nav-number">1.1.</span> <span class="nav-text">LinkedList vs ArrayList</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Internal-implementation"><span class="nav-number">1.1.1.</span> <span class="nav-text">Internal implementation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Performance"><span class="nav-number">1.1.2.</span> <span class="nav-text">Performance</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Add-operation"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">Add operation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Remove-operation"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">Remove operation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Iteration"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">Iteration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Get-operation"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">Get operation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conclusion"><span class="nav-number">1.1.3.</span> <span class="nav-text">Conclusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ArrayList-vs-Vector"><span class="nav-number">1.2.</span> <span class="nav-text">ArrayList vs Vector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread-safety"><span class="nav-number">1.2.1.</span> <span class="nav-text">Thread safety</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Capacity-increment"><span class="nav-number">1.2.2.</span> <span class="nav-text">Capacity increment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Performance-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">Performance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConcurrentModificationException"><span class="nav-number">1.2.4.</span> <span class="nav-text">ConcurrentModificationException</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">1.2.4.0.0.1.</span> <span class="nav-text">来源:</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

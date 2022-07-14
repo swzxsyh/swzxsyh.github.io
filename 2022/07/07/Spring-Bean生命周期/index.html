@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Spring Bean生命周期">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-Bean生命周期">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Spring Bean生命周期">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/3131012-0fdb736b21c8cc31.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/a9d3fd1f4134970adbb1aed30c4577cea5865da6.jpeg">
+<meta property="article:published_time" content="2022-07-07T11:33:49.000Z">
+<meta property="article:modified_time" content="2022-07-14T17:08:02.067Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring-Bean生命周期 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring-Bean生命周期
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-07 19:33:49" itemprop="dateCreated datePublished" datetime="2022-07-07T19:33:49+08:00">2022-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:08:02" itemprop="dateModified" datetime="2022-07-15T01:08:02+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Spring-Bean生命周期"><a href="#Spring-Bean生命周期" class="headerlink" title="Spring Bean生命周期"></a>Spring Bean生命周期</h1><p><img src="/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg"></p>
+<span id="more"></span>
+
+<h2 id="源头"><a href="#源头" class="headerlink" title="源头"></a>源头</h2><h3 id="lt-Bean-gt-x2F-Bean"><a href="#lt-Bean-gt-x2F-Bean" class="headerlink" title="&lt;Bean&gt; &#x2F; @Bean"></a>&lt;Bean&gt; &#x2F; @Bean</h3><p>AbstractApplicationContxt#refresh#refresh方法<strong>loadBeanDefinitions</strong>加载进入容器</p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>BeanDefinitionRegistry.register()加载并进行后置处理</p>
+<h3 id="BeanDefinition"><a href="#BeanDefinition" class="headerlink" title="BeanDefinition"></a>BeanDefinition</h3><p>承上启下功能，代表<strong>loadBeanDefinitions</strong>加载的结果，并作为Bean正式初始化的元数据</p>
+<h4 id="特殊属性（用于反射生成新的Bean）"><a href="#特殊属性（用于反射生成新的Bean）" class="headerlink" title="特殊属性（用于反射生成新的Bean）"></a>特殊属性（用于反射生成新的Bean）</h4><ul>
+<li><p>BeanName</p>
+</li>
+<li><p>classType</p>
+</li>
+</ul>
+<h4 id="提前初始化getBean"><a href="#提前初始化getBean" class="headerlink" title="提前初始化getBean()"></a>提前初始化getBean()</h4><p>Spring在这一步将未配置懒加载的Bean创建</p>
+<h2 id="Bean正式初始化"><a href="#Bean正式初始化" class="headerlink" title="Bean正式初始化"></a>Bean正式初始化</h2><p><img src="/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/3131012-0fdb736b21c8cc31.png"></p>
+<h3 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a><code>实例化</code></h3><h4 id="主要入参-BeanName"><a href="#主要入参-BeanName" class="headerlink" title="主要入参:BeanName"></a>主要入参:BeanName</h4><p>使用BeanName根据BeanDefinition 获取的ClassType进行反射返回一个Object</p>
+<h4 id="InstantiationBeanAwareBeanPostProcessor"><a href="#InstantiationBeanAwareBeanPostProcessor" class="headerlink" title="InstantiationBeanAwareBeanPostProcessor"></a>InstantiationBeanAwareBeanPostProcessor</h4><ul>
+<li><p>源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="comment">// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.</span></span><br><span class="line">  <span class="type">Object</span> <span class="variable">bean</span> <span class="operator">=</span> resolveBeforeInstantiation(beanName, mbdToUse);</span><br><span class="line">  <span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> bean;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用于生成代理类</p>
+</li>
+<li><p>可使用InstantiationBeanAwareBeanPostProcessor功能实现自己的方法进行后续步骤</p>
+</li>
+</ul>
+<h3 id="属性赋值"><a href="#属性赋值" class="headerlink" title="属性赋值"></a><code>属性赋值</code></h3><h4 id="核心功能populateBean"><a href="#核心功能populateBean" class="headerlink" title="核心功能populateBean"></a>核心功能populateBean</h4><ul>
+<li><p>核心方法</p>
+<ul>
+<li>autowireByName – @Autowired</li>
+<li>autowireByType – @Resource</li>
+</ul>
+</li>
+<li><p>Spring三级缓存解决循环依赖</p>
+<ul>
+<li>一级缓存<ul>
+<li>可直接使用的对象</li>
+</ul>
+</li>
+<li>二级缓存<ul>
+<li>反射的引用对象</li>
+</ul>
+</li>
+<li>三级缓存<ul>
+<li>工厂</li>
+<li>AOP代理依靠三级缓存</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="初始化InitialingBean"><a href="#初始化InitialingBean" class="headerlink" title="初始化InitialingBean"></a><code>初始化InitialingBean</code></h3><ol>
+<li><p>请求Aware</p>
+<p>Bean实现Aware接口，在此将Instance set()</p>
+<ul>
+<li>BeanNameAware</li>
+<li>BeanFactoryAware</li>
+<li>ApplicationContextAware</li>
+</ul>
+</li>
+<li><p>BeanPostProcessor</p>
+<ul>
+<li><p>org.springframework.beans.factory.config.BeanPostProcessor</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  	 * Apply this &#123;<span class="doctag">@code</span> BeanPostProcessor&#125; to the given new bean instance &lt;i&gt;before&lt;/i&gt; any bean</span></span><br><span class="line"><span class="comment">  	 * initialization callbacks (like InitializingBean&#x27;s &#123;<span class="doctag">@code</span> afterPropertiesSet&#125;</span></span><br><span class="line"><span class="comment">  	 * or a custom init-method). The bean will already be populated with property values.</span></span><br><span class="line"><span class="comment">  	 * The returned bean instance may be a wrapper around the original.</span></span><br><span class="line"><span class="comment">  	 * &lt;p&gt;The default implementation returns the given &#123;<span class="doctag">@code</span> bean&#125; as-is.</span></span><br><span class="line"><span class="comment">  	 * <span class="doctag">@param</span> bean the new bean instance</span></span><br><span class="line"><span class="comment">  	 * <span class="doctag">@param</span> beanName the name of the bean</span></span><br><span class="line"><span class="comment">  	 * <span class="doctag">@return</span> the bean instance to use, either the original or a wrapped one;</span></span><br><span class="line"><span class="comment">  	 * if &#123;<span class="doctag">@code</span> null&#125;, no subsequent BeanPostProcessors will be invoked</span></span><br><span class="line"><span class="comment">  	 * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">  	 * <span class="doctag">@see</span> org.springframework.beans.factory.InitializingBean#afterPropertiesSet</span></span><br><span class="line"><span class="comment">  	 */</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">default</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line"><span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Apply this &#123;<span class="doctag">@code</span> BeanPostProcessor&#125; to the given new bean instance &lt;i&gt;after&lt;/i&gt; any bean</span></span><br><span class="line"><span class="comment">	 * initialization callbacks (like InitializingBean&#x27;s &#123;<span class="doctag">@code</span> afterPropertiesSet&#125;</span></span><br><span class="line"><span class="comment">	 * or a custom init-method). The bean will already be populated with property values.</span></span><br><span class="line"><span class="comment">	 * The returned bean instance may be a wrapper around the original.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;In case of a FactoryBean, this callback will be invoked for both the FactoryBean</span></span><br><span class="line"><span class="comment">	 * instance and the objects created by the FactoryBean (as of Spring 2.0). The</span></span><br><span class="line"><span class="comment">	 * post-processor can decide whether to apply to either the FactoryBean or created</span></span><br><span class="line"><span class="comment">	 * objects or both through corresponding &#123;<span class="doctag">@code</span> bean instanceof FactoryBean&#125; checks.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;This callback will also be invoked after a short-circuiting triggered by a</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@link</span> InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation&#125; method,</span></span><br><span class="line"><span class="comment">	 * in contrast to all other &#123;<span class="doctag">@code</span> BeanPostProcessor&#125; callbacks.</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;The default implementation returns the given &#123;<span class="doctag">@code</span> bean&#125; as-is.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> bean the new bean instance</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> beanName the name of the bean</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> the bean instance to use, either the original or a wrapped one;</span></span><br><span class="line"><span class="comment">	 * if &#123;<span class="doctag">@code</span> null&#125;, no subsequent BeanPostProcessors will be invoked</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> org.springframework.beans.factory.InitializingBean#afterPropertiesSet</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> org.springframework.beans.factory.FactoryBean</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">default</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Init-Method</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>  多种初始化方式</p>
+<ul>
+<li>实现InitalizingBean接口<ul>
+<li>SpringBean 配置Init-Method</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>InitalizingBean</li>
+</ol>
+<h4 id="什么时候使用Aware？什么时候使用PostProcessor"><a href="#什么时候使用Aware？什么时候使用PostProcessor" class="headerlink" title="什么时候使用Aware？什么时候使用PostProcessor"></a>什么时候使用Aware？什么时候使用PostProcessor</h4><ul>
+<li>Aware<ul>
+<li>上级方法传递数据，用于取数据，读操作</li>
+</ul>
+</li>
+<li>PostProcessor<ul>
+<li>写入操作</li>
+</ul>
+</li>
+</ul>
+<h3 id="销毁"><a href="#销毁" class="headerlink" title="销毁"></a><code>销毁</code></h3><ul>
+<li>实现DisposableBean接口</li>
+<li>调用destroy-method方法</li>
+</ul>
+<h4 id="InitalizingBean-DisposableBean实现中间件框架"><a href="#InitalizingBean-DisposableBean实现中间件框架" class="headerlink" title="InitalizingBean+DisposableBean实现中间件框架"></a>InitalizingBean+DisposableBean实现中间件框架</h4><h2 id="完整的生命周期"><a href="#完整的生命周期" class="headerlink" title="完整的生命周期"></a>完整的生命周期</h2><p><img src="/2022/07/07/Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/a9d3fd1f4134970adbb1aed30c4577cea5865da6.jpeg"></p>
+<ul>
+<li><p>BeanNameAware.setBeanName() 在创建此bean的bean工厂中设置bean的名称，在普通属性设置之后调用，在InitializinngBean.afterPropertiesSet()方法之前调用</p>
+</li>
+<li><p>BeanClassLoaderAware.setBeanClassLoader(): 在普通属性设置之后，InitializingBean.afterPropertiesSet()之前调用</p>
+</li>
+<li><p>BeanFactoryAware.setBeanFactory() : 回调提供了自己的bean实例工厂，在普通属性设置之后，在InitializingBean.afterPropertiesSet()或者自定义初始化方法之前调用</p>
+</li>
+<li><p>EnvironmentAware.setEnvironment(): 设置environment在组件使用时调用</p>
+</li>
+<li><p>EmbeddedValueResolverAware.setEmbeddedValueResolver(): 设置StringValueResolver 用来解决嵌入式的值域问题</p>
+</li>
+<li><p>ResourceLoaderAware.setResourceLoader(): 在普通bean对象之后调用，在afterPropertiesSet 或者自定义的init-method 之前调用，在 ApplicationContextAware 之前调用。</p>
+</li>
+<li><p>ApplicationEventPublisherAware.setApplicationEventPublisher(): 在普通bean属性之后调用，在初始化调用afterPropertiesSet 或者自定义初始化方法之前调用。在 ApplicationContextAware 之前调用。</p>
+</li>
+<li><p>MessageSourceAware.setMessageSource(): 在普通bean属性之后调用，在初始化调用afterPropertiesSet 或者自定义初始化方法之前调用，在 ApplicationContextAware 之前调用。</p>
+</li>
+<li><p>ApplicationContextAware.setApplicationContext(): 在普通Bean对象生成之后调用，在InitializingBean.afterPropertiesSet之前调用或者用户自定义初始化方法之前。在ResourceLoaderAware.setResourceLoader，ApplicationEventPublisherAware.setApplicationEventPublisher，MessageSourceAware之后调用。</p>
+</li>
+<li><p>ServletContextAware.setServletContext(): 运行时设置ServletContext，在普通bean初始化后调用，在InitializingBean.afterPropertiesSet之前调用，在 ApplicationContextAware 之后调用</p>
+<p><strong>注：是在WebApplicationContext 运行时</strong></p>
+</li>
+<li><p>BeanPostProcessor.postProcessBeforeInitialization() : 将此BeanPostProcessor 应用于给定的新bean实例 在任何bean初始化回调方法(像是InitializingBean.afterPropertiesSet或者自定义的初始化方法）之前调用。这个bean将要准备填充属性的值。返回的bean示例可能被普通对象包装，默认实现返回是一个bean。</p>
+</li>
+<li><p>BeanPostProcessor.postProcessAfterInitialization() : 将此BeanPostProcessor 应用于给定的新bean实例 在任何bean初始化回调方法(像是InitializingBean.afterPropertiesSet或者自定义的初始化方法)之后调用。这个bean将要准备填充属性的值。返回的bean示例可能被普通对象包装</p>
+</li>
+<li><p>InitializingBean.afterPropertiesSet(): 被BeanFactory在设置所有bean属性之后调用(并且满足BeanFactory 和 ApplicationContextAware)。</p>
+</li>
+</ul>
+<h6 id="来源"><a href="#来源" class="headerlink" title="来源:"></a>来源:</h6><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1h541197rg">https://www.bilibili.com/video/BV1h541197rg</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3944792a5fff">https://www.jianshu.com/p/3944792a5fff</a></p>
+<p><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1666448276232778855&amp;wfr=spider&amp;for=pc">https://baijiahao.baidu.com/s?id=1666448276232778855&amp;wfr=spider&amp;for=pc</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/07/Tomcat-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81JAVA%E7%A0%B4%E5%9D%8F%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6/" rel="prev" title="Tomcat-为什么要JAVA破坏双亲委派机制">
+      <i class="fa fa-chevron-left"></i> Tomcat-为什么要JAVA破坏双亲委派机制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/07/SpringBoot-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="next" title="SpringBoot-生命周期">
+      SpringBoot-生命周期 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">Spring Bean生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E5%A4%B4"><span class="nav-number">1.1.</span> <span class="nav-text">源头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lt-Bean-gt-x2F-Bean"><span class="nav-number">1.1.1.</span> <span class="nav-text">&lt;Bean&gt; &#x2F; @Bean</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanDefinition"><span class="nav-number">1.1.2.</span> <span class="nav-text">BeanDefinition</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E5%B1%9E%E6%80%A7%EF%BC%88%E7%94%A8%E4%BA%8E%E5%8F%8D%E5%B0%84%E7%94%9F%E6%88%90%E6%96%B0%E7%9A%84Bean%EF%BC%89"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">特殊属性（用于反射生成新的Bean）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E5%89%8D%E5%88%9D%E5%A7%8B%E5%8C%96getBean"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">提前初始化getBean()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bean%E6%AD%A3%E5%BC%8F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">Bean正式初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">实例化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%85%A5%E5%8F%82-BeanName"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">主要入参:BeanName</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#InstantiationBeanAwareBeanPostProcessor"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">InstantiationBeanAwareBeanPostProcessor</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E8%B5%8B%E5%80%BC"><span class="nav-number">1.2.2.</span> <span class="nav-text">属性赋值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BDpopulateBean"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">核心功能populateBean</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96InitialingBean"><span class="nav-number">1.2.3.</span> <span class="nav-text">初始化InitialingBean</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8Aware%EF%BC%9F%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8PostProcessor"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">什么时候使用Aware？什么时候使用PostProcessor</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%80%E6%AF%81"><span class="nav-number">1.2.4.</span> <span class="nav-text">销毁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#InitalizingBean-DisposableBean%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%A1%86%E6%9E%B6"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">InitalizingBean+DisposableBean实现中间件框架</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.3.</span> <span class="nav-text">完整的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">1.3.0.0.0.1.</span> <span class="nav-text">来源:</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
