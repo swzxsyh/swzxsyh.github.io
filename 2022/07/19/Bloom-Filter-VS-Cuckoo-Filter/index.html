@@ -21,17 +21,23 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="布隆过滤器 Bloom Filter原理布隆过滤器基础版原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。 布隆过滤器可能会误判，如果它说不存在那肯定不存在，如果它说存在，那数据有可能实际不存在； Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一">
+  <meta name="description" content="布隆过滤器 Bloom Filter大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回  存入过程 通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。  查询过程 通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="布隆过滤器 与 布谷鸟过滤器">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="布隆过滤器 Bloom Filter原理布隆过滤器基础版原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。 布隆过滤器可能会误判，如果它说不存在那肯定不存在，如果它说存在，那数据有可能实际不存在； Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一">
+<meta property="og:description" content="布隆过滤器 Bloom Filter大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回  存入过程 通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。  查询过程 通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/746a58fc32307e895525749bfdf0491b.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/CountingBloomFIlter.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/v2-d6df317d9f0203355216dc4e0882fe57_1440w.jpg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/cuckoo.jpg">
 <meta property="article:published_time" content="2022-07-19T15:46:54.000Z">
-<meta property="article:modified_time" content="2022-07-19T15:51:18.952Z">
+<meta property="article:modified_time" content="2022-07-19T16:57:01.523Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png">
 
 <link rel="canonical" href="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/">
 
@@ -208,10 +214,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-07-19 23:46:54 / 修改时间：23:51:18" itemprop="dateCreated datePublished" datetime="2022-07-19T23:46:54+08:00">2022-07-19</time>
+              <time title="创建时间：2022-07-19 23:46:54" itemprop="dateCreated datePublished" datetime="2022-07-19T23:46:54+08:00">2022-07-19</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-20 00:57:01" itemprop="dateModified" datetime="2022-07-20T00:57:01+08:00">2022-07-20</time>
+              </span>
 
           
 
@@ -224,23 +236,130 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="布隆过滤器-Bloom-Filter"><a href="#布隆过滤器-Bloom-Filter" class="headerlink" title="布隆过滤器 Bloom Filter"></a>布隆过滤器 Bloom Filter</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="布隆过滤器基础版"><a href="#布隆过滤器基础版" class="headerlink" title="布隆过滤器基础版"></a>布隆过滤器基础版</h3><p>原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。</p>
-<p>布隆过滤器可能会误判，如果它说不存在那肯定不存在，如果它说存在，那数据有可能实际不存在；</p>
+        <h1 id="布隆过滤器-Bloom-Filter"><a href="#布隆过滤器-Bloom-Filter" class="headerlink" title="布隆过滤器 Bloom Filter"></a>布隆过滤器 Bloom Filter</h1><p>大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回</p>
+<ul>
+<li><p>存入过程</p>
+<p>通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。</p>
+</li>
+<li><p>查询过程</p>
+<p>通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）</p>
+</li>
+<li><p>删除过程</p>
+<p>不能进行删除，因为会删除掉其他数据。</p>
+</li>
+<li><p>更新过程</p>
+<p>不能进行更新。</p>
+</li>
+</ul>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="布隆过滤器基础版"><a href="#布隆过滤器基础版" class="headerlink" title="布隆过滤器基础版"></a>布隆过滤器基础版</h3><p>原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。</p>
+<p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png"></p>
+<p>一个bitmap用于记录，bitmap原始数值全都是0。当一个数据存进来的时候，用三个Hash函数分别计算三次Hash值,并且将bitmap对应的位置设置为1,上图中,bitmap 的1,3,6位置被标记为1,这时候如果一个数据请求过来,依然用之前的三个Hash函数计算Hash值,如果是同一个数据的话,势必依旧是映射到1,3,6位,那么就可以判断这个数据之前存储过,如果新的数据映射的三个位置,有一个匹配不上,假如映射到1,3,7位,由于7位是0,也就是这个数据之前并没有加入进数据库,所以直接返回。</p>
 <p>Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一，可以放下2亿左右的数据，性能高，空间占用率及小，省去了大量无效的数据库连接。</p>
-<p>存入过程： 通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。<br>查询过程：通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）<br>删除过程：不能进行删除，因为会删除掉其他数据。<br>更新过程：也不能进行更新。</p>
+<span id="more"></span>
+
+<h4 id="布隆过滤器基础版的问题"><a href="#布隆过滤器基础版的问题" class="headerlink" title="布隆过滤器基础版的问题"></a>布隆过滤器基础版的问题</h4><h6 id="误判"><a href="#误判" class="headerlink" title="误判"></a>误判</h6><p>如果它说不存在那肯定不存在，如果它说存在，那数据有可能实际不存在</p>
+<p>假如有这么一个情景,放入数据包1时,将bitmap的1,3,6位设置为了1,放入数据包2时将bitmap的3,6,7位设置为了1,此时一个并没有存过的数据包请求3,做三次哈希之后,对应的bitmap位点分别是1,6,7,这个数据之前并没有存进去过,但是由于数据包1和2存入时将对应的点设置为了1,所以请求3也会压倒数据库上,这种情况,会随着存入的数据增加而增加。</p>
+<p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/746a58fc32307e895525749bfdf0491b.png"></p>
+<h6 id="无法删除数据"><a href="#无法删除数据" class="headerlink" title="无法删除数据"></a>无法删除数据</h6><ul>
+<li>由于有误判的可能,并不确定数据是否存在数据库里,例如数据包3。</li>
+<li>当你删除某一个数据包对应位图上的标志后,可能影响其他的数据包,例如上面例子中,如果删除数据包1,也就意味着会将bitmap1,3,6位设置为0,此时数据包2来请求时,会显示不存在,因为3,6两位已经被设置为0。</li>
+</ul>
 <h3 id="布隆过滤器增强版"><a href="#布隆过滤器增强版" class="headerlink" title="布隆过滤器增强版"></a>布隆过滤器增强版</h3><p>为了解决上面布隆过滤器的问题,出现了一个增强版的布隆过滤器(Counting Bloom Filter),这个过滤器的思路是将布隆过滤器的bitmap更换成数组,当数组某位置被映射一次时就+1,当删除时就-1,这样就避免了普通布隆过滤器删除数据后需要重新计算其余数据包Hash的问题,但是依旧没法避免误判。</p>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ol>
+<p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/CountingBloomFIlter.png"></p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/v2-d6df317d9f0203355216dc4e0882fe57_1440w.jpg"></p>
+<ol>
 <li>redis缓存穿透（大量查询不存在于数据库中的数据）：使用布隆过滤器进行过滤，如果不存在直接跳过查询数据库，返回结果。</li>
 <li>新闻客户端的推送去重功能，当推荐系统推荐新闻时会从每个用户的历史记录里进行筛选，过滤掉那些已经存在的记录。它在起到去重的同时，在空间上还能节省 90% 以上，只是稍微有那么点不精确，也就是有一定的误判概率。</li>
 <li>黑白名单</li>
 <li>块索引是HBase固有的一个特性，因为HBase的底层数据是存储在HFile中的，而每个HFile中存储的是有序的键值对，HFile文件内部由连续的块组成，每个块中存储的第一行数据的行键组成了这个文件的块索引，这些块索引信息存储在文件尾部。当HBase打开一个HFile时，块索引信息会优先加载到内存；HBase首先在内存的块索引中进行二分查找，确定可能包含给定键的块，然后读取磁盘块找到实际想要的键。<br>但实际应用中，仅仅只有块索引满足不了需求，这是因为，块索引能帮助我们更快地在一个文件中找到想要的数据，但是我们可能依然需要扫描很多文件。而布隆过滤器就是为解决这个问题而生。因为布隆过滤器的作用是，用户可以立即判断一个文件是否包含特定的行键，从而帮我们过滤掉一些不需要扫描的文件。</li>
 </ol>
-<h2 id="布隆过滤器的缺点"><a href="#布隆过滤器的缺点" class="headerlink" title="布隆过滤器的缺点"></a>布隆过滤器的缺点</h2><ul>
-<li>不支持删除元素：一旦对位数组进行了赋值，无法将其删除。可以通过增加每个数组元素大小使用增强版过滤器实现删除功能。</li>
-<li>查询性能弱：布隆过滤器使用多个hash函数计算位图多个不同位点，由于多个位点在内存中不连续，CPU寻址花销较大。</li>
-<li>空间利用率低。</li>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="Redisson"><a href="#Redisson" class="headerlink" title="Redisson"></a>Redisson</h3><h4 id="Dependence"><a href="#Dependence" class="headerlink" title="Dependence"></a>Dependence</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.6.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedissonBloomFilter</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">    config.useSingleServer().setAddress(<span class="string">&quot;redis://192.168.32.128:6379&quot;</span>);</span><br><span class="line">    <span class="comment">//        config.useSingleServer().setPassword(&quot;&quot;);</span></span><br><span class="line">    <span class="comment">// 构造Redisson</span></span><br><span class="line">    <span class="type">RedissonClient</span> <span class="variable">redissonClient</span> <span class="operator">=</span> Redisson.create(config);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化布隆过滤器：预计元素为100000000L个，误差率为3%</span></span><br><span class="line">    RBloomFilter&lt;Object&gt; bloomFilter = redissonClient.getBloomFilter(<span class="string">&quot;phoneList&quot;</span>);</span><br><span class="line">    bloomFilter.tryInit(<span class="number">100000000L</span>, <span class="number">0.03</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将号码插入到布隆过滤器中</span></span><br><span class="line">    bloomFilter.add(<span class="string">&quot;10086&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断下面的号码是否在布隆过滤器中</span></span><br><span class="line">    System.out.println(bloomFilter.contains(<span class="string">&quot;10000&quot;</span>));</span><br><span class="line">    System.out.println(bloomFilter.contains(<span class="string">&quot;10086&quot;</span>));</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Guava"><a href="#Guava" class="headerlink" title="Guava"></a>Guava</h3><p>调用谷歌的guava包的api就可以。</p>
+<p><strong>缺点：guava版实现主要问题在于无法支持集群环境. 为了支持集群环境主要考虑通过redis setbit来实现BloomFilter。</strong></p>
+<ul>
+<li><p>创建布隆过滤器对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 参数Funnels.integerFunnel()是默认参数，size是预计存入的数据量，fpp是设置的误判率</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; BloomFilter&lt;T&gt; <span class="title function_">create</span><span class="params">(</span></span><br><span class="line"><span class="params">  Funnel&lt;? <span class="built_in">super</span> T&gt; funnel, <span class="type">int</span> expectedInsertions, <span class="type">double</span> fpp)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> create(funnel, (<span class="type">long</span>) expectedInsertions, fpp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h1 id="布谷鸟过滤器-Cuckoo-Filter"><a href="#布谷鸟过滤器-Cuckoo-Filter" class="headerlink" title="布谷鸟过滤器 Cuckoo Filter"></a>布谷鸟过滤器 Cuckoo Filter</h1><h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/462815302">https://zhuanlan.zhihu.com/p/462815302</a></p>
+<blockquote>
+<p>误判率越低，哈希函数个数和布隆过滤器数组长度越大，运算效率越低。</p>
+</blockquote>
+<ul>
+<li><p>放入数据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CanIgnoreReturnValue</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">put</span><span class="params">(T object)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> strategy.put(object, funnel, numHashFunctions, bits);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>判断是否存在：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">mightContain</span><span class="params">(T object)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> strategy.mightContain(object, funnel, numHashFunctions, bits);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="布隆过滤器的缺点"><a href="#布隆过滤器的缺点" class="headerlink" title="布隆过滤器的缺点"></a>布隆过滤器的缺点</h2><ul>
+<li><p>查询性能弱</p>
+<p>布隆过滤器使用多个hash函数计算位图多个不同位点，由于多个位点在内存中不连续，这些位点在内存上跨度很大，会导致 CPU 缓存行命中率低，CPU寻址花销较大。</p>
+</li>
+<li><p>空间利用率低</p>
+<p>在相同的误判率下，布谷鸟过滤器的空间利用率要明显高于布隆，空间上大概能节省 40% 多。不过布隆过滤器并没有要求位图的长度必须是 2 的指数，而布谷鸟过滤器必须有这个要求。从这一点出发，似乎布隆过滤器的空间伸缩性更强一些</p>
+</li>
+<li><p>不支持反向删除操作（元素）</p>
+<p>一旦对位数组进行了赋值，无法将其删除。可以通过增加每个数组元素大小使用增强版过滤器实现删除功能。</p>
+</li>
+<li><p>不支持计数</p>
+</li>
+</ul>
+<h1 id="布谷鸟哈希"><a href="#布谷鸟哈希" class="headerlink" title="布谷鸟哈希"></a>布谷鸟哈希</h1><p>最简单的布谷鸟哈希结构是一维数组结构，会有两个 hash 算法将新来的元素映射到数组的两个位置。如果两个位置中有一个位置为空，那么就可以将元素直接放进去。但是如果这两个位置都满了，它就不得不「鸠占鹊巢」，随机踢走一个，然后自己霸占了这个位置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p1 = hash1(x) % l</span><br><span class="line">p2 = hash2(x) % l</span><br></pre></td></tr></table></figure>
+
+<p>布谷鸟哈希算法会帮这些受害者（被挤走的蛋）寻找其它的窝。因为每一个元素都可以放在两个位置，只要任意一个有空位置，就可以塞进去。所以这个伤心的被挤走的蛋会看看自己的另一个位置有没有空，如果空了，自己挪过去也就皆大欢喜了。但是如果这个位置也被别人占了呢？好，那么它会再来一次「鸠占鹊巢」，将受害者的角色转嫁给别人。然后这个新的受害者还会重复这个过程直到所有的蛋都找到了自己的巢为止。</p>
+<h3 id="布谷鸟哈希的问题"><a href="#布谷鸟哈希的问题" class="headerlink" title="布谷鸟哈希的问题"></a>布谷鸟哈希的问题</h3><hr>
+<p>但是会遇到一个问题，那就是如果数组太拥挤了，连续踢来踢去几百次还没有停下来，这时候会严重影响插入效率。这时候布谷鸟哈希会设置一个阈值，当连续占巢行为超出了某个阈值，就认为这个数组已经几乎满了。这时候就需要对它进行扩容，重新放置所有元素。</p>
+<p>还会有另一个问题，那就是可能会存在挤兑循环。比如两个不同的元素，hash 之后的两个位置正好相同，这时候它们一人一个位置没有问题。但是这时候来了第三个元素，它 hash 之后的位置也和它们一样，很明显，这时候会出现挤兑的循环。不过让三个不同的元素经过两次 hash 后位置还一样，这样的概率并不是很高，除非你的 hash 算法太挫了。</p>
+<p>布谷鸟哈希算法对待这种挤兑循环的态度就是认为数组太拥挤了，需要扩容（实际上并不是这样）。</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>上面的布谷鸟哈希算法的平均空间利用率并不高，大概只有 50%。到了这个百分比，就会很快出现连续挤兑次数超出阈值。这样的哈希算法价值并不明显，所以需要对它进行改良。</p>
+<p>改良的方案之一是增加 hash 函数，让每个元素不止有两个巢，而是三个巢、四个巢。这样可以大大降低碰撞的概率，将空间利用率提高到 95%左右。</p>
+<p>另一个改良方案是在数组的每个位置上挂上多个座位，这样即使两个元素被 hash 在了同一个位置，也不必立即「鸠占鹊巢」，因为这里有多个座位，你可以随意坐一个。除非这多个座位都被占了，才需要进行挤兑。很明显这也会显著降低挤兑次数。这种方案的空间利用率只有 85%左右，但是查询效率会很高，同一个位置上的多个座位在内存空间上是连续的，可以有效利用 CPU 高速缓存。</p>
+<p>所以更加高效的方案是将上面的两个改良方案融合起来，比如使用 4 个 hash 函数，每个位置上放 2 个座位。这样既可以得到时间效率，又可以得到空间效率。这样的组合甚至可以将空间利用率提到高 99%，这是非常了不起的空间效率。</p>
+<h1 id="布谷鸟过滤器-Cuckoo-Filter"><a href="#布谷鸟过滤器-Cuckoo-Filter" class="headerlink" title="布谷鸟过滤器 Cuckoo Filter"></a>布谷鸟过滤器 Cuckoo Filter</h1><h2 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h2><p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/cuckoo.jpg"></p>
+<p><strong>布谷鸟哈希结构：</strong>布谷鸟过滤器由一个数组组成，数组中元素大小为4个字节，可以存储4个指纹，每个指纹占一个字节(128种)。同一个数组元素 上的多个座位在内存空间上是连续的，可以有效利用 CPU 高速缓存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type bucket [<span class="number">4</span>]byte   <span class="comment">// 一个桶，4个座位</span></span><br><span class="line">type cuckoo_filter <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    buckets [size]bucket  <span class="comment">// 一维数组</span></span><br><span class="line">    nums <span class="type">int</span>   <span class="comment">// 容纳的元素个数</span></span><br><span class="line">    kick_max   <span class="comment">// 最大挤兑次数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="插入："><a href="#插入：" class="headerlink" title="插入："></a>插入：</h3><p>首先计算数据的指纹和哈希值，并通过指纹和哈希值计算另一个哈希值，两个哈希值映射到两个位置(因为计算得到两个位置，每个位置存储4个指纹，所以相同对象最多存储8个)。接下来进行插入，会尝试插入两个位置，如果都失败，随机挤走一个指纹，并重新为该指纹寻找新的位置(超过最大挤兑次数后扩容)。</p>
+<h3 id="扩容："><a href="#扩容：" class="headerlink" title="扩容："></a>扩容：</h3><p>如果数组过小，会发生循环挤兑的情况，就可以设置最大挤兑次数，如果超过该次数，进行扩容，重新计算每个指纹的位置。</p>
+<h3 id="查找："><a href="#查找：" class="headerlink" title="查找："></a>查找：</h3><p>通过计算哈希值得到两个元素，对两个元素中的8个位置进行指纹对比，如果对比成功则表示数据存在。如果哈希值和指纹相同时会发生误判(小概率)。</p>
+<h3 id="删除："><a href="#删除：" class="headerlink" title="删除："></a>删除：</h3><p>因为每个对象的指纹会存储到一个位置中，所以可以通过删除这个指纹来删除数据。删除功能无法使用的情况：如果相同对象存储超过8个，就无法使用删除功能；如果俩数据的哈希值和指纹相同时，会出现误删除情况。</p>
+<h3 id="更新："><a href="#更新：" class="headerlink" title="更新："></a>更新：</h3><p>即删除后再添加新指纹。</p>
+<h2 id="与布谷鸟哈希区别"><a href="#与布谷鸟哈希区别" class="headerlink" title="与布谷鸟哈希区别"></a>与布谷鸟哈希区别</h2><p>布谷鸟过滤器和布谷鸟哈希结构一样，它也是一维数组，但是不同于布谷鸟哈希的是，布谷鸟哈希会存储整个元素，而布谷鸟过滤器中只会存储元素的指纹信息（几个bit，类似于布隆过滤器）。这里过滤器牺牲了数据的精确性换取了空间效率。正是因为存储的是元素的指纹信息，所以会存在误判率，这点和布隆过滤器如出一辙。</p>
+<p>首先布谷鸟过滤器还是只会选用两个 hash 函数，但是每个位置可以放置多个座位。这两个 hash 函数选择的比较特殊，因为过滤器中只能存储指纹信息。当这个位置上的指纹被挤兑之后，它需要计算出另一个对偶位置。而计算这个对偶位置是需要元素本身的，我们来回忆一下前面的哈希位置计算公式。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fp = fingerprint(x)</span><br><span class="line">p1 = hash1(x) % l</span><br><span class="line">p2 = hash2(x) % l</span><br></pre></td></tr></table></figure>
+
+<p>我们知道了 p1 和 x 的指纹，是没办法直接计算出 p2 的。</p>
+<h3 id="特殊的-hash-函数"><a href="#特殊的-hash-函数" class="headerlink" title="特殊的 hash 函数"></a>特殊的 hash 函数</h3><p>布谷鸟过滤器巧妙的地方就在于设计了一个独特的 hash 函数，使得可以根据 p1 和 元素指纹 直接计算出 p2，而不需要完整的 x 元素。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fp = fingerprint(x)</span><br><span class="line">p1 = hash(x)</span><br><span class="line">p2 = p1 ^ hash(fp)  <span class="comment">// 异或</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的公式中可以看出，当我们知道 fp 和 p1，就可以直接算出 p2。同样如果我们知道 p2 和 fp，也可以直接算出 p1 —— 对偶性。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1 = p2 ^ hash(fp)</span><br></pre></td></tr></table></figure>
+
+<p>所以我们根本不需要知道当前的位置是 p1 还是 p2，只需要将当前的位置和 hash(fp) 进行异或计算就可以得到对偶位置。而且只需要确保 hash(fp) !&#x3D; 0 就可以确保 p1 !&#x3D; p2，如此就不会出现自己踢自己导致死循环的问题。</p>
+<p>也许你会问为什么这里的 hash 函数不需要对数组的长度取模呢？实际上是需要的，但是布谷鸟过滤器强制数组的长度必须是 2 的指数，所以对数组的长度取模等价于取 hash 值的最后 n 位。在进行异或运算时，忽略掉低 n 位 之外的其它位就行。将计算出来的位置 p 保留低 n 位就是最终的对偶位置。</p>
+<h2 id="应用-1"><a href="#应用-1" class="headerlink" title="应用"></a>应用</h2><p>同布隆过滤器。</p>
+<h2 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h2><p>貌似目前没有现成的java实现。<br>可以参考如下项目：</p>
+<ul>
+<li><a href="https://link.zhihu.com/?target=https://links.jianshu.com/go?to=https://github.com/kristoff-it/redis-cuckoofilter">https://github.com/kristoff-it/redis-cuckoofilter</a></li>
+<li>通过redis中强有力的第三方扩展module, 让redis支持sql及布谷鸟过滤器。<br><a href="https://link.zhihu.com/?target=https://links.jianshu.com/go?to=https://github.com/RedBeardLab/rediSQL">https://github.com/RedBeardLab/rediSQL</a></li>
+</ul>
+<h2 id="布谷鸟过滤器的优缺点"><a href="#布谷鸟过滤器的优缺点" class="headerlink" title="布谷鸟过滤器的优缺点"></a>布谷鸟过滤器的优缺点</h2><h3 id="对比布隆过滤器："><a href="#对比布隆过滤器：" class="headerlink" title="对比布隆过滤器："></a>对比布隆过滤器：</h3><p>布谷鸟过滤器在错误率小于3%的时候空间性能是优于布隆过滤器的，而这个条件在实际应用中常常满足，所以一般来说它的空间性能是要优于布隆过滤器的。布谷鸟过滤器按照普通设计，只有两个Hash表，在查找的时候可以确保两次访存就可以做完，相比于布隆过滤器的K个Hash函数K次访存，在数据量很大不能全部装载在内存中的情况下，多次访问内存性能较差。<br>当然，布谷过滤器也有其相应的缺点，当装填数据过多的时候，容易出现循环的问题，即插入失败的情况。另外，它还跟布隆过滤器共有的一个缺点，就是访问空间地址不连续，内存寻址消耗大。</p>
+<h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ul>
+<li>访问内存次数低</li>
+<li>Hash函数计算简单</li>
+<li>存在删除操作。如果相同数据个数不超过8个，那么删除操作可用；但是因为存储的是计算后的指纹信息，存在误删除的可能，所以不好用。</li>
+</ul>
+<h3 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h3><ul>
+<li>内存空间不联系，CPU消耗大。</li>
+<li>容易出现装填循环问题：Hash冲突踢出原数据，原数据还是存在冲突。</li>
+<li>删除数据时，Hash冲突会引起误删：查询有误判，那么删除也会有误删。</li>
+</ul>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/462815302">https://zhuanlan.zhihu.com/p/462815302</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Ch97CKd/article/details/123700044">https://blog.csdn.net/Ch97CKd/article/details/123700044</a></p>
 
     </div>
@@ -319,7 +438,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8-Bloom-Filter"><span class="nav-number">1.</span> <span class="nav-text">布隆过滤器 Bloom Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%9F%BA%E7%A1%80%E7%89%88"><span class="nav-number">1.1.1.</span> <span class="nav-text">布隆过滤器基础版</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%A2%9E%E5%BC%BA%E7%89%88"><span class="nav-number">1.1.2.</span> <span class="nav-text">布隆过滤器增强版</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">布隆过滤器的缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E8%B0%B7%E9%B8%9F%E8%BF%87%E6%BB%A4%E5%99%A8-Cuckoo-Filter"><span class="nav-number">2.</span> <span class="nav-text">布谷鸟过滤器 Cuckoo Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">2.0.0.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8-Bloom-Filter"><span class="nav-number">1.</span> <span class="nav-text">布隆过滤器 Bloom Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%9F%BA%E7%A1%80%E7%89%88"><span class="nav-number">1.1.1.</span> <span class="nav-text">布隆过滤器基础版</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%9F%BA%E7%A1%80%E7%89%88%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">布隆过滤器基础版的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E8%AF%AF%E5%88%A4"><span class="nav-number">1.1.1.1.0.1.</span> <span class="nav-text">误判</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%97%A0%E6%B3%95%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.1.1.0.2.</span> <span class="nav-text">无法删除数据</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%A2%9E%E5%BC%BA%E7%89%88"><span class="nav-number">1.1.2.</span> <span class="nav-text">布隆过滤器增强版</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redisson"><span class="nav-number">1.3.1.</span> <span class="nav-text">Redisson</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dependence"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">Dependence</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Code"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">Code</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Guava"><span class="nav-number">1.3.2.</span> <span class="nav-text">Guava</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text">布隆过滤器的缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E8%B0%B7%E9%B8%9F%E5%93%88%E5%B8%8C"><span class="nav-number">2.</span> <span class="nav-text">布谷鸟哈希</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E8%B0%B7%E9%B8%9F%E5%93%88%E5%B8%8C%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.0.1.</span> <span class="nav-text">布谷鸟哈希的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96"><span class="nav-number">2.0.2.</span> <span class="nav-text">优化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E8%B0%B7%E9%B8%9F%E8%BF%87%E6%BB%A4%E5%99%A8-Cuckoo-Filter"><span class="nav-number">3.</span> <span class="nav-text">布谷鸟过滤器 Cuckoo Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%EF%BC%9A"><span class="nav-number">3.1.1.</span> <span class="nav-text">插入：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%AE%B9%EF%BC%9A"><span class="nav-number">3.1.2.</span> <span class="nav-text">扩容：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="nav-number">3.1.3.</span> <span class="nav-text">查找：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%EF%BC%9A"><span class="nav-number">3.1.4.</span> <span class="nav-text">删除：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%EF%BC%9A"><span class="nav-number">3.1.5.</span> <span class="nav-text">更新：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E5%B8%83%E8%B0%B7%E9%B8%9F%E5%93%88%E5%B8%8C%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.</span> <span class="nav-text">与布谷鸟哈希区别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E7%9A%84-hash-%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.1.</span> <span class="nav-text">特殊的 hash 函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8-1"><span class="nav-number">3.3.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-1"><span class="nav-number">3.4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E8%B0%B7%E9%B8%9F%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.5.</span> <span class="nav-text">布谷鸟过滤器的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%EF%BC%9A"><span class="nav-number">3.5.1.</span> <span class="nav-text">对比布隆过滤器：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="nav-number">3.5.2.</span> <span class="nav-text">优点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9%EF%BC%9A"><span class="nav-number">3.5.3.</span> <span class="nav-text">缺点：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">3.5.3.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

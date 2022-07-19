@@ -6,7 +6,7 @@
   <link href="https://swzxsyh.github.io/atom.xml" rel="self"/>
   
   <link href="https://swzxsyh.github.io/"/>
-  <updated>2022-07-19T15:51:18.952Z</updated>
+  <updated>2022-07-19T16:57:01.523Z</updated>
   <id>https://swzxsyh.github.io/</id>
   
   <author>
@@ -21,16 +21,28 @@
     <link href="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/"/>
     <id>https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/</id>
     <published>2022-07-19T15:46:54.000Z</published>
-    <updated>2022-07-19T15:51:18.952Z</updated>
+    <updated>2022-07-19T16:57:01.523Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html"></summary>
-        
-      
+    <summary type="html">&lt;h1 id=&quot;布隆过滤器-Bloom-Filter&quot;&gt;&lt;a href=&quot;#布隆过滤器-Bloom-Filter&quot; class=&quot;headerlink&quot; title=&quot;布隆过滤器 Bloom Filter&quot;&gt;&lt;/a&gt;布隆过滤器 Bloom Filter&lt;/h1&gt;&lt;p&gt;大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;存入过程&lt;/p&gt;
+&lt;p&gt;通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;查询过程&lt;/p&gt;
+&lt;p&gt;通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;删除过程&lt;/p&gt;
+&lt;p&gt;不能进行删除，因为会删除掉其他数据。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;更新过程&lt;/p&gt;
+&lt;p&gt;不能进行更新。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;原理&quot;&gt;&lt;a href=&quot;#原理&quot; class=&quot;headerlink&quot; title=&quot;原理&quot;&gt;&lt;/a&gt;原理&lt;/h2&gt;&lt;h3 id=&quot;布隆过滤器基础版&quot;&gt;&lt;a href=&quot;#布隆过滤器基础版&quot; class=&quot;headerlink&quot; title=&quot;布隆过滤器基础版&quot;&gt;&lt;/a&gt;布隆过滤器基础版&lt;/h3&gt;&lt;p&gt;原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;一个bitmap用于记录，bitmap原始数值全都是0。当一个数据存进来的时候，用三个Hash函数分别计算三次Hash值,并且将bitmap对应的位置设置为1,上图中,bitmap 的1,3,6位置被标记为1,这时候如果一个数据请求过来,依然用之前的三个Hash函数计算Hash值,如果是同一个数据的话,势必依旧是映射到1,3,6位,那么就可以判断这个数据之前存储过,如果新的数据映射的三个位置,有一个匹配不上,假如映射到1,3,7位,由于7位是0,也就是这个数据之前并没有加入进数据库,所以直接返回。&lt;/p&gt;
+&lt;p&gt;Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一，可以放下2亿左右的数据，性能高，空间占用率及小，省去了大量无效的数据库连接。&lt;/p&gt;</summary>
     
     
     
