@@ -181,6 +181,82 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/" class="post-title-link" itemprop="url">布隆过滤器 与 布谷鸟过滤器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-19 23:46:54 / 修改时间：23:51:18" itemprop="dateCreated datePublished" datetime="2022-07-19T23:46:54+08:00">2022-07-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="布隆过滤器-Bloom-Filter"><a href="#布隆过滤器-Bloom-Filter" class="headerlink" title="布隆过滤器 Bloom Filter"></a>布隆过滤器 Bloom Filter</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="布隆过滤器基础版"><a href="#布隆过滤器基础版" class="headerlink" title="布隆过滤器基础版"></a>布隆过滤器基础版</h3><p>原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。</p>
+<p>布隆过滤器可能会误判，如果它说不存在那肯定不存在，如果它说存在，那数据有可能实际不存在；</p>
+<p>Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一，可以放下2亿左右的数据，性能高，空间占用率及小，省去了大量无效的数据库连接。</p>
+<p>存入过程： 通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。<br>查询过程：通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）<br>删除过程：不能进行删除，因为会删除掉其他数据。<br>更新过程：也不能进行更新。</p>
+<h3 id="布隆过滤器增强版"><a href="#布隆过滤器增强版" class="headerlink" title="布隆过滤器增强版"></a>布隆过滤器增强版</h3><p>为了解决上面布隆过滤器的问题,出现了一个增强版的布隆过滤器(Counting Bloom Filter),这个过滤器的思路是将布隆过滤器的bitmap更换成数组,当数组某位置被映射一次时就+1,当删除时就-1,这样就避免了普通布隆过滤器删除数据后需要重新计算其余数据包Hash的问题,但是依旧没法避免误判。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ol>
+<li>redis缓存穿透（大量查询不存在于数据库中的数据）：使用布隆过滤器进行过滤，如果不存在直接跳过查询数据库，返回结果。</li>
+<li>新闻客户端的推送去重功能，当推荐系统推荐新闻时会从每个用户的历史记录里进行筛选，过滤掉那些已经存在的记录。它在起到去重的同时，在空间上还能节省 90% 以上，只是稍微有那么点不精确，也就是有一定的误判概率。</li>
+<li>黑白名单</li>
+<li>块索引是HBase固有的一个特性，因为HBase的底层数据是存储在HFile中的，而每个HFile中存储的是有序的键值对，HFile文件内部由连续的块组成，每个块中存储的第一行数据的行键组成了这个文件的块索引，这些块索引信息存储在文件尾部。当HBase打开一个HFile时，块索引信息会优先加载到内存；HBase首先在内存的块索引中进行二分查找，确定可能包含给定键的块，然后读取磁盘块找到实际想要的键。<br>但实际应用中，仅仅只有块索引满足不了需求，这是因为，块索引能帮助我们更快地在一个文件中找到想要的数据，但是我们可能依然需要扫描很多文件。而布隆过滤器就是为解决这个问题而生。因为布隆过滤器的作用是，用户可以立即判断一个文件是否包含特定的行键，从而帮我们过滤掉一些不需要扫描的文件。</li>
+</ol>
+<h2 id="布隆过滤器的缺点"><a href="#布隆过滤器的缺点" class="headerlink" title="布隆过滤器的缺点"></a>布隆过滤器的缺点</h2><ul>
+<li>不支持删除元素：一旦对位数组进行了赋值，无法将其删除。可以通过增加每个数组元素大小使用增强版过滤器实现删除功能。</li>
+<li>查询性能弱：布隆过滤器使用多个hash函数计算位图多个不同位点，由于多个位点在内存中不连续，CPU寻址花销较大。</li>
+<li>空间利用率低。</li>
+</ul>
+<h1 id="布谷鸟过滤器-Cuckoo-Filter"><a href="#布谷鸟过滤器-Cuckoo-Filter" class="headerlink" title="布谷鸟过滤器 Cuckoo Filter"></a>布谷鸟过滤器 Cuckoo Filter</h1><h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/462815302">https://zhuanlan.zhihu.com/p/462815302</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Ch97CKd/article/details/123700044">https://blog.csdn.net/Ch97CKd/article/details/123700044</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/14/Spring-Container/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -850,79 +926,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/%E5%A0%86%E5%92%8C%E6%A0%88%E7%9A%84%E5%8C%BA%E5%88%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/07/%E5%A0%86%E5%92%8C%E6%A0%88%E7%9A%84%E5%8C%BA%E5%88%AB/" class="post-title-link" itemprop="url">堆和栈的区别</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-07 01:54:41" itemprop="dateCreated datePublished" datetime="2022-07-07T01:54:41+08:00">2022-07-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>1.数据结构：</p>
-<p>栈，先进先出的一种数据结构</p>
-<p>堆，二叉堆类似于二叉树，特点：根节点的值最小（或最大），且根节点的两个子树也是一个堆</p>
-<p>2.内存分配</p>
-<p>栈，由操作系统自动分配释放</p>
-<p>堆，由程序员分配和释放，若程序不释放，结束后可能由OS回收，分配方法类似于链表</p>
-<p>3.缓存级别</p>
-<p>栈：1级缓存</p>
-<p>堆：2级缓存</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -992,7 +995,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-count">193</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

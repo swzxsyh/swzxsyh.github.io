@@ -181,6 +181,246 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/04/SpringMVC%E6%8E%A5%E6%94%B6%E8%AF%B7%E6%B1%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/04/SpringMVC%E6%8E%A5%E6%94%B6%E8%AF%B7%E6%B1%82/" class="post-title-link" itemprop="url">SpringMVC接收请求</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-04 01:44:49" itemprop="dateCreated datePublished" datetime="2020-06-04T01:44:49+08:00">2020-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.SpringMVC的请求<br>搭建环境</p>
+<p>建立新Moudle，配置pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--依赖管理--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span> </span><br><span class="line">  <span class="comment">&lt;!--springMVC核心--&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-webmvc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">  <span class="comment">&lt;!--servlet--&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>servlet-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">  <span class="comment">&lt;!--jsp--&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jsp-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.18.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Web.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 前端控制器 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-mvc.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>spring-mvc.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:mvc</span>=<span class="string">&quot;http://www.springframework.org/schema/mvc&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">                           http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">                           http://www.springframework.org/schema/mvc</span></span></span><br><span class="line"><span class="string"><span class="tag">                           http://www.springframework.org/schema/mvc/spring-mvc.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">                           http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="string"><span class="tag">                           http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--开启注解组件扫描--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.test.web&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--开启mvc注解支持--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">mvc:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 视图解析器 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;prefix&quot;</span> <span class="attr">value</span>=<span class="string">&quot;/WEB-INF/pages/&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;suffix&quot;</span> <span class="attr">value</span>=<span class="string">&quot;.jsp&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>1.1 请求参数<br>客户端请求参数的格式是: name&#x3D;value&amp;name&#x3D;value</p>
+<p>服务器要获取请求的参数，有时还需要进行数据的封装，SpringMVC可以接收如下类型的参数:</p>
+<p>简单类型(基本类型\基本类型的包装类型\字符串)</p>
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">&quot;text/html;charset=UTF-8&quot;</span> language=<span class="string">&quot;java&quot;</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line"></span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;title&gt;index&lt;/title&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line"></span><br><span class="line">  &lt;body&gt;</span><br><span class="line"></span><br><span class="line">    &lt;h2&gt;SpringMVC知识学习&lt;/h2&gt;</span><br><span class="line"></span><br><span class="line">    &lt;a href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/simpleParam?username=jack&amp;age=18&quot;</span>&gt;</span><br><span class="line">      simpleParam</span><br><span class="line">    &lt;/a&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/simpleParam&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> String <span class="title function_">simpleParam</span><span class="params">(String username,Integer age)</span>&#123;</span><br><span class="line">    System.out.println(username);</span><br><span class="line">    System.out.println(age);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>注意:前端页面的name属性名必须与方法中的形参名称一致，类型自定义</p>
+<p>对象类型</p>
+<p>User</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> String username;</span><br><span class="line">  <span class="keyword">private</span> Integer age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/pojoParam&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">  User: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;username&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  Age: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;age&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;submit&quot;</span> value=<span class="string">&quot;Object_Type&quot;</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/pojoParam&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">pojoParam</span><span class="params">(User user)</span>&#123;</span><br><span class="line">  System.out.println(user);</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>注意:表单元素的name属性必须与user实体的属性名一致</p>
+<p>数组类型</p>
+<p>应用场景:批量删除</p>
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/arrayParam&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;checkbox&quot;</span> name=<span class="string">&quot;ids&quot;</span> value=<span class="string">&quot;1&quot;</span>&gt;User A&lt;br&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;checkbox&quot;</span> name=<span class="string">&quot;ids&quot;</span> value=<span class="string">&quot;2&quot;</span>&gt;User B&lt;br&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;checkbox&quot;</span> name=<span class="string">&quot;ids&quot;</span> value=<span class="string">&quot;3&quot;</span>&gt;User C&lt;br&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;checkbox&quot;</span> name=<span class="string">&quot;ids&quot;</span> value=<span class="string">&quot;4&quot;</span>&gt;User D&lt;br&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;submit&quot;</span> value=<span class="string">&quot;Array Param&quot;</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/arrayParam&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">arrayParam</span><span class="params">(Integer[] ids)</span>&#123;</span><br><span class="line">  System.out.println(Arrays.toString(ids));</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>注意:复选框的name属性名必须与数组的变量名一致</p>
+<p>集合(复杂)类型</p>
+<p>如果提交的是一个集合的数据，springMVC的方法形参是无法接收的，必须要通过实体类进行包装才行</p>
+<p>QueryVo</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">QueryVo</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//Simple Type</span></span><br><span class="line">    <span class="keyword">private</span> String keyword;</span><br><span class="line">    <span class="comment">//Object Type</span></span><br><span class="line">    <span class="keyword">private</span> User user;</span><br><span class="line">    <span class="comment">//List Type</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; list;</span><br><span class="line">    <span class="comment">//Map Type</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, Object&gt; map;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/queryVoParam&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">  Search: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;keyword&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  User: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;user.username&quot;</span> placeholder=<span class="string">&quot;User Name&quot;</span>&gt;&lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;user.age&quot;</span> placeholder=<span class="string">&quot;Age&quot;</span>&gt;&lt;br&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  List Array:</span><br><span class="line">  &lt;%--</span><br><span class="line">  list[<span class="number">0</span>] == 第一个元素</span><br><span class="line">  list[<span class="number">1</span>] == 第二个元素</span><br><span class="line">  --%&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;list[0]&quot;</span> placeholder=<span class="string">&quot;First Element&quot;</span>&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;list[1]&quot;</span> placeholder=<span class="string">&quot;Second Element&quot;</span>&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;list[2]&quot;</span> placeholder=<span class="string">&quot;Third Element&quot;</span>&gt;&lt;br&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  Map Array:</span><br><span class="line">  &lt;%--</span><br><span class="line">  map.put(<span class="string">&quot;key1&quot;</span>,value);</span><br><span class="line">  map.put(<span class="string">&quot;key2&quot;</span>,value);</span><br><span class="line">  --%&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;map[key1]&quot;</span> placeholder=<span class="string">&quot;Key1 Value&quot;</span>&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;map[key2]&quot;</span> placeholder=<span class="string">&quot;Key2 Value&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;submit&quot;</span> value=<span class="string">&quot;Complex Type&quot;</span>&gt;</span><br><span class="line"></span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/queryVoParam&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">queryVoParam</span><span class="params">(QueryVo queryVo)</span>&#123;</span><br><span class="line">    System.out.println(queryVo);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>1.2 中文乱码过滤器<br>如果是get请求，tomcat8以上版本的服务器统一了UTF-8编码，所以我们不会出现乱码</p>
+<p>如果是post请求，由于servlet规范当中post默认解码方式为ISO-8859-1，所以出现了中文乱码问题</p>
+<p>spring框架提供了post请求中文过滤器</p>
+<p>web.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--中文乱码过滤器--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>encoding<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>1.3 自定义类型转换器<br>自定义类型转换器</p>
+<p>此处应用场景:日期格式</p>
+<p>yyyy-MM-dd 框架无法识别，报400错误，springMVC已支持自定义类型转换器的扩展</p>
+<p>spring-mvc.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--开启mvc注解支持--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mvc:annotation-driven</span> <span class="attr">conversion-service</span>=<span class="string">&quot;conversionService&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 扩展自定义类型转换器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;conversionService&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.context.support.ConversionServiceFactoryBean&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;converters&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;com.test.web.convert.DateConverter&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/dateParam&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">    Birthday: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;birthday&quot;</span>&gt;(日期格式:yyyy-MM-dd)&lt;br&gt;</span><br><span class="line">    &lt;input type=<span class="string">&quot;submit&quot;</span> value=<span class="string">&quot;Date Submit&quot;</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接收日期类型</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/dateParam&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">dateParam</span><span class="params">(Date birthday)</span>&#123;</span><br><span class="line">  <span class="type">SimpleDateFormat</span> <span class="variable">simpleDateFormat</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd&quot;</span>);</span><br><span class="line">  System.out.println(simpleDateFormat.format(birthday));</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>注解方案</p>
+<p>删除web.xml添加的配置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--开启注解组件扫描--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.test.web&quot;</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!--开启mvc注解支持--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mvc:annotation-driven</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 扩展自定义类型转换器 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--    &lt;bean id=&quot;conversionService&quot; class=&quot;org.springframework.context.support.ConversionServiceFactoryBean&quot;&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--        &lt;property name=&quot;converters&quot;&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--            &lt;set&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--                &lt;bean class=&quot;com.test.web.convert.DateConverter&quot;&gt;&lt;/bean&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--            &lt;/set&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--        &lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--    &lt;/bean&gt;--&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接收日期类型</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/dateParam&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">dateParam</span><span class="params">(<span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd&quot;)</span> Date birthday)</span>&#123;</span><br><span class="line">  <span class="type">SimpleDateFormat</span> <span class="variable">simpleDateFormat</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd&quot;</span>);</span><br><span class="line">  System.out.println(simpleDateFormat.format(birthday));</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>1.4 相关注解<br>@RequestParam</p>
+<p>应用场景:分页查询</p>
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/findByPage?pageNum=1&amp;size=10&quot;</span>&gt;</span><br><span class="line">    Page Query</span><br><span class="line">&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//分页查询</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">@RequestParam 注解 常用属性</span></span><br><span class="line"><span class="comment">name/value:帮我们解决请求参数名和方法的变量名不一致问题</span></span><br><span class="line"><span class="comment">required: 默认值为true，要求前端必须提交参数和值</span></span><br><span class="line"><span class="comment">defaultValue:指定参数的默认值</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/findByPage&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">findByPage</span><span class="params">(<span class="meta">@RequestParam(name = &quot;pageNum&quot;,defaultValue = &quot;1&quot;)</span> Integer currentPage,<span class="meta">@RequestParam(name = &quot;size&quot;,defaultValue = &quot;10&quot;)</span>Integer pageSize)</span>&#123;</span><br><span class="line">    System.out.println(currentPage);</span><br><span class="line">    System.out.println(pageSize);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>@RequestHeader</p>
+<p>获取请求头，相当于:request.getHeader();</p>
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/requestHeader&quot;</span>&gt;Request Header&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/requestHeader&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">requestHeader</span><span class="params">(<span class="meta">@RequestHeader(&quot;User-Agent&quot;)</span> String userAgent,<span class="meta">@RequestHeader(&quot;Cookie&quot;)</span> String cookie)</span>&#123;</span><br><span class="line">  System.out.println(userAgent);</span><br><span class="line">  System.out.println(cookie);</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>@CookieValue</p>
+<p>专门获取指定cookie名称的值</p>
+<p>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/cookieValue&quot;</span>&gt;Cookie Value&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/cookieValue&quot;)</span></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">cookieValue</span><span class="params">(<span class="meta">@CookieValue(&quot;JSESSIONID&quot;)</span> String jsessionid)</span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;JSESSIONID: &quot;</span>+jsessionid);</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>1.5 获取Servlet相关API<br>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/servletAPI&quot;</span>&gt; servletAPI&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// servletAPI</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/servletAPI&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">servletAPI</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">  <span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> httpServletRequest.getParameter(<span class="string">&quot;username&quot;</span>);</span><br><span class="line">  System.out.println(username);</span><br><span class="line">  httpServletRequest.getRequestDispatcher(<span class="string">&quot;/WEB-INF/pages/success.jsp&quot;</span>).forward(httpServletRequest,httpServletResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>二.文件上传<br>需求分析</p>
+<p>需求分析<br>一.文件上传三要素<br>Avatar: <input type="file" name="picFile"><br>⬇<br>二.SpringMVC集成文件上传组件<br>MultipartResolver多组件上传解析器<br>⬇<br>底层依赖file-upload环境<br>⬇<br>UserController<br>public String upload(String username, MultipartFile picFile)<br>2.1 文件上传三要素<br>表单的提交方式 method&#x3D;”POST”<br>表单的enctype属性是多部分表单形式 enctype&#x3D;“multipart&#x2F;form-data”<br>表单项(元素)type&#x3D;”file”</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;&quot;</span> method=<span class="string">&quot;post&quot;</span> enctype=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span><br><span class="line">  Name: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;username&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  Avatar: &lt;input type=<span class="string">&quot;file&quot;</span> name=<span class="string">&quot;picFile&quot;</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>2.2 文件上传原理</p>
+<p>2.3 springMVC实现文件上传<br>index.jsp</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;$&#123;pageContext.request.contextPath&#125;/user/upload&quot;</span> method=<span class="string">&quot;post&quot;</span> enctype=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span><br><span class="line">  Name: &lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;username&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  Avatar: &lt;input type=<span class="string">&quot;file&quot;</span> name=<span class="string">&quot;picFile&quot;</span>&gt;&lt;br&gt;</span><br><span class="line">  &lt;input type=<span class="string">&quot;submit&quot;</span> value=<span class="string">&quot;File Upload&quot;</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--文件上传--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-fileupload<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-fileupload<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span><br></pre></td></tr></table></figure>
+
+
+<p>修改spring-mvc.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">文件上传组件扩展</span></span><br><span class="line"><span class="comment">id=&quot;multipartResolver&quot; 此id必须是这个名称</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;multipartResolver&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.web.multipart.commons.CommonsMultipartResolver&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">    限定文件的大小</span></span><br><span class="line"><span class="comment">    单位是字节(B)</span></span><br><span class="line"><span class="comment">    限制大约在5MB左右</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;maxUploadSize&quot;</span> <span class="attr">value</span>=<span class="string">&quot;512000&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 文件上传</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(String username, MultipartFile picFile)</span>&#123;</span><br><span class="line">  System.out.println(<span class="string">&quot;Basic&quot;</span>+username);</span><br><span class="line">  System.out.println(<span class="string">&quot;File&quot;</span>+picFile);</span><br><span class="line">  System.out.println(<span class="string">&quot;File Name&quot;</span>+picFile.getOriginalFilename());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    picFile.transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/Users/swzxsyh/Downloads/&quot;</span>+picFile.getOriginalFilename()));</span><br><span class="line">  &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三 静态资源访问的开启<br>问题</p>
+<p>webapp路径下创建img文件夹，添加1.png图片，但是访问404</p>
+<p>1<br><a href="${pageContext.request.contextPath}/img/1.png">Static Resources</a><br>解释</p>
+<p>在SpringMVC的前端控制器DispatcherServlet的url-pattern配置的是 &#x2F;(缺省),代表除了jsp请求不拦截, 其他的所有请求都会拦截，包括一些静态文件(html、css、js)等, 而拦截住之后,它又找不到对应的处理器方法来处理, 因此报错.</p>
+<p>3.1 方式一<br>手动配置springMVC框架的静态资源映射</p>
+<p><a target="_blank" rel="noopener" href="http://localhost:8080/%E9%A1%B9%E7%9B%AE%E5%90%8D/img">http://localhost:8080/项目名/img</a><br>⬇<br>配置&lt;mvc:resources mapping&#x3D;”&#x2F;img&#x2F;**” location&#x3D;”&#x2F;img&#x2F;“&#x2F;&gt;<br>⬇<br>查找到src&#x2F;main&#x2F;webapp&#x2F;img&#x2F;1.png<br>spring-mvc.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">    静态资源手动映射</span></span><br><span class="line"><span class="comment">    mapping=&quot;/img/**&quot; 浏览器发送请求</span></span><br><span class="line"><span class="comment">    location=&quot;/img/&quot; 静态资源的路径</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mvc:resources</span> <span class="attr">mapping</span>=<span class="string">&quot;/img/**&quot;</span> <span class="attr">location</span>=<span class="string">&quot;/img/&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>问题</p>
+<p>不同静态资源目录，都需要映射一次，重复代码过多</p>
+<p>3.2 方式二<br>spring-mvc.xml添加如下配置即可</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--配置tomcat默认的静态资源处理--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mvc:default-servlet-handler</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>3.3 方式三<br>方式二可优化处</p>
+<p>web.xml中url-pattern相当于覆盖tomcat本身规则，可以创建自身规则进行拦截</p>
+<p>注释spring-mvc.xml内容</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--    </span></span><br><span class="line"><span class="comment">  静态资源手动映射</span></span><br><span class="line"><span class="comment">    mapping=&quot;/img/**&quot; 浏览器发送请求</span></span><br><span class="line"><span class="comment">    location=&quot;/img/&quot; 静态资源的路径</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--    &lt;mvc:resources mapping=&quot;/img/**&quot; location=&quot;/img/&quot;/&gt;--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--配置tomcat默认的静态资源处理--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--    &lt;mvc:default-servlet-handler/&gt;--&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>配置web.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 前端控制器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-mvc.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">    自定义一个不会与默认的tomcat冲突的拦截规则</span></span><br><span class="line"><span class="comment">    配置：*.do  *.action 之后</span></span><br><span class="line"><span class="comment">    什么情况下才会被sprignMVC框架所拦截</span></span><br><span class="line"><span class="comment">    浏览器访问的资源需要加上：/user/quick.do</span></span><br><span class="line"><span class="comment">    所以静态  1.png  a.html 这些就不会被springMVC框架拦截，就不会出现404问题</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>*.do<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/03/Spring-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -5792,449 +6032,6 @@ list.jsp
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/12/Mybatis%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2-%E5%8A%A0%E8%BD%BD-%E7%BC%93%E5%AD%98/" class="post-title-link" itemprop="url">Mybatis嵌套查询 & 加载 & 缓存</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-12 01:37:47" itemprop="dateCreated datePublished" datetime="2020-05-12T01:37:47+08:00">2020-05-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.Mybatis嵌套查询<br>1.1 什么事嵌套查询<br>嵌套查询就是将原来多表查询中的联合查询语句拆成多个单表的查询，再使用mybatis的语法嵌套在一起。</p>
-<p>例</p>
-<p>需求:查询一个订单，与此同时查询出该订单所属的用户</p>
-<p>关联查询:</p>
-<p>1<br>select * from orders o inner join user u on o.uid &#x3D; u.id where o.id &#x3D; 1;<br>缺点:<br>sql语句编写难度大</p>
-<p>数据量过大，笛卡尔积数量倍增，可能造成内存溢出</p>
-<p>嵌套查询</p>
-<p>1<br>2<br>3<br>4<br>5<br>–根据订单id查询订单表<br>  select * from orders where id &#x3D; 1;<br>–再根据订单表中uid(外键)查询用户表<br>    select * from user where id &#x3D; 订单表uid;<br>–最后由mybatis框架进行嵌套组合<br>优点</p>
-<p>sql语句编写简单</p>
-<p>没有多表关联，不会产生笛卡尔积</p>
-<p>1.2 一对一嵌套查询<br>需求</p>
-<p>查询一个订单，与此同时查询出该订单所属的用户</p>
-<p>sql语句</p>
-<p>1<br>2<br>3<br>4<br>– 1.根据订单id查询订单表<br>    select * from orders where id &#x3D; 1;<br>– 2.再根据订单表中uid(外键)查询用户表<br>    select * from user where id &#x3D; 41;<br>OrderMapper接口</p>
-<p>1<br>2<br>3<br>4<br>public interface OrderMapper {</p>
-<pre><code>//一对一嵌套查询
-public Order findByIdWithUser(Integer id);
-</code></pre>
-<p>OrderMapper映射</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.OrderMapper"></mapper></p>
-<pre><code>&lt;resultMap id=&quot;orderMap&quot; type=&quot;Order&quot;&gt;
-    &lt;id column=&quot;id&quot; property=&quot;id&quot;&gt;&lt;/id&gt;
-    &lt;result column=&quot;ordertime&quot; property=&quot;ordertime&quot;&gt;&lt;/result&gt;
-    &lt;result column=&quot;money&quot; property=&quot;money&quot;&gt;&lt;/result&gt;
-
-    &lt;!--通过mybatis嵌套查询user表--&gt;
-    &lt;association property=&quot;user&quot; javaType=&quot;User&quot; column=&quot;uid&quot; select=&quot;com.test.dao.OrderMapper.findById&quot;&gt;
-
-    &lt;/association&gt;
-&lt;/resultMap&gt;
-</code></pre>
-<!--    一对一嵌套查询-->
-<pre><code>&lt;!--    resultType:单表映射封装 --&gt;
-&lt;!--    resultMap:多表查询必须手动映射封装--&gt;
-
-&lt;select id=&quot;findByIdWithUser&quot; parameterType=&quot;int&quot; resultMap=&quot;orderMap&quot;&gt;
-    SELECT * FROM orders WHERE id=#&#123;id&#125;
-&lt;/select&gt;
-</code></pre>
-<p>UserMapper接口</p>
-<p>1<br>2<br>3<br>public interface UserMapper {<br>    &#x2F;&#x2F; 根据用户id查询user对象<br>    public User findById(Integer id);<br>UserMapper映射</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
-<mapper namespace="com.test.dao.UserMapper">
-
-<pre><code>&lt;!--    根据用户id查询user对象--&gt;
-&lt;select id=&quot;findById&quot; parameterType=&quot;int&quot; resultType=&quot;User&quot;&gt;
-SELECT * FROM user WHERE id=#&#123;id&#125;
-    &lt;/select&gt;
-</code></pre>
-<p>通过mybatis进行嵌套组合</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><resultMap id="orderMap" type="Order"><br>    <id column="id" property="id"></id><br>    <result column="ordertime" property="ordertime"></result><br>    <result column="money" property="money"></result></resultMap></p>
-<pre><code>&lt;!--通过mybatis嵌套查询user表
-一对一association
-column=&quot;uid&quot; 订单查询的用户外键字段，需要作为条件
-select=&quot;com.test.dao.OrderMapper.findById&quot;查询用户表(用户接口+执行方法名)
---&gt;
-&lt;association property=&quot;user&quot; javaType=&quot;User&quot; column=&quot;uid&quot; select=&quot;com.test.dao.UserMapper.findById&quot;/&gt;
-
-
-&lt;/association&gt;
-</code></pre>
-
-测试
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>public class OrderMapperTest extends BaseMapperTest {</p>
-<pre><code>// 一对一嵌套测试
-@Test
-public void testFindByIdWithUser() throws Exception &#123;
-    OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
-
-    // 根据id查询
-    Order order = orderMapper.findByIdWithUser(1);
-    System.out.println(order);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>[2020-05-12 21:21:03,060] DEBUG o.OrderMapper.findByIdWithUser  - &#x3D;&#x3D;&gt;  Preparing: </p>
-<p>&#x2F;&#x2F;先查询订单<br>SELECT * FROM orders WHERE id&#x3D;? </p>
-<p>[2020-05-12 21:21:03,111] DEBUG o.OrderMapper.findByIdWithUser  - &#x3D;&#x3D;&gt; Parameters: 1(Integer)<br>[2020-05-12 21:21:03,159] DEBUG     com.test.dao.UserMapper  - Cache Hit Ratio [com.test.dao.UserMapper]: 0.0<br>[2020-05-12 21:21:03,159] DEBUG theima.dao.UserMapper.findById  - &#x3D;&#x3D;&#x3D;&#x3D;&gt;  Preparing: </p>
-<p>&#x2F;&#x2F;再查询用户<br>SELECT * FROM user WHERE id&#x3D;? </p>
-<p>[2020-05-12 21:21:03,159] DEBUG theima.dao.UserMapper.findById  - &#x3D;&#x3D;&#x3D;&#x3D;&gt; Parameters: 41(Integer)<br>[2020-05-12 21:21:03,162] DEBUG theima.dao.UserMapper.findById  - &lt;&#x3D;&#x3D;&#x3D;&#x3D;      Total: 1<br>[2020-05-12 21:21:03,165] DEBUG o.OrderMapper.findByIdWithUser  - &lt;&#x3D;&#x3D;      Total: 1</p>
-<p>&#x2F;&#x2F;用mybatis嵌套组合在一起<br>Order{id&#x3D;1, ordertime&#x3D;Mon May 20 15:58:02 CST 2019, money&#x3D;999.5, user&#x3D;User{id&#x3D;41, username&#x3D;’老王’, birthday&#x3D;Tue May 28 06:47:08 CST 2019, sex&#x3D;’男’, address&#x3D;’北京’, orderList&#x3D;null, roleList&#x3D;null}}<br>嵌套关系</p>
-<p>步骤	<br>&#x2F;&#x2F;一对一嵌套查询<br>public Order findByIdWithUser(Integer id);<br>&#x2F;&#x2F; 根据用户id查询user对象<br>public User findById(Integer id);<br>用mybatis嵌套组合在一起<br><association property="”user”" javatype="”User”" column="”uid”" select="”com.test.dao.UserMapper.findById”" fetchtype="”eager”/"><br>1.3 一对多嵌套查询<br>需求</association></p>
-<p>查询一个用户，与此同时查询出该用户具有的订单</p>
-<p>sql语句</p>
-<p>1<br>2<br>3<br>4<br>– 1. 先根据用户id，查询用户表(一个)<br>    SELECT * FROM USER WHERE id &#x3D; 41;<br>– 2. 再根据用户id，查询订单表(多个)<br>    SELECT * FROM orders WHERE uid &#x3D; 41;<br>UserMapper接口</p>
-<p>1<br>2<br>&#x2F;&#x2F; 一对多嵌套查询<br>public User findByIdWithOrders(Integer id);<br>UserMapper映射</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><resultMap id="userWithOrdersMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!--一对多嵌套组合--><br>    <collection property="orderList" oftype="Order" column="id" select="com.test.dao.OrderMapper.findByUid"><br></collection></result></result></result></result></id></resultMap></p>
-<!--一对多嵌套查询-->
-<select id="findByIdWithOrders" parametertype="int" resultmap="userWithOrdersMap">
-    SELECT * FROM user WHERE id=#{id}
-</select>
-OrderMapper接口
-
-<p>1<br>2<br>&#x2F;&#x2F; 根据用户id，查询订单列表<br>public List<Order> findByUid(Integer id);<br>OrderMapper映射</Order></p>
-<p>1<br>2<br>3<br><select id="findByUid" parametertype="int" resulttype="Order"><br>    SELECT * FROM orders WHERE uid&#x3D;#{uid}<br></select><br>通过mybatis进行嵌套组合</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br><resultMap id="userWithOrdersMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!--一对多嵌套组合
-    collection
-    column="id" 根据用户查询的结果，id作为条件
-    select="com.test.dao.OrderMapper.findByUid" 去查询订单表(映射接口+执行方法)
-    --><br>    <collection property="orderList" oftype="Order" column="id" select="com.test.dao.OrderMapper.findByUid"><br></collection></result></result></result></result></id></resultMap><br>测试</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public class UserMapperTest extends BaseMapperTest {</p>
-<pre><code>@Test
-public void testFindByIdWithOrders() throws Exception &#123;
-    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
-    User user = userMapper.findByIdWithOrders(41);
-    System.out.println(user);
-&#125;
-</code></pre>
-<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;先查询用户<br>    SELECT * FROM USER WHERE id &#x3D; 41;<br>&#x2F;&#x2F;再查询订单<br>    SELECT * FROM orders WHERE uid &#x3D; 41;<br>&#x2F;&#x2F;用mybatis嵌套组合在一起<br>嵌套关系</p>
-<p>步骤	<br>&#x2F;&#x2F;先查询用户<br>public User findByIdWithOrders(Integer id);<br>&#x2F;&#x2F; 再查询订单<br>public List<Order> findByUid(Integer id);<br>用mybatis嵌套组合在一起<br><collection property="”orderList”" oftype="”Order”" column="”id”" select="”com.test.dao.OrderMapper.findByUid”/"><br>1.4 多对多嵌套查询<br>需求</collection></Order></p>
-<p>查询用户同时查询出该用户的所有角色</p>
-<p>mybatis的实现方案就是(一对多)，区别在于sql语句不同</p>
-<p>sql语句</p>
-<p>1<br>2<br>3<br>4<br>– 1. 先根据用户id，查询用户表(一个)<br>SELECT * FROM USER WHERE id &#x3D; 41;<br>– 2. 再根据用户id，查询角色表(多个)<br>SELECT * FROM role r INNER JOIN user_role ur ON ur.<code>rid</code> &#x3D; r.<code>id</code> WHERE ur.<code>uid</code> &#x3D; 41;<br>UserMapper接口</p>
-<p>1<br>2<br>&#x2F;&#x2F; 多对多嵌套查询<br>public User findByIdWithRoles(Integer id);<br>UserMapper映射</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br><resultMap id="userWithRolesMap" type="User"><br>    <id column="id" property="id"><br>    <result column="username" property="username"><br>    <result column="sex" property="sex"><br>    <result column="birthday" property="birthday"><br>    <result column="address" property="address"><br>    <!-- 多对多嵌套--><br>    <collection property="roleList" oftype="Role" column="id" select="com.test.dao.RoleMapper.findByUid"></collection><br></result></result></result></result></id></resultMap></p>
-<select id="findByIdWithRoles" parametertype="int" resultmap="userWithRolesMap">
-    SELECT * FROM user WHERE id=#{id}
-</select>
-RoleMapper接口
-
-<p>1<br>2<br>3<br>4<br>5<br>public interface RoleMapper {</p>
-<pre><code>// 根据用户id，查询角色列表
-public List&lt;Role&gt; findByUid(Integer id);
-</code></pre>
-<p>}<br>RoleMapper映射</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><br><mapper namespace="com.test.dao.RoleMapper"></mapper></p>
-<pre><code>&lt;resultMap id=&quot;roleResultMap&quot; type=&quot;Role&quot;&gt;
-    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
-    &lt;result column=&quot;role_name&quot; property=&quot;roleName&quot;/&gt;
-    &lt;result column=&quot;role_desc&quot; property=&quot;roleDesc&quot;/&gt;
-&lt;/resultMap&gt;
-
-&lt;!--    根据用户id，查询角色列表--&gt;
-&lt;select id=&quot;findByUid&quot; parameterType=&quot;int&quot; resultMap=&quot;roleResultMap&quot;&gt;
-    SELECT * FROM role r INNER JOIN user_role ur ON ur.`rid`=r.`id` WHERE ur.`uid`=#&#123;uid&#125;
-&lt;/select&gt;
-</code></pre>
-</mapper>
-通过mybatis进行嵌套组合
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
-<mapper namespace="com.test.dao.UserMapper">
-
-<pre><code>&lt;cache&gt;&lt;/cache&gt;
-
-&lt;resultMap id=&quot;userWithOrdersMap&quot; type=&quot;User&quot;&gt;
-    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
-    &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
-    &lt;result column=&quot;sex&quot; property=&quot;sex&quot;/&gt;
-    &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;/&gt;
-    &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
-    &lt;!--一对多嵌套组合
-    collection
-    column=&quot;id&quot; 根据用户查询的结果，id作为条件
-    select=&quot;com.test.dao.OrderMapper.findByUid&quot; 去查询订单表(映射接口+执行方法)
-    --&gt;
-    &lt;collection property=&quot;orderList&quot; ofType=&quot;Order&quot; column=&quot;id&quot; select=&quot;com.test.dao.OrderMapper.findByUid&quot;/&gt;
-&lt;/resultMap&gt;
-
-
-&lt;resultMap id=&quot;userWithRolesMap&quot; type=&quot;User&quot;&gt;
-    &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
-    &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
-    &lt;result column=&quot;sex&quot; property=&quot;sex&quot;/&gt;
-    &lt;result column=&quot;birthday&quot; property=&quot;birthday&quot;/&gt;
-    &lt;result column=&quot;address&quot; property=&quot;address&quot;/&gt;
-    &lt;!-- 多对多嵌套
-    column=&quot;id&quot; 用户id作为条件
-    select=&quot;com.test.dao.RoleMapper.findByUid&quot;查询角色表(角色映射接口+执行方法)
-    --&gt;
-    &lt;collection property=&quot;roleList&quot; ofType=&quot;Role&quot; column=&quot;id&quot;
-                select=&quot;com.test.dao.RoleMapper.findByUid&quot;&gt;&lt;/collection&gt;
-&lt;/resultMap&gt;
-
-
-&lt;!--    根据用户id查询user对象--&gt;
-&lt;select id=&quot;findById&quot; parameterType=&quot;int&quot; resultType=&quot;User&quot;&gt;
-SELECT * FROM user WHERE id=#&#123;id&#125;
-</code></pre>
-
-
-<pre><code>&lt;!--一对多嵌套查询--&gt;
-&lt;select id=&quot;findByIdWithOrders&quot; parameterType=&quot;int&quot; resultMap=&quot;userWithOrdersMap&quot;&gt;
-    SELECT * FROM user WHERE id=#&#123;id&#125;
-&lt;/select&gt;
-
-&lt;select id=&quot;findByIdWithRoles&quot; parameterType=&quot;int&quot; resultMap=&quot;userWithRolesMap&quot;&gt;
-    SELECT * FROM user WHERE id=#&#123;id&#125;
-&lt;/select&gt;
-</code></pre>
-</mapper>
-测试
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>&#x2F;&#x2F; 多对多测试(根据用户查询角色)<br>@Test<br>public void testFindByIdWithRoles() throws Exception {<br>    UserMapper userMapper &#x3D; sqlSession.getMapper(UserMapper.class);</p>
-<pre><code>User user = userMapper.findByIdWithRoles(41);
-System.out.println(user);
-</code></pre>
-<p>}<br>嵌套关系</p>
-<p>步骤	<br>&#x2F;&#x2F;先查询用户<br>public User findByIdWithRoles(Integer id);<br>&#x2F;&#x2F; 再查询角色列表<br>public List<Order> findByUid(Integer id);<br>用mybatis嵌套组合在一起<br><collection property="”roleList”" oftype="”Role”" column="”id”" select="”com.test.dao.RoleMapper.findByUid”/"><br>1.5 知识小结<br>步骤:一对多举例</collection></Order></p>
-<p>先查询(一方)单表&#x3D;&gt;再查询(多方)单表&#x3D;&gt;最后由mybatis嵌套组合</p>
-<p>配置	<br>一对一配置	使用<resultMap>+<association>做配置，通过column条件，执行select查询<br>一对多配置	使用<resultMap>+<collection>做配置，通过column条件，执行select查询<br>多对多配置	使用<resultMap>+<collection>做配置，通过column条件，执行select查询<br>优点:	缺点<br>简化sql语句编写<br>不会产生笛卡尔积	麻烦<br>开发中到底使用哪一种</collection></resultMap></collection></resultMap></association></resultMap></p>
-<p>传统开发，数据量小</p>
-<p>使用关联查询</p>
-<p>互联网开发，数据量大</p>
-<p>使用嵌套查询</p>
-<p>二.Mybatis加载策略<br>2.1 什么是加载策略<br>当多个模型(表)之间存在关联关系时, 加载一个模型(表)的同时, 是否要立即加载其关联的模型, 我们把这种决策 称为加载策略</p>
-<p>如果加载一个模型(表)的时候, 需要立即加载出其关联的所有模型(表), 这种策略称为立即加载</p>
-<p>如果加载一个模型的时候, 不需要立即加载出其关联的所有模型, 等到真正需要的时候再加载, 这种策略称为延迟加载(懒加载)<br>Mybatis中的加载策略有两种:立即加载和延迟加载, 默认是立即加载</p>
-<p>注意:延迟加载是在嵌套查询基础上实现的</p>
-<p>什么样的场景使用立即加载</p>
-<p>一对一</p>
-<p>什么样的场景使用延迟加载(什么时候用，什么时候查询，提高数据库性能)</p>
-<p>一对多、多对多</p>
-<p>2.2 配置延迟加载<br>2.2.1 全局<br>SqlMapConfig.xml,设置开启全局延迟加载</p>
-<p>1<br>2<br>3<br>4<br>5<br><settings><br>    <!--开启延迟(懒)加载 true 开始 false(默认值) 关闭--><br>    <setting name="lazyLoadingEnabled" value="true"></setting></settings></p>
-
-2.2.2 局部
-mapper映射文件，指定某一个select标签配置
-
-<p>1<br>2<br>3<br>4<br>5<br><association></association> 标签<br><collection></collection> 标签<br>fetchType&#x3D;””属性<br>    eager 立即加载<br>    lazy 延迟加载<br>注意:局部优先级高于全局，就近原则</p>
-<p>2.3 触发加载<br>有这样一个全局配置 lazyLoadTriggerMethods ,它定义的方法会触发立即加载</p>
-<p>也就说当你调用它定义的方法时, 会执行数据加载, 它的默认值是 equals,clone,hashCode,toString</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br><settings><br>    <!--开启延迟(懒)加载 true 开始 false(默认值) 关闭--><br>    <setting name="lazyLoadingEnabled" value="true"><br>    <!--触发立即加载的配置
-      默认值:equals,clone,hashCode,toString
-      value="" 覆盖了默认值，表示在执行上述四个方法时，不会触发立即加载
-      只有在执行get方法获取时，触发数据加载
-    --><br>    <setting name="lazyLoadTriggerMethods" value><br></setting></setting></settings><br>三.Mybatis缓存<br>什么是缓存</p>
-<p>服务器内存(硬盘)中的一块区域</p>
-<p>为什么使用缓存</p>
-<p>提高查询效率</p>
-<p>什么样的数据适合做缓存</p>
-<p>经常访问但又不经常修改的数据</p>
-<p>缓存是用来提高查询效率的，所有的持久层框架基本上都有缓存机制 Mybatis也提供了缓存策略，分为一级缓存，二 级缓存</p>
-<p>3.1 一级缓存<br>3.1.1 介绍<br>MyBatis一级缓存是:SqlSession级别的缓存，默认开启，不需要手动配置</p>
-<p>3.1.2 验证<br>需求</p>
-<p>根据id查询用户</p>
-<p>一级缓存测试</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>&#x2F;&#x2F; 一级缓存测试<br>@Test<br>public void testFindByIdWithBufferLevel1() throws Exception {<br>    &#x2F;&#x2F;需要用工具类开启&#x2F;关闭session，否则会出现session错误<br>    SqlSession sqlSession &#x3D; MyBatisUtils.openSession();<br>    UserMapper userMapper1 &#x3D; sqlSession.getMapper(UserMapper.class);<br>    &#x2F;&#x2F; 走数据库<br>    User user1 &#x3D; userMapper1.findById(41);<br>    System.out.println(user1);</p>
-<pre><code>// 清除缓存(自己测试增、删、改)
-sqlSession.clearCache();
-
-// 获取第二个代理对象
-UserMapper userMapper2 = sqlSession.getMapper(UserMapper.class);
-// 走缓存(如果上面清除缓存，还是走数据库)
-User user2 = userMapper2.findById(41);
-System.out.println(user2);
-
-// sqlSession关闭(清除缓存)
-MyBatisUtils.close(sqlSession);
-</code></pre>
-<p>}<br>3.1.3 分析<br>一级缓存是SqlSession范围的缓存，不同的SqlSession之间的缓存区域是互相不影响的，执行SqlSession的C(增</p>
-<p>加)U(更新)D(删除)操作，或者调用clearCache()、commit()、close()方法，都会清空缓存</p>
-<p>SqlSession对象		LocalCache(Map集合)<br>第一次查询	写入<br>➡	LocalCache<br>如果中间发生了DML(增删改)事务操作，清除缓存	清除<br>➡	LocalCache<br>第N次查询	读取<br>⬅	LocalCache<br>一级缓存源码</p>
-<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;org.apache.ibatis.cache.impl.PerpetualCache</p>
-<p>public class PerpetualCache implements Cache {<br>    private final String id;<br>    private Map&lt;Object, Object&gt; cache &#x3D; new HashMap();<br>3.2 二级缓存<br>3.2.1 介绍<br>MyBatis的二级缓存虽然是默认开启的，但需要在映射文件中配置 <cache> 标签才能使用，而且要求实体类的必须 实现序列化接口</cache></p>
-<p>3.2.2 验证<br>mybatis全局配置，默认值就是开启了二级缓存</p>
-<p>指定需要开启二级缓存的映射配置文件</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br><?xml version="1.0" encoding="UTF-8" ?><br><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></p>
-<mapper namespace="com.test.dao.UserMapper">
-
-<pre><code>&lt;!--    当前映射文件，使用二级缓存--&gt;
-&lt;cache&gt;&lt;/cache&gt;
-</code></pre>
-<p>指定User实现序列化接口</p>
-<p>1<br>public class User implements Serializable<br>二级缓存测试</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>&#x2F;&#x2F; 二级缓存测试<br>@Test<br>public void testFindByIdWithBufferLevel2() throws Exception {<br>&#x2F;&#x2F;需要用工具类开启&#x2F;关闭session，否则会出现session错误<br>    &#x2F;&#x2F; 模拟第一个用户<br>    SqlSession sqlSession1 &#x3D; MyBatisUtils.openSession();<br>    UserMapper userMapper1 &#x3D; sqlSession1.getMapper(UserMapper.class);<br>    User user1 &#x3D; userMapper1.findById(41);<br>    System.out.println(user1);</p>
-<pre><code>sqlSession1.close();
-
-// 模拟第二个用户
-SqlSession sqlSession2 = MyBatisUtils.openSession();
-UserMapper userMapper2 = sqlSession2.getMapper(UserMapper.class);
-User user2 = userMapper2.findById(41);
-System.out.println(user2);
-sqlSession2.close();
-</code></pre>
-<p>}<br>3.2.3 分析<br>二级缓存是mapper映射级别的缓存，多个SqlSession去操作同一个Mapper映射的sql语句，多个SqlSession可以共</p>
-<p>用二级缓存，二级缓存是跨SqlSession的。</p>
-<p>二级缓存相比一级缓存的范围更大(按namespace来划分)</p>
-<p>3.3 知识小结</p>
-<p>mybatis的缓存，不需要手动存储和获取数据。mybatis自动维护的。</p>
-<p>使用mybatis，如果是中小型项目，使用自带缓存的机制是可以满足需求的。如果是大型(分布式)项目，mybatis的 缓存灵活性不足，需要使用第三方的缓存技术解决问题。</p>
-<p>四.核心配置文件回顾<br>4.1 properties标签<br>加载外部的properties文件</p>
-<p>1<br><properties resource="jdbc.properties"></properties><br>4.2 settings标签<br>全局参数配置</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br><settings></settings></p>
-<!--开启懒加载-->
-<setting name="lazyLoadingEnabled" value="true">
-<!-- 指定触发延迟加载的方法，只有get方法执行时才会触发立即加载 --> <setting name="lazyLoadTriggerMethods" value> <!--开启二级缓存 true开启(默认) false关闭-->
-<setting name="cacheEnabled" value="true">
-
-4.3 typeAliases标签
-1
-2
-3
-4
-5
-6
-7
-8
-<!-- 单个定义别名 -->
-<typeAliases>
-<typeAlias type="cn.itcast.domain.User" alias="user"></typeAlias>
-    </typeAliases>
-<!-- 使用包的形式批量定义别名 -->
-<typeAliases>
-<package name="cn.itcast.domain"></package>
-    </typeAliases>
-4.4 mappers标签
-加载映射配置
-
-<p>1<br>2<br>3<br>4</p>
-<ol>
-<li>加载指定的src目录下的映射文件，例如:<mapper resource="com/test/mapper/UserMapper.xml"></mapper></li>
-<li>加载并扫描指定包下所有的映射文件(接口)，例如: <package name="com.test.mapper">
-4.5 environments标签
-数据源环境配置</package></li>
-</ol>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</p>
-<!--数据库环境配置-->
-<environments default="mysql">
-    <!--使用MySQL环境-->
-    <environment id="mysql">
-        <!--事务管理器,底层JDBC-->
-        <transactionManager type="JDBC">
-        <!--连接池,内置POOLED-->
-        <dataSource type="POOLED">
-            <property name="driver" value="${jdbc.driver}">
-            <property name="url" value="${jdbc.url}">
-            <property name="username" value="${jdbc.user}">
-            <property name="password" value="${jdbc.password}">
-        </property></property></property></property></dataSource>
-    </transactionManager></environment>
-</environments>
-总结
-## 一 MyBatis嵌套查询
-
-<h3 id="将原来多表查询中的联合查询语句，拆成多个单表的查询"><a href="#将原来多表查询中的联合查询语句，拆成多个单表的查询" class="headerlink" title="将原来多表查询中的联合查询语句，拆成多个单表的查询"></a>将原来多表查询中的联合查询语句，拆成多个单表的查询</h3><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ul>
-<li><p>一对一配置：使用<resultMap>+<association>做配置，通过column条件，执行select查询</association></resultMap></p>
-</li>
-<li><p>一对多配置：使用<resultMap>+<collection>做配置，通过column条件，执行select查询</collection></resultMap></p>
-</li>
-<li><p>多对多配置：使用<resultMap>+<collection>做配置，通过column条件，执行select查询</collection></resultMap></p>
-</li>
-</ul>
-<h2 id="二-MyBatis加载策略"><a href="#二-MyBatis加载策略" class="headerlink" title="二 MyBatis加载策略"></a>二 MyBatis加载策略</h2><h3 id="全局延迟加载"><a href="#全局延迟加载" class="headerlink" title="全局延迟加载"></a>全局延迟加载</h3><ul>
-<li><settings></settings></li>
-</ul>
-<p>​ &lt;!–开启全局延迟加载功能–&gt;</p>
-<p>​ <setting name="”lazyLoadingEnabled”" value="”true”/"></setting></p>
-
-
-<h3 id="局部延迟加载"><a href="#局部延迟加载" class="headerlink" title="局部延迟加载"></a>局部延迟加载</h3><ul>
-<li><association> 和 <collection> 标签</collection></association></li>
-</ul>
-<p>​ - fetchType&#x3D;”lazy | eager”</p>
-<ul>
-<li>局部的加载策略优先级高于全局的加载策略。</li>
-</ul>
-<h2 id="三-MyBatis缓存"><a href="#三-MyBatis缓存" class="headerlink" title="三 MyBatis缓存"></a>三 MyBatis缓存</h2><h3 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h3><ul>
-<li>是SqlSession级别的缓存</li>
-</ul>
-<h3 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h3><ul>
-<li>是mapper映射级别的缓存，需要手动配置且实体类实现serializable接口</li>
-</ul>
-<h2 id="四-核心配置文件回顾"><a href="#四-核心配置文件回顾" class="headerlink" title="四 核心配置文件回顾"></a>四 核心配置文件回顾</h2><h3 id="properties标签"><a href="#properties标签" class="headerlink" title="properties标签"></a>properties标签</h3><ul>
-<li>加载外部的properties文件</li>
-</ul>
-<h3 id="settings标签"><a href="#settings标签" class="headerlink" title="settings标签"></a>settings标签</h3><ul>
-<li>全局参数配置</li>
-</ul>
-<h3 id="typeAliases标签"><a href="#typeAliases标签" class="headerlink" title="typeAliases标签"></a>typeAliases标签</h3><ul>
-<li>为 Java 类型设置一个别名</li>
-</ul>
-<h3 id="mappers标签"><a href="#mappers标签" class="headerlink" title="mappers标签"></a>mappers标签</h3><ul>
-<li>加载映射配置</li>
-</ul>
-<h3 id="environments标签"><a href="#environments标签" class="headerlink" title="environments标签"></a>environments标签</h3><ul>
-<li>数据源环境配置</li>
-</ul>
-</setting></setting></setting></mapper>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -6304,7 +6101,7 @@ sqlSession2.close();
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-count">193</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

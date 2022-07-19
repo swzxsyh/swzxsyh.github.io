@@ -181,6 +181,94 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/JAVA-ThreadPool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/04/JAVA-ThreadPool/" class="post-title-link" itemprop="url">JAVA-ThreadPool</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-04 00:30:04" itemprop="dateCreated datePublished" datetime="2022-07-04T00:30:04+08:00">2022-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="ThreadPool"><a href="#ThreadPool" class="headerlink" title="ThreadPool"></a>ThreadPool</h1><blockquote>
+<p>初始化线程池后,把任务丢进去,等待调度就可以了,使用起来比较方便。<br>JAVA中<code>Thread</code>是线程类,不建议直接使用<code>Thread</code>执行任务,在并发数量比较多的情况下,每个线程都是执行一个很短的时间就任务结束了,这样频繁创建线程会大大降低系统的效率,因为频繁的创建和销毁线程需要时间。而线程池可以复用,就是执行完一个任务,并不销毁,而是可以继续执行其它任务。</p>
+</blockquote>
+<h2 id="Thread的弊端"><a href="#Thread的弊端" class="headerlink" title="Thread的弊端"></a>Thread的弊端</h2><ul>
+<li>每次<code>new Thread()</code> 创建对象,性能差。</li>
+<li>线程缺乏统一管理,可能无限制创建线程,相互竞争,有可能占用过多系统资源导致死机或OOM。</li>
+<li>不能多执行,定期执行,线程中断</li>
+</ul>
+<h2 id="线程池的优点"><a href="#线程池的优点" class="headerlink" title="线程池的优点"></a>线程池的优点</h2><ul>
+<li>重用存在的线程,减少对象创建,消亡的开销,性能佳,降低资源消耗。</li>
+<li>可以控制最大并发线程数,提高系统资源利用率,同时避免过多资源竞争,避免阻塞,提高响应速度。</li>
+<li>提供定时执行,定期执行,单线程,并发数控制等功能,以提高线程的可管理性。</li>
+</ul>
+<blockquote>
+<p>阿里发布的 Java 开发手册中强制线程池不允许使用 Executors 去创建，而是通过 ThreadPoolExecutor 的方式，这样的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险。</p>
+<p>Executors利用工厂模式向我们提供了4种线程池实现方式，但是并不推荐使用，原因是使用Executors创建线程池不会传入相关参数而使用默认值所以我们常常忽略了那些重要的参数（线程池大小、缓冲队列的类型等），而且默认使用的参数会导致资源浪费，不可取。</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/04/JAVA-ThreadPool/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E5%8F%8A%E5%AE%9E%E8%B7%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -915,136 +1003,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/DataBase%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/DataBase%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" class="post-title-link" itemprop="url">DataBase分库分表</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 18:35:42" itemprop="dateCreated datePublished" datetime="2022-07-02T18:35:42+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:48" itemprop="dateModified" datetime="2022-07-15T01:25:48+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="一、分库分表"><a href="#一、分库分表" class="headerlink" title="一、分库分表"></a>一、分库分表</h1><ul>
-<li><p>分库场景：如果数据库的查询QPS过高，就要考虑拆库，比如：查询QPS为3500，假设单库可以支撑1000个连接数，那么就考虑拆分成4个库，来分散查询压力。</p>
-</li>
-<li><p>分库分表场景：</p>
-<table>
-<thead>
-<tr>
-<th>切分方案</th>
-<th>解决的问题</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>只分库不分表</td>
-<td>数据库读&#x2F;写 QPS过高，数据库连接数不足</td>
-</tr>
-<tr>
-<td>只分表不分库</td>
-<td>单表数据量过大，存储性能遇到瓶颈</td>
-</tr>
-<tr>
-<td>既分库又分表</td>
-<td>连接数不足+存储性能遇到瓶颈</td>
-</tr>
-</tbody></table>
-</li>
-</ul>
-<h1 id="二、数据切分方法"><a href="#二、数据切分方法" class="headerlink" title="二、数据切分方法"></a>二、数据切分方法</h1><ul>
-<li><p>水平切分</p>
-<p>这是一种按业务维度切分的方式，比如，常见的按会员维度进行切分，根据一定规则，把不同会员的数据散落在不同的库表中。</p>
-</li>
-<li><p>垂直切分</p>
-<p>垂直切分可以理解为：把一张表的不同字段拆分到不同的表中</p>
-</li>
-</ul>
-<h1 id="三-分库分表后会遇到哪些坑"><a href="#三-分库分表后会遇到哪些坑" class="headerlink" title="三 分库分表后会遇到哪些坑"></a>三 分库分表后会遇到哪些坑</h1><ul>
-<li><p>事务一致性</p>
-<p>解决办法：XA协议、两阶段提交、TCC，通常使用最终一致性的方案，采用事务补偿的方式</p>
-</li>
-<li><p>分页、排序问题</p>
-<p>1）如果排序字段恰好是分片字段，通过分片规则就可以定位到分片的位置；如果排序字段是非分片字段，就需要在不同的分片点中将数据进行排序再返回；然后不同分片的数据汇集到一起再进行汇总和排序，最终返回给用户。</p>
-<p>2）用ES</p>
-</li>
-<li><p>全局唯一主键问题</p>
-<p>分布式id生产方案</p>
-</li>
-</ul>
-<h1 id="四-分库分表后历史数据如何做迁移"><a href="#四-分库分表后历史数据如何做迁移" class="headerlink" title="四 分库分表后历史数据如何做迁移"></a>四 分库分表后历史数据如何做迁移</h1><p>一般采用【双写】的方式进行迁移</p>
-<p>1.增量的消息往新表和老表各写一份</p>
-<p>2.将旧表的数据迁移至新库</p>
-<p>3.迟早新表的数据会赶上旧表的数据</p>
-<p>4.校验新表数据和老表数据是否对得上</p>
-<p>5.开启双读（一部分流量走新表，一部分流量走老表），相当于灰度的过程</p>
-<p>6.读流量全部切换至新表，停止旧表的写入</p>
-<p>7.提前准备回滚机制，临时切换失败能恢复正常业务以及修复数据的相关程序</p>
-<h1 id="五-分库分表中间件对比"><a href="#五-分库分表中间件对比" class="headerlink" title="五 分库分表中间件对比"></a>五 分库分表中间件对比</h1><p>Sharding-jdbc：client层方案</p>
-<ul>
-<li><p>优点在于不用部署，运维成本低，不需要代理层的二次转发请求，性能很高（<strong>轻便，维护成本低，比较推荐中小型公司项目使用</strong>）</p>
-</li>
-<li><p>缺点：如果遇到升级，各个系统都需要重新升级版本再发布，各个系统都需要耦合Sharding-jdbc的依赖</p>
-</li>
-</ul>
-<p>Mycat：proxy层方案</p>
-<ul>
-<li>缺点：	需要部署，自己要运维一套中间件，运维成本高</li>
-<li>优点：对于各个项目都是透明的，如果遇到升级问题，自己中间件搞定就行了（推荐大型公司项目使用）。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1114,7 +1072,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-count">193</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
