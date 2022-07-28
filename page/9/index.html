@@ -785,7 +785,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+                <time title="修改时间：2022-07-28 23:48:28" itemprop="dateModified" datetime="2022-07-28T23:48:28+08:00">2022-07-28</time>
               </span>
 
           
@@ -800,37 +800,13 @@
 
       
           <h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><p>事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。</p>
-<h2 id="MySQL的逻辑架构"><a href="#MySQL的逻辑架构" class="headerlink" title="MySQL的逻辑架构"></a>MySQL的逻辑架构</h2><blockquote>
-<p>MySQL数据库主要分两个层级:服务层和存储引擎层</p>
-</blockquote>
 <ul>
-<li>服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。</li>
-<li>存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM,InnoDB和Memory等,最常用的是InnoDB,也是MySQL默认的存储引擎。存储引擎在建表的时候也可以指定。</li>
+<li><strong>开启事务</strong>【开始记录一个事情中的多个任务】</li>
+<li><strong>执行事务</strong>【正常情况下，一条语句就是一个任务】</li>
+<li><strong>提交事务</strong>【成功】| <strong>回滚事务</strong>【失败】</li>
 </ul>
-<h2 id="SQL语句的执行过程"><a href="#SQL语句的执行过程" class="headerlink" title="SQL语句的执行过程"></a>SQL语句的执行过程</h2><ul>
-<li>连接器:从MySQL客户端登录,需要连接器来连接用户和MySQL数据库,<code>mysql -uroot -p123456</code>进行MySQL登录,在完成TCP握手之后,连接器会根据输入的用户名和密码验证身份,若错误会提示:<code>Access denied for user</code>,若账号密码正确,MySQL会根据权限表中的记录来判定权限。</li>
-<li>查询缓存:MySQL在收到一个请求后,会先去缓存中查找,是否执行过这条SQL语句,之前执行过的SQL语句结果会以key-value的形式直接存储到缓存中,key是查询的语句,value是查询结果集,如果能通过SQL语句直接查询到缓存中的结果集,则直接返回。优点是效率高,但是不建议使用,原因是在MySQL中对表进行了更新操作,缓存就失效了,在频繁更新的系统中,缓存的命中率并不高。在MySQL8.0中查询缓存功能就被删除了,不存在查询缓存的功能了。</li>
-<li>分析器:分为词法分析和语法分析<ul>
-<li>词法分析:MySQL会解析sql语句,分词器会先做词法分析,SQL语句一般由字符串和空格组成,MySQL要识别出字符串代表什么。</li>
-<li>语法分析:根据词法分析的结果,按照语法规则看看SQL语句是否正确。如果SQL语句语法不正确,就提示:<code>You have an error in your SQL syntax</code></li>
-</ul>
-</li>
-<li>优化器:SQL语句语法正确后,优化器会判断你使用了哪种索引,哪种链接,优化器的作用就是确定效率最高的执行方案。</li>
-<li>执行器:在执行阶段,MySQL会判断有没有执行语句的权限,若没有权限,会返回没有权限的错误,若有权限,则打开表继续执行。打开表时,执行器会根据你使用的存储引擎,去使用该引擎对接的接口。</li>
-</ul>
-<p><img src="/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg"></p>
-<h2 id="特殊操作"><a href="#特殊操作" class="headerlink" title="特殊操作"></a>特殊操作</h2><p>在MySQL中,存在一些图书的命令,如果在事务中执行了这些命令,会马上强制执行commit提交事务;如DDL语句(create table&#x2F;drop table&#x2F;alter table)、lock tables语句等等。</p>
-<p>DML语句(insert,delete,update,select)等都不会强制提交事务。</p>
-<h2 id="ACID特性"><a href="#ACID特性" class="headerlink" title="ACID特性"></a>ACID特性</h2><ul>
-<li>原子性 – undo log 保证<br>一个事务的所有操作要么全部成功，要么全部失败，不会再中间环节结束</li>
-<li>持久性 – redo log 保证<br>事务处理结束之后，对数据库的修改是永久性的，不会因为系统故障等事件发生而丢失</li>
-<li>一致性 – 通过undo log 保证<br>数据库的完整性不会因为事务的执行而收到破坏。如有种有一个唯一索引约束的字段，一个事务对其进行操作后，使得该字段出现重复记录，则破坏了一致性。</li>
-<li>隔离性 – 通过undo log + MVCC保证<br>多个事务之间相互隔离。允许多个事务同时进行读写，不会由于交叉执行导致的数据不一致<ul>
-<li>一个事务写对另一个事务写操作的影响,锁机制保证隔离性</li>
-<li>一个事务写对另外一个事务读操作的影响,MVCC保证隔离性</li>
-</ul>
-</li>
-</ul>
+<p><img src="/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/modb_20220421_ca9bbf5a-c107-11ec-8908-38f9d3cd240d.png"></p>
+<p>事务的作用：<strong>保证数据的最终一致性</strong>。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/#more" rel="contents">
@@ -888,7 +864,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-28 23:08:15" itemprop="dateModified" datetime="2022-07-28T23:08:15+08:00">2022-07-28</time>
+                <time title="修改时间：2022-07-28 23:35:48" itemprop="dateModified" datetime="2022-07-28T23:35:48+08:00">2022-07-28</time>
               </span>
 
           
@@ -902,15 +878,37 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p>目的：解决不可重复读，用于RR隔离级别</p>
+          <h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p>目的：解决不可重复读，用于支持读已提交(RC）和可重复读(RR）隔离级别的实现</p>
 <p>MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能</p>
-<p>具体实现：在数据库的每一行中添加额外的三个字段：</p>
-<ul>
-<li>DB_TRX_ID：记录插入或更新该行的最后一个事务的事务ID</li>
-<li>DB_ROLL_PTR：指向该行的undolog指针</li>
-<li>DB_ROW_ID：单调递增的行ID，他就是AUTO_INCREMENT 的主键ID</li>
+<h2 id="数据库的几种并发场景"><a href="#数据库的几种并发场景" class="headerlink" title="数据库的几种并发场景"></a>数据库的几种并发场景</h2><ul>
+<li><p>读读：不存在数据安全问题</p>
+</li>
+<li><p>写写：有数据安全问题，更新丢失</p>
+</li>
+<li><p>读写：有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）</p>
+</li>
 </ul>
-<p><img src="/2022/06/30/MySQL-MVCC/aefb3beb449db7713aea01b265b997d6.jpg" alt="image"></p>
+<p>如果是RC隔离级别，那么每次在进行快照读的时候都会生成一个新的readview</p>
+<p>如果是RR隔离级别，那么只有在当前事务第一次进行快照读的时候会生成readview，之后的快照读都会沿用当前的readview</p>
+<p>RC和RR之间的区别就在于生成readview的时机不同</p>
+<ul>
+<li><p>MVCC主要是用来解决【<strong>读-写</strong>】冲突的<strong>无锁并发控制</strong>，可以解决以下问题：</p>
+</li>
+<li><ul>
+<li><strong>在并发读写数据时，可以做到在读操作时不用阻塞写操作，写操作不用阻塞读操作，提高数据库并发读写的性能</strong>。</li>
+<li><strong>可以解决脏读，幻读，不可重复读等事务隔离问题，但不能解决【写-写】引起的更新丢失问题</strong>。</li>
+</ul>
+</li>
+<li><p><strong>MVCC与锁的组合</strong>：</p>
+<p><strong>一般数据库中都会采用以上MVCC与锁的两种组合来解决并发场景的问题，以此最大限度的提高数据库性能</strong>。</p>
+</li>
+<li><ul>
+<li><strong>MVCC + 悲观锁</strong>MVCC解决读-写冲突，悲观锁解决写-写冲突。</li>
+<li><strong>MVCC + 乐观锁</strong>MVCC解决读-写冲突，乐观锁解决写-写冲突。</li>
+</ul>
+</li>
+</ul>
+<p>通过上述描述，MVCC的作用可以概括为就是为了解决【读写冲突】，提高数据库性能的，而MVCC的实现又依赖于六个概念：【隐式字段】【undo日志】【版本链】【快照读和当前读】【读视图】。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/06/30/MySQL-MVCC/#more" rel="contents">

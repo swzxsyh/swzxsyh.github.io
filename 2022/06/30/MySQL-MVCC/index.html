@@ -21,16 +21,16 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="MVCC目的：解决不可重复读，用于RR隔离级别 MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能 具体实现：在数据库的每一行中添加额外的三个字段：  DB_TRX_ID：记录插入或更新该行的最后一个事务的事务ID DB_ROLL_PTR：指向该行的undolog指针 DB_ROW_ID：单调递增的行ID，他">
+  <meta name="description" content="MVCC目的：解决不可重复读，用于支持读已提交(RC）和可重复读(RR）隔离级别的实现 MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能 数据库的几种并发场景 读读：不存在数据安全问题  写写：有数据安全问题，更新丢失  读写：有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL-MVCC">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/MySQL-MVCC/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="MVCC目的：解决不可重复读，用于RR隔离级别 MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能 具体实现：在数据库的每一行中添加额外的三个字段：  DB_TRX_ID：记录插入或更新该行的最后一个事务的事务ID DB_ROLL_PTR：指向该行的undolog指针 DB_ROW_ID：单调递增的行ID，他">
+<meta property="og:description" content="MVCC目的：解决不可重复读，用于支持读已提交(RC）和可重复读(RR）隔离级别的实现 MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能 数据库的几种并发场景 读读：不存在数据安全问题  写写：有数据安全问题，更新丢失  读写：有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-MVCC/aefb3beb449db7713aea01b265b997d6.jpg">
 <meta property="article:published_time" content="2022-06-30T15:09:09.000Z">
-<meta property="article:modified_time" content="2022-07-28T15:08:15.868Z">
+<meta property="article:modified_time" content="2022-07-28T15:35:48.156Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-MVCC/aefb3beb449db7713aea01b265b997d6.jpg">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-28 23:08:15" itemprop="dateModified" datetime="2022-07-28T23:08:15+08:00">2022-07-28</time>
+                <time title="修改时间：2022-07-28 23:35:48" itemprop="dateModified" datetime="2022-07-28T23:35:48+08:00">2022-07-28</time>
               </span>
 
           
@@ -232,27 +232,65 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p>目的：解决不可重复读，用于RR隔离级别</p>
+        <h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p>目的：解决不可重复读，用于支持读已提交(RC）和可重复读(RR）隔离级别的实现</p>
 <p>MVCC，全称：multiversion concurrency control，多版本并发控制，是innodb实现事务回滚与并发的重要功能</p>
-<p>具体实现：在数据库的每一行中添加额外的三个字段：</p>
-<ul>
-<li>DB_TRX_ID：记录插入或更新该行的最后一个事务的事务ID</li>
-<li>DB_ROLL_PTR：指向该行的undolog指针</li>
-<li>DB_ROW_ID：单调递增的行ID，他就是AUTO_INCREMENT 的主键ID</li>
+<h2 id="数据库的几种并发场景"><a href="#数据库的几种并发场景" class="headerlink" title="数据库的几种并发场景"></a>数据库的几种并发场景</h2><ul>
+<li><p>读读：不存在数据安全问题</p>
+</li>
+<li><p>写写：有数据安全问题，更新丢失</p>
+</li>
+<li><p>读写：有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）</p>
+</li>
 </ul>
-<p><img src="/2022/06/30/MySQL-MVCC/aefb3beb449db7713aea01b265b997d6.jpg" alt="image"></p>
+<p>如果是RC隔离级别，那么每次在进行快照读的时候都会生成一个新的readview</p>
+<p>如果是RR隔离级别，那么只有在当前事务第一次进行快照读的时候会生成readview，之后的快照读都会沿用当前的readview</p>
+<p>RC和RR之间的区别就在于生成readview的时机不同</p>
+<ul>
+<li><p>MVCC主要是用来解决【<strong>读-写</strong>】冲突的<strong>无锁并发控制</strong>，可以解决以下问题：</p>
+</li>
+<li><ul>
+<li><strong>在并发读写数据时，可以做到在读操作时不用阻塞写操作，写操作不用阻塞读操作，提高数据库并发读写的性能</strong>。</li>
+<li><strong>可以解决脏读，幻读，不可重复读等事务隔离问题，但不能解决【写-写】引起的更新丢失问题</strong>。</li>
+</ul>
+</li>
+<li><p><strong>MVCC与锁的组合</strong>：</p>
+<p><strong>一般数据库中都会采用以上MVCC与锁的两种组合来解决并发场景的问题，以此最大限度的提高数据库性能</strong>。</p>
+</li>
+<li><ul>
+<li><strong>MVCC + 悲观锁</strong>MVCC解决读-写冲突，悲观锁解决写-写冲突。</li>
+<li><strong>MVCC + 乐观锁</strong>MVCC解决读-写冲突，乐观锁解决写-写冲突。</li>
+</ul>
+</li>
+</ul>
+<p>通过上述描述，MVCC的作用可以概括为就是为了解决【读写冲突】，提高数据库性能的，而MVCC的实现又依赖于六个概念：【隐式字段】【undo日志】【版本链】【快照读和当前读】【读视图】。</p>
 <span id="more"></span>
 
-<h2 id="Read-View"><a href="#Read-View" class="headerlink" title="Read View"></a>Read View</h2><ul>
-<li>事务进行<strong>快照读</strong>的时候会生成一个读视图,格式</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">|--------------|------ |-----------|----------- |</span><br><span class="line">|creator_trx_id  | m_ids | min_trx_id | max_trx_id  |</span><br><span class="line">|--------------|------ |-----------|----------- |</span><br></pre></td></tr></table></figure>
-<ul>
-<li>creator_trx_id<br>  创建该Read View的事务的事务id</li>
-<li>m_ids<br>  创建视图时当前数据库中活跃且未提交的事务的事务id列表</li>
-<li>min_trx_id<br>  创建Read View时当前数据库中活跃且未提交的事务中最小的事务id</li>
-<li>max_trx_id<br>  创建Read View 时当前数据库应该给下一个事务的id</li>
-</ul>
+<p>具体实现：在数据库的每一行中添加额外的三个字段：</p>
+<table>
+<thead>
+<tr>
+<th align="left">隐式字段</th>
+<th align="left">描述</th>
+<th align="left">是否必须存在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">DB_TRX_ID</td>
+<td align="left">事物Id，也叫事物版本号，占用6byte的标识，<strong>事务开启之前，从数据库获得一个自增长的事务ID，用其判断事务的执行顺序，记录插入或更新该行的最后一个事务的事务ID</strong></td>
+<td align="left">是</td>
+</tr>
+<tr>
+<td align="left">DB_ROLL_PTR</td>
+<td align="left">占用7byte，<strong>回滚指针，指向这条记录的上一个版本的undo log记录，存储于回滚段（rollback segment）中</strong></td>
+<td align="left">是</td>
+</tr>
+<tr>
+<td align="left">DB_ROW_ID</td>
+<td align="left">隐含的自增ID（隐藏主键），如果表中没有主键和非NULL唯一键时，则会生成一个<strong>单调递增的行ID作为聚簇索引</strong></td>
+<td align="left">否</td>
+</tr>
+</tbody></table>
+<p><img src="/2022/06/30/MySQL-MVCC/aefb3beb449db7713aea01b265b997d6.jpg" alt="image"></p>
 <h2 id="读已提交隔离原理"><a href="#读已提交隔离原理" class="headerlink" title="读已提交隔离原理"></a>读已提交隔离原理</h2><ul>
 <li>假设事务A、事务B同时执行，事务B执行update a &#x3D; 10 操作<ul>
 <li><p>事务开启时，Read View 记录情况（如图）：<br>事务A的Read View中，它的事务id时是1001，由于与事务B同时执行，所以此时活跃的事务的事务id列表（m_ids）为【1001，1002】，活跃的事务id中最小的为事务A的事务id ：1001；下一事务id为1003<br>事务B的Read View中，它的事务id时是1002，由于与事务A同时执行，所以此时活跃的事务的事务id列表（m_ids）为【1001，1002】，活跃的事务id中最小的为事务A的事务id ：1001；下一事务id为1003</p>
@@ -290,17 +328,67 @@
 <h2 id="快照读"><a href="#快照读" class="headerlink" title="快照读"></a>快照读</h2><ul>
 <li>【可重复读隔离】级别下，普通的select读都是快照读。读的都是当前快照版本的数据，看不到其他版本的数据，其他事务操作的未提交时，记录的trx_id字段不会更新</li>
 </ul>
-<h2 id="数据库的几种并发场景"><a href="#数据库的几种并发场景" class="headerlink" title="数据库的几种并发场景"></a>数据库的几种并发场景</h2><ul>
-<li><p>读读：不存在数据安全问题</p>
+<h2 id="读视图Read-View"><a href="#读视图Read-View" class="headerlink" title="读视图Read View"></a>读视图Read View</h2><p><strong>Read View提供了某一时刻事务系统的快照，主要是用来做<code>可见性</code><br>判断, 里面保存了【对本事务不可见的其他活跃事务】</strong>。</p>
+<p><strong>当事务在开始执行的时候，会产生一个读视图（Read View），用来判断当前事务可见哪个版本的数据，即可见性判断</strong>。</p>
+<p><strong>实际上在innodb中，每个SQL语句执行前都会生成一个Read View</strong>。</p>
+<h3 id="读视图的四个属性"><a href="#读视图的四个属性" class="headerlink" title="读视图的四个属性"></a>读视图的四个属性</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ReadView</span> &#123;	</span><br><span class="line">  <span class="keyword">private</span>:		</span><br><span class="line">  <span class="comment">/** The read should not see any transaction with trx id &gt;= this		value. In other words, this is the &quot;high water mark&quot;. */</span>		</span><br><span class="line">  <span class="type">trx_id_t</span>	m_low_limit_id;		</span><br><span class="line">  <span class="comment">/** The read should see all trx ids which are strictly		smaller (&lt;) than this value.  In other words, this is the		low water mark&quot;. */</span>		</span><br><span class="line">  <span class="type">trx_id_t</span>	m_up_limit_id;		</span><br><span class="line">  <span class="comment">/** trx id of creating transaction, set to TRX_ID_MAX for free		views. */</span>		</span><br><span class="line">  <span class="type">trx_id_t</span>	m_creator_trx_id;		</span><br><span class="line">  <span class="comment">/** Set of RW transactions that was active when this snapshot		was taken */</span>		</span><br><span class="line">  <span class="type">ids_t</span>		m_ids;		</span><br><span class="line">  <span class="comment">/** The view does not need to see the undo logs for transactions		whose transaction number is strictly smaller (&lt;) than this value:		they can be removed in purge if not needed by other views */</span>		</span><br><span class="line">  <span class="type">trx_id_t</span>	m_low_limit_no;		</span><br><span class="line">  <span class="comment">/** AC-NL-RO transaction view that has been &quot;closed&quot;. */</span>		</span><br><span class="line">  <span class="type">bool</span>		m_closed;		</span><br><span class="line">  <span class="function"><span class="keyword">typedef</span> <span class="title">UT_LIST_NODE_T</span><span class="params">(ReadView)</span> <span class="type">node_t</span></span>;		</span><br><span class="line">  <span class="comment">/** List of read views in trx_sys */</span>		</span><br><span class="line">  byte		pad1[<span class="number">64</span> - <span class="built_in">sizeof</span>(<span class="type">node_t</span>)];		<span class="type">node_t</span>		m_view_list;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>事务进行<strong>快照读</strong>的时候会生成一个读视图,格式</p>
+<ul>
+<li><p><strong>creator_trx_id</strong></p>
+<p>创建当前read view的事务ID</p>
 </li>
-<li><p>写写：有数据安全问题，更新丢失</p>
+<li><p><strong>m_ids</strong></p>
+<p>当前系统中所有的活跃事务的 id，活跃事务指的是当前系统中开启了事务，但还没有提交的事务;</p>
 </li>
-<li><p>读写：有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）</p>
+<li><p><strong>m_low_limit_id</strong></p>
+<p>表示在生成ReadView时，当前系统中活跃的读写事务中最小的事务id，即m_ids中的最小值。</p>
+</li>
+<li><p><strong>m_up_limit_id</strong></p>
+<p>当前系统中事务的 id 值最大的那个事务 id 值再加 1，也就是系统中下一个要生成的事务 id。</p>
 </li>
 </ul>
-<p>如果是RC隔离级别，那么每次在进行快照读的时候都会生成一个新的readview</p>
-<p>如果是RR隔离级别，那么只有在当前事务第一次进行快照读的时候会生成readview，之后的快照读都会沿用当前的readview</p>
-<p>RC和RR之间的区别就在于生成readview的时机不同</p>
+</li>
+</ul>
+<p>ReadView 会根据这 4 个属性，结合 undo log 版本链，来实现 MVCC 机制，决定一个事务能读取到数据那个版本。</p>
+<h3 id="读视图可见性判断规则"><a href="#读视图可见性判断规则" class="headerlink" title="读视图可见性判断规则"></a>读视图可见性判断规则</h3><p>当一个事务读取某条数据时，会<strong>通过DB_TRX_ID【Uodo日志的事务Id】在坐标轴上的位置</strong>来进行可见性规则判断，如下：</p>
+<ul>
+<li><p><strong>DB_TRX_ID &lt; m_low_limit_id</strong></p>
+<p>表示DB_TRX_ID对应这条数据【Undo日志】是在当前事务开启之前，其他的事务就已经将该条数据修改了并提交了事务(事务的 id 值是递增的)，所以当前事务【开启Read View的事务】能读取到。</p>
+</li>
+<li><p><strong>DB_TRX_ID &gt;&#x3D; m_up_limit_id</strong></p>
+<p>表示在当前事务【creator_trx_id】开启以后，有新的事务开启，并且新的事务修改了这行数据的值并提交了事务，因为这是【creator_trx_id】后面的事务修改提交的数据，所以当前事务【creator_trx_id】是不能读取到的。</p>
+</li>
+<li><p><strong>m_low_limit_id &#x3D;&lt; DB_TRX_ID &lt; m_up_limit_id</strong></p>
+</li>
+<li><ul>
+<li><strong>DB_TRX_ID  在 m_ids 数组中</strong></li>
+</ul>
+</li>
+<li><p>表示DB_TRX_ID【写Undo日志的事务】 和当前事务【creator_trx_id】是在同一时刻开启的事务</p>
+</li>
+<li><ul>
+<li><ul>
+<li><p><strong>DB_TRX_ID  不等于creator_trx_id</strong></p>
+<p><strong>DB_TRX_ID事务修改了数据的值，并提交了事务，所以当前事务【creator_trx_id】不能读取到。</strong></p>
+</li>
+<li><p><strong>DB_TRX_ID  等于creator_trx_id</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>​      表明数据【Undo日志】 是自己生成的，因此是<strong>可见</strong>的</p>
+</li>
+<li><ul>
+<li><p><strong>DB_TRX_ID  不在 m_ids 数组中</strong></p>
+<p>表示的是在当前事务【creator_trx_id】开启之前，其他事务【DB_TRX_ID】将数据修改后就已经提交了事务，所以当前事务能读取到。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="不同隔离级别MVCC实现原理"><a href="#不同隔离级别MVCC实现原理" class="headerlink" title="不同隔离级别MVCC实现原理"></a>不同隔离级别MVCC实现原理</h2><h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/397162">https://www.modb.pro/db/397162</a></p>
 
     </div>
 
@@ -381,7 +469,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MVCC"><span class="nav-number">1.</span> <span class="nav-text">MVCC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Read-View"><span class="nav-number">1.1.</span> <span class="nav-text">Read View</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4%E9%9A%94%E7%A6%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">读已提交隔离原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E9%9A%94%E7%A6%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">可重复读隔离原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93%E5%89%8D%E8%AF%BB"><span class="nav-number">1.4.</span> <span class="nav-text">当前读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E7%85%A7%E8%AF%BB"><span class="nav-number">1.5.</span> <span class="nav-text">快照读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%87%A0%E7%A7%8D%E5%B9%B6%E5%8F%91%E5%9C%BA%E6%99%AF"><span class="nav-number">1.6.</span> <span class="nav-text">数据库的几种并发场景</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MVCC"><span class="nav-number">1.</span> <span class="nav-text">MVCC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%87%A0%E7%A7%8D%E5%B9%B6%E5%8F%91%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">数据库的几种并发场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4%E9%9A%94%E7%A6%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">读已提交隔离原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E9%9A%94%E7%A6%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">可重复读隔离原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93%E5%89%8D%E8%AF%BB"><span class="nav-number">1.4.</span> <span class="nav-text">当前读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E7%85%A7%E8%AF%BB"><span class="nav-number">1.5.</span> <span class="nav-text">快照读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E8%A7%86%E5%9B%BERead-View"><span class="nav-number">1.6.</span> <span class="nav-text">读视图Read View</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E8%A7%86%E5%9B%BE%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%B1%9E%E6%80%A7"><span class="nav-number">1.6.1.</span> <span class="nav-text">读视图的四个属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E8%A7%86%E5%9B%BE%E5%8F%AF%E8%A7%81%E6%80%A7%E5%88%A4%E6%96%AD%E8%A7%84%E5%88%99"><span class="nav-number">1.6.2.</span> <span class="nav-text">读视图可见性判断规则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%ABMVCC%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">1.7.</span> <span class="nav-text">不同隔离级别MVCC实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">1.7.0.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

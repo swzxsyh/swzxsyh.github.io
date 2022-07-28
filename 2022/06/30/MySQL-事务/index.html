@@ -21,19 +21,20 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。 MySQL的逻辑架构 MySQL数据库主要分两个层级:服务层和存储引擎层   服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。 存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM">
+  <meta name="description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。  开启事务【开始记录一个事情中的多个任务】 执行事务【正常情况下，一条语句就是一个任务】 提交事务【成功】| 回滚事务【失败】   事务的作用：保证数据的最终一致性。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL-事务">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。 MySQL的逻辑架构 MySQL数据库主要分两个层级:服务层和存储引擎层   服务层:包含连接器,查询缓存,分析器,优化器,执行器。大多数核心功能和所有的跨存储引擎的功能也在这一层实现,包括存储过程,触发器,视图。 存储引擎层:包含了MySQL常见的存储引擎,包括MyISAM">
+<meta property="og:description" content="事务事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。  开启事务【开始记录一个事情中的多个任务】 执行事务【正常情况下，一条语句就是一个任务】 提交事务【成功】| 回滚事务【失败】   事务的作用：保证数据的最终一致性。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/modb_20220421_ca9bbf5a-c107-11ec-8908-38f9d3cd240d.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg">
 <meta property="article:published_time" content="2022-06-30T15:09:16.000Z">
-<meta property="article:modified_time" content="2022-07-14T17:25:49.292Z">
+<meta property="article:modified_time" content="2022-07-28T15:48:28.535Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/008i3skNgy1grzkpisfabj30ht0l9765.jpg">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/modb_20220421_ca9bbf5a-c107-11ec-8908-38f9d3cd240d.png">
 
 <link rel="canonical" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/">
 
@@ -218,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+                <time title="修改时间：2022-07-28 23:48:28" itemprop="dateModified" datetime="2022-07-28T23:48:28+08:00">2022-07-28</time>
               </span>
 
           
@@ -233,6 +234,15 @@
 
       
         <h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><p>事务(Transaction)是访问和更新数据的执行单元。事务中包含有个或者多个sql语句,要么都执行,要么都不执行。</p>
+<ul>
+<li><strong>开启事务</strong>【开始记录一个事情中的多个任务】</li>
+<li><strong>执行事务</strong>【正常情况下，一条语句就是一个任务】</li>
+<li><strong>提交事务</strong>【成功】| <strong>回滚事务</strong>【失败】</li>
+</ul>
+<p><img src="/2022/06/30/MySQL-%E4%BA%8B%E5%8A%A1/modb_20220421_ca9bbf5a-c107-11ec-8908-38f9d3cd240d.png"></p>
+<p>事务的作用：<strong>保证数据的最终一致性</strong>。</p>
+<span id="more"></span>
+
 <h2 id="MySQL的逻辑架构"><a href="#MySQL的逻辑架构" class="headerlink" title="MySQL的逻辑架构"></a>MySQL的逻辑架构</h2><blockquote>
 <p>MySQL数据库主要分两个层级:服务层和存储引擎层</p>
 </blockquote>
@@ -264,67 +274,6 @@
 </ul>
 </li>
 </ul>
-<span id="more"></span>
-
-<h2 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h2><ul>
-<li><p>读未提交（read uncommitted）<br>一个事务还没提交时，它的变更能被其他事务看到</p>
-<ul>
-<li><p>事例：老板要给程序员发工资，程序员的工资是3.6万&#x2F;月。但是发工资时老板不小心按错了数字，按成3.9万&#x2F;月，该钱已经打到程序员的户口，但是事务还没有提交，就在这时，程序员去查看自己这个月的工资，发现比往常多了3千元，以为涨工资了非常高兴。但是老板及时发现了不对，马上回滚差点就提交了的事务，将数字改成3.6万再提交。</p>
-<p>分析：实际程序员这个月的工资还是3.6万，但是程序员看到的是3.9万。他看到的是老板还没提交事务时的数据。这就是<strong>脏读</strong></p>
-<hr>
-<p>那怎么解决脏读呢？Read committed！读提交，能解决脏读问题。</p>
-<ul>
-<li>当前事务可以读到其它事务未提交的数据(脏数据),这种现象是脏读。</li>
-</ul>
-<hr>
-</li>
-</ul>
-</li>
-<li><p>读已提交（read committed）<br>一个事务的变更在事务提交后才能被其他事务看到</p>
-<ul>
-<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（程序员事务开启），收费系统事先检测到他的卡里有3.6万，就在这个时候！！程序员的妻子要把钱全部转出充当家用，并提交。当收费系统准备扣款时，再检测卡里的金额，发现已经没钱了（第二次检测金额当然要等待妻子转出金额事务提交完）。程序员就会很郁闷，明明卡里是有钱的…</p>
-<p>分析：这就是读提交，若有事务对数据进行更新（UPDATE）操作时，读操作事务要等待这个更新操作事务提交后才能读取数据，可以解决脏读问题。但在这个事例中，出现了一个事务范围内两个相同的查询却返回了不同数据，这就是<strong>不可重复读</strong>。</p>
-<hr>
-<p>那怎么解决可能的不可重复读问题？Repeatable read ！</p>
-<ul>
-<li>不可重复读:在同一个事务中两次读取同一个数据不一样,这种现象被称为不可重复读。脏读可不可重复读的区别在于,脏读读到的是其它事务未提价的数据,而不可重复读读到的是其它事务已经提价的数据</li>
-</ul>
-<hr>
-</li>
-</ul>
-</li>
-<li><p>可重复读（repeatable read）<br>一个事务执行过程中看到的数据，一直跟这个事务启动时看到的数据时一致的。MySQL InnoDB引擎的默认隔离级别</p>
-<ul>
-<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（事务开启，不允许其他事务的UPDATE修改操作），收费系统事先检测到他的卡里有3.6万。这个时候他的妻子不能转出金额了。接下来收费系统就可以扣款了。</p>
-<p>分析：重复读可以解决不可重复读问题。写到这里，应该明白的一点就是，不可重复读对应的是修改，即UPDATE操作。但是可能还会有幻读问题。因为幻读问题对应的是插入INSERT操作，而不是UPDATE操作。</p>
-<p><strong>什么时候会出现幻读？</strong></p>
-<p>事例：程序员某一天去消费，花了2千元，然后他的妻子去查看他今天的消费记录（全表扫描FTS，妻子事务开启），看到确实是花了2千元，就在这个时候，程序员花了1万买了一部电脑，即新增INSERT了一条消费记录，并提交。当妻子打印程序员的消费记录清单时（妻子事务提交），发现花了1.2万元，似乎出现了幻觉，这就是<strong>幻读</strong>。</p>
-<hr>
-<p>那怎么解决幻读问题？Serializable！</p>
-<ul>
-<li>在一个事务中两次查询查到的数据条数不同,这种现象被称为幻读。不可重复读和幻读的区别在于,不可重复度是数据变了,幻读是数据行数变了。</li>
-</ul>
-<hr>
-</li>
-</ul>
-</li>
-<li><p>串行化（serializable）<br>会对记录加上读写锁，在多个事务对这条记录进行读写操作时，如果发生读写重读，后访问的事务必须等到前一个事务执行完成后，才能继续执行</p>
-</li>
-<li><p>优先级<br>串行化 &gt; 可重复读 &gt; 读已提交 &gt; 读未提交</p>
-</li>
-<li><p>实现原理(MVCC)</p>
-<ul>
-<li><p>读未提交级别，因为可以读到未提交的数据，因此直接读取最新的数据即可</p>
-</li>
-<li><p>串行化级别，通过加读写锁的方式避免并行访问</p>
-</li>
-<li><p>读已提交和可重复读级别，它们是通过Read View （数据快照）来实现的，它们之间的区别在于创建Read View的时机不同。</p>
-<p>(多版本并发控制)</p>
-<p>读已提交：在每个数据读取前都生成一个快照<br>可重复读：启动事务的时候生成一个快照，并在事务期间都使用该快照</p>
-</li>
-</ul>
-</li>
-</ul>
 <h2 id="事务并发产生的问题"><a href="#事务并发产生的问题" class="headerlink" title="事务并发产生的问题"></a>事务并发产生的问题</h2><ul>
 <li><p>脏读<br>一个事务读取到另一个事务未提交的数据</p>
 <ul>
@@ -343,6 +292,114 @@
 </li>
 </ul>
 <p>1、将事务隔离级别提高到读已提交以上，则可以解决脏读问题<br>2、将事务隔离级别提高到可重复读以上，则可以解决脏读、不可重读问题<br>3.将事务隔离几倍提高到串行化以上，则可以解决幻读问题，但一般不会设置为串行化（性能差），InnoDB通过next-key lock （行锁和间隙锁的组合，【锁住记录之间的间隙和记录本身，防止其他事务在这个记录之间插入新的记录）进行解决】</p>
+<ul>
+<li><p><strong>总结</strong></p>
+<p>一般我们再理解幻读与不可重复读的时候，容易混淆，其实只需要分清一点就可以，</p>
+<p><strong>一般而言：幻读是指查询数据的【条数总量】不一致，不可重复读是指查询数据的数据内容不一致</strong>。</p>
+</li>
+</ul>
+<h2 id="事务的四大隔离级别"><a href="#事务的四大隔离级别" class="headerlink" title="事务的四大隔离级别"></a>事务的四大隔离级别</h2><ul>
+<li><p>读未提交（read uncommitted）<br>一个事务还没提交时，它的变更能被其他事务看到</p>
+<p>读取其他事务未提交的数据，会造成脏读。因此在该种隔离级别下，不能解决脏读、不可重复读和幻读。</p>
+<ul>
+<li><p>事例：老板要给程序员发工资，程序员的工资是3.6万&#x2F;月。但是发工资时老板不小心按错了数字，按成3.9万&#x2F;月，该钱已经打到程序员的户口，但是事务还没有提交，就在这时，程序员去查看自己这个月的工资，发现比往常多了3千元，以为涨工资了非常高兴。但是老板及时发现了不对，马上回滚差点就提交了的事务，将数字改成3.6万再提交。</p>
+<p>分析：实际程序员这个月的工资还是3.6万，但是程序员看到的是3.9万。他看到的是老板还没提交事务时的数据。这就是<strong>脏读</strong></p>
+<hr>
+<p>那怎么解决脏读呢？Read committed！读已提交，能解决脏读问题。</p>
+<ul>
+<li>当前事务可以读到其它事务未提交的数据(脏数据),这种现象是脏读。</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>读已提交（read committed）<br>一个事务的变更在事务提交后才能被其他事务看到</p>
+<p><strong>在读已提交的隔离级别下，所有事务只能读取【其他事务已经提交】的数据</strong>。Oracle和SQL Server的默认的隔离级别。读已提交能够解决脏读的现象，但是还是会有<strong>不可重复读、幻读</strong>的问题</p>
+<ul>
+<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（程序员事务开启），收费系统事先检测到他的卡里有3.6万，就在这个时候！！程序员的妻子要把钱全部转出充当家用，并提交。当收费系统准备扣款时，再检测卡里的金额，发现已经没钱了（第二次检测金额当然要等待妻子转出金额事务提交完）。程序员就会很郁闷，明明卡里是有钱的…</p>
+<p>分析：这就是读提交，若有事务对数据进行更新（UPDATE）操作时，读操作事务要等待这个更新操作事务提交后才能读取数据，可以解决脏读问题。但在这个事例中，出现了一个事务范围内两个相同的查询却返回了不同数据，这就是<strong>不可重复读</strong>。</p>
+<hr>
+<p>那怎么解决可能的不可重复读问题？Repeatable read ！</p>
+<ul>
+<li>不可重复读:在同一个事务中两次读取同一个数据不一样,这种现象被称为不可重复读。脏读可不可重复读的区别在于,脏读读到的是其它事务未提价的数据,而不可重复读读到的是其它事务已经提价的数据</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>可重复读（repeatable read）</p>
+<p><strong>在可重复读的隔离级别下，限制了读取数据的时候，不可以进行修改，所有事务前后多次的读取到的数据内容是不变的</strong>。MySQL InnoDB引擎的默认事务隔离级别</p>
+<p>这种隔离级别解决了<strong>重复读</strong>的问题，但是读取范围数据的时候，是可以add数据的，所以还是会造成某个事务前后多次读取到的数据总量不一致的现象，从而产生幻读。</p>
+<ul>
+<li><p>事例：程序员拿着信用卡去享受生活（卡里当然是只有3.6万），当他埋单时（事务开启，不允许其他事务的UPDATE修改操作），收费系统事先检测到他的卡里有3.6万。这个时候他的妻子不能转出金额了。接下来收费系统就可以扣款了。</p>
+<p>分析：重复读可以解决不可重复读问题。写到这里，应该明白的一点就是，不可重复读对应的是修改，即UPDATE操作。但是可能还会有幻读问题。因为幻读问题对应的是插入INSERT操作，而不是UPDATE操作。</p>
+<p><strong>什么时候会出现幻读？</strong></p>
+<p>事例：程序员某一天去消费，花了2千元，然后他的妻子去查看他今天的消费记录（全表扫描FTS，妻子事务开启），看到确实是花了2千元，就在这个时候，程序员花了1万买了一部电脑，即新增INSERT了一条消费记录，并提交。当妻子打印程序员的消费记录清单时（妻子事务提交），发现花了1.2万元，似乎出现了幻觉，这就是<strong>幻读</strong>。</p>
+<hr>
+<p>那怎么解决幻读问题？Serializable！</p>
+<ul>
+<li>一般我们也可以使用<strong>间隙锁</strong>和<strong>临键锁</strong>来解决幻读问题</li>
+<li>在一个事务中两次查询查到的数据条数不同,这种现象被称为幻读。不可重复读和幻读的区别在于,不可重复度是数据变了,幻读是数据行数变了。</li>
+</ul>
+<hr>
+</li>
+</ul>
+</li>
+<li><p>串行化（serializable）<br>会对记录加上读写锁，在多个事务对这条记录进行读写操作时，如果发生读写重读，后访问的事务必须等到前一个事务执行完成后，才能继续执行</p>
+<p><strong>事务最高的隔离级别，在串行化的隔离级别下，所有的事务顺序执行，不存在任何冲突，可以避免脏读、不可重复读与幻读所有并发问题</strong>。</p>
+<p>但是串行化的隔离级别，会导致大量的操作超时和锁竞争，从而大大降低数据库的性能，一般不使用这样事务隔离级别。</p>
+</li>
+<li><p>优先级<br>串行化 &gt; 可重复读 &gt; 读已提交 &gt; 读未提交</p>
+</li>
+<li><p>实现原理(MVCC)</p>
+<ul>
+<li><p>读未提交级别，因为可以读到未提交的数据，因此直接读取最新的数据即可</p>
+</li>
+<li><p>串行化级别，通过加读写锁的方式避免并行访问</p>
+</li>
+<li><p>读已提交和可重复读级别，它们是通过Read View （数据快照）来实现的，它们之间的区别在于创建Read View的时机不同。</p>
+<p>(多版本并发控制)</p>
+<p>读已提交：在每个数据读取前都生成一个快照<br>可重复读：启动事务的时候生成一个快照，并在事务期间都使用该快照</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>四种隔离级别存在的并发问题如下：</strong></p>
+<p>【 ×】表示未解决，【√】表示已解决</p>
+<table>
+<thead>
+<tr>
+<th align="left">隔离级别</th>
+<th align="left">脏读</th>
+<th align="left">不可重复读</th>
+<th align="left">幻读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">读未提交(Read uncommitted)</td>
+<td align="left">×</td>
+<td align="left">×</td>
+<td align="left">×</td>
+</tr>
+<tr>
+<td align="left">读已提交(Read committed)</td>
+<td align="left">√</td>
+<td align="left">×</td>
+<td align="left">×</td>
+</tr>
+<tr>
+<td align="left">可重复读(Repeatable read)</td>
+<td align="left">√</td>
+<td align="left">√</td>
+<td align="left">×</td>
+</tr>
+<tr>
+<td align="left">串行化(Serializable)</td>
+<td align="left">√</td>
+<td align="left">√</td>
+<td align="left">√</td>
+</tr>
+</tbody></table>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
 <p>InnoDB实现的RR,通过锁机制(包含netxt-key lock),MVCC(包含隐藏数据列,基于undo log的版本链,ReadView)等,实现了一定程度的隔离性,可以满足大多数场景的需要。</p>
 <p>RR虽然避免了幻读问题，但是毕竟不是Serializable，不能保证完全的隔离</p>
@@ -352,6 +409,7 @@
 </blockquote>
 <h6 id="来源"><a href="#来源" class="headerlink" title="来源:"></a>来源:</h6><p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/mysql-transaction.html">https://rumenz.com/rumenbiji/mysql-transaction.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/mysql-transaction.html">https://rumenz.com/rumenbiji/mysql-transaction.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/397162">https://www.modb.pro/db/397162</a></p>
 
     </div>
 
@@ -432,7 +490,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">MySQL的逻辑架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL%E8%AF%AD%E5%8F%A5%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">SQL语句的执行过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.</span> <span class="nav-text">特殊操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ACID%E7%89%B9%E6%80%A7"><span class="nav-number">1.4.</span> <span class="nav-text">ACID特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.5.</span> <span class="nav-text">隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B9%B6%E5%8F%91%E4%BA%A7%E7%94%9F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">事务并发产生的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">1.7.0.0.0.1.</span> <span class="nav-text">来源:</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">MySQL的逻辑架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL%E8%AF%AD%E5%8F%A5%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">SQL语句的执行过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.</span> <span class="nav-text">特殊操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ACID%E7%89%B9%E6%80%A7"><span class="nav-number">1.4.</span> <span class="nav-text">ACID特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B9%B6%E5%8F%91%E4%BA%A7%E7%94%9F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.5.</span> <span class="nav-text">事务并发产生的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%9B%9B%E5%A4%A7%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.6.</span> <span class="nav-text">事务的四大隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">1.7.0.0.0.1.</span> <span class="nav-text">来源:</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
