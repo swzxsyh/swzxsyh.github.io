@@ -181,6 +181,480 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/20/Redis-%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/20/Redis-%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">Redis & 优化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-20 01:39:59" itemprop="dateCreated datePublished" datetime="2020-05-20T01:39:59+08:00">2020-05-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.NoSQL<br>1.1 NoSQL介绍<br>NoSQL(Not-Only SQL)，泛指非关系型的数据库，它可以作为关系型数据库的良好补充。</p>
+<p>关系型数据库	非关系型数据库<br>特点	数据直接存在关联关系	数据之间没有关联关系<br>所有数据都在磁盘中	所有数据都在内存中<br>总结	存储复杂关系模型，硬盘io速度较慢	只能存储简单数据模型，内存io查询速度快<br>为什么学习NoSQL</p>
+<p>高并发、高可用、高性能、海量数据</p>
+<p>传统的关系型数据库出现了性能和扩展的瓶颈，所以非关系型数据库应时而生，解决了互联网产品的三 高和海量数据的问题</p>
+<p>NoSQL和关系型的数据库是互补关系，在各自的应用场景中都有自己的特点，一般情况下我们使用关系 型数据库持久化数据(处理复杂的业务场景)，对一些热点数据通过NoSQL来作为缓存提高效率</p>
+<p>使用后</p>
+<p>先查找缓存<br>没有数据再查找数据库<br>1.2 NoSQL的主流产品<br>分类	特点	代表产品<br>键值存储	数据一般存在内存中，读写速度快(10w&#x2F;s)，适合作为缓存服务	redis<br>文档型数据库	数据结构要求不严格，适合存储结构不确定或者价值较低的数据	mongodb<br>列存储数据库	查找速度快，更容易进行分布式扩展，适合作为文件存储服务	Hbase<br>图形数据库	使用“图结构”进行存储，适合做社交网络计算等等	Neo4j<br>图形数据库介绍</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xlgen157387/article/details/79085901">https://blog.csdn.net/xlgen157387/article/details/79085901</a></p>
+<p>二.Redis<br>2.1 Redis介绍<br>Redis(Remote Dictionary Server)是用C语言开发的一个开源的高性能键值对数据库。它的所有数据 都是保存在内存中的,这也就决定了其读写速度之快,是其它硬盘保存数据的系统所无法匹敌的。</p>
+<p>官方曾经给出过一组测试数据，50个并发执行100000个请求: 读的速度是110000次&#x2F;s,写的速度是 81000次&#x2F;s</p>
+<p>2.2 Redis安装和使用<br>下载</p>
+<p>Reids官网地址:<a target="_blank" rel="noopener" href="http://redis.io/">http://redis.io</a></p>
+<p>中文网地址:<a target="_blank" rel="noopener" href="https://www.redis.net.cn/">https://www.redis.net.cn/</a></p>
+<p>docker</p>
+<p>docker pull redis</p>
+<p>Linux</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>$ wget <a target="_blank" rel="noopener" href="http://download.redis.io/releases/redis-6.0.3.tar.gz">http://download.redis.io/releases/redis-6.0.3.tar.gz</a><br>$ tar xzf redis-6.0.3.tar.gz<br>$ cd redis-6.0.3<br>$ make</p>
+<p>$ src&#x2F;redis-server</p>
+<p>$ src&#x2F;redis-cli<br>redis&gt; set foo bar<br>OK<br>redis&gt; get foo<br>“bar”<br>目录</p>
+<p>redis.conf:配置文件</p>
+<p>2.3 Redis客户端图形化工具<br>Redis Client 、Redis Desktop Manager 、Redis Studio.</p>
+<p>2.4 Redis数据结构<br>Redis采用的键值对存储数据，键(key)的类型只能为字符串，值(value)支持五种数据类型:</p>
+<p>K-V类型	key(字符串)	value(支持5种类型)<br>字符串：String	mystr	stringcode<br>哈希：HashMap	myhash	map集合(key:0),(value:100)<br>双向链表：LinkedList	mylist	左压栈—A-A–B–右压栈(有序且可重复)<br>无序集合：HashSet	myset	A|C|B|E|D (无序但不可重复)<br>有序集合：LinkedHashSet	myzset	A|B|C|D|E (有序但不可重复)<br>2.5 Redis命令操作<br>Redis命令是用来操作Redis数据库的, 就相当于操作MySql数据库时的SQL语句。</p>
+<p>Redis的命令根据要操作的值(value)的数据结构的不同而不同, 每种数据类型都有自己的操作命令</p>
+<p>2.5.1 String字符串<br>字符串类型是Redis中最为基础的数据存储类型。</p>
+<p>在Redis中字符串类型的Value最多可以容纳的数据长度是512MB。</p>
+<p>用法<br>新增	set key value [EX seconds | PX milliseconds] [NX | XX] [KEEPTTL]<br>查询	get key<br>删除	del key [key …]<br>新增并指定存活时间	setex key seconds value<br>ttl key 查看存活时间<br>主键自增器	incr key (value默认加1)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>127.0.0.1:6379&gt; set mystr stringcode<br>OK<br>127.0.0.1:6379&gt; get mystr<br>“stringcode”<br>127.0.0.1:6379&gt; set mystr new_stringcode<br>OK<br>127.0.0.1:6379&gt; get mystr<br>“new_stringcode”<br>127.0.0.1:6379&gt; setex testcount 10 test10seconds<br>OK<br>127.0.0.1:6379&gt; ttl testcount<br>(integer) 5<br>127.0.0.1:6379&gt; get testcount<br>“test10seconds”<br>127.0.0.1:6379&gt; ttl testcount<br>(integer) -2<br>127.0.0.1:6379&gt; get testcount<br>(nil)<br>127.0.0.1:6379&gt;<br>2.5.2 Hash哈希<br>Hash类型极其类似于java中的Map,值里面可以存放一组组的键值对</p>
+<p>该类型非常适合于存储java中对象的信息</p>
+<p>用法<br>新增	hset key field value [field value …]<br>查询	hget key field<br>hgetall key<br>删除	hdel key field [field …]<br>del key [key …]<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>127.0.0.1:6379&gt; hset user_1 name Jack<br>(integer) 1<br>127.0.0.1:6379&gt; hset user_1 age 18<br>(integer) 1<br>127.0.0.1:6379&gt; hget user_1 name<br>“Jack”<br>127.0.0.1:6379&gt; hgetall user_1</p>
+<ol>
+<li>“name”</li>
+<li>“Jack”</li>
+<li>“age”</li>
+<li>“18”<br>127.0.0.1:6379&gt; hdel user_1 age<br>(integer) 1<br>127.0.0.1:6379&gt; hgetall user_1</li>
+<li>“name”</li>
+<li>“Jack”<br>127.0.0.1:6379&gt; del user_1<br>(integer) 1<br>127.0.0.1:6379&gt; keys *</li>
+<li>“mystr”<br>127.0.0.1:6379&gt;<br>2.5.3 List列表<br>List类型底层是一个双向字符串链表。里面的元素是有序的，可重复的</li>
+</ol>
+<p>我们可以从链表的任何一端进行元素的增删</p>
+<h1 id="redis的list是一个双向列表"><a href="#redis的list是一个双向列表" class="headerlink" title="redis的list是一个双向列表"></a>redis的list是一个双向列表</h1><p>b	<br>a<br>c<br>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>用法	<br>新增	lpush key element [element …]	将元素压入左侧顶端<br>rpush key element [element …]	将元素压入右侧顶端<br>查询	lrange key start stop	从左向右查询<br>0 -1 查看所有<br>删除	lpop key	将左侧顶端元素弹出<br>rpop key	将右侧顶端元素弹出<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>127.0.0.1:6379&gt; lpush mylist a<br>(integer) 1<br>127.0.0.1:6379&gt; lpush mylist b<br>(integer) 2<br>127.0.0.1:6379&gt; lpush mylist c<br>(integer) 3<br>127.0.0.1:6379&gt; lrange mylist 0 -1</p>
+<ol>
+<li>“c”</li>
+<li>“b”</li>
+<li>“a”<br>127.0.0.1:6379&gt; rpush mylist a<br>(integer) 4<br>127.0.0.1:6379&gt; lrange mylist 0 -1</li>
+<li>“c”</li>
+<li>“b”</li>
+<li>“a”</li>
+<li>“a”<br>127.0.0.1:6379&gt; lpop mylist<br>“c”<br>127.0.0.1:6379&gt; rpop mylist<br>“a”<br>127.0.0.1:6379&gt; lrange mylist 0 -1</li>
+<li>“b”</li>
+<li>“a”<br>127.0.0.1:6379&gt;<br>2.5.4 Set集合（无序）<br>Set类型底层是一张hash表。里面的元素是无序的，不可重复的</li>
+</ol>
+<p>用法	<br>新增	sadd key member [member …]	新增指定key元素<br>查询	smembers key	查询指定key元素<br>删除	srem key member [member …]	删除指定元素<br>del key [key …]	删除整个set集合<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>127.0.0.1:6379&gt; sadd myset a<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset b<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset c<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset f<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset e<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset d<br>(integer) 1<br>127.0.0.1:6379&gt; sadd myset a<br>(integer) 0<br>127.0.0.1:6379&gt; smembers myset</p>
+<ol>
+<li>“c”</li>
+<li>“f”</li>
+<li>“b”</li>
+<li>“e”</li>
+<li>“a”</li>
+<li>“d”<br>127.0.0.1:6379&gt; srem myset a<br>(integer) 1<br>127.0.0.1:6379&gt; smembers myset</li>
+<li>“c”</li>
+<li>“f”</li>
+<li>“b”</li>
+<li>“e”</li>
+<li>“d”<br>127.0.0.1:6379&gt; del myset<br>(integer) 1<br>127.0.0.1:6379&gt; smembers myset<br>(empty array)<br>127.0.0.1:6379&gt;<br>2.5.5 ZSet集合（有序）<br>Zset,也称sortedSet, 在Set的基础上，加入了有序功能，在添加元素的时候，允许指定一个分数，它会 按照这个分数排序</li>
+</ol>
+<p>用法	<br>新增	zadd key [NX | XX] [CH] [INCR] score member [score member …]	新增指定key元素<br>查询	zrange key start stop [WITHSCORES]	升序<br>zrevrange key start stop [WITHSCORES]	降序<br>删除	zrem key member [member …]	删除指定元素<br>del key [key …]	删除整个zset集合<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>127.0.0.1:6379&gt; zadd myzset 10 aaaaa<br>(integer) 1<br>127.0.0.1:6379&gt; zadd myzset 30 bbbbb<br>(integer) 1<br>127.0.0.1:6379&gt; zadd myzset 20 ccccc<br>(integer) 1<br>127.0.0.1:6379&gt; zrange myzset 0 100</p>
+<ol>
+<li>“aaaaa”</li>
+<li>“ccccc”</li>
+<li>“bbbbb”<br>127.0.0.1:6379&gt; zrange myzset 0 100 withscores</li>
+<li>“aaaaa”</li>
+<li>“10”</li>
+<li>“ccccc”</li>
+<li>“20”</li>
+<li>“bbbbb”</li>
+<li>“30”<br>127.0.0.1:6379&gt; zrevrange myzset 0 100</li>
+<li>“bbbbb”</li>
+<li>“ccccc”</li>
+<li>“aaaaa”<br>127.0.0.1:6379&gt; zrevrange myzset 0 100 withscores</li>
+<li>“bbbbb”</li>
+<li>“30”</li>
+<li>“ccccc”</li>
+<li>“20”</li>
+<li>“aaaaa”</li>
+<li>“10”<br>127.0.0.1:6379&gt; zrem myzset aaaaa<br>(integer) 1<br>127.0.0.1:6379&gt; zrevrange myzset 0 100</li>
+<li>“bbbbb”</li>
+<li>“ccccc”<br>127.0.0.1:6379&gt; del myzset<br>(integer) 1<br>127.0.0.1:6379&gt; zrevrange myzset 0 100<br>(empty array)<br>127.0.0.1:6379&gt;<br>2.5.6 通用命令<br>命令<br>模糊查询键	keys *<br>删除多个键	del key [key …]<br>根据键判断记录是否存在	exists key[key …]<br>根据键判断值类型	type key<br>选择数据库	select index (0~15)<br>清空当前数据库	flushdb [ASYNC]<br>清空所有数据库	flushall [ASYNC]<br>2.6 Redis持久化<br>Redis的数据都是存在在内存之中的，那么这样一旦出现宕机，势必会导致数据的丢失，这就需要持久化操作，也就是要将redis在内存中的数据写到硬盘上保存。</li>
+</ol>
+<p>注意，redis虽然有持久化操作，但是其全部数据依旧都在内存中存在,也就是说硬盘上的只是为了安全和备份。</p>
+<p>Redis提供了两种数据持久化的方式，分别是 RDB 和 AOF</p>
+<p>RDB:默认开启</p>
+<p>在redis运行期间，根据指定时间节点对内存的数据进行快照拍摄，持久化到磁盘文件(dump.rdb文件) 指定时间规则拍摄快照</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>cat redis.conf | tail -n +265 | head -n 25    </p>
+<p>################################ SNAPSHOTTING  ################################<br>#</p>
+<h1 id="Save-the-DB-on-disk"><a href="#Save-the-DB-on-disk" class="headerlink" title="Save the DB on disk:"></a>Save the DB on disk:</h1><h1 id><a href="#" class="headerlink" title></a></h1><h1 id="save"><a href="#save" class="headerlink" title="save  "></a>save <seconds> <changes></changes></seconds></h1><h1 id="-1"><a href="#-1" class="headerlink" title></a></h1><h1 id="Will-save-the-DB-if-both-the-given-number-of-seconds-and-the-given"><a href="#Will-save-the-DB-if-both-the-given-number-of-seconds-and-the-given" class="headerlink" title="Will save the DB if both the given number of seconds and the given"></a>Will save the DB if both the given number of seconds and the given</h1><h1 id="number-of-write-operations-against-the-DB-occurred"><a href="#number-of-write-operations-against-the-DB-occurred" class="headerlink" title="number of write operations against the DB occurred."></a>number of write operations against the DB occurred.</h1><h1 id="-2"><a href="#-2" class="headerlink" title></a></h1><h1 id="In-the-example-below-the-behaviour-will-be-to-save"><a href="#In-the-example-below-the-behaviour-will-be-to-save" class="headerlink" title="In the example below the behaviour will be to save:"></a>In the example below the behaviour will be to save:</h1><h1 id="after-900-sec-15-min-if-at-least-1-key-changed"><a href="#after-900-sec-15-min-if-at-least-1-key-changed" class="headerlink" title="after 900 sec (15 min) if at least 1 key changed"></a>after 900 sec (15 min) if at least 1 key changed</h1><h1 id="after-300-sec-5-min-if-at-least-10-keys-changed"><a href="#after-300-sec-5-min-if-at-least-10-keys-changed" class="headerlink" title="after 300 sec (5 min) if at least 10 keys changed"></a>after 300 sec (5 min) if at least 10 keys changed</h1><h1 id="after-60-sec-if-at-least-10000-keys-changed"><a href="#after-60-sec-if-at-least-10000-keys-changed" class="headerlink" title="after 60 sec if at least 10000 keys changed"></a>after 60 sec if at least 10000 keys changed</h1><h1 id="-3"><a href="#-3" class="headerlink" title></a></h1><h1 id="Note-you-can-disable-saving-completely-by-commenting-out-all-“save”-lines"><a href="#Note-you-can-disable-saving-completely-by-commenting-out-all-“save”-lines" class="headerlink" title="Note: you can disable saving completely by commenting out all “save” lines."></a>Note: you can disable saving completely by commenting out all “save” lines.</h1><h1 id="-4"><a href="#-4" class="headerlink" title></a></h1><h1 id="It-is-also-possible-to-remove-all-the-previously-configured-save"><a href="#It-is-also-possible-to-remove-all-the-previously-configured-save" class="headerlink" title="It is also possible to remove all the previously configured save"></a>It is also possible to remove all the previously configured save</h1><h1 id="points-by-adding-a-save-directive-with-a-single-empty-string-argument"><a href="#points-by-adding-a-save-directive-with-a-single-empty-string-argument" class="headerlink" title="points by adding a save directive with a single empty string argument"></a>points by adding a save directive with a single empty string argument</h1><h1 id="like-in-the-following-example"><a href="#like-in-the-following-example" class="headerlink" title="like in the following example:"></a>like in the following example:</h1><h1 id="-5"><a href="#-5" class="headerlink" title></a></h1><h1 id="save-“”"><a href="#save-“”" class="headerlink" title="save “”"></a>save “”</h1><p>#1个key修改，15min后拍摄一次快照<br>save 900 1<br>#10个key修改，5min后拍摄一次快照<br>save 300 10<br>#10000个key修改，1min后拍摄一次快照<br>save 60 10000<br>AOF:默认关闭，需要手动开启</p>
+<p>在redis运行期间，以日志记录的方式监听set操作，持久化到磁盘文件(appendonly.aof)</p>
+<p>开启AOF:修改 redis.conf配置</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>cat redis.conf | tail -n +1018 | head -n 53          </p>
+<p>############################## APPEND ONLY MODE ###############################</p>
+<p>……</p>
+<h1 id="Please-check-http-redis-io-topics-persistence-for-more-information"><a href="#Please-check-http-redis-io-topics-persistence-for-more-information" class="headerlink" title="Please check http://redis.io/topics/persistence for more information."></a>Please check <a target="_blank" rel="noopener" href="http://redis.io/topics/persistence">http://redis.io/topics/persistence</a> for more information.</h1><p>#若开启设置为yes<br>appendonly no</p>
+<h1 id="The-name-of-the-append-only-file-default-“appendonly-aof”"><a href="#The-name-of-the-append-only-file-default-“appendonly-aof”" class="headerlink" title="The name of the append only file (default: “appendonly.aof”)"></a>The name of the append only file (default: “appendonly.aof”)</h1><p>appendfilename “appendonly.aof”</p>
+<h1 id="The-fsync-call-tells-the-Operating-System-to-actually-write-data-on-disk"><a href="#The-fsync-call-tells-the-Operating-System-to-actually-write-data-on-disk" class="headerlink" title="The fsync() call tells the Operating System to actually write data on disk"></a>The fsync() call tells the Operating System to actually write data on disk</h1><h1 id="instead-of-waiting-for-more-data-in-the-output-buffer-Some-OS-will-really-flush"><a href="#instead-of-waiting-for-more-data-in-the-output-buffer-Some-OS-will-really-flush" class="headerlink" title="instead of waiting for more data in the output buffer. Some OS will really flush"></a>instead of waiting for more data in the output buffer. Some OS will really flush</h1><h1 id="data-on-disk-some-other-OS-will-just-try-to-do-it-ASAP"><a href="#data-on-disk-some-other-OS-will-just-try-to-do-it-ASAP" class="headerlink" title="data on disk, some other OS will just try to do it ASAP."></a>data on disk, some other OS will just try to do it ASAP.</h1><h1 id="-6"><a href="#-6" class="headerlink" title></a></h1><p>……</p>
+<p>#日志持久化机制</p>
+<p>#每次执行set操作时都会持久化一次</p>
+<h1 id="appendfsync-always"><a href="#appendfsync-always" class="headerlink" title="appendfsync always"></a>appendfsync always</h1><p>#每秒持久化一次<br>appendfsync everysec</p>
+<p>#根据服务器，cpu处于idle情况，持久化一次</p>
+<h1 id="appendfsync-no"><a href="#appendfsync-no" class="headerlink" title="appendfsync no"></a>appendfsync no</h1><p>2.6.1 知识小结<br>这二种持久化机制可以共存</p>
+<p>RDB:把redis作为缓存来用	AOF:把redis作为独立数据库<br>优点	性能高	几乎不会丢失数据<br>缺点	可能会丢失部分数据	性能较差<br>2.7 应用场景<br>2.7.1 缓存<br>将一些经常访问但又不会经常修改的数据，进行缓存，提高查询效率</p>
+<p>2.7.2 秒杀<br>浏览器	➡秒杀	redis服务器	➡同步	MySQL<br>商品		扣库存		同步数据<br>生成订单		<br>支付发货		<br>2.7.3 微博热搜<br>微博app	➡	redis<br>微博热搜		ZSet评分有序集合<br>2.7.4 分布式session<br>User	➡	Tomcat服务器	➡	redis<br>第一次访问	Server_1	设置	<br>User				User<br>第二次访问	Server_2	查询	<br>2.7.5 验证码存储<br>网站	➡	redis<br>发送短信		手机号:6位随机验证码<br>精准控制session只有5min<br>三.Jedis<br>3.1 Jedis使用<br>Redis作为一款优秀的缓存服务器存在，大多数语言都提供了连接Redis的驱动包，在java中，比较出名</p>
+<p>的是Jedis和Redisson，我们今天以Jedis为例学习，看看如何是用程序操作redis。</p>
+<p>常用API</p>
+<p>方法	解释<br>new Jedis(host, port)	创建jedis对象，参数host是redis服务器地址，参数port是redis服务端口<br>set(key,value)	设置字符串类型的数据<br>get(key)	获得字符串类型的数据<br>hset(key,field,value)	设置哈希类型的数据<br>hget(key,field)	获得哈希类型的数据<br>lpush(key,values)	设置列表类型的数据<br>lpop(key)	列表左面弹栈<br>rpop(key)	列表右面弹栈<br>del(key)	删除指定的key<br>快速入门</p>
+<p>导入相关坐标</p>
+<p>1<br>2<br>3<br>4<br>5<br>6</p>
+<!--jedis-->
+<dependency>
+  <groupId>redis.clients</groupId>
+  <artifactId>jedis</artifactId>
+  <version>2.9.0</version>
+</dependency>
+编写代码
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>public class JedisTest {</p>
+<p>  &#x2F;&#x2F; 快速入门之，向redis设置string类型的数据<br>  @Test<br>  public void testSet() throws Exception{<br>    &#x2F;&#x2F; 1.创建连接对象<br>    &#x2F;&#x2F; 默认连接 127.0.0.1 主机 和 6379 端口<br>    Jedis jedis &#x3D; new Jedis();<br>    &#x2F;&#x2F; 2.调用set方法设置数据<br>    jedis.set(“Java”, “Hello,World”);<br>    &#x2F;&#x2F; 3.释放资源<br>    jedis.close();<br>  }</p>
+<p>  &#x2F;&#x2F; 快速入门之，查询string类型数据<br>  @Test<br>  public void testQuery() throws Exception{<br>    &#x2F;&#x2F; 1.创建连接对象<br>    Jedis jedis &#x3D; new Jedis();<br>    &#x2F;&#x2F; 2.调用get方法获取<br>    String java &#x3D; jedis.get(“Java”);<br>    System.out.println(java);<br>    &#x2F;&#x2F; 3.释放资源<br>    jedis.close();<br>  }<br>}<br>3.2 Jedis连接池<br>jedis连接资源的创建与销毁是非常消耗性能的，所以我们不希望频繁的创建和销毁它.基于这样的需求,就有了JedisPool技术。</p>
+<p>快速入门</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>public class JedisPoolTest {<br>  &#x2F;&#x2F; 测试jedis内置的连接池<br>  @Test<br>  public void testJedisPool() throws Exception {</p>
+<pre><code>// 0.连接池配置对象
+JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+// 最大连接数
+jedisPoolConfig.setMaxTotal(100);
+// 最大等待时间，单位是毫秒
+jedisPoolConfig.setMaxWaitMillis(3000);
+// 最大空闲连接数
+jedisPoolConfig.setMaxIdle(10);
+
+// 1.创建连接池对象
+JedisPool jedisPool = new JedisPool();
+
+// 2.从池中获取连接
+Jedis jedis = jedisPool.getResource();
+
+// 3.操作api
+jedis.hset(&quot;myhash&quot;, &quot;id&quot;, &quot;1&quot;);
+
+// 4.归还到连接池
+jedis.close();
+</code></pre>
+<p>  }<br>}<br>抽取为连接池工具类</p>
+<p>1<br>2<br>3<br>4<br>jedis.host&#x3D;localhost<br>jedis.port&#x3D;6379<br>jedis.maxTotal&#x3D;20<br>jedis.maxIdle&#x3D;10<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>public class JedisUtils {</p>
+<p>  private static JedisPool jedisPool;</p>
+<p>  private static String host;<br>  private static Integer port;<br>  private static Integer maxTotal;<br>  private static Integer maxIdle;</p>
+<p>  &#x2F;&#x2F; 初始化连接池<br>  static {<br>    try {</p>
+<pre><code>  ResourceBundle jedis = ResourceBundle.getBundle(&quot;jedis&quot;);
+
+  // 读取配置文件给变量赋值
+  // 获取类加载读取 jedis.properties 获取io流
+  InputStream is = JedisUtils.class.getClassLoader().getResourceAsStream(&quot;jedis.properties&quot;);
+  // 创建properties对象 加载io流
+  Properties properties = new Properties();
+  properties.load(is);
+  // 给变量赋值
+  host = properties.getProperty(&quot;jedis.host&quot;);
+  port = Integer.parseInt(properties.getProperty(&quot;jedis.port&quot;));
+  maxTotal = Integer.parseInt(properties.getProperty(&quot;jedis.maxTotal&quot;));
+  maxIdle = Integer.parseInt(properties.getProperty(&quot;jedis.maxIdle&quot;));
+
+  // 创建连接池配置对象
+  JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+  jedisPoolConfig.setMaxTotal(maxTotal);
+  jedisPoolConfig.setMaxIdle(maxIdle);
+  // 创建连接池对象
+  jedisPool = new JedisPool(jedisPoolConfig, host, port);
+&#125; catch (IOException e) &#123;
+  e.printStackTrace();
+&#125;
+</code></pre>
+<p>  }</p>
+<p>  &#x2F;&#x2F; 提供获取jedis连接的方法<br>  public static Jedis getJedis() {<br>    return jedisPool.getResource();<br>  }<br>}<br>四.<br>4.1 缓存：导航条分类<br>4.1.1 需求分析<br>前端页面	➡	JavaServer	➡	SQL<br>首页 门票 周边游		CategroyService	➡	NoSQL<br>先查询缓存(redis)，有就直接返回		redis<br>没有，再查MySQL，先同步到redis再返回	➡	MySQL<br>List<Categroy> list;<br>将list转为json数组字符串返回		<br>4.1.2 代码实现<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>public class CategoryServiceImpl implements CategoryService {<br>  @Override<br>  public List<Category> findAll() {</Category></Categroy></p>
+<pre><code>//        SqlSession sqlSession = MyBatisUtils.openSession();
+//        CategoryDao categoryDao = sqlSession.getMapper(CategoryDao.class);
+//
+//        List&lt;Category&gt; categoryList = categoryDao.findAll();
+//
+//        MyBatisUtils.close(sqlSession);
+
+List&lt;Category&gt; categoryList = null;
+ObjectMapper objectMapper = new ObjectMapper();
+
+Jedis jedis = JedisUtils.getJedis();
+
+if (jedis.exists(&quot;travel_category&quot;)) &#123;
+  String json = jedis.get(&quot;travel_category&quot;);
+
+  try &#123;
+    categoryList = objectMapper.readValue(json, List.class);
+    System.out.println(&quot;Find In Redis&quot;);
+  &#125; catch (IOException e) &#123;
+    e.printStackTrace();
+  &#125;
+&#125; else &#123;
+  SqlSession sqlSession = MyBatisUtils.openSession();
+  CategoryDao categoryDao = sqlSession.getMapper(CategoryDao.class);
+
+  categoryList = categoryDao.findAll();
+
+  MyBatisUtils.close(sqlSession);
+
+  try &#123;
+    String json = objectMapper.writeValueAsString(categoryList);
+    jedis.set(&quot;travel_category&quot;, json);
+  &#125; catch (IOException e) &#123;
+    e.printStackTrace();
+  &#125;
+
+&#125;
+jedis.close();
+
+
+return categoryList;
+</code></pre>
+<p>  }<br>}<br>4.2 短信验证码存活时间5分钟<br>4.2.1 需求分析</p>
+<p>4.2.2 代码实现<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>protected void sendSms(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {<br>  &#x2F;&#x2F; 1.获取请求参数<br>  String telephone &#x3D; req.getParameter(“telephone”);<br>  &#x2F;&#x2F; 2.生成6位随机数(apache提供的)<br>  String smsCode &#x3D; RandomStringUtils.randomNumeric(6);<br>  &#x2F;&#x2F; 3.调用service完成短信发送，返回resultInfo<br>  ResultInfo resultInfo &#x3D; userService.sendSms(telephone, smsCode);</p>
+<p>  &#x2F;&#x2F; 4.如果发送成功，将验证码写入到session中<br>  &#x2F;&#x2F;        if (resultInfo.getSuccess()) {<br>  &#x2F;&#x2F;            req.getSession().setAttribute(“smsCode_” + telephone, smsCode);<br>  &#x2F;&#x2F;            System.out.println(“smsCode: “ + smsCode);<br>  &#x2F;&#x2F;        }</p>
+<p>  &#x2F;&#x2F; 4.如果发送成功，将验证码写入到session中<br>  if (resultInfo.getSuccess()) {</p>
+<pre><code>// a.获取jedis连接
+Jedis jedis = JedisUtils.getJedis();
+
+// b.将验证码设置到jedis中，存活1分钟
+jedis.setex(&quot;smsCode_&quot; + telephone, 60, smsCode);
+
+// c.释放资源
+jedis.close();
+System.out.println(&quot;smsCode: &quot; + smsCode);
+</code></pre>
+<p>  }<br>  javaToJsonWriteClient(resultInfo, resp);</p>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>protected void register(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {</p>
+<p>  &#x2F;&#x2F; a.获取请求参数<br>  String telephone &#x3D; req.getParameter(“telephone”);<br>  String smsCode &#x3D; req.getParameter(“smsCode”);</p>
+<p>  &#x2F;&#x2F; b.获取session中验证码<br>  &#x2F;&#x2F;        String sessionCode &#x3D; (String) req.getSession().getAttribute(“smsCode_” + telephone);</p>
+<p>  Jedis jedis &#x3D; JedisUtils.getJedis();<br>  String sessionCode &#x3D; jedis.get(“smsCode_” + telephone);</p>
+<p>  &#x2F;&#x2F; c.进行校验<br>  if (sessionCode &#x3D;&#x3D; null || (!sessionCode.equals(smsCode))) {</p>
+<pre><code>// 验证码不正确
+req.setAttribute(&quot;resultInfo&quot;, new ResultInfo(false, &quot;SMS Code not correct&quot;));
+req.getRequestDispatcher(&quot;/register.jsp&quot;).forward(req, resp);
+return;
+</code></pre>
+<p>  }</p>
+<p>  &#x2F;&#x2F;获取请求参数<br>  Map&lt;String, String[]&gt; parameterMap &#x3D; req.getParameterMap();</p>
+<p>  &#x2F;&#x2F;封装User中<br>  User param &#x3D; new User();</p>
+<p>  try {<br>    BeanUtils.populate(param, parameterMap);<br>  } catch (Exception e) {<br>    throw new RuntimeException(“Entity class encapsulation failed”);<br>  }</p>
+<p>  &#x2F;&#x2F;调用service，实现注册<br>  ResultInfo resultInfo &#x3D; userService.register(param);</p>
+<p>  if (resultInfo.getSuccess()) {<br>    resp.sendRedirect(req.getContextPath() + “&#x2F;register_ok.jsp”);<br>    &#x2F;&#x2F;            req.getSession().removeAttribute(“smsCode_” + telephone);<br>    &#x2F;&#x2F; d.升级为，清除redis<br>    jedis.del(“smsCode” + telephone);<br>  } else {<br>    req.setAttribute(“resultInfo”, resultInfo);<br>    req.getRequestDispatcher(“&#x2F;register.jsp”).forward(req, resp);<br>  }<br>  jedis.close();<br>}</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>protected void telLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>  &#x2F;&#x2F; 1.接收请求参数telephone<br>  String telephone &#x3D; req.getParameter(“telephone”);</p>
+<p>  &#x2F;&#x2F; 2.调用service查询<br>  User currentUser &#x3D; userService.findByTelephone(telephone);</p>
+<p>  &#x2F;&#x2F; 3.校验手机号<br>  ResultInfo resultInfo &#x3D; null;</p>
+<p>  &#x2F;&#x2F; 4.3 校验<br>  if (currentUser &#x3D;&#x3D; null) {<br>    resultInfo &#x3D; new ResultInfo(false, “Phone Number not Registered”);<br>  } else {<br>    &#x2F;&#x2F;成功<br>    String smsCode &#x3D; req.getParameter(“smsCode”);</p>
+<pre><code>//            String sessionCode = (String) req.getSession().getAttribute(&quot;smsCode_&quot; + telephone);
+
+// 升级为从redis中获取
+Jedis jedis = JedisUtils.getJedis();
+String sessionCode = jedis.get(&quot;smsCode_&quot; + telephone);
+
+if (sessionCode == null || (!sessionCode.equals(smsCode))) &#123;
+  resultInfo = new ResultInfo(false, &quot;Wrong SMS Code&quot;);
+&#125; else &#123;
+  req.getSession().setAttribute(&quot;currentUser&quot;, currentUser);
+  // 清除session中验证码
+  resultInfo = new ResultInfo(true, &quot;Login Success&quot;);
+
+  //req.getSession().removeAttribute(&quot;smsCode_&quot; + telephone);
+  // 清除redis中验证码
+  jedis.del(&quot;smsCode_&quot; + telephone);
+&#125;
+// 释放资源
+jedis.close();
+</code></pre>
+<p>  }<br>  &#x2F;&#x2F;将resultInfo转为Json响应到客户端<br>  javaToJsonWriteClient(resultInfo, resp);<br>}<br>总结</p>
+<h2 id="一-NoSQL"><a href="#一-NoSQL" class="headerlink" title="一 NoSQL"></a>一 NoSQL</h2><h3 id="非关系型数据库，not-only-sql，弥补关系型数据库一些不足"><a href="#非关系型数据库，not-only-sql，弥补关系型数据库一些不足" class="headerlink" title="非关系型数据库，not only sql，弥补关系型数据库一些不足"></a>非关系型数据库，not only sql，弥补关系型数据库一些不足</h3><h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li>关系性</li>
+</ul>
+<p>​ - 1）数据之间存在关联关系</p>
+<p>​ - 2）数据存储在硬盘</p>
+<ul>
+<li>非关系型</li>
+</ul>
+<p>​ - 1）数据之间不存在关联关系</p>
+<p>​ - 2）数据存储在内存</p>
+<h3 id="解决：互联和行业特点"><a href="#解决：互联和行业特点" class="headerlink" title="解决：互联和行业特点"></a>解决：互联和行业特点</h3><ul>
+<li><p>高并发</p>
+</li>
+<li><p>高性能</p>
+</li>
+<li><p>高可用</p>
+</li>
+<li><p>海量数据</p>
+</li>
+</ul>
+<h3 id="nosql分类"><a href="#nosql分类" class="headerlink" title="nosql分类"></a>nosql分类</h3><ul>
+<li>键值对</li>
+</ul>
+<p>​ - redis</p>
+<ul>
+<li>文档类型（json）</li>
+</ul>
+<p>​ - mongoDB</p>
+<ul>
+<li>列存储</li>
+</ul>
+<p>​ - hbase</p>
+<ul>
+<li>图形（关系结构）</li>
+</ul>
+<h2 id="二-Redis"><a href="#二-Redis" class="headerlink" title="二 Redis"></a>二 Redis</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>C语言编写高性能键值对数据库</li>
+</ul>
+<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><ul>
+<li><p>string</p>
+</li>
+<li><p>hash</p>
+</li>
+<li><p>linkedList</p>
+</li>
+<li><p>hashset</p>
+</li>
+<li><p>linkedHashSet</p>
+</li>
+</ul>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><ul>
+<li>字符串</li>
+</ul>
+<p>​ - set key value</p>
+<p>​ - get key</p>
+<p>​ - del key</p>
+<p>​ - setex key 存活时间 value</p>
+<p>​ - incr key</p>
+<p>​ - value+1</p>
+<ul>
+<li>哈希</li>
+</ul>
+<p>​ - hset key hkey hvalue</p>
+<p>​ - hget key hkey</p>
+<p>​ - hgetall key</p>
+<p>​ - hrem key hkey</p>
+<p>​ - del key</p>
+<ul>
+<li>列表</li>
+</ul>
+<p>​ - lpush key value</p>
+<p>​ - rpush key value</p>
+<p>​ - lrange key 0 -1</p>
+<p>​ - lpop key</p>
+<p>​ - rpop key</p>
+<p>​ - del key</p>
+<ul>
+<li>集合</li>
+</ul>
+<p>​ - sadd key value</p>
+<p>​ - smembers key</p>
+<p>​ - srem key value</p>
+<ul>
+<li>有序集合</li>
+</ul>
+<p>​ - zadd key score value</p>
+<p>​ - zrange key 0 -1 withscores</p>
+<p>​ - zrevrange key 0 -1 withscores</p>
+<p>​ - zrem key value</p>
+<ul>
+<li>通用命令</li>
+</ul>
+<p>​ - keys *</p>
+<p>​ - del key1 key2 key3</p>
+<p>​ - exists key</p>
+<p>​ - type key</p>
+<p>​ - select 0~15</p>
+<p>​ - flushdb</p>
+<p>​ - flushal</p>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><ul>
+<li>RDB</li>
+</ul>
+<p>​ - 默认开启，在指定间隔时间将内存的数据拍摄快照，持久化到磁盘</p>
+<p>​ - 1）优点：性能高</p>
+<p>​ - 2）缺点：丢失数据</p>
+<ul>
+<li>AOF</li>
+</ul>
+<p>​ - 手动开启，根据日志记录方式监听redis的写（set）操作，持久化到磁盘</p>
+<p>​ - 1）优点：保证数据的安全</p>
+<p>​ - 2）缺点：性能稍差</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
+<li><p>1）缓存</p>
+</li>
+<li><p>2）秒杀</p>
+</li>
+<li><p>3）微博热搜</p>
+</li>
+<li><p>4）验证码存储</p>
+</li>
+<li><p>5）分布式session</p>
+</li>
+</ul>
+<h2 id="三-Jedis"><a href="#三-Jedis" class="headerlink" title="三 Jedis"></a>三 Jedis</h2><h3 id="通过java语言操作redis，api与redis命令相似"><a href="#通过java语言操作redis，api与redis命令相似" class="headerlink" title="通过java语言操作redis，api与redis命令相似"></a>通过java语言操作redis，api与redis命令相似</h3><h3 id="快速入门"><a href="#快速入门" class="headerlink" title="快速入门"></a>快速入门</h3><ul>
+<li><p>1）导入jar坐标</p>
+</li>
+<li><p>2）编写代码</p>
+</li>
+</ul>
+<p>​ - &#x2F;&#x2F;1.创建连接对象</p>
+<p>​ - &#x2F;&#x2F;2.操作api</p>
+<p>​ - &#x2F;&#x2F;3.关闭连接</p>
+<h3 id="Jedis连接池"><a href="#Jedis连接池" class="headerlink" title="Jedis连接池"></a>Jedis连接池</h3>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/14/Maven%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3866,186 +4340,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/27/MySQL%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/27/MySQL%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">MySQL基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-27 01:31:31" itemprop="dateCreated datePublished" datetime="2020-04-27T01:31:31+08:00">2020-04-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.数据库介绍<br>1.1 什么是数据库<br>存储数据的仓库,本质上就是存储数据的文件系统，方便我们管理数据。</p>
-<p>1.2 数据库管理系统<br>数据库管理系统(DataBase Management System，DBMS):指一种操作和管理数据库的大型软件。<br>数据库管理系统—&gt;MySQL软件–&gt;多个仓库—&gt;多张表—&gt;多条记录(数据)<br>1.3 实体(java类)和表关系<br>一个实体对应一张表<br>一个对象对应一条记录<br>对象和记录产生映射关系【ORM: Object Relational Mapping】<br>1.4 常见关系型数据库<br>MySQL,Oracle,DB2,MSSQL,SQLite</p>
-<p>二.MySQL的使用<br>2.1 配置<br>操作	本地登录	指定ip<br>登录	mysql -u用户名 -p密码	mysql -h主机地址 -u用户名 -p密码<br>退出	exit<br>quit	exit<br>quit<br>三.SQL<br>3.1 概述<br>3.1.1 什么是SQL?<br>结构化查询语言(Structured Query Language)<br>通过sql语句来操作数据，实现对记录的增删改查<br>【CRUD】:create 创建、retrieve(read) 检索、update 修改、delete 删除</p>
-<p>3.1.2 SQL方言<br>SQL是一套标准，所有的数据库厂商都实现了此标准;但是各自厂商在此标准上增加了特有的语句，这部分内容我们称为方言。</p>
-<p>3.1.3 SQL书写规范<br>sql语句可以单行或多行书写，最后以分号结尾<br>sql语句(在windows平台下)不区分大小写，建议关键字大写<br>1<br>SELECT * FROM student;<br>注释<br>1<br>2<br>3<br>4<br>5<br>单行<br>– 所有数据库厂商支持</p>
-<h1 id="仅mysql厂商支持-方言"><a href="#仅mysql厂商支持-方言" class="headerlink" title="仅mysql厂商支持(方言)"></a>仅mysql厂商支持(方言)</h1><p>多行<br>&#x2F;* 注释内容 *&#x2F;<br>3.1.4 SQL分类<br>类别	说明<br>DDL(Data Definition Language)数据定义语言	用来定义数据库对象:数据库，表，列等。关键字:create,drop,alter等<br>DML(Data Manipulation Language)数据操作语言	用来对数据库中表的数据进行增删改。关键字:insert,delete, update等<br>DQL(Data Query Language) 数据查询语言	用来查询数据库中表的记录(数据)。关键字:select, where等<br>DCL(Data Control Language)数据控制语言	用来定义数据库的访问权限和安全级别，及创建用户。关键字:grant,revoke等<br>TCL(Transaction Control Language) 事务控制语言	用于控制数据库的事务操作，关键字; commit,savepoint,rollback等<br>四.SQL基础操作<br>4.1 DDL<br>4.1.1 操作数据库<br>C:创建</p>
-<p>语法:	实例<br>直接创建数据库	create database 数据库名;	create database day18;<br>创建数据库并指定字符	create database 数据库 charset 字符集;	create database day18_1 charset gbk;<br>R:查询</p>
-<p>语法:	实例<br>查看所有数据库	show databases;	<br>查看建库语句	show create database 数据库名;	show create database day18_1;<br>U:修改</p>
-<p>语法:	实例<br>修改数据库字符集	alter database 数据库名 charset 新字符集;	alter database day18_1 charset utf8;<br>D:删除</p>
-<p>语法:	实例<br>直接删除数据库	drop database 数据库名;	drop database day18_1;<br>使用数据库</p>
-<p>语法:	实例<br>进入&#x2F;切换某一个具体的数据库	use 数据库名;	use day18;<br>查看当前所在哪个数据库中	select database();	<br>4.1.2 操作表<br>C:创建</p>
-<p>创建表<br>语法	create table 表名(<br>列名(字段名) 数据类型,<br>列名(字段名) 数据类型,<br>列名(字段名) 数据类型,<br>…);<br>实例	create table student(<br>id int,<br>name varchar(32),<br>birthday date<br>);<br>常用数据类型<br>类别	概述	说明<br>int	整型	<br>float	浮点型	<br>double	浮点型	<br>decimal	浮点型(保留精准度)	decimal(m,n) 指定范围<br>m 总长度<br>n 小数长度<br>varchar	字符型	varchar(n) 指定容纳多少个字符<br>1~65535 包含字母，符号，汉字<br>text	文本型	<br>date	日期类型	<br>datetime	日期时间类型	<br>克隆表:创建表表时，可以快速指定另一张表的结构<br>语法:	实例<br>克隆表	create table 新表 like 旧表;	create table teacher like student;<br>R:查询</p>
-<p>语法:	实例<br>查看所有表	show tables;	<br>查看建表语句	show create table 表名;	show create table teacher;<br>查看表结构	desc 表名;	desc teacher;<br>U:修改</p>
-<p>语法:	实例<br>添加一列	alter table 表名 add 列名 数据类型;	alter table teacher add jieshao varchar(50);<br>修改列类型	alter table 表名 modify 列名 新类型;	alter table teacher modify jieshao varchar(99);<br>修改列名和类型	alter table 表名 change 旧列名 新列名 新类型;	alter table teacher change jieshao intro varchar(999);<br>删除指定列	alter table 表名 drop 列名;	alter table teacher drop intro;<br>修改表字符集	alter table 表名 charset 字符集;	alter table teacher charset gbk;<br>修改表名	rename table 旧表名 to 新表名;	rename table teacher to tch;<br>D:删除</p>
-<p>语法:	实例<br>直接删除表	drop table 表名;	drop table tch;<br>4.2 DML<br>4.2.1 添加记录<br>添加记录<br>语法	insert into 表名(列名1,列名2…)values(值1,值2….);<br>insert into 表名 values(值1,值2….);<br>要求	与表结构顺序一致，个数相等<br>查看	desc 表名<br>注意:<br>列名和值的数据类型要对应 字符串类型可以使用单双引号，推荐单引号 字符串可以插入一切(任意)类型，MySQL底层实现了隐式转换 个别列名字段名如果跟关键字冲突了，我们可以使用反引号包裹起来<br>例如:name</p>
-<p>练习</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>insert into student(id,name)values(1,’jack’);<br>insert into student values(4,’杰克马’,null); </p>
-<p>insert into student(id,name,birthday)values(‘2’,’tom’,’1940-2-10’);<br>insert into student values(3,’刘强东’,’1973-1-1’);</p>
-<p>– 补充:同时添加多条记录<br>insert into student values(5,’王健林’,null),(6,’撒贝宁’,null);<br>蠕虫复制<br>作用:将一张表的记录，快速复制到另外一张表<br>应用场景:数据的迁移<br>需求:创建一张stu新表，表结构与student一致，实现数据的快速迁移 * 要求:二张表结构相同<br>步骤<br>克隆表</p>
-<p>create table stu  like student;<br>数据迁移</p>
-<p>insert into stu select * from student;<br>4.2.2 修改记录<br>修改记录<br>语法	update 表名 set 列名1&#x3D;新值1,列名2&#x3D;新值2…. [where条件]<br>解释	[] 里面的内容可以省略<br>实例	update stu set birthday&#x3D;’1960-1-1’;<br>update stu set birthday&#x3D;’2000-1-1’ where id &#x3D; 4;<br>4.2.3 删除记录<br>删除记录	摧毁表，重构表<br>语法	delete from 表名 [where条件]	runcate table 表名;<br>解释	[] 里面的内容可以省略	先把表删除，再创建一个相同结构的新表<br>实例	delete from stu;<br>delete from student where id &#x3D; 5;	truncate table student;<br>4.2.4 知识小结<br>新增:insert into 表名<br>修改:update 表名<br>删除:delete from 表名<br>4.3 DQL简单查询(检索)<br>导入数据<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>– 创建表<br>create table student1(<br>    id int,<br>    name varchar(20),<br>    chinese double,<br>    english double,<br>    math double<br>);<br>– 插入记录<br>insert into student1(id,name,chinese,english,math) values(1,’tom’,89,78,90);<br>insert into student1(id,name,chinese,english,math) values(2,’jack’,67,98,56);<br>insert into student1(id,name,chinese,english,math) values(3,’jerry’,87,78,77);<br>insert into student1(id,name,chinese,english,math) values(4,’lucy’,88,NULL,90);<br>insert into student1(id,name,chinese,english,math) values(5,’james’,82,84,77);<br>insert into student1(id,name,chinese,english,math) values(6,’jack’,55,85,45);<br>insert into student1(id,name,chinese,english,math) values(7,’tom’,89,65,30);<br>语法<br>查询结果进行运算，不会影响原表中的记录</p>
-<p>语法<br>格式	select * from 表名;<br>select 指定列名1,指定列名2…. from 表名;<br>去重关键字	select distinct 列名 from 表名;<br>注意:多个列去重，要求内容完全一致<br>null参与数学运算结果还是null	ifnull()函数<br>ifnull(列名,默认值)如果该列有值，直接返回，如果为null返回默认值<br>设置查询别名	select 列名 [as] 列别名 from 表名 [as] 表别名<br>练习<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>– 查询表中所有学生的信息<br>SELECT * FROM student1;<br>– 查询表中所有学生的姓名和对应的语文成绩<br>SELECT <code>name</code>,chinese FROM student1;<br>– 查询表中学生姓名(去重)<br>SELECT DISTINCT <code>name</code> FROM student1;<br>SELECT DISTINCT <code>name</code>,chinese FROM student1;<br>– 在所有学生数学分数上加10分特长分<br>SELECT <code>name</code>,math+10 FROM student1;<br>– 统计每个学生的总分<br>SELECT <code>name</code>, chinese+english+math FROM student1;<br>SELECT english FROM student1;<br>SELECT IFNULL(english,0) FROM student1;<br>– 解决null值的问题<br>SELECT <code>name</code>, chinese+IFNULL(english,0)+math FROM student1;<br>– 使用别名表示学生总分<br>SELECT <code>name</code> AS 姓名, (chinese+IFNULL(english,0)+math) AS 总分 FROM student1 AS stu1;<br>DQL条件查询<br>导入数据<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>– 创建表<br>CREATE TABLE student2 (<br>  id int,<br>  name varchar(20),<br>  age int,<br>  sex varchar(5),<br>  address varchar(100),<br>  math int,<br>  english int<br>);<br>– 插入记录<br>INSERT INTO student2(id,NAME,age,sex,address,math,english) VALUES<br>(1,’马云’,55,’男’,’杭州’,66,78),<br>(2,’马化腾’,45,’女’,’深圳’,98,87),<br>(3,’马景涛’,55,’男’,’香港’,56,77),<br>(4,’柳岩’,20,’女’,’湖南’,76,65),<br>(5,’柳青’,20,’男’,’湖南’,86,NULL),<br>(6,’刘德华’,57,’男’,’香港’,99,99),<br>(7,’马德’,22,’女’,’香港’,99,99),<br>(8,’德玛西亚’,18,’男’,’南京’,56,65);<br>语法</p>
-<p>语法<br>格式	select … from 表名 where 条件;<br>关系(比较)运算符	&gt; &lt; &gt;&#x3D; &lt;&#x3D; !&#x3D; &#x3D;<br>逻辑运算符	&amp;&amp; and(条件同时成功)<br>|| or(条件满足一个)<br>! not(条件取反)<br>in关键字(某一个列，查询多个值)	select … from 表名 where 列名 in(值1,值2,值3…..);<br>between关键字(范围查询)	select … from 表名 where 列名 between 较小的值 and 较大的值;<br>特点:包头包尾<br>null值处理	is null 函数<br>is not null 函数<br>like关键字(模糊匹配)	select … from 表名 where 列名 like ‘通配符字符串’;<br>_ 单个任意字符<br>% 多个任意字符<br>练习</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36</p>
-<h1 id="关系运算符"><a href="#关系运算符" class="headerlink" title="关系运算符"></a>关系运算符</h1><p>– 查询math分数大于80分的学生<br>SELECT * FROM student2 WHERE math &gt; 80;<br>– 查询english分数小于或等于80分的学生<br>SELECT * FROM student2 WHERE english &lt;&#x3D; 80;<br>– 查询age等于20岁的学生<br>SELECT * FROM student2 WHERE age &#x3D; 20;<br>– 查询age不等于20岁的学生<br>SELECT * FROM student2 WHERE age !&#x3D; 20;</p>
-<h1 id="逻辑运算符"><a href="#逻辑运算符" class="headerlink" title="逻辑运算符"></a>逻辑运算符</h1><p>– 查询age大于35且性别为男的学生(两个条件同时满足)<br>SELECT * FROM student2 WHERE age &gt; 35 AND sex &#x3D; ‘男’;<br>– 查询age大于35或性别为男的学生(两个条件其中一个满足)<br>SELECT * FROM student2 WHERE age &gt; 35 OR sex &#x3D; ‘男’;<br>– 查询id是1或3或5的学生<br>SELECT * FROM student2 WHERE id &#x3D; 1 OR id &#x3D;3 OR id &#x3D; 5;<br>– in关键字<br>– 再次查询id是1或3或5的学生<br>SELECT * FROM student2 WHERE id IN(1,3,5);<br>– 查询id不是1或3或5的学生<br>SELECT * FROM student2 WHERE id NOT IN(1,3,5);<br>– 查询english成绩大于等于77，且小于等于87的学生<br>SELECT * FROM student2 WHERE english &gt;&#x3D;77 AND english &lt;&#x3D;87;<br>SELECT * FROM student2 WHERE english BETWEEN 77 AND 87;<br>– 查询英语成绩为null的学生<br>SELECT * FROM student2 WHERE english &#x3D; NULL;<br>– null这哥们六亲不认…<br>SELECT * FROM student2 WHERE english IS NULL;<br>SELECT * FROM student2 WHERE english IS NOT NULL;</p>
-<h1 id="like模糊匹配"><a href="#like模糊匹配" class="headerlink" title="like模糊匹配"></a>like模糊匹配</h1><p>– 查询姓马的学生<br>SELECT * FROM student2 WHERE <code>name</code> LIKE ‘马%’;<br>– 查询姓名中包含’德’字的学生<br>SELECT * FROM student2 WHERE <code>name</code> LIKE ‘%德%’;<br>– 查询姓马，且姓名有三个字的学生<br>SELECT * FROM student2 WHERE  <code>name</code> LIKE ‘马__’;<br>总结<br>数据库介绍<br>概述<br>本质就是存储数据库的仓库，就是文件系统，方便管理数据</p>
-<p>DBMS（数据库管理系统）</p>
-<p>MySQL软件</p>
-<p>多个仓库</p>
-<p>多张表</p>
-<p>多条记录（数据）<br>实体和表关系</p>
-<p>一个实体对应张表<br>一个对象对应一条记录<br>常见关系型数据库</p>
-<p>MySQL<br>Oracle<br>数据库安装和使用<br>登录<br>直接登录本机</p>
-<p>mysql -u用户名 -p<br>远程指定ip</p>
-<p>mysql -h主机名 -u用户名 -p密码<br>退出<br>exit<br>quit<br>sql介绍<br>概述<br>结构化查询语言，通过sql语句可以实现对数据库的基础操作【CRUD】</p>
-<p>create 创建<br>retrieve 检索<br>update 更新<br>delete 删除<br>方言<br>sql是一套标准，所有的数据库厂商都实现了这套标准，但各自厂商在这套标准上增加自己的特有语句，这部分就称为方言</p>
-<p>例如：mysql注释 #<br>sql分类<br>DDL</p>
-<p>操作数据库和表</p>
-<p>create<br>alter<br>drop<br>DML</p>
-<p>操作记录的增删改</p>
-<p>insert<br>update<br>delete<br>DQL</p>
-<p>操作记录的查询</p>
-<p>select<br>DCL</p>
-<p>操作用户的权限<br>TCL</p>
-<p>操作数据的事务安全<br>总结<br>DDL<br>操作数据库</p>
-<p>create database 数据库名;<br>show databases;<br>drop database 数据库名;<br>use 数据库名;<br>操作表</p>
-<p>创建表</p>
-<p>create table 表名(</p>
-<p>列名 数据类型,</p>
-<p>列名 数据类型,</p>
-<p>…..</p>
-<p>  );</p>
-<ul>
-<li><p>常用数据类型</p>
-<ul>
-<li>int</li>
-<li>double</li>
-<li>decimal</li>
-<li>varchar(1~65535)</li>
-<li>date</li>
-<li>datetime</li>
-</ul>
-</li>
-<li><p>查看表</p>
-<ul>
-<li>show tables;</li>
-<li>desc 表名;</li>
-</ul>
-</li>
-<li><p>修改表</p>
-<ul>
-<li><p>alter table 表名</p>
-<ul>
-<li>add</li>
-<li>modify</li>
-<li>change</li>
-<li>drop</li>
-<li>charset</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>修改表名</p>
-<ul>
-<li>rename table 旧表名 to 新表名;</li>
-</ul>
-</li>
-<li><p>删除表</p>
-<ul>
-<li>drop table 表名;</li>
-</ul>
-</li>
-<li><p>摧毁表，重构表</p>
-<ul>
-<li>truncate table 表名;</li>
-</ul>
-</li>
-</ul>
-<p>DML<br>添加记录</p>
-<p>insert into 表名(列名1,列名2…) values(值1,值2…);</p>
-<p>字符串可以使用单双引，推荐单引号<br>字符串可以插入任意类型，底层进行了隐式转换<br>修改记录</p>
-<p>update 表名 set 列名1&#x3D;值1,列名2&#x3D;值2 [where 条件]<br>删除记录</p>
-<p>delete from 表名 [where 条件]<br>DQL<br>简单查询</p>
-<p>select … from 表名<br>去重关键字</p>
-<p>select distinct 列名 from 表名<br>ifnull()高级函数</p>
-<p>ifnull(列名,默认值) 如果该列有值直接返回，如果为null那么返回默认值<br>别名</p>
-<p>select 列名 [as] 列别名 from 表名 [as] 表别名<br>条件<br>select … from 表名 where 条件</p>
-<p>关系运算符</p>
-<p>逻辑运算符</p>
-<p>and<br>or<br>not<br>in关键字</p>
-<p>select … from 表名 where 列名 in(值1,值2..);<br>between关键字</p>
-<p>select … from 表名 where 列名 between 较小的值 and 较大的的值<br>is null关键字</p>
-<p>null 六亲不认</p>
-<p>is null 为空<br>is not null 不为空<br>like关键字</p>
-<p>_ 单个任意字符<br>% 多个任意字符</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -4115,7 +4409,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-count">195</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
