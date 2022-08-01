@@ -181,6 +181,165 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/" class="post-title-link" itemprop="url">MySQL-索引</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:09:03" itemprop="dateCreated datePublished" datetime="2022-06-30T23:09:03+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-02 01:54:41" itemprop="dateModified" datetime="2022-08-02T01:54:41+08:00">2022-08-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><p>概念：索引是为了加快数据查询的一种数据结构</p>
+<h2 id="MySQL存储结构"><a href="#MySQL存储结构" class="headerlink" title="MySQL存储结构"></a>MySQL存储结构</h2><blockquote>
+<p>表-&gt;段-&gt;区-&gt;页-&gt;行</p>
+<p>在数据库中,不论读哪一行数据,还是读多行数据,都是将这些行所在的页进行加载。也就是存储空间的基本单位就是页。</p>
+<p>一个页就是一颗B+树的节点,数据库I&#x2F;O操作的最小单位是页,与数据库相关的内容都会存储在页的结构里。</p>
+</blockquote>
+<p><img src="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/1629471915.png"></p>
+<h2 id="Mysql为什么使用B-树索引"><a href="#Mysql为什么使用B-树索引" class="headerlink" title="Mysql为什么使用B+树索引"></a>Mysql为什么使用B+树索引</h2><ul>
+<li>在一棵B+树中,每个节点都是一个页,每次新建节点的时候,就会新建一个页。</li>
+<li>B+数的同一层节点中,通过页的结构构成一个双向链表</li>
+<li>非叶子节点,包括了多个索引行,每个索引行里面存储了索引键和指向下一页面的指针</li>
+<li>叶子节点存储了关键字和行记录,在节点内部(也就是页结构的内部)记录的是一个单向链表</li>
+</ul>
+<p><img src="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/1629471928.png"></p>
+<h3 id="关键点：高度低、叶子节点是链表、查询稳定"><a href="#关键点：高度低、叶子节点是链表、查询稳定" class="headerlink" title="关键点：高度低、叶子节点是链表、查询稳定"></a>关键点：高度低、叶子节点是链表、查询稳定</h3><ul>
+<li><p>和二叉树比，比如平衡二叉树，B+树是多叉树（MySql默认是5叉），同样的数据，高度比二叉树低</p>
+</li>
+<li><p>和B树比，B+树采用双向链表串联所有的叶子节点，形成一个链表，这意味着当我们执行范围查询时，Mysql可以利用这个特性，沿着叶子节点前进,但是B树要通过中序遍历才能完成范围查询。而之所以Nosql数据库会使用B树索引，是因为他不需要像关系型数据库那样大量查询都是范围查询</p>
+</li>
+<li><p>B+树叶子节点存放数据，因此和B树比起来查询时间更稳定可预测</p>
+<p>非叶子节点:索引+指针、叶子节点:索引+数据【地址】</p>
+</li>
+<li><p>B+树查询数据的磁盘IO更少。B+树内存节点并没有指向具体的数据,因此其内部节点相比B树更小,通常B+树更矮更胖,高度小查询磁盘的IO更少</p>
+</li>
+</ul>
+<h3 id="其他结构问题："><a href="#其他结构问题：" class="headerlink" title="其他结构问题："></a>其他结构问题：</h3><ul>
+<li><p>二叉搜索树</p>
+<ul>
+<li>不平衡：左边的子节点比父节点小，右边的子节点比父节点大，查询效率低</li>
+</ul>
+</li>
+<li><p>平衡二叉树(AVL树)</p>
+<ul>
+<li>旋转耗时(左旋、右旋)</li>
+</ul>
+</li>
+<li><p>红黑树</p>
+<ul>
+<li><p>树太高</p>
+<p>在数据再内存中的情况，红黑树的表现是非常好的。但是对于数据在磁盘等辅助存储的设备情况中，红黑树并不适用,因为红黑树相对很高。当数据在磁盘中时,磁盘IO会成为性能瓶颈,设计的目标应该是降低IO次数,而树的高度越高,增删改查所需要的IO次数也会越多,会严重影响性能。</p>
+</li>
+</ul>
+</li>
+<li><p>跳表</p>
+<ul>
+<li><p>写入的效率</p>
+<blockquote>
+<p>跳表是独立插入，且根据随机函数确定层数，没有旋转和维持平衡的开销，因此跳表的写入性能会比B+树要好。</p>
+</blockquote>
+</li>
+<li><ul>
+<li>都是最底层存放数据，上层存索引。</li>
+<li>写入数据时，都有可能会更新索引层，甚至增大层高。</li>
+</ul>
+</li>
+<li><p>查询的效率</p>
+</li>
+<li><ul>
+<li>跳表是链表结构，并且通过二分查找的方式去查找数据，索引分散在不同的数据页中，查找数据磁盘IO次数多</li>
+</ul>
+</li>
+<li><p>结论</p>
+</li>
+<li><ul>
+<li>跳表写入效率比B+Tree高。而读取效率主要受限于磁盘IO的效率，因此Redis的有序集合Zset就是基于链表实现的，因为Redis 是纯内存数据库,压根就不需要操作磁盘，B+Tree的低层级、仅3次IO的优势就体现不出来了</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>BTree:多路平衡搜索树</p>
+<ul>
+<li>InnoDB页默认大小16K，存储数据会造成树矮胖，查询更多更慢</li>
+<li>B-Tree数据分散在每个节点，进行范围、顺序查找困难</li>
+</ul>
+</li>
+<li><p>Hash</p>
+<ul>
+<li><p>通过散列算法，不支持范围查询</p>
+</li>
+<li><p>哈希索引没有办法利用索引完成排序</p>
+</li>
+<li><p>不能进行多字段查询</p>
+</li>
+<li><p>在有大量重复键值的情况下,哈希索引的效率也是很低的(哈希碰撞问题)</p>
+</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -999,309 +1158,6 @@
             </div>
           <!--/noindex-->
         
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/28/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/28/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" class="post-title-link" itemprop="url">MySQL 分库分表</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-28 23:09:44" itemprop="dateCreated datePublished" datetime="2022-06-28T23:09:44+08:00">2022-06-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-02 01:47:35" itemprop="dateModified" datetime="2022-08-02T01:47:35+08:00">2022-08-02</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MySQL-分库分表"><a href="#MySQL-分库分表" class="headerlink" title="MySQL 分库分表"></a>MySQL 分库分表</h1><h2 id="什么是分库分表"><a href="#什么是分库分表" class="headerlink" title="什么是分库分表"></a>什么是分库分表</h2><p>分库分表其实很好理解，<strong>「顾名思义，即把存于一个库的数据分散到多个库中，把存于一个表的数据分散到多个表中」</strong>。但是需要明确一点，分库分表不是一件事，而是三件事，也就是<strong>「分库分表的三种方案」</strong>：</p>
-<ul>
-<li><strong>「只分库不分表」</strong></li>
-<li><strong>「只分表不分库」</strong></li>
-<li><strong>「既分库又分表」</strong></li>
-</ul>
-<h3 id="只分库不分表"><a href="#只分库不分表" class="headerlink" title="只分库不分表"></a>只分库不分表</h3><p><strong>「从单个数据库拆分成多个数据库的过程，将数据散落在多个数据库中，多个数据库同时提供服务」</strong>。</p>
-<h3 id="只分表不分库"><a href="#只分表不分库" class="headerlink" title="只分表不分库"></a>只分表不分库</h3><p><strong>「从单张表拆分成多张表的过程，将数据散落在多张表内」</strong>。</p>
-<h3 id="既分库又分表"><a href="#既分库又分表" class="headerlink" title="既分库又分表"></a>既分库又分表</h3><p><strong>「把存于一个数据库的单表数据分散到不同库的多个表中」</strong>。</p>
-<h2 id="分库分表解决什么问题"><a href="#分库分表解决什么问题" class="headerlink" title="分库分表解决什么问题"></a>分库分表解决什么问题</h2><h3 id="分库解决什么问题"><a href="#分库解决什么问题" class="headerlink" title="分库解决什么问题"></a>分库解决什么问题</h3><p>分库就是在我们系统的业务量增长到一定程度之后，<strong>「解决数据库本身的性能瓶颈问题」</strong>，所以<strong>「一般都是业务量增长，遇到以下两种情况时就会考虑分库」</strong>：</p>
-<ul>
-<li><p><strong>「数据库QPS过高，连接数不足」</strong></p>
-<p>数据库的连接是有上限的，在高并发下，大量请求访问数据库，可能会让数据库宕机，致使整个服务不可用，因此我们可以把<strong>「单个数据库拆分成多个数据库，分摊请求，缓解单个数据的读写压力，提高并发量」</strong>。</p>
-</li>
-<li><p><strong>「磁盘瓶颈」</strong></p>
-<p>数据量是随着业务量的增多而增多的，而单个数据库的磁盘存储量也是有限的，把<strong>「单个数据库拆分成多个数据库，缓解磁盘压力，降低磁盘使用率」</strong>。</p>
-</li>
-</ul>
-<h3 id="分表解决什么问题"><a href="#分表解决什么问题" class="headerlink" title="分表解决什么问题"></a>分表解决什么问题</h3><p>在之前的《单表最大2000W行数据》中，分析了单表的数据存储量，当单表存储的数据过多时，查询数据会非常慢，在高并发场景下，一个慢查询可能会导致整个数据库的宕机。所以<strong>「一般当单个表的数据量太大，可以考虑通过分表来提升查询效率」</strong>。</p>
-<blockquote>
-<p>一般推荐单表数据量在 上千万级别时就要考虑分表，因为千万级别可能会导致B+Tree高度变高。</p>
-<p>不清楚单表数据量存储量大小的，可以参考一下单表最大2000W行数据这篇文章。</p>
-</blockquote>
-<p><strong>「因此分表可以解决单个表数据被分散，查询是B+Tree（MySQL）的高度比较低，减少磁盘IO，提升效率」</strong>。</p>
-<h2 id="分库分表怎么做"><a href="#分库分表怎么做" class="headerlink" title="分库分表怎么做"></a>分库分表怎么做</h2><p><strong>「当我们使用分库分表时，都在物理空间的拆分，主要有两种拆分模式，都可以应用到分库或分表中」</strong>：</p>
-<ul>
-<li><p><strong>「垂直拆分」</strong></p>
-<p>垂直拆分又称为纵向拆分，应用时有<strong>「垂直分库和垂直分表」</strong>两种方式，<strong>「主要解决表过多或者是表字段过多问题」</strong>，一般谈到的垂直拆分主要指的是垂直分库。</p>
-</li>
-<li><ul>
-<li><strong>「垂直分库：是将不同的表分离到不同的库中」</strong>。</li>
-<li><strong>「垂直分表：修改表结构按照访问的差异将不同的列拆分到不同的表中。」</strong></li>
-</ul>
-</li>
-<li><p><strong>「水平拆分」</strong></p>
-<p>水平拆分又称为横向拆分，应用时有<strong>「水平分库和水平分表」</strong>两种方式，<strong>「解决表中记录过多，缓解单机单库的性能瓶颈和压力问题」</strong>。一般谈到的水平拆分主要指的是水平分库。</p>
-<p>水平拆分不再像垂直拆分那样将数据根据业务逻辑分类，而是<strong>「通过一定的策略将数据分散至多个库或表中，每个库或表仅包含数据的一部分行」</strong>。</p>
-</li>
-<li><ul>
-<li><strong>「水平分库：将数据切分到不同的数据库上，每个数据库都具有相同的表，只是数据行不一样」</strong>。</li>
-<li><strong>「水平分表：将一张表水平切分，不同的记录可以分开保存，拆分成几张结构相同的表。」</strong></li>
-</ul>
-</li>
-</ul>
-<h3 id="垂直分库"><a href="#垂直分库" class="headerlink" title="垂直分库"></a>垂直分库</h3><p><strong>「垂直分库本质是专库专用，指按照业务将表进行分类，分布到不同的数据库中，每个库可以放在不同的服务器上」</strong>。</p>
-<ul>
-<li><p><strong>「垂直分库优点」</strong></p>
-</li>
-<li><ul>
-<li>专库专用，业务层面解耦</li>
-<li>能够针对不同业务的数据进行分级管理、维护、监控、扩展</li>
-<li>在一定程度上提升了IO、数据库连接数、降低单机硬件资源的瓶颈</li>
-</ul>
-</li>
-<li><p><strong>「垂直分库缺点」</strong></p>
-</li>
-<li><ul>
-<li>事务一致性的问题</li>
-<li>多表连接查询困难</li>
-</ul>
-</li>
-</ul>
-<h3 id="垂直分表"><a href="#垂直分表" class="headerlink" title="垂直分表"></a>垂直分表</h3><p><strong>「当我们的一行数据过大时，数据页存储的数据行就会减少，也就是说跨数据页查询的概率就会增加」</strong>，因此垂直分表就是将一个表拆分到多个表，避免出现数据库跨页存储的问题，从而提升查效率。</p>
-<p><strong>「垂直分表本质是将一个表按照字段分成多表，每个表存储其中一部分字段」</strong>。</p>
-<ul>
-<li><p><strong>「垂直分表拆分原则」</strong></p>
-</li>
-<li><ul>
-<li>将热点字段和不常用的字段区分，放在不同的表中</li>
-<li>将text，blob等大字段拆分出来放在附表中</li>
-<li>将组合查询的列放在一张表中</li>
-</ul>
-</li>
-<li><p><strong>「垂直分表优点」</strong></p>
-</li>
-<li><ul>
-<li>减少锁竞争，查询不同字段数据互不影响</li>
-<li>可实现冷热分离的数据表设计</li>
-<li>可以使得行数据变小，一个数据页能存放更多的数据，最大限度利用数据页缓存，减少查询的 I&#x2F;O 次 数</li>
-</ul>
-</li>
-<li><p><strong>「垂直分表缺点」</strong></p>
-</li>
-<li><ul>
-<li>事务一致性的问题</li>
-<li>多表连接查询困难</li>
-<li>无法解决单表数据量过大</li>
-</ul>
-</li>
-</ul>
-<h3 id="水平分库"><a href="#水平分库" class="headerlink" title="水平分库"></a>水平分库</h3><p><strong>「水平分库的本质也是分表，是把同一个表的数据按一定规则拆到不同的数据库中，每个库可以放在不同的服务器上」</strong>。</p>
-<ul>
-<li><p><strong>「水平分库优点」</strong></p>
-</li>
-<li><ul>
-<li><strong>「解决单个库高并发的性能瓶颈」</strong></li>
-<li>切分的表的结构相同，应用层改造较少，只需要增加路由规则即可</li>
-<li>提高了系统的稳定性和负载能力。</li>
-</ul>
-</li>
-<li><p><strong>「水平分库缺点」</strong></p>
-</li>
-<li><ul>
-<li>分片事务的一致性难以解决</li>
-<li>数据扩容的难度和维护量极大</li>
-</ul>
-</li>
-</ul>
-<h3 id="水平分表"><a href="#水平分表" class="headerlink" title="水平分表"></a>水平分表</h3><p><strong>「水平分表的本质是数据分片，将不同的数据按照一定的规则（ hash取模&#x2F;range范围）将数据存储在不同的表中，以此减少单表的数据量，提高查询效率」</strong>。</p>
-<ul>
-<li><p><strong>「水平分表优点」</strong></p>
-</li>
-<li><ul>
-<li><strong>「解决单表数据量大，查询性能下降的问题」</strong></li>
-<li>可实现多表连接查询</li>
-</ul>
-</li>
-<li><p><strong>「水平分表缺点」</strong></p>
-</li>
-<li><ul>
-<li><strong>「引发排序、分页、函数计算等问题」</strong></li>
-<li>数据扩容的难度和维护量极大。</li>
-</ul>
-</li>
-</ul>
-<h2 id="解决了什么问题-x2F-引发什么问题"><a href="#解决了什么问题-x2F-引发什么问题" class="headerlink" title="解决了什么问题&#x2F;引发什么问题"></a>解决了什么问题&#x2F;引发什么问题</h2><h3 id="分库分表解决了什么问题"><a href="#分库分表解决了什么问题" class="headerlink" title="分库分表解决了什么问题"></a>分库分表解决了什么问题</h3><ul>
-<li><p><strong>「水平划分」</strong></p>
-</li>
-<li><ul>
-<li><strong>「解决了单库的高并发的性能瓶颈，提高了系统的稳定性和负载能力」</strong></li>
-<li><strong>「解决了单表的大数据量的查询效率低问题」</strong></li>
-<li>可以实现多表的join查询</li>
-</ul>
-</li>
-<li><p><strong>「垂直划分」</strong></p>
-</li>
-<li><ul>
-<li>专库专用，能够针对不同业务的数据进行分级管理、维护、监控、扩展</li>
-<li>在一定程度上提升了IO、数据库连接数、降低单机硬件资源的瓶颈</li>
-<li>减少锁竞争，查询不同字段数据互不影响</li>
-<li>可实现冷热分离的数据表设计</li>
-</ul>
-</li>
-</ul>
-<h3 id="分库分表引发什么问题"><a href="#分库分表引发什么问题" class="headerlink" title="分库分表引发什么问题"></a>分库分表引发什么问题</h3><p>分库分表之后，虽然能够解决数据库的性能问题，但是也带来了一系列的其他问题：</p>
-<ul>
-<li>事务问题</li>
-<li>跨库关联问题</li>
-<li>排序、分页、函数计算问题</li>
-<li>分布式ID问题</li>
-<li>多数据源问题</li>
-</ul>
-<h4 id="事务问题"><a href="#事务问题" class="headerlink" title="事务问题"></a>事务问题</h4><p>分库分表之后一个无法避免的问题就是问题问题，这也是一个非常频繁的面试问题：分布式事务</p>
-<p>针对此类问题常用解决方案有：</p>
-<ul>
-<li>两阶段提交（2PC）</li>
-<li>三阶段提交（3PC）</li>
-<li>补偿事务（TCC）</li>
-<li>本地消息表（异步确保）</li>
-<li>MQ 事务消息</li>
-<li>Sagas 事务模型</li>
-</ul>
-<h4 id="跨库关联问题"><a href="#跨库关联问题" class="headerlink" title="跨库关联问题"></a>跨库关联问题</h4><p>在单库单表中，我们经常使用JOIN来进行多表查询，但是经过分库分表后多个表可能存在于多个数据库中，无法直接使用join进行联表查询，但是联表查询是非常常见的，所以针对这种情况有以下几种解决方式</p>
-<ul>
-<li><p><strong>「字段冗余」</strong></p>
-<p>利用空间换时间，为了性能而避免join查询，将查询字段冗余。</p>
-<blockquote>
-<p>例如：订单表保存userId时候，也将用户名称性别等需要查询的字段冗余保存一份，这样查询订单详情时就不需要再去查询用户表了。</p>
-</blockquote>
-</li>
-<li><p><strong>「全局表」</strong></p>
-<p><strong>「在系统模块中，对于一些依赖的数据表，在每个数据库都保存一份，避免跨库join查询。」</strong></p>
-</li>
-<li><p><strong>「ER 表（绑定表）」</strong></p>
-<p><strong>「先确定各个业务表的关联关系，将那些存在关联关系的表记录存放在同一个分片上，避免跨分片join问题」</strong></p>
-</li>
-<li><p><strong>「系统层组装」</strong></p>
-<p><strong>「在系统层面，分多次查询，将获得到的数据通过代码进行字段拼装」</strong>。</p>
-</li>
-</ul>
-<h4 id="排序、分页、函数计算问题"><a href="#排序、分页、函数计算问题" class="headerlink" title="排序、分页、函数计算问题"></a>排序、分页、函数计算问题</h4><p>分库分表之后，数据分散，在跨节点进行count,order by,group by,limit 以及聚合函数的时候需要特殊处理，可以<strong>「采用分片的方式：先在每个分片上执行相应的函数，得到结果后在应用程序端进行合并，得到最终结果」</strong>。</p>
-<h4 id="分布式ID问题"><a href="#分布式ID问题" class="headerlink" title="分布式ID问题"></a>分布式ID问题</h4><p>分库分表之后，我们不能再依赖数据库自增主键了，分表以后每个表都可以自增，会导致ID 重复或者混乱的问题，因此我们需要单独设计全局主键，以避免跨库主键重复问题。有一些常见的主键生成策略：</p>
-<ul>
-<li>UUID</li>
-<li>基于数据库自增单独维护一张 ID表</li>
-<li>号段模式</li>
-<li>Redis</li>
-<li>雪花算法（Snowflake）</li>
-<li>美团Leaf</li>
-<li>滴滴Tinyid</li>
-</ul>
-<h4 id="多数据源问题"><a href="#多数据源问题" class="headerlink" title="多数据源问题"></a>多数据源问题</h4><p>多数据源主要针对分库，既然数据库变成了多个，那什么时候查询那个库必然是一个必须要解决的问题，一般的解决方式有：<strong>「应用程序适配和代理层适配」</strong>。一般我们都会使用比较成熟的中间件来处理。</p>
-<h2 id="分库分表中间件"><a href="#分库分表中间件" class="headerlink" title="分库分表中间件"></a><strong>分库分表中间件</strong></h2><p>目前市面上有很多比较成熟的分库分表中间件，可以帮助我们解决分库分表后多数据源问题</p>
-<ul>
-<li><strong>「shardingsphere（前身 sharding-jdbc）」</strong></li>
-<li><strong>「cobar」</strong></li>
-<li><strong>「Mycat」</strong></li>
-<li><strong>「Atlas」</strong></li>
-<li><strong>「TDDL（淘宝）」</strong></li>
-<li><strong>「vitess」</strong></li>
-</ul>
-<h3 id="Mycat"><a href="#Mycat" class="headerlink" title="Mycat"></a>Mycat</h3><p><strong>「MyCat属于服务器数据库中间件，是一个基于第三方应用中间件数据库代理框架，客户端所有的jdbc请求都必须要先交给MyCat，再有MyCat转发具体的真实数据库服务器中」</strong>。</p>
-<ul>
-<li><p><strong>「Mycat优点」</strong></p>
-</li>
-<li><ul>
-<li>数据添加不会影响到程序</li>
-<li>应用层不需管理数据库层方面，由代理层去管理</li>
-<li>添加数据源不需要重启程序</li>
-</ul>
-</li>
-<li><p><strong>「Mycat缺点」</strong></p>
-</li>
-<li><ul>
-<li>程序依赖的中间件，提高系统复杂性和维护工作</li>
-<li>中间件本身需要解决高可用问题</li>
-<li>增加了proxy，程序性能下降</li>
-</ul>
-</li>
-</ul>
-<h3 id="ShardingSphere（sharding-jdbc）"><a href="#ShardingSphere（sharding-jdbc）" class="headerlink" title="ShardingSphere（sharding-jdbc）"></a>ShardingSphere（sharding-jdbc）</h3><p><strong>「ShardingJdbc是一个本地数据库中间件框架，以一个Jar形式在本地应用层重写jdbc原生的方法，实现数据库分片形式」</strong>。</p>
-<ul>
-<li><p><strong>「ShardingSphere优点」</strong></p>
-</li>
-<li><ul>
-<li>程序自动完成，数据源方便管理</li>
-<li>支持sql标准下的任何数据库</li>
-</ul>
-</li>
-<li><p><strong>「ShardingSphere缺点」</strong></p>
-</li>
-<li><ul>
-<li>以JAR的形式引入，存在代码入侵性，加大开发成本</li>
-<li>不能做到动态添加数据源，添加数据源还需要重启程序</li>
-</ul>
-</li>
-</ul>
-<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/438223">https://www.modb.pro/db/438223</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/429731">https://www.modb.pro/db/429731</a></p>
-
       
     </div>
 

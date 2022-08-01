@@ -181,6 +181,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/Spring-%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/02/Spring-%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88/" class="post-title-link" itemprop="url">Spring-事务失效</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 19:21:01" itemprop="dateCreated datePublished" datetime="2022-07-02T19:21:01+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Spring-事务失效"><a href="#Spring-事务失效" class="headerlink" title="Spring-事务失效"></a>Spring-事务失效</h1><h2 id="访问权限问题"><a href="#访问权限问题" class="headerlink" title="访问权限问题"></a>访问权限问题</h2><p>例如：private修饰的方法，Spring要求被代理的方法必须是public的</p>
+<h2 id="方法用final修饰"><a href="#方法用final修饰" class="headerlink" title="方法用final修饰"></a>方法用final修饰</h2><h2 id="方法内部调用：同一个类中a方法调用有事务注解的b方法"><a href="#方法内部调用：同一个类中a方法调用有事务注解的b方法" class="headerlink" title="方法内部调用：同一个类中a方法调用有事务注解的b方法"></a>方法内部调用：同一个类中a方法调用有事务注解的b方法</h2><p>Spring在扫描Bean的时候会自动为标注了@Transactional注解的类生成一个代理类（proxy）,当有注解的方法被调用的时候，实际上是代理类调用的，代理类在调用之前会开启事务，执行事务的操作，但是同类中的方法互相调用，相当于this.B()，此时的B方法并非是代理类调用，而是直接通过原有的Bean直接调用，所以注解会失效。</p>
+<ul>
+<li>解决方法：<ul>
+<li>1）将B方法移到另一个service中	</li>
+<li>2）在service中注入自己	</li>
+<li>3）通过aopContent类：在该service类中调用AopContent.currentProx()获取代理对象</li>
+</ul>
+</li>
+</ul>
+<h2 id="类未被spring管理"><a href="#类未被spring管理" class="headerlink" title="类未被spring管理"></a>类未被spring管理</h2><h2 id="多线程调用"><a href="#多线程调用" class="headerlink" title="多线程调用"></a>多线程调用</h2><h2 id="表不支持事务"><a href="#表不支持事务" class="headerlink" title="表不支持事务"></a>表不支持事务</h2><h2 id="未开启事务"><a href="#未开启事务" class="headerlink" title="未开启事务"></a>未开启事务</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MySQL-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -980,73 +1054,6 @@
             </div>
           <!--/noindex-->
         
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-%E5%B9%82%E7%AD%89%E5%A4%84%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/MessageQueue-%E5%B9%82%E7%AD%89%E5%A4%84%E7%90%86/" class="post-title-link" itemprop="url">MessageQueue-幂等处理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:03:23" itemprop="dateCreated datePublished" datetime="2022-07-02T17:03:23+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>1.使用幂等操作</p>
-<p>乐观锁：每个数据都有一个版本号，和当前版本号相同时进行更新操作</p>
-<p>去重表（缓存）：唯一索引，如果已存在值，就不进行更新了</p>
-
       
     </div>
 
