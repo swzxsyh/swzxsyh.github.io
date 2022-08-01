@@ -181,139 +181,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/" class="post-title-link" itemprop="url">MySQL-索引</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-30 23:09:03" itemprop="dateCreated datePublished" datetime="2022-06-30T23:09:03+08:00">2022-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-01 11:54:17" itemprop="dateModified" datetime="2022-08-01T11:54:17+08:00">2022-08-01</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><p>概念：索引是为了加快数据查询的一种数据结构</p>
-<h2 id="MySQL存储结构"><a href="#MySQL存储结构" class="headerlink" title="MySQL存储结构"></a>MySQL存储结构</h2><blockquote>
-<p>表-&gt;段-&gt;区-&gt;页-&gt;行</p>
-<p>在数据库中,不论读哪一行数据,还是读多行数据,都是将这些行所在的页进行加载。也就是存储空间的基本单位就是页。</p>
-<p>一个页就是一颗B+树的节点,数据库I&#x2F;O操作的最小单位是页,与数据库相关的内容都会存储在页的结构里。</p>
-</blockquote>
-<p><img src="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/1629471915.png"></p>
-<h2 id="Mysql为什么使用B-树索引"><a href="#Mysql为什么使用B-树索引" class="headerlink" title="Mysql为什么使用B+树索引"></a>Mysql为什么使用B+树索引</h2><ul>
-<li>在一棵B+树中,每个节点都是一个页,每次新建节点的时候,就会新建一个页。</li>
-<li>B+数的同一层节点中,通过页的结构构成一个双向链表</li>
-<li>非叶子节点,包括了多个索引行,每个索引行里面存储了索引键和指向下一页面的指针</li>
-<li>叶子节点存储了关键字和行记录,在节点内部(也就是页结构的内部)记录的是一个单向链表</li>
-</ul>
-<p><img src="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/1629471928.png"></p>
-<h3 id="关键点：高度低、叶子节点是链表、查询稳定"><a href="#关键点：高度低、叶子节点是链表、查询稳定" class="headerlink" title="关键点：高度低、叶子节点是链表、查询稳定"></a>关键点：高度低、叶子节点是链表、查询稳定</h3><ul>
-<li><p>和二叉树比，比如平衡二叉树，B+树是多叉树（MySql默认是5叉），同样的数据，高度比二叉树低</p>
-</li>
-<li><p>和B树比，B+树采用双向链表串联所有的叶子节点，形成一个链表，这意味着当我们执行范围查询时，Mysql可以利用这个特性，沿着叶子节点前进,但是B树要通过中序遍历才能完成范围查询。而之所以Nosql数据库会使用B树索引，是因为他不需要像关系型数据库那样大量查询都是范围查询</p>
-</li>
-<li><p>B+树叶子节点存放数据，因此和B树比起来查询时间更稳定可预测</p>
-<p>非叶子节点:索引+指针、叶子节点:索引+数据【地址】</p>
-</li>
-<li><p>B+树查询数据的磁盘IO更少。B+树内存节点并没有指向具体的数据,因此其内部节点相比B树更小,通常B+树更矮更胖,高度小查询磁盘的IO更少</p>
-</li>
-</ul>
-<h3 id="其他结构问题："><a href="#其他结构问题：" class="headerlink" title="其他结构问题："></a>其他结构问题：</h3><ul>
-<li><p>二叉搜索树</p>
-<ul>
-<li>不平衡：左边的子节点比父节点小，右边的子节点比父节点大，查询效率低</li>
-</ul>
-</li>
-<li><p>平衡二叉树(AVL树)</p>
-<ul>
-<li>旋转耗时(左旋、右旋)</li>
-</ul>
-</li>
-<li><p>红黑树</p>
-<ul>
-<li><p>树太高</p>
-<p>在数据再内存中的情况，红黑树的表现是非常好的。但是对于数据在磁盘等辅助存储的设备情况中，红黑树并不适用,因为红黑树相对很高。当数据在磁盘中时,磁盘IO会成为性能瓶颈,设计的目标应该是降低IO次数,而树的高度越高,增删改查所需要的IO次数也会越多,会严重影响性能。</p>
-</li>
-</ul>
-</li>
-<li><p>BTree:多路平衡搜索树</p>
-<ul>
-<li>InnoDB页默认大小16K，存储数据会造成树矮胖，查询更多更慢</li>
-<li>B-Tree数据分散在每个节点，进行范围、顺序查找困难</li>
-</ul>
-</li>
-<li><p>Hash</p>
-<ul>
-<li><p>通过散列算法，不支持范围查询</p>
-</li>
-<li><p>哈希索引没有办法利用索引完成排序</p>
-</li>
-<li><p>不能进行多字段查询</p>
-</li>
-<li><p>在有大量重复键值的情况下,哈希索引的效率也是很低的(哈希碰撞问题)</p>
-</li>
-</ul>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1146,6 +1013,71 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2021/02/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">设计模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-17 00:17:37" itemprop="dateCreated datePublished" datetime="2021-02-17T00:17:37+08:00">2021-02-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>GOF23<br>创建型模式：<br>单例模式、工厂模式，抽象工厂模式，建造者模式，原型模式<br>结构型模式<br>从程序的结构上实现松耦合，从而扩大整体的类结构，用来解决更大的问题<br>适配器模式，桥接模式，装饰模式，组合模式，外观模式，享元模式，代理模式<br>行为型模式<br>模版方法模式，命令模式，迭代器模式，观察者模式，中介者模式，备忘录模式，解释器模式，状态模式，策略模式，职责链模式，访问者模式<br>OOP七大原则<br>开闭原则：对扩展开放，对修改关闭<br>里氏替换原则：继承必须确保超类所拥有的性质在子类中仍成立<br>依赖倒置原则：要面向接口编程，不要面向对象编程<br>单一职责原则：控制类的粒度大小，将对象解耦，提高其内聚性<br>接口隔离原则：要为各个类建立它们需要的专用接口<br>迪米特法则：只与直接朋友交谈，不跟“陌生人”说话<br>合成复用原则：尽量先使用组合或聚合等关联关系来实现，其次才考虑使用继承关系来实现<br>单例模式<br>核心作用<br>保证一个类只有一个实例，并且提供一个访问该实例的全局访问点<br>工厂模式<br>作用：<br>实现了创建者和调用者的分离<br>详细分类：<br>简单工厂模式（静态工厂模式）<br>用来生产统一等级结构中的任意产品（对于新产品，需要修改代码）<br>工厂方法模式<br>不修改已有类的情况下，通过增加新的工厂类实现扩展（支持增加任意产品）<br>抽象工厂模式<br>围绕一个超级工厂创建其他工厂。该超级工厂是其他工厂的生产工厂。不可增加产品，可以增加类型<br>OOP七大原则<br>开闭原则：对扩展开放，对修改关闭<br>依赖倒置原则：要面向接口编程，不要针对实现编程<br>迪米特法则：只与直接朋友交谈，避免跟陌生人通信<br>核心本质<br>实例化对象不使用new，用工厂方法代替<br>将选择实现类，创建对象统一管理和控制。从而将调用者与实现类解耦<br>场景：<br>JDK8-Calendar的getInstance<br>JDBC的Connection<br>Spring的IOC创建管理bean对象<br>反正Class对象的newInstance方法<br>抽象工厂模式<br>定义：<br>抽象工厂模式提供了一个创建一系列相关或相互依赖对象的接口，无需指定它们的类<br>场景：<br>应用层不依赖产品实现细节<br>同类对象一起创建对象时大量的重复代码<br>提供一个类库，所有的产品以同样的接口出现，使得应用不依赖于具体的实现<br>优点：<br>具体产品在应用层的代码隔离，无需关系创建细节<br>将一个系列的产品统一到一起创建<br>缺点：<br>规定了所有可能被创建的产品集合，产品簇中扩展新的产品困难<br>增加了系统的抽象性和理解难度<br>建造者模式<br>该模式提供了一种创建对象的最佳方式<br>定义：<br>将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示<br>作用：<br>在用户不知道对象的建造过程和细节情况下，就可以直接创建复杂的对象。<br>用户只需要给出复杂对象的类型和内容，建造者模式负责按顺序创建复杂对象。<br>场景：<br>需要生成的产品有复杂的内部结构，同时这些产品有共性<br>隔离复杂对象的创建和使用，使相同创建过程可以创建不同产品<br>适合具有较多属性的对象的创建过程<br>优点：<br>产品的建造和表示分离，实现了解耦。使用建造者模式可以使应用不必知道实现细节<br>将复杂的产品创建步骤分解在不同的方法中，使创建过程更清晰<br>具体的建造者类之间是相互独立的，有利于系统拓展。增加新建造者不需改变原有类库，符合开闭原则<br>缺点：<br>建造者模式创建的产品一般具有较多共同点，其组成部分相似。如果产品之间差异性大，则不适合该模式<br>如果产品内部变化复杂，可能需要定义很多具体建造者类来实现这种变化，会让系统变得很庞大<br>建造者模式与抽象工厂模式比较：<br>与抽象工厂模式相比，建造者模式返回一个完整的对象。而抽象工厂模式返回一系列对象，这些对象定位不同，构成了一个产品族<br>抽象工厂模式中，应用实例化工厂类，然后调用工厂方法获取所需产品对象。在建造者模式中，应用可以不直接调用建造者的相关方法，通过指挥者来指导如何生成对象，包括对象的内部细节，它侧重于一步步构造一个复杂对象，返回一个完整的对象<br>原型模式<br>适配器模式<br>定义：<br>将一个类的接口转换成客户希望的另一个接口。Adapter模式使原本接口不兼容不能一起工作的类能一起工作。<br>角色分析：<br>目标接口：客户所期待的接口，目标可以是具体的或抽象的类，也可以是接口<br>需要适配的类：需要适配的类货适配者类<br>适配器：通过包装一个需要适配的对象，把原接口转换成目标对象。<br>优点：<br>一个对象的适配器可以把多个不同的适配者适配到同一个目标。<br>可以适配一个适配者的字类，由于适配器和适配者之间是相互关联，根据“里氏替换原则”，适配者的字类也可以通过该适配器进行适配<br>缺点：<br>对于不支持多重类继承的语言，一次最多适配一个适配者类，不能适配多个适配者<br>在Java等语言中，类适配器模式中的目标抽象类只能为接口，不能为类，使用其有一定局限性。<br>适用场景：<br>系统需要使用一些现有的类，而这些类的接口（如方法名）不符合系统需要，深圳没有这些类的源码<br>想创建一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作。<br>桥接模式<br>定义：<br>桥接模式是将抽象部分与它的实现部分分离，使它们都可以独立变化。它是一种对象结构型模式，又称为柄体（Handle and Body）模式或接口（interface）模式<br>装饰模式<br>组合模式<br>外观模式<br>享元模式<br>代理模式<br>模版方法模式<br>命令模式<br>迭代器模式<br>观察者模式<br>中介者模式<br>备忘录模式<br>解释器模式<br>状态模式<br>策略模式<br>职责链模式<br>访问者模式</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
@@ -1215,7 +1147,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">195</span>
+          <span class="site-state-item-count">194</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
