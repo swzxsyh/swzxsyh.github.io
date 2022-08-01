@@ -21,23 +21,44 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Domain-Driver Design什么是领域驱动设计（DDD）2004年著名建模专家Eric Evans发表了他最具影响力的书籍：《Domain-Driven Design –Tackling Complexity in the Heart of Software》（中文译名：领域驱动设计—软件核心复杂性应对之道），书中提出了“领域驱动设计（简称 DDD）”的概念。 领域驱动设计事实上是针对">
+  <meta name="description" content="Domain-Driver Design软件设计类别DL驱动开发DeadLine驱动开发，给定一个截止日期，只要在这个DL之前完成即可。  DL驱动开发只追求短期的业务目标，不关注程序设计，缺乏过程管理，程序难以扩展维护。  数据驱动设计针对需求进行数据库表设计，再通过数据流串联对应的业务流程，是最常用的软件设计方式，基本可以应对大多数的应用服务场景。 DDD领域驱动设计随着系统越来越庞大，传统的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="DDD领域驱动设计">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="Domain-Driver Design什么是领域驱动设计（DDD）2004年著名建模专家Eric Evans发表了他最具影响力的书籍：《Domain-Driven Design –Tackling Complexity in the Heart of Software》（中文译名：领域驱动设计—软件核心复杂性应对之道），书中提出了“领域驱动设计（简称 DDD）”的概念。 领域驱动设计事实上是针对">
+<meta property="og:description" content="Domain-Driver Design软件设计类别DL驱动开发DeadLine驱动开发，给定一个截止日期，只要在这个DL之前完成即可。  DL驱动开发只追求短期的业务目标，不关注程序设计，缺乏过程管理，程序难以扩展维护。  数据驱动设计针对需求进行数据库表设计，再通过数据流串联对应的业务流程，是最常用的软件设计方式，基本可以应对大多数的应用服务场景。 DDD领域驱动设计随着系统越来越庞大，传统的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc.png">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/construct.png">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc2DDD.jpeg">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/swzxsyh/Documents/GitHub/swzxsyh.github.io/source/_posts/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/base.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/programeType.jpeg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Middle.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/base.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/general.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/eventstorm.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/ValueObject.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/640.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Repository.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Repository_UML.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/strategic_design.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/tactical_design.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/designSum.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/onion.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/construct.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/ddd.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc2DDD.jpeg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS.jpeg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_R.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_separation.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleShare.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleShareSeparation.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/MultiShareSeparation.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleSeparation.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/MultiSeparation.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_DDD.jpeg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_DDD_SHARE.png">
 <meta property="article:published_time" content="2022-07-01T17:59:31.000Z">
-<meta property="article:modified_time" content="2022-07-22T07:35:37.045Z">
+<meta property="article:modified_time" content="2022-08-01T09:07:48.573Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc.png">
+<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/programeType.jpeg">
 
 <link rel="canonical" href="https://swzxsyh.github.io/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">
 
@@ -222,7 +243,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 15:35:37" itemprop="dateModified" datetime="2022-07-22T15:35:37+08:00">2022-07-22</time>
+                <time title="修改时间：2022-08-01 17:07:48" itemprop="dateModified" datetime="2022-08-01T17:07:48+08:00">2022-08-01</time>
               </span>
 
           
@@ -236,167 +257,859 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Domain-Driver-Design"><a href="#Domain-Driver-Design" class="headerlink" title="Domain-Driver Design"></a>Domain-Driver Design</h1><h2 id="什么是领域驱动设计（DDD）"><a href="#什么是领域驱动设计（DDD）" class="headerlink" title="什么是领域驱动设计（DDD）"></a>什么是领域驱动设计（DDD）</h2><p>2004年著名建模专家Eric Evans发表了他最具影响力的书籍：《Domain-Driven Design –Tackling Complexity in the Heart of Software》（中文译名：领域驱动设计—软件核心复杂性应对之道），书中提出了“领域驱动设计（简称 DDD）”的概念。</p>
+        <h1 id="Domain-Driver-Design"><a href="#Domain-Driver-Design" class="headerlink" title="Domain-Driver Design"></a>Domain-Driver Design</h1><h2 id="软件设计类别"><a href="#软件设计类别" class="headerlink" title="软件设计类别"></a>软件设计类别</h2><h3 id="DL驱动开发"><a href="#DL驱动开发" class="headerlink" title="DL驱动开发"></a>DL驱动开发</h3><p>DeadLine驱动开发，给定一个截止日期，只要在这个DL之前完成即可。</p>
+<blockquote>
+<p>DL驱动开发只追求短期的业务目标，不关注程序设计，缺乏过程管理，程序难以扩展维护。</p>
+</blockquote>
+<h3 id="数据驱动设计"><a href="#数据驱动设计" class="headerlink" title="数据驱动设计"></a>数据驱动设计</h3><p>针对需求进行数据库表设计，再通过数据流串联对应的业务流程，是最常用的软件设计方式，基本可以应对大多数的应用服务场景。</p>
+<h3 id="DDD领域驱动设计"><a href="#DDD领域驱动设计" class="headerlink" title="DDD领域驱动设计"></a>DDD领域驱动设计</h3><p>随着系统越来越庞大，传统的软件设计方式已经不能满足我们应对复杂系统的设计。<strong>而DDD由业务为导向，通过领域建模限定边界，提供了应对大型复杂系统与业务的方法论。</strong></p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/programeType.jpeg"></p>
+<span id="more"></span>
+
+
+
+<h2 id="什么是DDD"><a href="#什么是DDD" class="headerlink" title="什么是DDD"></a>什么是DDD</h2><p>2004年著名建模专家Eric Evans发表了他最具影响力的书籍：《Domain-Driven Design –Tackling Complexity in the Heart of Software》（中文译名：领域驱动设计—软件核心复杂性应对之道），书中提出了“领域驱动设计（简称 DDD）”的概念。</p>
+<ul>
+<li><p><strong>DDD不是一种架构形式，它是一种架构设计的指导思想，是一种应对复杂域问题的方法论。</strong></p>
+<blockquote>
 <p>领域驱动设计事实上是针对OOAD的一个扩展和延伸，DDD基于面向对象分析与设计技术，对技术架构进行了分层规划，同时对每个类进行了策略和类型的划分。</p>
+</blockquote>
+</li>
+<li><p>DDD将一个软件系统的核心业务功能集中在一个核心域里面，其中包含了<strong>实体、值对象、领域服务、资源库和聚合等概念</strong>。在此基础上，DDD提出了一套完整的支撑这样的核心领域的基础设施。</p>
+<blockquote>
 <p>领域模型是领域驱动的核心。采用DDD的设计思想，业务逻辑不再集中在几个大型的类上，而是由大量相对小的领域对象(类)组成，这些类具备自己的状态和行为，每个类是相对完整的独立体，并与现实领域的业务对象映射。</p>
+</blockquote>
+</li>
+</ul>
 <p>领域模型就是由这样许多的细粒度的类组成。基于领域驱动的设计，保证了系统的可维护性、扩展性和复用性，在处理复杂业务逻辑方面有着先天的优势。</p>
-<h2 id="领域驱动设计的特点"><a href="#领域驱动设计的特点" class="headerlink" title="领域驱动设计的特点"></a>领域驱动设计的特点</h2><p>领域驱动的核心应用场景就是解决复杂业务的设计问题，其特点与这一核心主题息息相关：</p>
+<h3 id="中台、微服务与DDD"><a href="#中台、微服务与DDD" class="headerlink" title="中台、微服务与DDD"></a>中台、微服务与DDD</h3><p>微服务架构能让系统的开发与运维管理变得简单高效，还能提高系统的可用性。但是微服务也有其不足之处，在微服务拆分时，拆分的粒度总是不好把控，拆分的过细，会导致服务增多，增加维护和运维成本。拆分粒度粗，随着业务的增长，单个服务也会变得臃肿，丧失了微服务的初衷。而DDD则可以有效帮助我们确定服务边界，DDD从业务出发，确定各个领域边界，划定职责。</p>
+<p><strong>DDD 的本质是一种软件设计方法，而微服务架构是具体的实现方式。DDD 强调领域模型和微服务设计的一体性，微服务设计依托于领域模型</strong>。</p>
+<ul>
+<li><strong>DDD 关注</strong>：从业务视角划分领域边界，构建通用语言，通过业务抽象建立领域模型，维持业务和代码的一致性。</li>
+<li><strong>微服务关注</strong>：侧重于运行时的进程间通信、容错和故障隔离，实现去中心化数据管理和去中心化服务治理，关注微服务的独立开发、测试、构建和部署。</li>
+</ul>
+<p><strong>总结：中台本质是领域模型，微服务是领域模型的系统落地，DDD 是一种设计思想，它可以同时指导中台领域建模型和微服务设计，即 DDD、中台和微服务的铁三角关系</strong>。</p>
+<p><strong>中台本质上就是通过 DDD 方法从业务领域细分出来的某个子域</strong></p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Middle.png"></p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>上DDD理论可以指导所有业务系统的分析设计与开发。但实际上DDD并不适用于所有的系统开发：</p>
+<ul>
+<li>DDD的学习成本巨大，入手门槛高；</li>
+<li>在DDD过程中引入领域专家梳理通用语言很难，现实中能做到的人很少并且需要耗费大量的时间和精力；</li>
+<li>需要开发人员从产品出发，从技术思维转为产品思维，从数据模型设计转为业务模型设计；</li>
+<li>系统构建、架构设计、编码与传统实现差异很大，对于开发人员是一个挑战。</li>
+</ul>
+<p>但是单从系统的角度来衡量，如果系统符下几下几点之一：</p>
+<ul>
+<li>业务复杂：系统越来越大，业务越来越复杂，所有的业务都杂糅在一起，系统庞大不容易维护。</li>
+<li>需求迭代快：对于核心需求和非核心需求的需求频率都非常大；非核心需求占用了大量资源。</li>
+<li>系统中涉及到的垂直业务多：不同的业务可以化为不同的领域；</li>
+</ul>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>领域驱动的核心应用场景就是解决复杂业务的设计问题，其特点与这一核心主题息息相关：</p>
 <ul>
 <li>分层架构与职责划分：领域驱动设计很好的遵循了关注点分离的原则，提出了成熟、清晰的分层架构。同时对领域对象进行了明确的策略和职责划分，让领域对象和现实世界中的业务形成良好的映射关系，为领域专家与开发人员搭建了沟通的桥梁。</li>
 <li>复用：在领域驱动设计中，领域对象是核心，每个领域对象都是一个相对完整的内聚的业务对象描述，所以可以形成直接的复用。同时设计过程是基于领域对象而不是基于数据库的Schema，所以整个设计也是可以复用的。</li>
 </ul>
 <h2 id="为什么要用-DDD"><a href="#为什么要用-DDD" class="headerlink" title="为什么要用 DDD"></a>为什么要用 DDD</h2><ul>
-<li>面向对象设计，数据行为绑定，告别贫血模型</li>
-<li>降低复杂度，分而治之</li>
-<li>优先考虑领域模型，而不是切割数据和行为</li>
-<li>准确传达业务规则，业务优先</li>
-<li>代码即设计</li>
-<li>它通过边界划分将复杂业务领域简单化，帮我们设计出清晰的领域和应用边界，可以很容易地实现业务和技术统一的架构演进</li>
-<li>领域知识共享，提升协助效率</li>
-<li>增加可维护性和可读性，延长软件生命周期</li>
-<li>中台化的基石</li>
+<li><p>统一业务语言：通过使用统一的领域语言，消除了团队间的分歧，提升团队间的沟通效率。</p>
+</li>
+<li><p>沉淀业务知识：通过领域模型沉淀领域知识，提升业务建模能力，清晰表达业务核心语义。</p>
+</li>
+<li><p>清晰业务边界：通过领域模型界定需求实现范围，统一各个子域的边界。</p>
+</li>
+<li><p>提升变化应对：通过领域模型与数据模型分离，将核心与非核心业务隔离，提升架构应变能力。</p>
+</li>
+<li><p>DDD可以解决软件复杂度</p>
+</li>
+<li><ul>
+<li>对于业务量大的系统，可以借助限界上下文进行分而治之</li>
+<li>对于结构复杂的系统，可以通过DDD的分层架构进行层之间关注点分离。</li>
+<li>对于业务复杂的系统，可以以领域为核心，识别变化，通过高内聚低耦合的设计，来提高程序的扩展性。</li>
 </ul>
-<span id="more"></span>
-
-<h2 id="DDD-作用"><a href="#DDD-作用" class="headerlink" title="DDD 作用"></a>DDD 作用</h2><p>说到 DDD，绕不开 MVC，在 MVC 三层架构中，我们进行功能开发的之前，拿到需求，解读需求。</p>
-<p>往往最先做的一步就是先设计表结构，在逐层设计上层 dao，service，controller。对于产品或者用户的需求都做了一层自我理解的转化。</p>
-<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc.png"></p>
-<p>用户需求在被提出之后经过这么多层的转化后，特别是研发需求在数据库结构这一层转化后，将业务以主观臆断行为进行了转化。</p>
-<p>一旦业务边界划分模糊，考虑不全，大量的逻辑补充堆积到了代码层实现，变得越来越难维护。</p>
-<p>假如我们现在要做一个电商订单下单的需求，涉及到用户选定商品，下订单、支付订单、对用户下单时的订单发货。</p>
-<p><strong>MVC 架构：</strong>我们常见的做法是在分析好业务需求之后，就开始设计表结构了，订单表，支付表，商品表等等。然后编写业务逻辑。</p>
-<p>这是第一个版本的需求，功能迭代饿了，订单支付后我可以取消，下单的商品我们退换货，是不是又需要进行加表，紧跟着对于的实现逻辑也进行修改。功能不断迭代，代码就不断的层层往上叠。</p>
-<p><strong>DDD 架构：</strong>我们先进行划分业务边界。这里面核心是订单。那么订单就是这个业务领域里面的聚合逻辑体现。支付，商品信息，地址等等都是围绕着订单实体。</p>
-<p>订单本身的属性决定之后，类似于地址只是一个属性的体现。当你将订单的领域模型构建好之后，后续的逻辑边界与仓储设计也就随之而来了。</p>
-<h3 id="从-DDD-的角度看-MVC-架构的问题"><a href="#从-DDD-的角度看-MVC-架构的问题" class="headerlink" title="从 DDD 的角度看 MVC 架构的问题"></a>从 DDD 的角度看 MVC 架构的问题</h3><p>代码角度：</p>
+</li>
+<li><p>DDD是如何解决复杂度的问题</p>
+<p>DDD通过战略和战术两个方向来解决复杂度的问题。</p>
+</li>
+<li><ul>
+<li>战略方向：强调以领域为核心，通过限界上下文和分层架构将关注点分离。借助六边形模型、用户故事等方式提炼领域知识，进而形成统一语言。建立领域模型，指导程序设计。</li>
+<li>战术方向：引入了实体、值对象、聚合、领域服务、领域事件、工厂、仓储、应用服务等概念，指导我们进行程序设计。</li>
+</ul>
+</li>
+</ul>
+<h2 id="DDD怎么实现"><a href="#DDD怎么实现" class="headerlink" title="DDD怎么实现"></a>DDD怎么实现</h2><p>DDD的实现过程主要分为以下几个步骤：</p>
 <ul>
-<li>瘦实体模型：只起到数据类的作用，业务逻辑散落到 service，可维护性越来越差</li>
-<li>面向数据库表编程，而非模型编程</li>
-<li>实体类之间的关系是复杂的网状结构，成为大泥球，牵一发而动全身，导致不敢轻易改代码</li>
-<li>service 类承接的所有的业务逻辑，越来越臃肿，很容易出现几千行的 service 类</li>
-<li>对外接口直接暴露实体模型，导致不必要开放内部逻辑对外暴露，就算有 DTO 类一般也是实体类的直接 copy</li>
-<li>外部依赖层直接从 service 层调用，字段转换、异常处理大量充斥在 service 方法中</li>
+<li>分析业务需求</li>
+<li>提炼统一语言</li>
+<li>建立领域模型</li>
+<li>完成程序设计</li>
+<li>编码实现</li>
 </ul>
-<p>项目管理角度：</p>
+<p>在实现以上步骤时由分为两个阶段：</p>
 <ul>
-<li><strong>交付效率：</strong>越来越低。</li>
-<li><strong>稳定性差：</strong>不好测试，代码改动的影响范围不好预估。</li>
-<li><strong>理解成本高：</strong>新成员介入成本高，长期会导致模块只有一个人最熟悉，离职成本很大。</li>
+<li><p><strong>战略设计阶段</strong></p>
+<p>此阶段属于<strong>业务架构</strong>，通过 DDD 的理论，从业务的角度梳理出相应的限界上下文，通过统一的领域语言从战略层面进行<strong>领域划分以及构建领域模型</strong>。</p>
+<p>战略设计主要包括：</p>
+</li>
+<li><ul>
+<li><strong>领域&#x2F;子域</strong></li>
+<li><strong>通用语言</strong></li>
+<li><strong>限界上下文</strong></li>
+<li><strong>架构风格</strong></li>
 </ul>
-<h3 id="DDD-整体作用总结："><a href="#DDD-整体作用总结：" class="headerlink" title="DDD 整体作用总结："></a>DDD 整体作用总结：</h3><ul>
-<li>消除信息不对称</li>
-<li>常规MVC三层架构中自底向上的设计方式做一个反转，以业务为主导，自顶向下的进行业务领域划分</li>
-<li>将大的业务需求进行拆分，分而治之</li>
+</li>
+<li><p><strong>战术设计阶段</strong></p>
+<p>此阶段属于<strong>技术架构</strong>，战术设计则将战略设计进行具体化和细节化，以领域模型为战术设计的输入，以限界上下文作为微服务划分的边界进行微服务拆分，在每个微服务中进行领域分层，实现领域模型对于代码的映射，从而实现 DDD 的落地实施。</p>
+<p>战术设计主要包括：</p>
+</li>
+<li><ul>
+<li><strong>领域模型</strong>（值对象、实体、领域服务、领域事件）</li>
+<li><strong>资源库</strong>（从存放资源的位置获取、添加、删除或者修改领域对象）</li>
+<li><strong>工厂</strong>(负责领域对象的创建，用于封装复杂或者可能变化的创建逻辑）</li>
+<li><strong>聚合</strong>(封装一到多个实体与值对象，表示边界，并维持边界范围之内的业务完整性）</li>
+<li><strong>应用服务</strong></li>
+<li><strong>实体</strong></li>
+<li><strong>值对象</strong></li>
 </ul>
-<h2 id="DDD基本概念"><a href="#DDD基本概念" class="headerlink" title="DDD基本概念"></a>DDD基本概念</h2><ul>
-<li>统一语言</li>
+</li>
+</ul>
+<h2 id="领域名词"><a href="#领域名词" class="headerlink" title="领域名词"></a>领域名词</h2><p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/base.png"></p>
+<h3 id="通用语言"><a href="#通用语言" class="headerlink" title="通用语言"></a>通用语言</h3><p>在我们程序开发过程中会涉及到两个角色：开发人员与领域专家，角色决定了认知，对于开发人员脑子想都是类，方法，设计模式，算法，继承，封装，多态，如何面向对象等，而领域专家是不懂这些的，在双方沟通过程中就产生误差，最终会导致程序开发的偏差。</p>
+<p><strong>「通用语言就是开发人员和领域专家的沟通桥梁，使得在建立领域模型，两者交换、描述知识范围及领域模型的各个元素的时候能够无障碍沟通。」</strong></p>
+<p>统一语言如何形成，对DDD没有标准的定义，可以是图，也可以是文字，UML类图是常见的表达方式。</p>
+<p>战略设计、战术设计和技术实现都是基于统一语言环境下开展的。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/general.png"></p>
+<h3 id="领域和子域"><a href="#领域和子域" class="headerlink" title="领域和子域"></a>领域和子域</h3><h4 id="领域"><a href="#领域" class="headerlink" title="领域"></a>领域</h4><p>在研究和解决业务问题时，DDD 会按照一定的规则 <strong>将业务领域进行细分</strong> ，当领域细分到一定的程度后，<strong>DDD 会将问题范围限定在特定的边界内</strong> ，在这个边界内建立领域模型，进而用代码实现该领域模型，解决相应的业务问题。简言之，<strong>DDD 的领域就是这个边界内要解决的业务问题域</strong> 。</p>
+<p>既然领域是用来限定业务边界和范围的，那么就会有大小之分，领域越大，业务范围就越大，反之则相反。</p>
+<h4 id="子域"><a href="#子域" class="headerlink" title="子域"></a>子域</h4><p><strong>领域可以进一步划分为子领域。我们把划分出来的多个子领域称为子域</strong> ，每个子域对应一个更小的问题域或更小的业务范围。</p>
+<p><strong>子域可以根据自身重要性和功能属性划分为三类子域</strong> ，它们分别是：核心域、通用域和支撑域。</p>
+<h5 id="核心域、通用域和支撑域"><a href="#核心域、通用域和支撑域" class="headerlink" title="核心域、通用域和支撑域"></a>核心域、通用域和支撑域</h5><ul>
+<li>核心域：决定产品和公司核心竞争力的子域是核心域，它是业务成功的主要因素和公司的核心竞争力。</li>
+<li>通用域：没有太多个性化的诉求，同时被多个子域使用的通用功能子域是通用域。</li>
+<li>支撑域：还有一种功能子域是必需的，但既不包含决定产品和公司核心竞争力的功能，也不包含通用功能的子域，它就是支撑域。</li>
+</ul>
+<h6 id="为什么要划分核心域、通用域和支撑域，主要目的是什么"><a href="#为什么要划分核心域、通用域和支撑域，主要目的是什么" class="headerlink" title="为什么要划分核心域、通用域和支撑域，主要目的是什么"></a>为什么要划分核心域、通用域和支撑域，主要目的是什么</h6><p><strong>商业模式的不同会导致核心域划分结果的不同</strong> 。有的公司核心域可能在客户服务，有的可能在产品质量，有的可能在物流。在公司领域细分、建立领域模型和系统建设时，我们就要结合公司战略重点和商业模式，找到核心域了，且重点关注核心域。</p>
+<h3 id="限界上下文"><a href="#限界上下文" class="headerlink" title="限界上下文"></a>限界上下文</h3><p>限界上下文（Bounded Context）可以分为<strong>「限界和上下文」</strong>两个词来理解</p>
+<ul>
+<li><strong>「限界」</strong>：一个界限，具体的某一个范围</li>
+<li><strong>「上下文」</strong>：特定环境下的语境</li>
+</ul>
+<p><strong>「限界上下文是一个显式的边界，主要用来封装通用语言和领域对象。领域模型存在于这个边界之内。在边界内的通用语言有特定的含义，而模型需要准确地反映通用语言」</strong></p>
+<ol>
+<li>限界上下文定义了每个子域的应用范围，在每个上下文中确保领域模型的一致性。不同的限界上下文中，领域模型可以不用保证一致性。</li>
+<li>通常我们根据团队的组织、软件系统的每个部分的用法及物理表现（如组件划分，数据库模式）来设置模型的边界。</li>
+<li><strong>「限界上下文根据业务单一职责和高内聚原则，定义了聚合内部应该包含哪些实体和值对象」</strong></li>
+</ol>
+<ul>
+<li><p>限界上下文的命名</p>
+<ul>
+<li><p><strong>「限界上下文只是一个统一的命名，在划分子域后，每个子域一般对应一个上下文，也可以对应多个上下文」</strong></p>
+<blockquote>
+<p>但如果子域对应多个上下文的时候，就要考虑一下是不是子域能否继续划分。</p>
+</blockquote>
+</li>
+<li><p><strong>「命名方式：领域名+上下文。」</strong></p>
+<blockquote>
+<p>比如我们的销售子域对应销售上下文，物流子域对应物流上下文。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>总结</p>
+<ul>
+<li>子域和限界上下文保持一对一的关系。</li>
+<li>识别限界上下文将那些不属于其中的概念放在另一个上下文中，再在通过上下文映射图标明两个限界上下文之间的关系。</li>
+</ul>
+</li>
+</ul>
+<h4 id="上下文映射图"><a href="#上下文映射图" class="headerlink" title="上下文映射图"></a>上下文映射图</h4><p><strong>「多个系统之间存在交互，需要在各自的限界上下文上有所表现。上下文图（Context Map）便是表示各个系统之间关系的总体视图」</strong></p>
+<p>在Context Map中可以有如下几种形式来表征限界上下文之间的关系：</p>
+<ul>
+<li><p><strong>「共享内核（Shared Kernel）」</strong></p>
+<p><strong>「共享内核是业务领域中公共的部分，同时也是团队间容易达成且必须达成共识的领域部分」</strong></p>
+<blockquote>
+<p>当不同团队共同开发应用程序时，团队之间需要进行协调，通常将两个团队共享的子集剥离出来形成共享内核，双方进行持续集成。</p>
+</blockquote>
+</li>
+<li><p><strong>「客户&#x2F;供应商（Customer&#x2F;Supplier）」</strong></p>
+<p>上下游关系，由上游完成模型的构建和开发，并交付给下游系统使用。</p>
+</li>
+<li><p><strong>「追随者（Conformist）」</strong></p>
+<p>上下游关系，<strong>「上游团队无法提供下游所需要的东西」</strong>。此时客户&#x2F;供应商就不生效了，下游系统只能去追随上游系统，下游系统严格遵从上游系统的模型，简化集成。</p>
+</li>
+<li><p><strong>「防腐层（Anticorrupttion Layer）」</strong></p>
+<p><strong>「即ACL，某些上下游关系无法顺利实施，该层作为上游系统的代理向你的系统提供服务」</strong></p>
+<blockquote>
+<p>如果上游的模型不适合下游的场景，下游系统又必须依赖于这些模型，此时需要使用防腐层模式将上游系统的影响降低。</p>
+</blockquote>
+</li>
+<li><p><strong>「开放主机服务（open host service）」</strong></p>
+<p>即OHS，定义一种协议，允许系统将一组service公开出去公其他系统访问，在互通模型的同时，减少了系统间的耦合。</p>
+<blockquote>
+<p>微服务架构可以理解为此模式的实现形式。</p>
+</blockquote>
+</li>
+<li><p><strong>「发布语言（published language）」</strong></p>
+<p>即PL，<strong>「发布一种共享语言完成集成交流，通常和开放主机服务一起使用」</strong></p>
+</li>
+<li><p><strong>「各行其道（Separate Way）」</strong></p>
+<p>当两个系统之间的关系并非必不可少时，声明两个上下文，两者完全可以彼此独立，各自独立建模，独立发展，互不影响。</p>
+</li>
+</ul>
+<h3 id="事件风暴"><a href="#事件风暴" class="headerlink" title="事件风暴"></a>事件风暴</h3><p>在DDD的落地实践中我们需要去分析两个问题：</p>
+<ul>
+<li>如何发现系统中的聚合 (Aggregate)，</li>
+<li>如何划分限界上下文 (Bounded Context)</li>
+</ul>
+<p>为解决以上两个问题，DDD引入了事件风暴的概念。</p>
+<p><strong>「事件风暴（Event Storming）是一种轻量级的系统分析方法，基于 DDD 的概念，能够梳理系统中的各种相关元素」</strong>。在官方网站中有四个词解释：</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/eventstorm.png"></p>
+<h4 id="事件风暴能做什么"><a href="#事件风暴能做什么" class="headerlink" title="事件风暴能做什么"></a>事件风暴能做什么</h4><p><strong>「EventStorming」</strong>是一种灵活的研讨会形式，用于协作探索复杂的业务领域。它有不同的风格，可以在不同的场景中使用：</p>
+<ul>
+<li>评估现有业务线的健康状况并发现最有效的改进领域；</li>
+<li>探索新的创业商业模式的可行性；</li>
+<li>设想新的服务，最大限度地为所有相关方带来积极成果；</li>
+<li>设计干净且可维护的事件驱动软件，以支持快速发展的业务。</li>
+</ul>
+<p>EventStorming 的自适应特性允许具有不同背景的利益相关者之间进行复杂的跨学科对话，从而提供超越孤岛和专业界限的新型协作。</p>
+<h4 id="事件风暴流程"><a href="#事件风暴流程" class="headerlink" title="事件风暴流程"></a>事件风暴流程</h4><ul>
+<li><p>物料准备</p>
+</li>
+<li><p>参与人员</p>
+<ul>
+<li><strong>「组织者」</strong>：组织者应当熟悉事件风暴的整个流程，能够组织大家顺利完成事件风暴；</li>
+<li><strong>「领域专家」</strong>：领域专家应该是精通业务的人，在事件风暴过程中，要负责澄清一些业务上的概念，思考业务上有没有遗漏的事件；</li>
+<li><strong>「项目成员」</strong>：负责开发这个项目的成员，所有角色都可参加，包括系统开发人员，业务分析师，业务人员，测试工程师，UX 设计师，项目管理人员等。</li>
+</ul>
+</li>
+<li><p>识别领域事件</p>
+<p><strong>「事件风暴将系统拆分为不同的元素，用不同颜色表示」</strong></p>
+<p>领域专家和团队成员通过头脑风暴把领域事件（业务行为）都梳理出来</p>
+</li>
+<li><p>分析命令和事件</p>
+<p>在梳理完领域事件后，我们可以在此基础上进一步探索系统核心事件的运行机制。这里我们在之前的领域事件的基础上加入事件，命令和角色的概念。</p>
+<ul>
+<li><p><strong>「事件(Event)」</strong></p>
+<p><strong>「事件风暴中的核心概念，是领域专家关心的，在业务上真实发生的「业务行为」，描述的形似为宾语+动词的过去式」</strong>。</p>
+<blockquote>
+<p>例如: 「订单已提交」，「账户已锁定」，「商品已发出」。使用<strong>「橙色」</strong>表示。</p>
+</blockquote>
+</li>
+<li><p><strong>「命令(Command)」</strong></p>
+<p><strong>「产生事件的对象。命令可以理解为是一个动作，执行了动作之后就会产生相应的事件。」</strong></p>
+<blockquote>
+<p>例如:「取消订单」。使用<strong>「深蓝色」</strong>的即时贴表示。</p>
+</blockquote>
+</li>
+<li><p><strong>「角色(User)」</strong></p>
+<p>执行命令的对象，一般是指自然人。</p>
+</li>
+</ul>
+</li>
+<li><p>分析领域模型和聚合</p>
+<ul>
+<li><p><strong>「领域模型」</strong>：<strong>「相同概念指令和事件的集合」</strong>，一般用黄色表示。</p>
+<blockquote>
+<p>领域模型相关的命令放到左边，事件放到右边。</p>
+</blockquote>
+</li>
+<li><p><strong>「聚合」</strong></p>
+<p>当某一个领域模型不能作为一个独立存在的对象。它被另一个领域模型持有和使用。此时我们将两个模型结合起来形成一个聚合。</p>
+</li>
+</ul>
+</li>
+<li><p>划分子域和限界上下文</p>
+<p><strong>「当确定领域模型以后，就可以划分子域和限界上下文」</strong>。子域划分在【领域划分】会有详细说明。</p>
+<p>在划分限界上下文的时候可以<strong>「检验领域模型和通用语言的正确性」</strong>。</p>
+</li>
+</ul>
+<h3 id="实体-amp-值对象"><a href="#实体-amp-值对象" class="headerlink" title="实体&amp;值对象"></a>实体&amp;值对象</h3><h4 id="实体（Entity）"><a href="#实体（Entity）" class="headerlink" title="实体（Entity）"></a>实体（Entity）</h4><p><strong>「DDD中的实体是拥有唯一标识符，经历各种状态变更后仍然可以保持不变的对象。」</strong></p>
+<blockquote>
+<p>实体可以被多次修改，一个实体对象可能和它先前的状态大不相同。由于它们拥有相同的身份标识，他们依然是同一个实体。比如人会经历幼年，少年，中年，老年几个状态，但是始终都是这个人没变。</p>
+<p>这里就有了唯一标识符是这个人，并且在多个状态都还是这个人体现了连续性。</p>
+</blockquote>
+<p>实体有两个重要特性，它们可以超出软件的生命周期：</p>
+<ul>
+<li>标识（identity）</li>
+<li>连续性（continuity）</li>
+</ul>
+<p><strong>「对与实体而言重要的是标识与连续性，而非实体的属性」*<em>。*</em></strong></p>
+<p>在DDD不同的设计过程中，实体的展现形式不一样</p>
+<table>
+<thead>
+<tr>
+<th>业务状态</th>
+<th>代码状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>战略设计阶段：实体是领域模型的一个重要对象：<br><br>实体包含：多个属性，操作，行为；<br><br>事件风暴阶段：根据命令，事件，操作，找出这些行为的业务实体对象，井按照一定的业务规则吧依存度高，业务联系紧密的实体对象和值对象进行聚类，形成聚合</td>
+<td>代码模型中：实体对应实体类：<br><br>实体类包含：属性，方法<br>方法实规的是实体自身的业务逻辑<br><br>实体采用的是充血模型；<br><br>跟实体相关的所有的业务逻辑都在实体类的方法中实现；<br>跨多个实体的领域逻辑则在领域服务中实现；</td>
+</tr>
+<tr>
+<td>运行状态</td>
+<td>数据库状态</td>
+</tr>
+<tr>
+<td>实体以DO（领境对象）的形式样在，可以对实体对象多次修改，但是它的标识不会变</td>
+<td>DDD先构建领域，针对实际业务场景构建实体对象和行为。再把实体对象映射到数据持久化对象<br>一个实体跟数据库中持久化对象的关系：一对一、一对多、多对一抖有可能，甚至有些实体不需要持久化到数据库中；<br><br>#举例：<br>权限提醒：对应两个持久化对象 用户，角色，这是一对多的关系：<br>客户和账户实体：对应了一个持久化对象用户信息，这是多对一的关系；</td>
+</tr>
+</tbody></table>
+<h4 id="值对象（ValueObject）"><a href="#值对象（ValueObject）" class="headerlink" title="值对象（ValueObject）"></a>值对象（ValueObject）</h4><p><strong>「通过对象的属性值来识别的对象，它将多个相关属性组合为一个概念整体，是没有标识符的对象。值对象本质就是一个集合」</strong></p>
+<p>值对象描述了领域中的<strong>「一个不可变的东西」</strong>，它将不同的相关属性组合成了一个概念整体，<strong>「当度量和描述改变的时候可以用另外一个值对象替换，并可以进行相等性比较」</strong></p>
+<ul>
+<li><p>作用：</p>
+<p><strong>「领域建模过程中，值对象可以保证属性的清晰和概念的完整性」</strong></p>
+</li>
+</ul>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/ValueObject.png"></p>
+<p>在这个图中，当我们的领域对象是人员的时候，我们关注的是人员本身，而地址是人员的一个属性，我们把地址构成一个集合，即地址值对象。</p>
+<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><h4 id="聚合根"><a href="#聚合根" class="headerlink" title="聚合根"></a>聚合根</h4><p>在理解集合之前，先来理解一下什么是聚合根</p>
+<p><strong>「聚合根：如果把聚合比作组织，聚合根则是组织的负责人，聚合根也叫做根实体，它是实体并且还是实体的管理者」</strong></p>
+<p><strong>「聚合根的特点」</strong></p>
+<ul>
+<li><p>作为实体，具备自己的业务属性，业务行为，业务逻辑</p>
+</li>
+<li><p>作为聚合的管理者：</p>
+<ul>
+<li><p>在聚合内部：负责协调实体和值对象完成共同的业务逻辑</p>
+</li>
+<li><p>在聚合之间：聚合根是聚合对外的接口人，以聚合根ID的方式接受外部请求和任务，实现上下文中的聚合之间的业务协同。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>「聚合之间通过聚合根关联引用，如果需要访问其他聚合的实体，先访问聚合根，再定位到聚合内部的实体；外部对象不能直接访问聚合内的实体」</strong></p>
+<ul>
+<li>领域模型根据领域分成多个聚合，每个聚合都有一个实体作为<strong>「聚合根」</strong>。</li>
+<li>聚合确定了实体生命周期的关注范围，即当某个实体被创建时，同时需要创建以其所在的整个聚合。而当持久化某个实体时，同样也需要持久化整个聚合。即：<strong>「CRUD操作都应该作用在聚合根上」</strong>，而不是单独的某个实体。</li>
+</ul>
+<h4 id="聚合（Aggregate）"><a href="#聚合（Aggregate）" class="headerlink" title="聚合（Aggregate）"></a>聚合（Aggregate）</h4><ul>
+<li><p>聚合是什么</p>
+<p>在DDD中，实体和值对象都是很基础的领域对象，那么聚合就是它们的集合</p>
+<ul>
+<li><strong>「让实体和值对象协同工作的组织就是聚合，用来确保这些领域对象在实现公共的业务逻辑的时候，可以保持数据的一致性」*<em>。*</em></strong></li>
+<li><strong>「聚合是数据修改和持久化的基本单元，一个聚合中必然有一个聚合根，而一个聚合根对应一个数据的持久化」*<em>。*</em></strong></li>
+</ul>
+<p>聚合的组成：</p>
+<ul>
 <li>限界上下文</li>
-<li>领域、子域、支撑域</li>
-<li>聚合、实体、值对象</li>
-<li>分层：用户接口层、应用层、领域层、基础层</li>
+<li>聚合根</li>
+</ul>
+</li>
+<li><p>聚合的作用</p>
+<p><strong>「聚合在DDD分层架构中属于领域层，领域层包含了多个聚合，共同实现核心业务逻辑，聚合内的实体以充血模型实现个体业务能力，以及业务逻辑的高内聚」*<em>。*</em></strong></p>
+<p>跨多个实体的业务逻辑通过<strong>「领域服务」</strong>来实现，跨多个聚合的业务逻辑通过<strong>「应用服务」</strong>来实现；</p>
+<ul>
+<li><strong>「领域服务：业务场景需要一个聚合中的A实体和B实体共同完成」</strong></li>
+<li><strong>「应用服务：业务逻辑需要聚合C和聚合D共同完成」</strong></li>
+</ul>
+</li>
+<li><p>聚合如何设计</p>
+</li>
+</ul>
+<p>以下是一张保单投保的聚合过程（网图），从下图中可以很清晰的看出来聚合的设计步骤，以及方式方法</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/640.png"></p>
+<ul>
+<li><p>聚合设计原则</p>
+<ul>
+<li><p><strong>「设计小聚合」</strong></p>
+</li>
+<li><ul>
+<li>聚合设计过大，聚合会因为包含过多实体，实体间管理复杂，高频操作时会出现并发冲突或数据库锁，导致系统可用性降低。</li>
+<li>设计小聚合降低实体间复杂度，复用性高，领域模型更能适应业务变化。</li>
+</ul>
+</li>
+<li><p><strong>「在一致性边界内建模真正的不变条件（高内聚）」</strong></p>
+<p>不变条件是一个业务规则，应该保持一致性：</p>
+<p><strong>「聚合封装的是不变的领域对象，而非简单地组合对象。内部的实体和值对象按照固定的规则实现数据的一致性，边界外的任何东西都与该聚合无关。」</strong></p>
+</li>
+<li><ul>
+<li>事务一致性</li>
+<li>最终一致性</li>
+</ul>
+</li>
+<li><p><strong>「通过唯一标识符引用其它聚合」</strong></p>
+<p><strong>「聚合之间通过聚合根的唯一ID来关联，而不是直接对象引用的方式」*<em>。*</em></strong></p>
+<blockquote>
+<p>外部的聚合对象不能在该聚合内管理，容易导致边界不清晰，增加聚合之间的耦合度；</p>
+</blockquote>
+</li>
+<li><p><strong>「边界之外使用最终一致性」</strong></p>
+</li>
+<li><ul>
+<li><p><strong>「聚合内部数据强一致性，聚合之间数据最终一致性」</strong></p>
+</li>
+<li><p><strong>「在一次事务中，最多只能更改一个聚合的状态」</strong></p>
+<blockquote>
+<p>如果一次业务操作涉及多个聚合状态的更改，应采用领域事件的方式异步修改相关的聚合，实现聚合间解耦。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>「通过应用层实现跨聚合的服务调用」</strong></p>
+<blockquote>
+<p>在不持有对象引用的情况下，不能修改其他聚合，所以要避免在同一个事务中修改多个聚合。**「但在领域模型中我们总需要对象之间的关联关系来完成一些任务。*<em>「此时就需要用到」*<em>通过应用层实现跨聚合的服务调用，也就是应用服务的服务编排」*<em>。*</em></em></em></p>
+</blockquote>
+<p><strong>「通过应用服务的服务编排实现微服务内聚合之间的解耦，以及以聚合为单位的服务组合和拆分，应避免跨聚合的领域服务调用和跨聚合的数据库表关联。」</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="特点比较"><a href="#特点比较" class="headerlink" title="特点比较"></a>特点比较</h4><ul>
+<li><p><strong>「聚合」</strong></p>
+<p><strong>「高内聚、低耦合，是领域模型中最底层的边界，可作为拆分微服务的最小单位」</strong></p>
+<blockquote>
+<p>聚合可独立作为一个微服务，以满足版本的高频发布和弹性伸缩要求。一个微服务也可包含多个聚合。</p>
+</blockquote>
+</li>
+<li><p><strong>「聚合根」</strong></p>
+</li>
+<li><ul>
+<li>聚合根是实体，有实体的特点，具有全局唯一标识，有独立的生命周期。</li>
+<li>一个聚合只有一个聚合根。</li>
+<li>聚合根在聚合内对实体和值对象采用直接对象引用的方式进行组织和协调。</li>
+<li>聚合根与聚合根之间通过ID关联的方式实现聚合之间的协同。</li>
+</ul>
+</li>
+<li><p><strong>「实体」</strong></p>
+</li>
+<li><ul>
+<li>有ID标识，ID在聚合内唯一。</li>
+<li>状态可变，依附于聚合根，其生命周期由聚合根管理。</li>
+<li>实体可以持久化，但与数据库持久化对象不一定是一对一的关系。</li>
+<li>实体可引用聚合内的聚合根、实体和值对象。</li>
+</ul>
+</li>
+<li><p><strong>「值对象」</strong></p>
+</li>
+<li><ul>
+<li>无ID，不可变，无生命周期，用完则销毁。</li>
+<li>值对象之间通过属性值判断相等性。</li>
+<li>本质是值，是一组概念完整的属性组成的集合，用于描述实体的状态和特征。</li>
+<li>值对象尽量只引用值对象。</li>
+</ul>
+</li>
+</ul>
+<h3 id="资源库-Repository"><a href="#资源库-Repository" class="headerlink" title="资源库(Repository)"></a>资源库(Repository)</h3><p><strong>「资源库用于保存和获取聚合对象」</strong>。领域对象不需通过基础设施得到领域中对其他对象的引用。只需从资源库中获取。</p>
+<p>资源库会保存对某些对象的引用。当一个对象被创建出来后，可以保存到资源库中，使用时可从资源库中检索到。如果客户程序从资源库中请求一个对象，而资源库中并没有它，就会从存储介质中获取它。<strong>「资源库作为一个全局的可访问对象的存储而存在」</strong></p>
+<p>资源库与DAO的区别：</p>
+<ul>
+<li>DAO只是对数据库的一层很薄的封装，而资源库则更加具有领域特征。</li>
+<li>实体都可以有相应的DAO，但只有聚合对象才有相应的资源库。</li>
+</ul>
+<p>Repository以<strong>「领域」</strong>为中心，把ORM框架与领域模型隔离，对外隐藏封装了数据访问机制。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Repository.png"></p>
+<p>时序图</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/Repository_UML.png"></p>
+<h3 id="工厂"><a href="#工厂" class="headerlink" title="工厂"></a>工厂</h3><p><strong>「DDD中工厂的主要目标：隐藏对象的复杂创建逻辑，清晰的表达对象实例化的意图。」</strong></p>
+<p>工厂模式是计模式中的创建类模式之一。我们可以借助<strong>「工厂模式实现DDD中领域对象的创建」</strong>。</p>
+<p><strong>「工厂的设计要点」</strong></p>
+<ul>
+<li><p>每个创建对象的方法都应该是原子的，并保证生成的对象处于一致的状态。</p>
+</li>
+<li><p><strong>「可以使用独立的工厂或者在聚合根上使用工厂方法」</strong></p>
+<blockquote>
+<p>当 A 对象的创建主要使用了 B 对象的数据或者规则时，那么可以在 B 对象上创建一个工厂方法来生成 A 对象。</p>
+</blockquote>
+</li>
+<li><p>以下情况只需使用构造函数即可</p>
+<ul>
+<li><p>类仅仅是一种类型，没有其他子类，没有实现多态性。</p>
+</li>
+<li><p>客户端关心的是实现类。</p>
+</li>
+<li><p>客户端可以访问对象的所有属性，因此向客户公开的构造函数中没有嵌套的对象创建。</p>
+</li>
+<li><p>公共构造函数必须遵守与工厂相同的规则，必须是原子操作且满足所有固定规则。</p>
+</li>
+<li><p>不要在构造函数中调用其他构造函数，应保持构造函数的简单。</p>
+</li>
+</ul>
+</li>
+<li><p>工厂方法的参数应该是较低层的对象。</p>
+</li>
+</ul>
+<h3 id="领域服务-amp-应用服务"><a href="#领域服务-amp-应用服务" class="headerlink" title="领域服务&amp;应用服务"></a>领域服务&amp;应用服务</h3><p><strong>「服务是行为的抽象」</strong>。根据DDD的分层架构，<strong>「应用服务属于应用层，领域服务属于领域层」</strong></p>
+<p><strong>「应用服务是用来表述应用行为，而领域服务用来表述领域行为」</strong>。</p>
+<ul>
+<li>应用行为描述了一个具体操作从开始到结束的每一个环节。</li>
+<li>领域行为是对应用行为的细化，用来处理具体的某一个环节。</li>
+</ul>
+<h4 id="应用服务"><a href="#应用服务" class="headerlink" title="应用服务"></a>应用服务</h4><p>应用服务是用来<strong>「表达用例和用户故事（User Story)的主要方式」</strong>。</p>
+<ul>
+<li><p>应用层通过应用服务接口来暴露系统的全部功能。</p>
+</li>
+<li><p>应用服务主要负责<strong>「编排和转发」</strong></p>
+<p>将要实现的功能委托给一个或多个领域对象来实现，它本身只负责处理业务用例的执行顺序以及结果的拼装。<strong>「从而隐藏了领域层的复杂性及其内部实现机制」</strong></p>
+</li>
+<li><p>应用层在四层架构中是比较【薄】的一层。</p>
+</li>
+<li><p>除了服务编排，在该层还可以进行安全认证，权限校验，持久化事务控制，外部系统访问等。</p>
+</li>
+<li><p>应用层是防腐层与领域层的桥梁。</p>
+</li>
+<li><ul>
+<li>防腐层使用VO（视图模型）进行界面展示，</li>
+<li>防腐层与应用层通过DTO（数据传输对象）进行数据交互，使得防腐层与领域层Entity（领域对象）解耦的。</li>
+</ul>
+</li>
+</ul>
+<p><strong>「小结」</strong></p>
+<ul>
+<li><p><strong>「应用服务的职责」</strong></p>
+<p>跨限界上下文业务逻辑。DTO转换。事务AOP、权限AOP、日志AOP、异常AOP。外部系统访问：邮件、消息队列。</p>
+</li>
+<li><p><strong>「应用服务的设计原则」</strong></p>
+<p>用来封装业务逻辑。面向用例和用户故事，一个请求对应一个方法。应用服务之间互不依赖。</p>
+</li>
+</ul>
+<h4 id="领域服务"><a href="#领域服务" class="headerlink" title="领域服务"></a>领域服务</h4><p><strong>「领域服务是用来协调领域对象完成某个操作，用来处理业务逻辑的，它本身是一个无状态的行为。状态由领域对象（具有状态和行为）保存」</strong></p>
+<blockquote>
+<p>当领域中的某个操作过程或转换过程不是实体或值对象的职责时，我们便应该将该操作放在一个单独的接口中，即领域服务。</p>
+</blockquote>
+<p><strong>「领域层是在四层架构中是比较【充实】的一层。，它实现了全部业务逻辑（业务流程、业务策略、业务规则、完整性约束等）并且通过各种校验手段保证业务正确性」</strong></p>
+<p><strong>「小结：」</strong></p>
+<ul>
+<li><p><strong>「领域服务的职责」</strong></p>
+<p>处理聚合实例业务逻辑。没办法合理放到实体中的其它业务逻辑。</p>
+</li>
+<li><p><strong>「领域服务的设计原则」</strong></p>
+<p>组织业务逻辑。面向业务逻辑，一个请求对应多个服务的多个方法，领域服务之间会存在依赖。</p>
+</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>当应用服务中的逻辑过于复杂时，我们应该重新考虑领域服务的划分，避免领域逻辑泄露到应用服务中去。而在使用领域服务时，因为有些操作更适合放到领域对象（实体和值对象）中去，这可能会导致贫血领域模型。</p>
+<ul>
+<li>服务是行为的抽象。</li>
+<li>应用服务<strong>「通过服务编排来委托领域对象和领域服务来表达用例和用户故事」*<em>。*</em></strong></li>
+<li>领域对象（实体和值对象）负责单一操作。</li>
+<li>领域服务用于协调多个领域对象共同完成某个业务操作。</li>
+<li>应用服务不处理业务逻辑，领域服务处理业务逻辑。</li>
+</ul>
+<h2 id="DDD战略设计与战术设计"><a href="#DDD战略设计与战术设计" class="headerlink" title="DDD战略设计与战术设计"></a>DDD战略设计与战术设计</h2><p>DDD的的具体落地分为战略设计阶段和战术设计阶段。这两个阶段指导着系统需求分析一直到编码实现，是由战略设计到战术设计推进的过程。主要包含需求分析——统一语言——领域模型——程序设计——编码实现。</p>
+<h3 id="战略设计"><a href="#战略设计" class="headerlink" title="战略设计"></a>战略设计</h3><p>战略设计也叫战略建模，<strong>通过DDD的理论，对业务需求进行拆解分析，划分子域，梳理限界上下文，通过领域语言从战略层面进行领域划分以及构建领域模型</strong>。并且在在构建领域模型的过程中梳理出业务对应的聚合、实体、以及值对象。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/strategic_design.png"></p>
+<p>在战略设计中最主要的工作只有两个：</p>
+<ul>
+<li><p>领域划分</p>
+<p>通过对业务的拆解以及公司团队的业务定位，将业务场景分解，识别出核心领域、通用域、支撑域。并确定领域的边界以及领域间关系。</p>
+</li>
+<li><p><strong>领域建模</strong></p>
+<p>通过业务场景，对用户故事以及用例的分析，梳理限界上下文，确定领域边界以及上下文映射图(Context Map)，建立领域模型，分析领域事件，聚合、实体、以及值对象。</p>
+</li>
+</ul>
+<h3 id="战术设计"><a href="#战术设计" class="headerlink" title="战术设计"></a>战术设计</h3><p>战术设计也称为战术建模，以领域模型基础，通过限界上下文作为服务划分的边界进行微服务拆分，在每个微服务中进行领域分层，实现领域服务，从而实现领域模型对于代码映射目的，最终实现DDD的落地实施。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/tactical_design.png"></p>
+<p>战术设计是DDD的最终落地实现的阶段：</p>
+<ul>
+<li><p><strong>服务划分</strong></p>
+<p>通过战略设计输出各个领域与限界上下文后，可以籍此进行微服务划分与设计，一个服务可以有多个聚合。</p>
+</li>
+<li><p><strong>领域模型</strong></p>
+<p>通过战略设计中的领域建模，落地值对象、实体、领域服务、领域事件</p>
+</li>
+<li><p><strong>资源库</strong></p>
+<p>确定聚合根之后，建立资源库，对领域对象的CRUD都通过资源库实现</p>
+</li>
+<li><p><strong>工厂</strong></p>
+<p>负责领域对象的创建，用于封装复杂或者可能变化的创建逻辑</p>
+</li>
+<li><p><strong>聚合</strong></p>
+<p>根据限界上下文，封装实体与值对象，并维持业务的完整性与统一性。</p>
+</li>
+<li><p><strong>应用服务</strong></p>
+<p>隔离防腐层与领域层，<strong>对领域进行服务编排与转发。</strong></p>
+</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>战略设计与战术设计是DDD落地的基础，战略设计是支撑战术设计实施的前提</li>
+<li>战略设计可以控制和分解战术设计的边界和粒度</li>
+<li>战术设计则以实证角度验证领域模型的有效性、完整性与一致性</li>
+<li>战术设计以演进的方式对之前的战略设计阶段进行迭代，形成螺旋式上升的迭代设计</li>
+</ul>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/designSum.png"></p>
+<h2 id="贫血模型与充血模型"><a href="#贫血模型与充血模型" class="headerlink" title="贫血模型与充血模型"></a>贫血模型与充血模型</h2><h3 id="贫血模型"><a href="#贫血模型" class="headerlink" title="贫血模型"></a>贫血模型</h3><p><strong>领域对象只有属性值与get和set方法，没有任何业务逻辑</strong>。所有的业务逻辑都放在业务层的service上。基于贫血模型的MVC架构非常常见的，具体原因：</p>
+<ul>
+<li><p>我们一般的业务中就是基于SQL 的 CRUD ，贫血模型就足以应付这种业务开发</p>
+</li>
+<li><p>当我们的业务比较简单的时候，充血模型包含的业务逻辑很简单，领域模型比较薄，跟贫血模型相差不大。</p>
+</li>
+<li><p>设计风格不同</p>
+<p>面向过程编程风格违反了 OOP 的封装特性，会使得数据和操作不受限制。充血模型的面向对象编程风格会使得我们在<strong>设计之初就确定好了对数据操作暴露的操作，在 Service 层定义操作即可，不需要设计数据的CRUD。</strong></p>
+</li>
+<li><ul>
+<li>充血模型：面向对象的编程风格</li>
+<li>贫血模型：面向过程的编程风格</li>
+</ul>
+</li>
+<li><p>贫血模型的思维已普及固化，开发人员从贫血模型到充血模型的思想转变是很难的，学习成本也高。</p>
+</li>
+</ul>
+<h4 id="贫血模型优缺点"><a href="#贫血模型优缺点" class="headerlink" title="贫血模型优缺点"></a>贫血模型优缺点</h4><ul>
+<li><p>优点</p>
+<ul>
+<li>各层单向依赖，代码结构清楚，易于实现和维护。</li>
+<li>设计简单，底层模型稳定。</li>
+</ul>
+</li>
+<li><p>不足</p>
+<ul>
+<li>领域对象的领域事件被分离到Service层，在一定程度上违反了OOP特性的封装性</li>
+<li>service上的业务过于厚重，依赖性强，不利于扩展与维护。</li>
+</ul>
+</li>
+</ul>
+<h3 id="充血模型"><a href="#充血模型" class="headerlink" title="充血模型"></a>充血模型</h3><p>充血模型是指数据和业务逻辑被封装到同一个类中。<strong>即领域对象拥有此领域相关行为，包含此领域相关的业务逻辑，同时也包含对领域对象的持久化操作</strong>。充血模型满足面向对象的封装特性，是典型的面向对象编程风格。</p>
+<h4 id="充血模型优缺点"><a href="#充血模型优缺点" class="headerlink" title="充血模型优缺点"></a>充血模型优缺点</h4><ul>
+<li><p>优点</p>
+<ul>
+<li>符合单一职责，领域对象处理与自己相关的所有行为。不像在贫血模型所有的业务逻辑都在领域service中，沉重，臃肿。</li>
+<li>将我们的业务逻辑与其他动作（控制事务、权限等）分离。</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>很多时候，我们并<strong>不能很清晰的区分什么逻辑应该放在领域服务中，什么样的逻辑应该放在领域对象中</strong>。这需要我们根据业务以及自身对DDD的理解加以权衡。</li>
+</ul>
+</li>
+</ul>
+<h3 id="DDD为什么使用充血模型"><a href="#DDD为什么使用充血模型" class="headerlink" title="DDD为什么使用充血模型"></a>DDD为什么使用充血模型</h3><ul>
+<li>在我们MVC的开发模式中，都是<strong>SQL 驱动的开发模式</strong>。<strong>先确定业务涉及到的数据库表，根据表结构编写 SQL 语句来CRUD，然后在Service中添加调用，往往很小业务的区别，我们要写不同SQL来实现，SQL的复用性很差</strong>。对于复杂业务系统，这种开发方式会让代码越来越混乱，最终导致无法维护。</li>
+<li>在充血模型的 DDD 的开发模式中，我们在<strong>领域建模的时候就会先理清楚所有的业务，定义领域模型所包含的属性和方法，新功能需求的开发是基于领域模型来完成</strong>。领域模型相当于的业务中间层，提供代码的可复用性。</li>
 </ul>
 <h2 id="DDD-分层架构"><a href="#DDD-分层架构" class="headerlink" title="DDD 分层架构"></a>DDD 分层架构</h2><ul>
 <li><strong>严格分层架构：</strong>某层只能与直接位于的下层发生耦合。</li>
 <li><strong>松散分层架构：</strong>允许上层与任意下层发生耦合。</li>
 </ul>
+<p>DDD的分层架构理念源于整洁架构的思想，在具体实践中一共提供了四层架构，五层架构，六边形架构分层架构的指导思想，而在DDD的落地中使用的比较多的就是四层架构，有时候也称之为经典四层架构。</p>
 <p>在领域驱动设计（DDD）中采用的是松散分层架构，层间关系不那么严格。每层都可能使用它下面所有层的服务，而不仅仅是下一层的服务。</p>
-<p>每层都可能是半透明的，这意味着有些服务只对上一层可见，而有些服务对上面的所有层都可见。</p>
+<h3 id="整洁架构"><a href="#整洁架构" class="headerlink" title="整洁架构"></a>整洁架构</h3><p><strong>「在领域驱动设计的分层架构中，对传统的自上而下的依赖提出了挑战。采用依赖倒置原则：」</strong></p>
+<ul>
+<li>要求高层模块不应依赖于底层模块，二者都应依赖于抽象。</li>
+<li>抽象不应该依赖于细节，细节应该依赖于抽象。</li>
+</ul>
+<p>基于此，<strong>「我们不能再用传统MVC的上下层的一维思想去看待DDD的四层架构，而应该以水平的二维眼光去看待。」</strong></p>
+<p><strong>「整洁架构模型」</strong></p>
+<p>整洁架构：又称为<strong>「干净架构」</strong>，有时也称为<strong>「洋葱架构」</strong>，它是<strong>「在水平的二维上进行分层，类似于一个内核模式的内外层架构」</strong>，由内及外分为四层。每层仅<strong>「取决于直接位于其内部的层」</strong>。最独立的层显示在最内圈，属于领域层。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/onion.png"></p>
+<ul>
+<li>越靠内的层组件依赖的内容越少，处于核心的 Entities 不依赖与任何层。</li>
+<li>越靠内的层组件与业务的关系越紧密，具有业务唯一性。</li>
+<li>领域服务层封装了业务规则，是一个面向业务的领域模型。</li>
+<li>应用服务层是内部业务与外部资源的一个隔离，它对外展现其应用逻辑，对内进行业务编排。</li>
+<li>用户界面实现应用业务与外层框架和驱动器的交互，给外部资源提供访问的入口。</li>
+<li>基础资源负责对接外部资源，BD，缓存，中间件等。</li>
+</ul>
+<h3 id="DDD四层架构"><a href="#DDD四层架构" class="headerlink" title="DDD四层架构"></a>DDD四层架构</h3><p>每层都可能是半透明的，这意味着有些服务只对上一层可见，而有些服务对上面的所有层都可见。</p>
 <p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/construct.png"></p>
-<p>分层的作用，从上往下：</p>
+<h4 id="四层架构结构模型"><a href="#四层架构结构模型" class="headerlink" title="四层架构结构模型"></a>四层架构结构模型</h4><ul>
+<li><p><strong>用户交互层</strong></p>
+<p>当服务应用面向多个前端应用时，可能由于渠道而导致数据的返回不同，为保证核心业务逻辑不暴露，防止数据外泄，也为提高应用服务或领域服务的复用性与扩展性。用户界面层为前端应用提供不同的服务适配，保证应用层和领域层核心领域逻辑的稳定。</p>
 <ul>
-<li><strong>用户交互层：</strong>web 请求，rpc 请求，mq 消息等外部输入均被视为外部输入的请求，可能修改到内部的业务数据。</li>
-<li><strong>业务应用层：</strong>与 MVC 中的 service 不同的不是，service 中存储着大量业务逻辑。但在应用服务的实现中，它负责编排、转发、校验等。</li>
-<li><strong>领域层：</strong>或称为模型层，系统的核心，负责表达业务概念，业务状态信息以及业务规则。即包含了该领域所有复杂的业务知识抽象和规则定义。该层主要精力要放在领域对象分析上，可以从实体，值对象，聚合（聚合根），领域服务，领域事件，仓储，工厂等方面入手。</li>
-<li><strong>基础设施层：</strong>主要有 2 方面内容，一是为领域模型提供持久化机制，当软件需要持久化能力时候才需要进行规划；一是对其他层提供通用的技术支持能力，如消息通信，通用工具，配置等的实现。</li>
+<li>封装应用服务，适配不同前端应用，提供不同类型的服务接口。</li>
+<li>根据前端应用的要求，完成数据的组装和转换。</li>
 </ul>
+<p>web 请求，rpc 请求，mq 消息等外部输入均被视为外部输入的请求，可能修改到内部的业务数据。</p>
+</li>
+<li><p><strong>业务应用层</strong></p>
+<ul>
+<li>应用层用户隔离用户接口层和领域层</li>
+<li><strong>「主要用于协调领域服务和领域对象完成组合、编排和转发，处理执行结果的拼装。」</strong></li>
+<li><strong>「远程的服务调用、安全认证、权限校验、事务控制、领域事件发布或订阅等都在应用服务中进行。」</strong></li>
+</ul>
+</li>
+<li><p><strong>领域层：</strong></p>
+<ul>
+<li>领域层实现领域模型的核心业务逻辑，是领域模型的核心。</li>
+</ul>
+</li>
+<li><ul>
+<li><p>领域模型的业务逻辑主要由<strong>「实体(充血模型)和领域服务」</strong>来实现。</p>
+<p>负责表达业务概念，业务状态信息以及业务规则。即包含了该领域所有复杂的业务知识抽象和规则定义。该层主要精力要放在领域对象分析上，可以从实体，值对象，聚合（聚合根），领域服务，领域事件，仓储，工厂等方面入手。</p>
+<p><strong>「当单一实体或值对象不能实现时，就由领域服务进行组合和协调聚合内多个实体或值对象，实现复杂的业务逻辑。」</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>基础设施层：</strong></p>
+<ul>
+<li>为领域模型提供持久化机制，当软件需要持久化能力时候才需要进行规划；</li>
+<li>一是对其他层提供通用的技术支持能力，如消息通信，通用工具，配置等的实现。<strong>「基础设施层采用依赖倒置的设计思想，与其他层解耦。」</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/ddd.png"></p>
 <p>在设计和开发时，不要将本该放在领域层的业务逻辑放到应用层中实现，因为庞大的应用层会使领域模型失焦，时间一长你的服务就会演化为传统的三层架构，业务逻辑会变得混乱。</p>
-<h3 id="MVC-架构到-DDD-分层架构的映射"><a href="#MVC-架构到-DDD-分层架构的映射" class="headerlink" title="MVC 架构到 DDD 分层架构的映射"></a>MVC 架构到 DDD 分层架构的映射</h3><p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc2DDD.jpeg"></p>
-<h3 id="各层数据转换"><a href="#各层数据转换" class="headerlink" title="各层数据转换"></a>各层数据转换</h3><p>每一层都有自己特定的数据，可以做如下区分：</p>
+<h4 id="MVC-架构到-DDD-分层架构的映射"><a href="#MVC-架构到-DDD-分层架构的映射" class="headerlink" title="MVC 架构到 DDD 分层架构的映射"></a>MVC 架构到 DDD 分层架构的映射</h4><p>DDD四层架构<strong>「并非」</strong>是字面上在MVC三层架构上加一层，两者最大的区别：</p>
 <ul>
-<li><strong>VO（View Object）：</strong>视图对象，主要对应界面显示的数据对象。对于一个 WEB 页面，或者 SWT、SWING 的一个界面，用一个 VO 对象对应整个界面的值。</li>
-<li><strong>DTO（Data Transfer Object）：</strong>数据传输对象，主要用于远程调用等需要大量传输对象的地方。比如我们一张表有 100 个字段，那么对应的 PO 就有 100 个属性。但是我们界面上只要显示 10 个字段，客户端用 WEB service 来获取数据，没有必要把整个 PO 对象传递到客户端，这时我们就可以用只有这 10 个属性的 DTO 来传递结果到客户端，这样也不会暴露服务端表结构。到达客户端以后，如果用这个对象来对应界面显示，那此时它的身份就转为 VO。在这里，我泛指用于展示层与服务层之间的数据传输对象。</li>
-<li><strong>DO（Domain Object）：</strong>领域对象，就是从现实世界中抽象出来的有形或无形的业务实体。</li>
-<li><strong>PO（Persistent Object）：</strong>持久化对象，它跟持久层（通常是关系型数据库）的数据结构形成一一对应的映射关系，如果持久层是关系型数据库，那么，数据表中的每个字段（或若干个）就对应 PO 的一个（或若干个）属性。最形象的理解就是一个 PO 就是数据库中的一条记录，好处是可以把一条记录作为一个对象处理，可以方便的转为其它对象。</li>
+<li><p><strong>「思想上的转变」</strong></p>
+</li>
+<li><ul>
+<li>MVC三层架构是上下层设计思想</li>
+<li>DDD四层架构一个内核模式的内外层架构</li>
 </ul>
-<h3 id="DDD-基础"><a href="#DDD-基础" class="headerlink" title="DDD 基础"></a>DDD 基础</h3><p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/swzxsyh/Documents/GitHub/swzxsyh.github.io/source/_posts/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/base.png"></p>
-<p>学习 DDD 前，有很多基础概念需要掌握，这幅图总结的很全，他把 DDD 划分不同的层级：</p>
+</li>
+<li><p><strong>「各层自己的职责重新划分」</strong></p>
+</li>
+<li><ul>
+<li><p><strong>「用户接口层」</strong></p>
+<p>封装应用服务，给前端应用提供灵活的数据和接口适配能力。</p>
+</li>
+<li><p><strong>「业务逻辑层」</strong></p>
+<p><strong>「业务逻辑层拆分到应用层和领域层，应用服务实现服务的组合和编排，领域服务完成核心领域逻辑。」</strong></p>
+</li>
+<li><p><strong>「数据访问层」</strong></p>
+<p>数据访问层从DAO方式改为<strong>「仓储模式，领域层可以用过仓储接口访问基础资源的实现逻辑。」</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/mvc2DDD.jpeg"></p>
+<h2 id="CQRS"><a href="#CQRS" class="headerlink" title="CQRS"></a>CQRS</h2><h3 id="什么是CQRS"><a href="#什么是CQRS" class="headerlink" title="什么是CQRS"></a>什么是CQRS</h3><p><strong>命令查询职责分离：简称CQRS（Command Query Resposibility Segregation）。它是将软件设计中的命令-查询分离并应用在架构模式中的设计原则</strong>。</p>
+<p>在《Object-Oriented Software Construction》书中有一个概念：</p>
+<blockquote>
+<p>Every method should either be a command that performs an action, or a query that returns data to the caller, but never both.</p>
+<p>译文：一个方法要么作为一个【命令】执行一个操作，要么作为一次【查询】向调用方返回数据，但两者不能共存。</p>
+</blockquote>
+<p><strong>CQRS从模型层面，将即【命令】和【查询】分别使用不同的对象模型来表示。</strong></p>
 <ul>
-<li>最里层是值、属性、唯一标识等，这个是最基本的数据单位，但不能直接使用。</li>
-<li>然后是实体，这个把基础的数据进行封装，可以直接使用，在代码中就是封装好的一个个实体对象。</li>
-<li>之后就是领域层，它按照业务划分为不同的领域，比如订单领域、商品领域、支付领域等。</li>
-<li>最后是应用服务，它对业务逻辑进行编排，也可以理解为业务层。</li>
+<li><p>【<strong>命令</strong>】：Command ，<strong>修改了对象的状态</strong></p>
+<blockquote>
+<p>不应该返回数据，在Java中，方法应该声明为void。</p>
+</blockquote>
+</li>
+<li><p>【<strong>查询</strong>】：Query ，<strong>不应该通过直接或者间接的方式修改对象状态</strong></p>
+<blockquote>
+<p>返回数据，在Java中，方法应该声明返回的数据类型。</p>
+</blockquote>
+</li>
 </ul>
-<h4 id="领域和子域"><a href="#领域和子域" class="headerlink" title="领域和子域"></a>领域和子域</h4><p>领域（domain）是个模块，包含以下组成部分，传统的 service 按功能可能拆分到任何一个地方，各司其职：</p>
+<p><strong>在DDD架构中，通常会将查询和命令操作分开。具体落地时，可以将Command和Query分成两个工程，但是大多数情况下放在一个项目可以提高业务内聚性</strong>。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS.jpeg"></p>
 <ul>
-<li>1 个聚合</li>
-<li>1 到多个实体</li>
-<li>若干值对象</li>
-<li>多个 DomainService</li>
-<li>1 个 Factory：新建聚合</li>
-<li>1 个 Repository：聚合仓储服务</li>
+<li><p>这张图读写体现的是<strong>逻辑分离，物理层面使用的是同一个数据库，而实际上可以将数据库改成读库和写库的物理分离，只需要同步两个库即可。常用的解决方案是当写库发生更改时，通过Event事件机制通知读库进行同步。</strong></p>
+</li>
+<li><p>在实际的CQRS落地时，我们即使物理层面使用的是同一个数据库，但是可能还是会用到其他的物理存储，比如Elasticsearch，Redis等。当数据库发生更改时：</p>
+</li>
+<li><ul>
+<li><strong>发送Event事件通知ES&#x2F;Redis进行数据更新同步。</strong></li>
+<li><strong>通过监听Mysql的binlog更新ES&#x2F;Redis。</strong></li>
 </ul>
-<p>在研究和解决业务问题时，DDD 会按照一定的规则将业务领域进行细分，当领域细分到一定的程度后，DDD 会将问题范围限定在特定的边界内，在这个边界内建立领域模型，进而用代码实现该领域模型，解决相应的业务问题。</p>
-<p>简言之，DDD 的领域就是这个边界内要解决的业务问题域。</p>
-<p>领域可以进一步划分为子领域。我们把划分出来的多个子领域称为子域，每个子域对应一个更小的问题域或更小的业务范围。</p>
-<p>领域的核心思想就是将问题域逐级细分，来降低业务理解和系统实现的复杂度。通过领域细分，逐步缩小服务需要解决的问题域，构建合适的领域模型。</p>
-<p>举个简单的例子，对于保险领域，我们可以把保险细分为承保、收付、再保以及理赔等子域，而承保子域还可以继续细分为投保、保全（寿险）、批改（财险）等子子域。</p>
-<h4 id="核心域、通用域和支撑域"><a href="#核心域、通用域和支撑域" class="headerlink" title="核心域、通用域和支撑域"></a>核心域、通用域和支撑域</h4><p>子域可以根据重要程度和功能属性划分为如下：</p>
+</li>
+</ul>
+<h3 id="CQRS实现方式"><a href="#CQRS实现方式" class="headerlink" title="CQRS实现方式"></a>CQRS实现方式</h3><h4 id="读模型的数据源"><a href="#读模型的数据源" class="headerlink" title="读模型的数据源"></a>读模型的数据源</h4><p>读写模型可以将Command和Query分成两个工程使用不同的物理库，也可以放在一起使用同一个物理库。无论是那种方式<strong>数据的来源应该都来自于业务实体对象（比如聚合根）</strong>。</p>
+<p>读模型的<strong>数据源形式</strong>分为：</p>
 <ul>
-<li><strong>核心域：</strong>决定产品和公司核心竞争力的子域，它是业务成功的主要因素和公司的核心竞争力。</li>
-<li><strong>通用域：</strong>没有太多个性化的诉求，同时被多个子域使用的通用功能的子域。</li>
-<li><strong>支撑域：</strong>但既不包含决定产品和公司核心竞争力的功能，也不包含通用功能的子域。</li>
+<li><strong>单进程单实体</strong>：数据来源于同一个进程空间的单个实体</li>
+<li><strong>单进程跨实体</strong>：数据来源于同一个进程空间中的多个实体</li>
+<li><strong>跨进程跨实体</strong>：数据来源于不同进程空间中的多个实体</li>
 </ul>
-<p>核心域、支撑域和通用域的主要目标：通过领域划分，区分不同子域在公司内的不同功能属性和重要性，从而公司可对不同子域采取不同的资源投入和建设策略，其关注度也会不一样。</p>
-<p>很多公司的业务，表面看上去相似，但商业模式和战略方向是存在很大差异的，因此公司的关注点会不一样，在划分核心域、通用域和支撑域时，其结果也会出现非常大的差异。</p>
-<p>比如同样都是电商平台的淘宝、天猫、京东和苏宁易购，他们的商业模式是不同的。淘宝是 C2C 网站，个人卖家对个人买家，而天猫、京东和苏宁易购则是 B2C 网站，是公司卖家对个人买家。</p>
-<p>即便是苏宁易购与京东都是 B2C 的模式，苏宁易购是典型的传统线下卖场转型成为电商，京东则是直营加部分平台模式。</p>
-<p>因此，在公司建立领域模型时，我们就要结合公司战略重点和商业模式，重点关注核心域。</p>
-<h4 id="通用语言和限界上下文"><a href="#通用语言和限界上下文" class="headerlink" title="通用语言和限界上下文"></a>通用语言和限界上下文</h4><ul>
-<li><strong>通用语言：</strong>就是能够简单、清晰、准确描述业务涵义和规则的语言。</li>
-<li><strong>限界上下文：</strong>用来封装通用语言和领域对象，提供上下文环境，保证在领域之内的一些术语、业务相关对象等（通用语言）有一个确切的含义，没有二义性。</li>
-</ul>
-<h5 id="①通用语言"><a href="#①通用语言" class="headerlink" title="①通用语言"></a>①通用语言</h5><p>通用语言是团队统一的语言，不管你在团队中承担什么角色，在同一个领域的软件生命周期里都使用统一的语言进行交流。</p>
-<p>那么，通用语言的价值也就很明了，它可以解决交流障碍这个问题，使领域专家和开发人员能够协同合作，从而确保业务需求的正确表达。</p>
-<p>这个通用语言到场景落地，大家可能还很模糊，其实就是把领域对象、属性、代码模型对象等，通过代码和文字建立映射关系，可以通过 Excel 记录这个关系。</p>
-<p>这样研发可以通过代码知道这个含义，产品或者业务方可以通过文字知道这个含义，沟通起来就不会有歧义，说的简单一点，其实就是统一产品和研发的话术。</p>
-<h5 id="②限界上下文"><a href="#②限界上下文" class="headerlink" title="②限界上下文"></a><strong>②限界上下文</strong></h5><p>通用语言也有它的上下文环境，为了避免同样的概念或语义在不同的上下文环境中产生歧义，DDD 在战略设计上提出了“限界上下文”这个概念，用来确定语义所在的领域边界。</p>
-<p>限界上下文是一个显式的语义和语境上的边界，领域模型便存在于边界之内。边界内，通用语言中的所有术语和词组都有特定的含义。把限界上下文拆解开看，限界就是领域的边界，而上下文则是语义环境。</p>
-<p>通过领域的限界上下文，我们就可以在统一的领域边界内用统一的语言进行交流。</p>
-<p>边界体现在以下几方面：</p>
+<p>进程空间：指某个单体应用或者单个微服务。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_R.png"></p>
+<h4 id="读写分离的形式"><a href="#读写分离的形式" class="headerlink" title="读写分离的形式"></a>读写分离的形式</h4><p>读写分离的形式基于数据来源的不同，<strong>CQRS可以在代码中实现读写分离（共享模型&#x2F;分离模型），也可以在物理存储中实现读写分离（共享存储&#x2F;分离存储）</strong>。两种方式是结合起来使用的：</p>
 <ul>
-<li><strong>领域逻辑层：</strong>确定了领域模型的业务边界，维护了模型的完整性与一致性，从而降低系统的业务复杂度。</li>
-<li><strong>团队合作层：</strong>限界上下文一般也是用户换分团队的依据。</li>
-<li><strong>技术实现层：</strong>限界上下文可当成是微服务的划分边界。</li>
+<li><p><strong>共享存储&#x2F;共享模型</strong></p>
+<p>共享存储（读写同一个数据库），共享模型(读写同一个领域服务，领域对象)，数查询据通过模型转换后返回给调用方。</p>
+</li>
+<li><p><strong>共享存储&#x2F;分离模型</strong></p>
+<p>共享数据存储，代码中<strong>分别建立写模型和读模型</strong>，读模型是基于查询方式进行的建模。</p>
+</li>
+<li><p><strong>分离存储&#x2F;分离模型</strong></p>
+<p><strong>数据存储和代码模型都是分离的，通常用于需要聚合查询多个子系统</strong>（比如微服务系统）。</p>
+</li>
 </ul>
-<h3 id="领域模型-实体和值对象"><a href="#领域模型-实体和值对象" class="headerlink" title="领域模型 - 实体和值对象"></a>领域模型 - 实体和值对象</h3><h5 id="①实体"><a href="#①实体" class="headerlink" title="①实体"></a>①实体</h5><p>实体 &#x3D; 唯一身份标识 + 可变性【状态 + 行为】</p>
-<p>DDD 中要求实体是唯一的且可持续变化的。意思是说在实体的生命周期内，无论其如何变化，其仍旧是同一个实体。唯一性由唯一的身份标识来决定的。可变性也正反映了实体本身的状态和行为。</p>
-<p>实体以 DO（领域对象）的形式存在，每个实体对象都有唯一的 ID。我们可以对一个实体对象进行多次修改，修改后的数据和原来的数据可能会大不相同。</p>
-<p>但是，由于它们拥有相同的 ID，它们依然是同一个实体。比如商品是商品上下文的一个实体，通过唯一的商品 ID 来标识，不管这个商品的数据如何变化，商品的 ID 一直保持不变，它始终是同一个商品。</p>
-<h5 id="②值对象"><a href="#②值对象" class="headerlink" title="②值对象"></a>②值对象</h5><p>值对象 &#x3D; 将一个值用对象的方式进行表述，来表达一个具体的固定不变的概念。</p>
-<p>当你只关心某个对象的属性时，该对象便可作为一个值对象。我们需要将值对象看成不变对象，不要给它任何身份标识，还应该尽量避免像实体对象一样的复杂性。</p>
-<p>还是举个订单的例子，订单是一个实体，里面包含地址，这个地址可以只通过属性嵌入的方式形成的订单实体对象，也可以将地址通过 json 序列化一个 string 类型的数据，存到 DB 的一个字段中，那么这个 Json 串就是一个值对象。</p>
-<h3 id="领域模型-聚合和聚合根"><a href="#领域模型-聚合和聚合根" class="headerlink" title="领域模型 - 聚合和聚合根"></a>领域模型 - 聚合和聚合根</h3><h5 id="①聚合"><a href="#①聚合" class="headerlink" title="①聚合"></a>①聚合</h5><p>聚合：我们把一些关联性极强、生命周期一致的实体、值对象放到一个聚合里。聚合是领域对象的显式分组，旨在支持领域模型的行为和不变性，同时充当一致性和事务性边界。</p>
-<p>聚合有一个聚合根和上下文边界，这个边界根据业务单一职责和高内聚原则，定义了聚合内部应该包含哪些实体和值对象，而聚合之间的边界是松耦合的。按照这种方式设计出来的服务很自然就是“高内聚、低耦合”的。</p>
-<p>聚合在 DDD 分层架构里属于领域层，领域层包含了多个聚合，共同实现核心业务逻辑。跨多个实体的业务逻辑通过领域服务来实现，跨多个聚合的业务逻辑通过应用服务来实现。</p>
-<p>比如有的业务场景需要同一个聚合的 A 和 B 两个实体来共同完成，我们就可以将这段业务逻辑用领域服务来实现；而有的业务逻辑需要聚合 C 和聚合 D 中的两个服务共同完成，这时你就可以用应用服务来组合这两个服务。</p>
-<h5 id="②聚合根"><a href="#②聚合根" class="headerlink" title="②聚合根"></a>②聚合根</h5><p>如果把聚合比作组织，那聚合根就是这个组织的负责人。</p>
-<p>聚合根也称为根实体，它不仅是实体，还是聚合的管理者：聚合可以包含其他实体，其他实体不能脱离聚合而单独提供服务</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_separation.png"></p>
+<h4 id="CQRS模式"><a href="#CQRS模式" class="headerlink" title="CQRS模式"></a>CQRS模式</h4><p><strong>在DDD实践中，CQRS模式是由【读模型的数据源】与【读写模型的分离形式】组合使用</strong>。</p>
+<p>主要分为：</p>
 <ul>
-<li>首先它作为实体本身，拥有实体的属性和业务行为，实现自身的业务逻辑。</li>
-<li>其次它作为聚合的管理者，在聚合内部负责协调实体和值对象按照固定的业务规则协同完成共同的业务逻辑。</li>
-<li>最后在聚合之间，它还是聚合对外的接口人，以聚合根 ID 关联的方式接受外部任务和请求，在上下文内实现聚合之间的业务协同。也就是说，聚合之间通过聚合根 ID 关联引用，如果需要访问其它聚合的实体，就要先访问聚合根，再导航到聚合内部实体，外部对象不能直接访问聚合内实体。</li>
+<li>单进程单实体 + 共享存储&#x2F;共享模型</li>
+<li>单进程单实体 + 共享存储&#x2F;分离模型</li>
+<li>单进程跨实体 + 共享存储&#x2F;分离模型</li>
+<li>单进程跨实体 + 分离存储&#x2F;分离模型</li>
+<li>跨进程跨实体 + 分离存储&#x2F;分离模型</li>
 </ul>
-<p>看图理解</p>
-<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/640.png"></p>
-<p>简单概括一下：</p>
+<p>通过以上5中方式基本上可以覆盖常用的一些业务场景。</p>
+<h5 id="单进程单实体-共享存储-x2F-共享模型"><a href="#单进程单实体-共享存储-x2F-共享模型" class="headerlink" title="单进程单实体 + 共享存储&#x2F;共享模型"></a>单进程单实体 + 共享存储&#x2F;共享模型</h5><p>对于简单的单体或者微服务应用，这种方式是最直接的，<strong>在单个领域实体模型同时用于读写操作，在向调用方返回查询数据时，只需要转换相应的领域模型即可。</strong></p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleShare.png"></p>
+<h5 id="单进程单实体-共享存储-x2F-分离模型"><a href="#单进程单实体-共享存储-x2F-分离模型" class="headerlink" title="单进程单实体 + 共享存储&#x2F;分离模型"></a>单进程单实体 + 共享存储&#x2F;分离模型</h5><p>当单个实体的查询很复杂时，可以对读模型和写模型分别建模，以此维护读写过程彼此的清晰性。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleShareSeparation.png"></p>
+<h5 id="单进程跨实体-共享存储-x2F-分离模型"><a href="#单进程跨实体-共享存储-x2F-分离模型" class="headerlink" title="单进程跨实体 + 共享存储&#x2F;分离模型"></a>单进程跨实体 + 共享存储&#x2F;分离模型</h5><p><strong>在同一个进程空间中的跨实体查询时时候可以使用分离模型的形式</strong>。做join联合查询即可。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/MultiShareSeparation.png"></p>
+<h5 id="单进程跨实体-分离存储-x2F-分离模型"><a href="#单进程跨实体-分离存储-x2F-分离模型" class="headerlink" title="单进程跨实体 + 分离存储&#x2F;分离模型"></a>单进程跨实体 + 分离存储&#x2F;分离模型</h5><p>当系统数据量比较大，并发比较大，对性能要求比较高得时候，我们可以采用分离存分离存储&#x2F;分离模型的方式，采用专门的数据库来简化查询提升效率。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/SingleSeparation.png"></p>
+<h5 id="跨进程跨实体-分离存储-x2F-分离模型"><a href="#跨进程跨实体-分离存储-x2F-分离模型" class="headerlink" title="跨进程跨实体 + 分离存储&#x2F;分离模型"></a>跨进程跨实体 + 分离存储&#x2F;分离模型</h5><p><strong>在微服务中，每个服务都内聚性地管理自身的聚合根对象，意味着分离模型。而微服务的数据存储如果是独占式的，则数据存储一定是分离的</strong>。</p>
+<p>在这种方式中，查询的数据通常<strong>通过事件机制从不同的其他业务服务中同步得到</strong>，通过API向外暴露。</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/MultiSeparation.png"></p>
+<h3 id="DDD、CQRS架构落地"><a href="#DDD、CQRS架构落地" class="headerlink" title="DDD、CQRS架构落地"></a>DDD、CQRS架构落地</h3><p>在DDD+CQRS的架构落地时，Web、RPC、DB、MQ等基础设施层会依赖内部的抽象，属于一个对称性架构</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_DDD.jpeg"></p>
+<p><strong>所有的抽象都定义在圆圈内部，实现都在基础设施</strong>。而针对读写的应该都在应用层划分：</p>
 <ul>
-<li>通过事件风暴（我理解就是头脑风暴，不过我们一般都是先通过个人理解，然后再和相关核心同学进行沟通），得到实体和值对象；</li>
-<li>将这些实体和值对象聚合为“投保聚合”和“客户聚合”，其中“投保单”和“客户”是两者的聚合根；</li>
-<li>找出与聚合根“投保单”和“客户”关联的所有紧密依赖的实体和值对象；</li>
-<li>在聚合内根据聚合根、实体和值对象的依赖关系，画出对象的引用和依赖模型。</li>
+<li>当一个命令Command请求过来时，会通过应用层的CommandService去协调领域层工作，</li>
+<li>当一个查询Query请求过来时，则直接通过基础实施的实现与数据库或者外部服务交互。</li>
 </ul>
-<h6 id="根对象"><a href="#根对象" class="headerlink" title="根对象"></a>根对象</h6><h6 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h6><h3 id="领域模型-规格模式"><a href="#领域模型-规格模式" class="headerlink" title="领域模型-规格模式"></a>领域模型-规格模式</h3><p>对于Specification模式是在第九章讲解将隐式概念转变为显式概念的时候讲到的，首先为何会单独剥离规格类，书里面的最重要解释就是对于业务规则通常不适合作为entity或value object本身的职责，而且规则的变化和组合也会掩盖领域对象的基本含义。但是如果将规则移出领域层，那么结果会更加糟糕，因为领域代码本身就不再很好的表达业务模型了。</p>
-<p>对于Specification模式的主要应用场景书里面谈到三点，即：</p>
+<p>在实际开发中，我们会发现Query和Command的有一些数据和抽象服务是公用的，为了提高代码的复用性，可以单独抽离出来一个公用的数据对象和抽象模块Shared</p>
+<p><img src="/2022/07/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/CQRS_DDD_SHARE.png"></p>
+<h2 id="领域事件"><a href="#领域事件" class="headerlink" title="领域事件"></a>领域事件</h2><p>领域事件是一个领域模型中极其重要的部分，用来表示领域中发生的事件。忽略不相关的领域活动，同时明确领域专家要跟踪或希望被通知的事情，或与其他模型对象中的状态更改相关联。</p>
+<p>领域事件 &#x3D; 事件发布 + 事件存储 + 事件分发 + 事件处理</p>
+<ul>
+<li><p>简述</p>
+<ul>
+<li><strong>事件发布：</strong>构建一个事件，需要唯一标识，然后发布</li>
+<li><strong>事件存储：</strong>发布事件前需要存储，因为接收后的事建也会存储，可用于重试或对账等</li>
+<li><strong>事件分发：</strong>服务内直接发布给订阅者，服务外需要借助消息中间件，比如 Kafka，RabbitMQ 等</li>
+<li><strong>事件处理：</strong>先将事件存储，然后再处理</li>
+</ul>
+</li>
+</ul>
+<h3 id="领域事件设计"><a href="#领域事件设计" class="headerlink" title="领域事件设计"></a>领域事件设计</h3><h4 id="构建和发布"><a href="#构建和发布" class="headerlink" title="构建和发布"></a>构建和发布</h4><h5 id="基本属性"><a href="#基本属性" class="headerlink" title="基本属性"></a>基本属性</h5><p>至少包括如下：</p>
+<ul>
+<li>事件唯一标识（全局唯一，事件能够无歧义在多个限界上下文中传递）</li>
+<li>发生时间</li>
+<li>事件类型</li>
+<li>事件源</li>
+</ul>
+<p>即主要记录事件本身以及事件发生背景的数据。</p>
+<h5 id="业务属性"><a href="#业务属性" class="headerlink" title="业务属性"></a>业务属性</h5><p>记录事件发生那刻的业务数据，这些数据会随事件传输到订阅方，以开展后续业务操作。</p>
+<p>事件基本属性和业务属性一起构成事件实体，事件实体依赖聚合根。领域事件发生后，事件中的业务数据不再修改，因此业务数据可以以序列化值对象的形式保存，这种存储格式在消息中间件中也比较容易解析和获取。</p>
+<p>为保证事件结构的统一，通常创建事件的基类，子类可自行继承扩展。由于事件没有太多业务行为，实现一般比较简单。</p>
+<p>事件发布前需先构建事件实体并持久化。<br>事件实体的业务数据推荐按需发布，避免泄露不必要业务信息。</p>
+<h5 id="事件发布方式"><a href="#事件发布方式" class="headerlink" title="事件发布方式"></a>事件发布方式</h5><ul>
+<li>可通过应用服务或者领域服务发布到事件总线或MQ</li>
+<li>也可从事件表中利用定时程序或数据库日志捕获技术获取增量事件数据，发布到MQ</li>
+</ul>
+<h4 id="事件数据持久化"><a href="#事件数据持久化" class="headerlink" title="事件数据持久化"></a>事件数据持久化</h4><h5 id="意义"><a href="#意义" class="headerlink" title="意义"></a>意义</h5><ul>
+<li>系统之间数据对账</li>
+<li>实现发布方和订阅方事件数据的审计</li>
+</ul>
+<p>当遇到MQ、订阅方系统宕机或网络中断，在问题解决后仍可继续后续业务流转，保证数据一致性。<br>毕竟虽然MQ都有持久化功能，但中间过程或在订阅到数据后，在处理之前出问题，需要进行数据对账，这样就没法找到发布时和处理后的数据版本。关键的业务数据推荐还是落库。</p>
+<h5 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h5><ul>
+<li>持久化到本地业务DB的事件表，利用本地事务保证业务和事件数据的一致性</li>
+<li>持久化到共享的事件DB。业务、事件DB不在同一DB，它们的数据持久化操作会跨DB，因此需分布式事务保证业务和事件数据强一致性，对系统性能有影响</li>
+</ul>
+<h4 id="事件总线-EventBus"><a href="#事件总线-EventBus" class="headerlink" title="事件总线(EventBus)"></a>事件总线(EventBus)</h4><h5 id="意义-1"><a href="#意义-1" class="headerlink" title="意义"></a>意义</h5><p>实现<strong>同一微服务内的聚合之间的</strong>领域事件，提供事件分发和接收等服务。<br>是进程内模型，会在微服务内聚合之间遍历订阅者列表，采取同步或异步传递数据。</p>
+<p>因为在微服务内部在同一个进程，事件总线相对好配置，它可以配置为异步的也可以配置为同步的。如果是同步就不需要落库。推荐少用微服务内聚合之间的领域事件，它会增加开发复杂度。<br>而微服务之间的事件，在事件数据落库后，通过应用服务直接发布到MQ。</p>
+<h5 id="事件分发流程"><a href="#事件分发流程" class="headerlink" title="事件分发流程"></a>事件分发流程</h5><ul>
+<li>若是微服务内的订阅者（其它聚合），则直接分发到指定订阅者</li>
+<li>微服务外的订阅者，将事件数据保存到事件库（表）并异步发送到MQ</li>
+<li>同时存在微服务内和外订阅者，则先分发到内部订阅者，将事件消息保存到事件库（表），再异步发送到MQ</li>
+</ul>
+<h4 id="MQ"><a href="#MQ" class="headerlink" title="MQ"></a>MQ</h4><p>跨微服务的领域事件大多会用到MQ，实现跨微服务的事件发布和订阅。<br>虽然MQ自身有持久化功能，但中间过程或在订阅到数据后，在处理之前出问题，需要进行数据对账，这样就没法找到发布时和处理后的数据版本。关键的业务数据推荐还是落库。</p>
+<h4 id="接收-amp-amp-处理"><a href="#接收-amp-amp-处理" class="headerlink" title="接收&amp;&amp;处理"></a>接收&amp;&amp;处理</h4><p>微服务订阅方在应用层采用监听机制，接收MQ中的事件数据，完成事件数据的持久化后，就可以开始进一步的业务处理。领域事件处理可在领域服务中实现。</p>
+<ul>
+<li>事件是否被消费成功（消费端成功拿到消息或消费端业务处理成功），如何通知消息生产端?<br>因为事件发布方有事件实体的原始的持久化数据，事件订阅方也有自己接收的持久化数据。一般可以通过定期对账的方式检查数据的一致性。</li>
+<li>在采取最终一致性的情况下，事件消费端如果出现错误，消费失败，但之前的业务都成功了，虽然记录了event dB，但后续如何处理，人工介入吗？如果人工介入再解决，前端用户会不会看到数据不一致，体验不好？<br>失败的情况应该比例是很少的。失败的信息可采用多次重试，如果这个还解决不了，只能将有问题的数据放到一个问题数据区，人工解决。当然要确保一个前提，要保证数据的时序性，不能覆盖已产生的数据。</li>
+</ul>
+<p>一般发布方不会等待订阅方反馈结果。发布方有发布的事件表，订阅方有消费事件表，可采用对账方式发现问题数据。</p>
+<h4 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h4><p>大型系统的领域事件有很多：</p>
+<ul>
+<li>做好源端和目的端数据的对账处理，发现并识别处理过程中的异常数据<br>异步的方式一般都有源端和目的端定期对账的机制。比如采用类似财务冲正的方式。如果在发布和订阅之间事件表的数据发现异步数据有问题，需要回退，会有相应的代码进行数据处理，不过不同的场景，业务逻辑会不一样，处理的方式会不一样。有的甚至还需要转人工处理。</li>
+<li>发现异常数据后，要有相应的处理机制</li>
+<li>选择适合自己场景的技术，保证数据正确传输</li>
+</ul>
+<h3 id="领域事件-V-S-CQRS"><a href="#领域事件-V-S-CQRS" class="headerlink" title="领域事件 V.S CQRS"></a>领域事件 V.S CQRS</h3><p>CQRS主要是想读写分离，将没有领域模型的查询功能，从命令中分离出来。领域事件主要目的还是为了微服务解耦，在连续的业务处理过程中，以异步化的方式完成下一步的业务处理，降低微服务之间的直连。<br>它们的共同点就是通过消息中间件实现从源端数据到目的端数据的交互和分离。</p>
+<p>如果你就是不想用领域事件，聚合之间还可以通过应用层来协调和交互。应用服务是所有聚合之上的服务，负责服务的组合和编排，以及聚合之间的协调。</p>
+<h2 id="领域模型-规格模式"><a href="#领域模型-规格模式" class="headerlink" title="领域模型-规格模式"></a>领域模型-规格模式</h2><p><strong>SPECIFICATION</strong>（规格）模式提供了用于表达特定类型的规则的精确方式，它把这些规则从条件逻辑中提取出来，并在模型中把它们显式地表示出来。</p>
+<p>业务规则通常不适合作为ENTITY或VALUE OBJECT的职责，而且规则的变化和组合也会掩盖领域对象的基本含义。但是将规则移出领域层的结果会更糟糕，因为这样一来，领域代码就不再表达模型了。</p>
+<p>逻辑编程提供了一种概念，即“<strong>谓词</strong>”这种可分离、可组合的<strong>规则对象</strong>，值得我们参考。我们可以借用谓词概念来创建可计算出布尔值的特殊对象。那些用于测验的方法，都是些小的真值测试，可以提取到单独的VALUE OBJECT中。而这个新对象则可以用来计算另一个对象，看看谓词对那个对象的计算是否为“真”。</p>
+<p>这个新的对象（InvoiceDelinquency）就是一个<strong>规格</strong>。SPECIFICATION（规格）中声明的是限制另一个对象状态的约束，被约束对象可以存在，也可以不存在。SPECIFICATION有多种用途，其中一种体现了最基本的概念，这种用途是：SPECIFICATION可以测试任何对象以检验它们<strong>是否满足指定的标准</strong>。</p>
+<h3 id="何时采用SPECIFICATION"><a href="#何时采用SPECIFICATION" class="headerlink" title="何时采用SPECIFICATION"></a>何时采用SPECIFICATION</h3><p>对于Specification模式的主要应用场景书里面谈到三点，即：</p>
 <ul>
 <li>验证对象，检验对象本身是否满足某些业务要求</li>
 <li>从集合中选择符合特定业务规则的对象或对象子集</li>
@@ -421,50 +1134,48 @@
 <li>Service类：对上面两类对象中方法的调用和组合，本身并没有太多的业务和规则实现。</li>
 </ul>
 <p>如果按照这种方法来实现，那么Service中的方法更多都可以转化为后期的BPEL服务编排方式来实现。另外对于规则类是否可以直接访问DAO层，在书里面是可以的，即这部分规则实现是不走实体和仓储类的。</p>
-<h3 id="领域模型-工厂和仓储"><a href="#领域模型-工厂和仓储" class="headerlink" title="领域模型-工厂和仓储"></a>领域模型-工厂和仓储</h3><p>首先为什么需要工厂Factory，因为有了聚合的概念，很多时候我们需要创建Aggregate整个聚合，创建过程很复杂，如果我们把这个创建职责分配给聚合里面的任何一个Entity来说都是不合适的，一个是暴露了聚合内部的结构破坏了边界，一个是聚合内的实体承担了本身不应该自己承担的职责。</p>
-<p>因此应该将创建复杂对象的实例和聚合的职责转移给一个单独的对象，这个对象本身在领域模型中可能没有职责，但是它仍然是领域模型的一部分。提供一个封装所有复杂装配操作的接口，而且这个接口应该不需要客户引用要被实例化的对象的具体类。在创建Aggregate的时候要把它作为一个整体，并确保它满足固定规则。</p>
-<p>而设计模式里面的工厂模式，则强调的是工厂提供一个公共的接口，可以根据我们的需求灵活的返回不同的实现该接口的对象实例。对象的创建和实例化由工厂来完成，而不是简单的由对象的构造函数完成。而实际领域模型里面的Factory往往并没有这么复杂，仅仅是接管复杂聚合对象的创建和实例化而已。</p>
-<p>对于简单的Entity，或者本身不存在聚合的时候是不需要再加上Factory类的。</p>
-<p>对于仓储Repository需要说明两个方面的内容。一个是解决持久化的问题，一个是对数据层做屏蔽，避免应用或展现层直接跳过领域层对数据库进行操作而使领域模型最终无用。在有了Repository后，我们不再关心对象的存储和访问操作，而将重心真正转移到领域模型本身。或者叫使应用程序和领域设计与持久化技术解耦。</p>
-<p>对于工厂和仓储的关系，工厂负责对象生命周期的开始，而仓储负责对象生命周期的中间或结束。当对象驻留在内存或对象数据库的时候很好理解。但是至少有一部分数据会持久化存在到类似关系型数据库或文件中，这样检索出来的数据就必须重建为对象形式。</p>
-<p>对于工厂和仓储的协同，有些理解和书上有些不一致。个人理解工厂不仅仅应该关注复杂对象的创建，同时也应该关注复杂对象的保存。工厂不负责对象的持久化，工厂将持久化职责委托到仓储来完成。仓储不应该直接和应用层打交道，对于整个领域层来说。和应用层打交道的是Service接口，而和持久化层打交道的是Repository接口而已。和书里面理解最大的差异就是Repository没有保留给Client，也不是Repository委托Factory来重建对象。</p>
-<p>举一个场景来说，根据订单号获取一个聚合复杂对象采购订单，对采购订单进行修改后再进行保存。这个时候和持久化层存在两次交互，第一次是数据的读取，第二次是修改后数据的存入。</p>
-<p>对于数据读取，到领域层则是Factory需要实例化一个聚合对象并返回应用层。而Factory将该工作分解到聚合里美的每一个子实体，子实体通过Repository接口获取到ResultSet并进行OR转换后返回，Factory将拿到的所有实例化对象进行聚合返回一个完整的聚合对象实例。对于数据存储，仍然应该是Factory接管该操作，然后对数据进行分解后分别调用聚合中的每一个实体的仓储接口本身的保存方法，对数据进行持久化，在Factory层进行完整的事务控制并返回结果。</p>
-<h4 id="领域服务和应用服务"><a href="#领域服务和应用服务" class="headerlink" title="领域服务和应用服务"></a>领域服务和应用服务</h4><h5 id="①领域服务"><a href="#①领域服务" class="headerlink" title="①领域服务"></a>①领域服务</h5><p>当一些逻辑不属于某个实体时，可以把这些逻辑单独拿出来放到领域服务中，理想的情况是没有领域服务，如果领域服务使用不恰当，慢慢又演化回了以前逻辑都在 service 层的局面。</p>
-<p>可以使用领域服务的情况：</p>
-<ul>
-<li>执行一个显著的业务操作</li>
-<li>对领域对象进行转换</li>
-<li>以多个领域对象作为输入参数进行计算，结果产生一个值对象</li>
+<h2 id="DDD-整体作用总结"><a href="#DDD-整体作用总结" class="headerlink" title="DDD 整体作用总结"></a>DDD 整体作用总结</h2><ul>
+<li>消除信息不对称</li>
+<li>常规MVC三层架构中自底向上的设计方式做一个反转，以业务为主导，自顶向下的进行业务领域划分</li>
+<li>将大的业务需求进行拆分，分而治之</li>
 </ul>
-<h5 id="②应用服务"><a href="#②应用服务" class="headerlink" title="②应用服务"></a>②应用服务</h5><p>应用层作为展现层与领域层的桥梁，是用来表达用例和用户故事的主要手段。</p>
-<p>应用层通过应用服务接口来暴露系统的全部功能。在应用服务的实现中，它负责编排和转发，它将要实现的功能委托给一个或多个领域对象来实现，它本身只负责处理业务用例的执行顺序以及结果的拼装。通过这样一种方式，它隐藏了领域层的复杂性及其内部实现机制。</p>
-<p>应用层相对来说是较“薄”的一层，除了定义应用服务之外，在该层我们可以进行安全认证，权限校验，持久化事务控制，或者向其他系统发生基于事件的消息通知，另外还可以用于创建邮件以发送给客户等。</p>
-<h4 id="领域事件"><a href="#领域事件" class="headerlink" title="领域事件"></a>领域事件</h4><p>领域事件 &#x3D; 事件发布 + 事件存储 + 事件分发 + 事件处理</p>
-<p>领域事件是一个领域模型中极其重要的部分，用来表示领域中发生的事件。忽略不相关的领域活动，同时明确领域专家要跟踪或希望被通知的事情，或与其他模型对象中的状态更改相关联。</p>
-<p>下面简单说明领域事件：</p>
+<h3 id="DDD-的角度看-MVC-架构的问题"><a href="#DDD-的角度看-MVC-架构的问题" class="headerlink" title="DDD 的角度看 MVC 架构的问题"></a>DDD 的角度看 MVC 架构的问题</h3><p>代码角度：</p>
 <ul>
-<li><strong>事件发布：</strong>构建一个事件，需要唯一标识，然后发布</li>
-<li><strong>事件存储：</strong>发布事件前需要存储，因为接收后的事建也会存储，可用于重试或对账等</li>
-<li><strong>事件分发：</strong>服务内直接发布给订阅者，服务外需要借助消息中间件，比如 Kafka，RabbitMQ 等</li>
-<li><strong>事件处理：</strong>先将事件存储，然后再处理</li>
+<li>贫血模型：只起到数据类的作用，业务逻辑散落到 service，可维护性越来越差</li>
+<li>面向数据库表编程，而非模型编程</li>
+<li>实体类之间的关系是复杂的网状结构，成为大泥球，牵一发而动全身，导致不敢轻易改代码</li>
+<li>service 类承接的所有的业务逻辑，越来越臃肿，很容易出现几千行的 service 类</li>
+<li>对外接口直接暴露实体模型，导致不必要开放内部逻辑对外暴露，就算有 DTO 类一般也是实体类的直接 copy</li>
+<li>外部依赖层直接从 service 层调用，字段转换、异常处理大量充斥在 service 方法中</li>
 </ul>
-<p>比如下订单后，给用户增长积分与赠送优惠券的需求。如果使用瀑布流的方式写代码。一个个逻辑调用，那么不同用户，赠送的东西不同，逻辑就会变得又臭又长。</p>
-<p>这里的比较好的方式是，用户下订单成功后，发布领域事件，积分聚合与优惠券聚合监听订单发布的领域事件进行处理。</p>
-<h4 id="资源库【仓储】"><a href="#资源库【仓储】" class="headerlink" title="资源库【仓储】"></a>资源库【仓储】</h4><p>仓储介于领域模型和数据模型之间，主要用于聚合的持久化和检索。它隔离了领域模型和数据模型，以便我们关注于领域模型而不需要考虑如何进行持久化。</p>
-<p>我们将暂时不使用的领域对象从内存中持久化存储到磁盘中。当日后需要再次使用这个领域对象时，根据 key 值到数据库查找到这条记录，然后将其恢复成领域对象，应用程序就可以继续使用它了，这就是领域对象持久化存储的设计思想。</p>
-<h2 id="DDD-的不足"><a href="#DDD-的不足" class="headerlink" title="DDD 的不足"></a>DDD 的不足</h2><p>DDD 架构作为一套先进的方法论，在很多场景能发挥很大价值，但是 DDD 也不是银弹。高级的架构师把 DDD 架构当成一种工具，结合其他架构经验一起为业务服务。</p>
+<p>项目管理角度：</p>
+<ul>
+<li><strong>交付效率：</strong>越来越低。</li>
+<li><strong>稳定性差：</strong>不好测试，代码改动的影响范围不好预估。</li>
+<li><strong>理解成本高：</strong>新成员介入成本高，长期会导致模块只有一个人最熟悉，离职成本很大。</li>
+</ul>
+<h3 id="DDD-的不足"><a href="#DDD-的不足" class="headerlink" title="DDD 的不足"></a>DDD 的不足</h3><p>DDD 架构作为一套先进的方法论，在很多场景能发挥很大价值，但是 DDD 也不是银弹。高级的架构师把 DDD 架构当成一种工具，结合其他架构经验一起为业务服务。</p>
 <p>DDD 的不足有几个方面：</p>
 <ul>
 <li><strong>性能：</strong>DDD 是基于聚合来组织代码，对于高性能场景下，加载聚合中大量的无用字段会严重影响性能，比如报表场景中，直接写 SQL 会更简单直接。</li>
 <li><strong>事务：</strong>DDD 中的事务被限定在限界上下文中，跨多个限界上下文的场景需要开发者额外考虑分布式事务问题。</li>
 <li><strong>难度系数高，推广成本大：</strong>DDD 项目需要领域专家专家，且需要特别熟悉业务、建模、OOP，对于管理者来说评估一个人是否真的能胜任也是一件困难的事情。</li>
 </ul>
-<h2 id="MVC与DDD两者如何选择："><a href="#MVC与DDD两者如何选择：" class="headerlink" title="MVC与DDD两者如何选择："></a>MVC与DDD两者如何选择：</h2><ul>
+<h3 id="MVC与DDD如何选择"><a href="#MVC与DDD如何选择" class="headerlink" title="MVC与DDD如何选择"></a>MVC与DDD如何选择</h3><ul>
 <li><strong>MVC：</strong>上来就可以开干，短平快，前期用起来很香，整体开发效率也更高，所以对于紧急，或者不那么重要的项目，我会直接用 MVC 怼，不好的地方就是，后面会越来越复杂，可能最后就是一坨屎山，但是很多时候，比如老板进度催的紧，我哪想到那么多以后呢？</li>
 <li><strong>DDD：</strong>前期需要花大量时间设计好领域模型，对于一些基础组件，或者一些核心服务，如果对象模型非常复杂，建议采用 DDD，前期可能会稍微痛苦一些，但是后期维护起来会非常方便。</li>
 </ul>
 <h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="http://dockone.io/article/989230">http://dockone.io/article/989230</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388542">https://www.modb.pro/db/388542</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388541">https://www.modb.pro/db/388541</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388540">https://www.modb.pro/db/388540</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388539">https://www.modb.pro/db/388539</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388538">https://www.modb.pro/db/388538</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.modb.pro/db/388537">https://www.modb.pro/db/388537</a></p>
+<p><a target="_blank" rel="noopener" href="https://zq99299.github.io/note-book2/ddd/01/02.html#%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E9%A2%86%E5%9F%9F%E5%92%8C%E5%AD%90%E5%9F%9F">https://zq99299.github.io/note-book2/ddd/01/02.html#如何理解领域和子域</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1709312">https://cloud.tencent.com/developer/article/1709312</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000040185308">https://segmentfault.com/a/1190000040185308</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/274092">https://bbs.huaweicloud.com/blogs/274092</a></p>
 
     </div>
 
@@ -545,7 +1256,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Domain-Driver-Design"><span class="nav-number">1.</span> <span class="nav-text">Domain-Driver Design</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%EF%BC%88DDD%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">什么是领域驱动设计（DDD）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">领域驱动设计的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-DDD"><span class="nav-number">1.3.</span> <span class="nav-text">为什么要用 DDD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD-%E4%BD%9C%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">DDD 作用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E-DDD-%E7%9A%84%E8%A7%92%E5%BA%A6%E7%9C%8B-MVC-%E6%9E%B6%E6%9E%84%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.1.</span> <span class="nav-text">从 DDD 的角度看 MVC 架构的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD-%E6%95%B4%E4%BD%93%E4%BD%9C%E7%94%A8%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">1.4.2.</span> <span class="nav-text">DDD 整体作用总结：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.5.</span> <span class="nav-text">DDD基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD-%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">1.6.</span> <span class="nav-text">DDD 分层架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MVC-%E6%9E%B6%E6%9E%84%E5%88%B0-DDD-%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E7%9A%84%E6%98%A0%E5%B0%84"><span class="nav-number">1.6.1.</span> <span class="nav-text">MVC 架构到 DDD 分层架构的映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%84%E5%B1%82%E6%95%B0%E6%8D%AE%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.6.2.</span> <span class="nav-text">各层数据转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.6.3.</span> <span class="nav-text">DDD 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E5%92%8C%E5%AD%90%E5%9F%9F"><span class="nav-number">1.6.3.1.</span> <span class="nav-text">领域和子域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%9F%9F%E3%80%81%E9%80%9A%E7%94%A8%E5%9F%9F%E5%92%8C%E6%94%AF%E6%92%91%E5%9F%9F"><span class="nav-number">1.6.3.2.</span> <span class="nav-text">核心域、通用域和支撑域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E8%AF%AD%E8%A8%80%E5%92%8C%E9%99%90%E7%95%8C%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">1.6.3.3.</span> <span class="nav-text">通用语言和限界上下文</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A0%E9%80%9A%E7%94%A8%E8%AF%AD%E8%A8%80"><span class="nav-number">1.6.3.3.1.</span> <span class="nav-text">①通用语言</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A1%E9%99%90%E7%95%8C%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">1.6.3.3.2.</span> <span class="nav-text">②限界上下文</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B-%E5%AE%9E%E4%BD%93%E5%92%8C%E5%80%BC%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.6.4.</span> <span class="nav-text">领域模型 - 实体和值对象</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A0%E5%AE%9E%E4%BD%93"><span class="nav-number">1.6.4.0.1.</span> <span class="nav-text">①实体</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A1%E5%80%BC%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.6.4.0.2.</span> <span class="nav-text">②值对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B-%E8%81%9A%E5%90%88%E5%92%8C%E8%81%9A%E5%90%88%E6%A0%B9"><span class="nav-number">1.6.5.</span> <span class="nav-text">领域模型 - 聚合和聚合根</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A0%E8%81%9A%E5%90%88"><span class="nav-number">1.6.5.0.1.</span> <span class="nav-text">①聚合</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A1%E8%81%9A%E5%90%88%E6%A0%B9"><span class="nav-number">1.6.5.0.2.</span> <span class="nav-text">②聚合根</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%A0%B9%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.6.5.0.2.1.</span> <span class="nav-text">根对象</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C"><span class="nav-number">1.6.5.0.2.2.</span> <span class="nav-text">边界</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B-%E8%A7%84%E6%A0%BC%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.6.6.</span> <span class="nav-text">领域模型-规格模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B-%E5%B7%A5%E5%8E%82%E5%92%8C%E4%BB%93%E5%82%A8"><span class="nav-number">1.6.7.</span> <span class="nav-text">领域模型-工厂和仓储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%92%8C%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.6.7.1.</span> <span class="nav-text">领域服务和应用服务</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A0%E9%A2%86%E5%9F%9F%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.6.7.1.1.</span> <span class="nav-text">①领域服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A1%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.6.7.1.2.</span> <span class="nav-text">②应用服务</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.6.7.2.</span> <span class="nav-text">领域事件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%BA%93%E3%80%90%E4%BB%93%E5%82%A8%E3%80%91"><span class="nav-number">1.6.7.3.</span> <span class="nav-text">资源库【仓储】</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD-%E7%9A%84%E4%B8%8D%E8%B6%B3"><span class="nav-number">1.7.</span> <span class="nav-text">DDD 的不足</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MVC%E4%B8%8EDDD%E4%B8%A4%E8%80%85%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%EF%BC%9A"><span class="nav-number">1.8.</span> <span class="nav-text">MVC与DDD两者如何选择：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">1.8.0.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Domain-Driver-Design"><span class="nav-number">1.</span> <span class="nav-text">Domain-Driver Design</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E7%B1%BB%E5%88%AB"><span class="nav-number">1.1.</span> <span class="nav-text">软件设计类别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DL%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91"><span class="nav-number">1.1.1.</span> <span class="nav-text">DL驱动开发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.1.2.</span> <span class="nav-text">数据驱动设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.1.3.</span> <span class="nav-text">DDD领域驱动设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFDDD"><span class="nav-number">1.2.</span> <span class="nav-text">什么是DDD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E5%8F%B0%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%8EDDD"><span class="nav-number">1.2.1.</span> <span class="nav-text">中台、微服务与DDD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.3.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-DDD"><span class="nav-number">1.5.</span> <span class="nav-text">为什么要用 DDD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.6.</span> <span class="nav-text">DDD怎么实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E5%90%8D%E8%AF%8D"><span class="nav-number">1.7.</span> <span class="nav-text">领域名词</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E8%AF%AD%E8%A8%80"><span class="nav-number">1.7.1.</span> <span class="nav-text">通用语言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E5%92%8C%E5%AD%90%E5%9F%9F"><span class="nav-number">1.7.2.</span> <span class="nav-text">领域和子域</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F"><span class="nav-number">1.7.2.1.</span> <span class="nav-text">领域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E5%9F%9F"><span class="nav-number">1.7.2.2.</span> <span class="nav-text">子域</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%9F%9F%E3%80%81%E9%80%9A%E7%94%A8%E5%9F%9F%E5%92%8C%E6%94%AF%E6%92%91%E5%9F%9F"><span class="nav-number">1.7.2.2.1.</span> <span class="nav-text">核心域、通用域和支撑域</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%88%92%E5%88%86%E6%A0%B8%E5%BF%83%E5%9F%9F%E3%80%81%E9%80%9A%E7%94%A8%E5%9F%9F%E5%92%8C%E6%94%AF%E6%92%91%E5%9F%9F%EF%BC%8C%E4%B8%BB%E8%A6%81%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.7.2.2.1.1.</span> <span class="nav-text">为什么要划分核心域、通用域和支撑域，主要目的是什么</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E7%95%8C%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">1.7.3.</span> <span class="nav-text">限界上下文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E6%98%A0%E5%B0%84%E5%9B%BE"><span class="nav-number">1.7.3.1.</span> <span class="nav-text">上下文映射图</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E9%A3%8E%E6%9A%B4"><span class="nav-number">1.7.4.</span> <span class="nav-text">事件风暴</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E9%A3%8E%E6%9A%B4%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">1.7.4.1.</span> <span class="nav-text">事件风暴能做什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E9%A3%8E%E6%9A%B4%E6%B5%81%E7%A8%8B"><span class="nav-number">1.7.4.2.</span> <span class="nav-text">事件风暴流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93-amp-%E5%80%BC%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.7.5.</span> <span class="nav-text">实体&amp;值对象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93%EF%BC%88Entity%EF%BC%89"><span class="nav-number">1.7.5.1.</span> <span class="nav-text">实体（Entity）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%80%BC%E5%AF%B9%E8%B1%A1%EF%BC%88ValueObject%EF%BC%89"><span class="nav-number">1.7.5.2.</span> <span class="nav-text">值对象（ValueObject）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88"><span class="nav-number">1.7.6.</span> <span class="nav-text">聚合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E6%A0%B9"><span class="nav-number">1.7.6.1.</span> <span class="nav-text">聚合根</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%9A%E5%90%88%EF%BC%88Aggregate%EF%BC%89"><span class="nav-number">1.7.6.2.</span> <span class="nav-text">聚合（Aggregate）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%E6%AF%94%E8%BE%83"><span class="nav-number">1.7.6.3.</span> <span class="nav-text">特点比较</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%BA%93-Repository"><span class="nav-number">1.7.7.</span> <span class="nav-text">资源库(Repository)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82"><span class="nav-number">1.7.8.</span> <span class="nav-text">工厂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%9C%8D%E5%8A%A1-amp-%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.7.9.</span> <span class="nav-text">领域服务&amp;应用服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.7.9.1.</span> <span class="nav-text">应用服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.7.9.2.</span> <span class="nav-text">领域服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.9.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD%E6%88%98%E7%95%A5%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%88%98%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.8.</span> <span class="nav-text">DDD战略设计与战术设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%98%E7%95%A5%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.8.1.</span> <span class="nav-text">战略设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%98%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.8.2.</span> <span class="nav-text">战术设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.8.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%85%85%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.9.</span> <span class="nav-text">贫血模型与充血模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.9.1.</span> <span class="nav-text">贫血模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.9.1.1.</span> <span class="nav-text">贫血模型优缺点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%85%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.9.2.</span> <span class="nav-text">充血模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%85%E8%A1%80%E6%A8%A1%E5%9E%8B%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.9.2.1.</span> <span class="nav-text">充血模型优缺点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%85%85%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.9.3.</span> <span class="nav-text">DDD为什么使用充血模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD-%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">1.10.</span> <span class="nav-text">DDD 分层架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E6%B4%81%E6%9E%B6%E6%9E%84"><span class="nav-number">1.10.1.</span> <span class="nav-text">整洁架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD%E5%9B%9B%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">1.10.2.</span> <span class="nav-text">DDD四层架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E5%B1%82%E6%9E%B6%E6%9E%84%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.10.2.1.</span> <span class="nav-text">四层架构结构模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MVC-%E6%9E%B6%E6%9E%84%E5%88%B0-DDD-%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E7%9A%84%E6%98%A0%E5%B0%84"><span class="nav-number">1.10.2.2.</span> <span class="nav-text">MVC 架构到 DDD 分层架构的映射</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CQRS"><span class="nav-number">1.11.</span> <span class="nav-text">CQRS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFCQRS"><span class="nav-number">1.11.1.</span> <span class="nav-text">什么是CQRS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CQRS%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.11.2.</span> <span class="nav-text">CQRS实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="nav-number">1.11.2.1.</span> <span class="nav-text">读模型的数据源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E7%9A%84%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.11.2.2.</span> <span class="nav-text">读写分离的形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CQRS%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.11.2.3.</span> <span class="nav-text">CQRS模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E8%BF%9B%E7%A8%8B%E5%8D%95%E5%AE%9E%E4%BD%93-%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-x2F-%E5%85%B1%E4%BA%AB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.11.2.3.1.</span> <span class="nav-text">单进程单实体 + 共享存储&#x2F;共享模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E8%BF%9B%E7%A8%8B%E5%8D%95%E5%AE%9E%E4%BD%93-%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-x2F-%E5%88%86%E7%A6%BB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.11.2.3.2.</span> <span class="nav-text">单进程单实体 + 共享存储&#x2F;分离模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E8%BF%9B%E7%A8%8B%E8%B7%A8%E5%AE%9E%E4%BD%93-%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-x2F-%E5%88%86%E7%A6%BB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.11.2.3.3.</span> <span class="nav-text">单进程跨实体 + 共享存储&#x2F;分离模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E8%BF%9B%E7%A8%8B%E8%B7%A8%E5%AE%9E%E4%BD%93-%E5%88%86%E7%A6%BB%E5%AD%98%E5%82%A8-x2F-%E5%88%86%E7%A6%BB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.11.2.3.4.</span> <span class="nav-text">单进程跨实体 + 分离存储&#x2F;分离模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%B7%A8%E8%BF%9B%E7%A8%8B%E8%B7%A8%E5%AE%9E%E4%BD%93-%E5%88%86%E7%A6%BB%E5%AD%98%E5%82%A8-x2F-%E5%88%86%E7%A6%BB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.11.2.3.5.</span> <span class="nav-text">跨进程跨实体 + 分离存储&#x2F;分离模型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD%E3%80%81CQRS%E6%9E%B6%E6%9E%84%E8%90%BD%E5%9C%B0"><span class="nav-number">1.11.3.</span> <span class="nav-text">DDD、CQRS架构落地</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.12.</span> <span class="nav-text">领域事件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.12.1.</span> <span class="nav-text">领域事件设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%92%8C%E5%8F%91%E5%B8%83"><span class="nav-number">1.12.1.1.</span> <span class="nav-text">构建和发布</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7"><span class="nav-number">1.12.1.1.1.</span> <span class="nav-text">基本属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%B1%9E%E6%80%A7"><span class="nav-number">1.12.1.1.2.</span> <span class="nav-text">业务属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E5%8F%91%E5%B8%83%E6%96%B9%E5%BC%8F"><span class="nav-number">1.12.1.1.3.</span> <span class="nav-text">事件发布方式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.12.1.2.</span> <span class="nav-text">事件数据持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%84%8F%E4%B9%89"><span class="nav-number">1.12.1.2.1.</span> <span class="nav-text">意义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88"><span class="nav-number">1.12.1.2.2.</span> <span class="nav-text">实现方案</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E6%80%BB%E7%BA%BF-EventBus"><span class="nav-number">1.12.1.3.</span> <span class="nav-text">事件总线(EventBus)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%84%8F%E4%B9%89-1"><span class="nav-number">1.12.1.3.1.</span> <span class="nav-text">意义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.12.1.3.2.</span> <span class="nav-text">事件分发流程</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MQ"><span class="nav-number">1.12.1.4.</span> <span class="nav-text">MQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A5%E6%94%B6-amp-amp-%E5%A4%84%E7%90%86"><span class="nav-number">1.12.1.5.</span> <span class="nav-text">接收&amp;&amp;处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.1.6.</span> <span class="nav-text">管理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6-V-S-CQRS"><span class="nav-number">1.12.2.</span> <span class="nav-text">领域事件 V.S CQRS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B-%E8%A7%84%E6%A0%BC%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.13.</span> <span class="nav-text">领域模型-规格模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E9%87%87%E7%94%A8SPECIFICATION"><span class="nav-number">1.13.1.</span> <span class="nav-text">何时采用SPECIFICATION</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDD-%E6%95%B4%E4%BD%93%E4%BD%9C%E7%94%A8%E6%80%BB%E7%BB%93"><span class="nav-number">1.14.</span> <span class="nav-text">DDD 整体作用总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD-%E7%9A%84%E8%A7%92%E5%BA%A6%E7%9C%8B-MVC-%E6%9E%B6%E6%9E%84%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.14.1.</span> <span class="nav-text">DDD 的角度看 MVC 架构的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDD-%E7%9A%84%E4%B8%8D%E8%B6%B3"><span class="nav-number">1.14.2.</span> <span class="nav-text">DDD 的不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVC%E4%B8%8EDDD%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9"><span class="nav-number">1.14.3.</span> <span class="nav-text">MVC与DDD如何选择</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">1.14.3.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
