@@ -572,7 +572,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+                <time title="修改时间：2022-08-02 01:17:57" itemprop="dateModified" datetime="2022-08-02T01:17:57+08:00">2022-08-02</time>
               </span>
 
           
@@ -586,22 +586,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h1><p>MySQL以页为单位，默认大小16K，会在Buffer Pool中划分出很多的缓存页，并用描述数据（元数据）记录缓存页所在的表空间 数据页编号、Buffer Pool地址等信息<br>所有的更新和读取都是在Buffer Pool中进行。并由异步线程不断刷盘。查询数据时通过hash表快速定位到对应的缓存页</p>
-<h2 id="Free-链表"><a href="#Free-链表" class="headerlink" title="Free 链表"></a>Free 链表</h2><ul>
-<li>记录空闲的缓存页。从磁盘加载数据时，通过free链表找到空闲缓存页进行写入</li>
+          <h1 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h1><h2 id="什么是Buffer-Pool"><a href="#什么是Buffer-Pool" class="headerlink" title="什么是Buffer Pool"></a>什么是Buffer Pool</h2><p>MySQL以Page页为单位，默认大小16K，会在Buffer Pool中划分出很多的缓存页，并用描述数据（元数据）记录缓存页所在的表空间 数据页编号、Buffer Pool地址等信息，底层采用链表数据结构管理Page</p>
+<p><img src="/2022/06/30/MySQL-Buffer-Pool/BufferPool.png"></p>
+<p>上图描述了Buffer Pool在innoDB中的位置，通过它所在的位置我们可以大概知道它的工作流程：</p>
+<p>所有的更新和读取都是在Buffer Pool中进行。并由异步线程不断刷盘。查询数据时通过hash表快速定位到对应的缓存页</p>
+<ul>
+<li>innodb 读操作，先从buffer_pool中查看数据的数据页是否存在，如果不存在，则将page从磁盘读取到buffer pool中。</li>
+<li>innodb 写操作，先把数据和日志写入 buffer pool 和 log buffer，再由后台线程以一定频率将 buffer 中的内容刷到磁盘，<strong>「这个刷盘机制叫做Checkpoint」</strong>。</li>
 </ul>
-<h2 id="Flush-链表"><a href="#Flush-链表" class="headerlink" title="Flush 链表"></a>Flush 链表</h2><ul>
-<li>异步线程刷盘时，不会把所有的缓存页刷盘，只会把flush链表上的脏页刷盘</li>
-</ul>
-<h2 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h2><ul>
-<li>通过LRU淘汰最近最少使用的缓存页，以供新加载的数据进行写入</li>
-<li>由于读取磁盘数据时会把相邻的页也读入，所以为防止相邻的页没有被访问，但又不位于链表末尾，无法淘汰；或者全表扫描时频繁访问的数据位于了链表末尾被淘汰 这两个问题，LRU又做了冷热分离，划分为young和old区域<ul>
-<li>数据第一次加载时，先放入冷（old）区域，如果1秒后再次访问到，则会移动到热区域（young）</li>
-<li>young区域前面的1&#x2F;4被访问不会移动到链表头部，后面3&#x2F;4被访问才会，防止区域节点频繁移动</li>
-</ul>
-</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/MySQL-Buffer-Pool/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
