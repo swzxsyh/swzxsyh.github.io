@@ -181,6 +181,278 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/Java-Web-ServletContext-Response/" class="post-title-link" itemprop="url">Java Web - ServletContext & Response</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-16 01:19:47" itemprop="dateCreated datePublished" datetime="2020-04-16T01:19:47+08:00">2020-04-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.ServletContext<br>1.1 概述<br>ServletContext是一个容器(域对象)可以存储键值对数据(String key,Object value)，保存在ServletContext中的 数据不仅可以提供给所有的servlet使用，而且可以在整个项目范围内使用。</p>
+<p>它的主要作用有3个:<br>作为域对象<br>可以获取当前应用下任何路径下的任何资源<br>获取初始化参数<br>获取文件MIME类型</p>
+<p>1.2 域对象<br>说明	API<br>往servletcontext容器中存入数据，name为数据名称，object为数据的值	void setAttribute(String name,Object object)<br>从ServletContext中获取数据，根据指定的数据名称	Object getAttribute(String name)<br>从ServletContext中移除数据，根据指定的数据名称	void removeAttribute(String name)<br>生命周期<br>何时创建:项目加载时创建<br>何时销毁:项目卸载时销毁<br>作用范围:整个项目(多个Servlet都可以使用它)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;OneServlet”)<br>public class OneServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //向ServletContext域存储数据
+    ServletContext sc1 = req.getServletContext();
+    ServletContext sc2 = getServletContext();
+    sc1.setAttribute(&quot;user&quot;,&quot;jack&quot;);
+    resp.getWriter().write(&quot;Set Message&quot;);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;TwoServlet”)<br>public class TwoServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //从ServletContext域存储数据
+    String user = (String) req.getServletContext().getAttribute(&quot;user&quot;);
+    resp.getWriter().write(&quot;Get Message:&quot;+user);
+&#125;
+</code></pre>
+<p>}<br>1.3 获取资源在服务器的真实地址<br>可以实现Web项目的移植性，动态获取文件真实路径<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RealPath”)<br>public class RealPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取web.xml文件真实路径
+    String realPath = req.getServletContext().getRealPath(&quot;/WEB-INF/web.xml&quot;);
+    resp.getWriter().write(realPath);
+&#125;
+</code></pre>
+<p>}<br>1.4 获取全局的配置函数<br>读取web.xml配置文件中<context-param>标签,实现参数和代码的解耦(多个Servlet可以获取)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>@WebServlet(“&#x2F;ContextPath”)<br>public class ContextPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</context-param></p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取全局参数
+    String value = req.getServletContext().getInitParameter(&quot;encode&quot;);
+    System.out.println(value);
+    resp.getWriter().write(value);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5</p>
+<!--   全局配置参数：所有Servlet都可以读取    -->
+<context-param>
+    <param-name>encode</param-name>
+    <param-value>UTF-8</param-value>
+</context-param>
+1.5 获取文件MIME类型
+互联网通信中的一种数据类型
+格式:大类型/小类型
+例如:text/html image/jpeg
+
+<p>1<br><a href="/Day35_war_exploded/MIMEServlet?filename=a.jpeg">Get MIME</a><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;MIMEServlet”)<br>public class MIMEServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取请求参数
+    String filename = req.getParameter(&quot;filename&quot;);
+    //获取指定文件的mime类型
+    String mimeType = req.getServletContext().getMimeType(filename);
+    resp.getWriter().write(filename+&quot;=&quot;+mimeType);
+&#125;
+</code></pre>
+<p>}<br>1.6 案例:统计网站的访问次数<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>@WebServlet(value &#x3D; “&#x2F;CountServlet”,loadOnStartup &#x3D; 4)&#x2F;&#x2F;服务器启动时，创建此servlet对象<br>public class CountServlet extends HttpServlet {<br>    @Override<br>    public void init() throws ServletException {<br>        getServletContext().setAttribute(“count”,0);<br>    }</p>
+<pre><code>@Override
+protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    this.doPost(req, resp);
+&#125;
+
+@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //设置response响应编码
+    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
+    resp.getWriter().write(&quot;&lt;h1&gt;Welcome&lt;/h1&gt;&quot;);
+
+    //用户每次访问,从域中取出，++再存入
+    Integer count = (Integer) req.getServletContext().getAttribute(&quot;count&quot;);
+    count++;
+    getServletContext().setAttribute(&quot;count&quot;, count);
+
+    resp.getWriter().write(&quot;&lt;div&gt;You are the &quot;+count+&quot; visitor&lt;/div&gt;&quot;);
+&#125;
+</code></pre>
+<p>}<br>二.Response<br>2.1 概述<br>response对象表示web服务器给浏览器返回的响应信息</p>
+<p>作用:开发人员可以使用response对象方法,设置要返回给浏览器的响应信息</p>
+<p>Response体系结构</p>
+<p>ServletResponse<br>⬆<br>HttpServletResponse<br>⬆<br>org.apache.catalina.connector.ResponseFacade 实现类(由Tomcat提供)<br>2.2 设置Http响应消息<br>2.2.1 响应行<br>格式<br>协议&#x2F;版本号 状态码<br>例如<br>HTTP&#x2F;1.1 200<br>API<br>说明	API<br>设置状态码	void setStatus()<br>2.2.2 响应头<br>格式<br>响应头名称:响应头的值<br>例如<br>Location:<a target="_blank" rel="noopener" href="http://www.oracle.com/">http://www.oracle.com</a><br>API<br>说明	API<br>设置指定头名称和对应的值	void setHeader(String name,String vale);<br>2.2.3 响应体<br>API(输出流对象)<br>说明	API<br>字符输出流	PrintWriter getWriter()<br>字节输出流	ServletOutputStream getOutputStream()<br>注意:在同一个Servlet中，不能同时存在两种流，互斥</p>
+<p>2.3 响应重定向<br>2.3.1 重定向特点<br>地址栏会发生改变<br>重定向是二次请求<br>重定向是客户端(浏览器)行为,可以跳转到服务器外部资源<br>不能使用request域共享数据<br>2.3.2 方式一<br>说明	API<br>设置状态码	response.setStatus(302)<br>设置响应头Location	response.setHeader(“Location”,”重定向网络地址”);<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;AServlet Run&quot;);
+   resp.setStatus(302);
+   resp.setHeader(&quot;Location&quot;,&quot;/Day35_war_exploded/BServlet&quot;);
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@WebServlet(“&#x2F;BServlet”)<br>public class BServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;Bservlet Run&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.3.3 方式二<br>说明	API<br>response专门处理重定向的方法	response.sendRedirect(“重定向网络地址”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(&quot;AServlet Run&quot;);
+    resp.sendRedirect(&quot;http://www.baidu.com&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.3.4 转发与重定向区别<br>哪个对象<br>API<br>转发(request对象的方法)	request.getRequestDispatcher(“&#x2F;bServlet”).forward(request,response);<br>重定向(response对象的方法)	response.sendRedirect(“&#x2F;Day35_war_exploded&#x2F;bServlet”);<br>几次请求<br>转发	重定向<br>地址栏	没有改变	发生了改变<br>浏览器	发了一次请求	发了两次请求<br>服务器	只有一对请求和响应对象	有两对请求和响应对象<br>发生的位置	服务器	浏览器<br>小结<br>写法	说明<br>转发	(“&#x2F;servlet资源路径”) 服务器内部行为<br>重定向	(“&#x2F;虚拟路径(项目名)&#x2F;servlet资源路径”) 浏览器外部行为<br>使用场景</p>
+<p>使用场景	说明<br>如果需要传递数据(request域)	使用转发<br>如果不需要传递数据(request域)	使用重定向<br>2.4 响应定时刷新<br>说明	API<br>通过response设置响应头Refresh	response.setHeader(“Refresh”,”间隔时间(秒);跳转页面”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RefreshServlet”)<br>public class RefreshServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    resp.setHeader(&quot;Refresh&quot;,&quot;3;http://www.baidu.com&quot;);
+    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
+    resp.getWriter().write(&quot;Success,Redirect After 3 seconds&quot;);
+&#125;
+</code></pre>
+<p>}<br>2.5 响应中文<br>步骤:</p>
+<p>说明	API<br>统一服务器编码:指定服务器响应编码方式	resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>通过response获取字符输出流	PrintWriter pw &#x3D; response.getWriter();<br>通过字符输出流输出文本	pw.write()<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>@WebServlet(“&#x2F;EncodeServlet”)<br>public class EncodeServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //可以解决客户端中文乱码，但是编码不统一
+</code></pre>
+<p>&#x2F;&#x2F;        resp.setCharacterEncoding(“GBK”);<br>        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>&#x2F;&#x2F;        PrintWriter pw &#x3D; resp.getWriter();<br>&#x2F;&#x2F;        pw.write(“中文”);</p>
+<pre><code>    //链式编程
+    resp.getWriter().write(&quot;中文&quot;);
+&#125;
+</code></pre>
+<p>}<br>综合案例<br>3.1 点击切换验证码<br>在页面展示登陆验证码，点击可以更换新验证码<br>作用:防止表单的恶意提交<br>本质:图片<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br><img src="/2020/04/16/Java-Web-ServletContext-Response/CheckCodeServlet" alt id="image1"></p>
+<script>
+    document.getElementById("image1").onclick = function () {
+        //reset src path
+        // new Date().getTime()为了欺骗浏览器使用不同src，强制刷新
+        this.src = '/Day35_war_exploded/CheckCodeServlet?' + new Date().getTime();
+    }
+</script>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>@WebServlet(“&#x2F;CheckCodeServlet”)<br>public class CheckCodeServlet extends HttpServlet {<br>    private static final long serialVersionUID &#x3D; 1L;<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+</code></pre>
+<p>&#x2F;&#x2F;  创建画布<br>        int width &#x3D; 120;<br>        int height &#x3D; 40;<br>        BufferedImage bufferedImage &#x3D; new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);<br>        &#x2F;&#x2F;  获得画笔<br>        Graphics g &#x3D; bufferedImage.getGraphics();<br>        &#x2F;&#x2F;  填充背景颜色<br>        g.setColor(Color.white);<br>        g.fillRect(0, 0, width, height);<br>        &#x2F;&#x2F;  绘制边框<br>        g.setColor(Color.red);<br>        g.drawRect(0, 0, width - 1, height - 1);<br>        &#x2F;&#x2F;  生成随机字符<br>        &#x2F;&#x2F;  准备数据<br>        String data &#x3D; “ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890”;<br>        &#x2F;&#x2F;  准备随机对象<br>        Random r &#x3D; new Random();<br>        &#x2F;&#x2F;  声明一个变量 保存验证码<br>        String code &#x3D; “”;<br>        &#x2F;&#x2F;  书写4个随机字符<br>        for (int i &#x3D; 0; i &lt; 4; i++) {<br>            &#x2F;&#x2F;  设置字体<br>            g.setFont(new Font(“宋体”, Font.BOLD, 28));<br>            &#x2F;&#x2F;  设置随机颜色<br>            g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));</p>
+<pre><code>        String str = data.charAt(r.nextInt(data.length())) + &quot;&quot;;
+        g.drawString(str, 10 + i * 28, 30);
+
+        //  将新的字符 保存到验证码中
+        code = code + str;
+    &#125;
+    //  绘制干扰线
+    for (int i = 0; i &lt; 6; i++) &#123;
+        //  设置随机颜色
+        g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
+
+        g.drawLine(r.nextInt(width), r.nextInt(height), r.nextInt(width), r.nextInt(height));
+    &#125;
+
+    //  将验证码 打印到控制台
+    System.out.println(code);
+
+    //  将验证码放到session中
+    req.getSession().setAttribute(&quot;code_session&quot;, code);
+
+    //  将画布显示在浏览器中
+    ImageIO.write(bufferedImage, &quot;jpg&quot;, resp.getOutputStream());
+&#125;
+</code></pre>
+<p>}<br>3.2 文件下载<br>用户点击页面的链接，浏览器开始下载文件。<br>3.2.1 使用链接下载文件<br>1<br><a href="/Day35_war_exploded/download/web.xml">Download_XML</a><br><br>缺点<br>浏览器可识别的媒体类型，是直接打开而不是下载<br>不能判断用户是否登录(vip)，进行限制</p>
+<p>3.2.2 使用Servlet下载文件<br>二个响应头二个字节流</p>
+<p>说明	API<br>被下载文件的字节输入流	FileInputStream<br>response字节输出流	response字节输出流<br>告知客户端下载文件的MIME类型	Content-Type:MIME类型<br>告知浏览器以附件的方式保存	Content-Disposition:attachment;filename&#x3D;文件名<br>1<br><a href="/Day35_war_exploded/DownloadServlet?filename=web.xml">Download_XML</a><br><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>@WebServlet(“&#x2F;DownloadServlet”)<br>public class DownloadServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    //获取文件名
+    String filename = req.getParameter(&quot;filename&quot;);
+    //获取文件真实路径，封装字节输入流
+    ServletContext servletContext = req.getServletContext();
+    String realPath = servletContext.getRealPath(&quot;/download/&quot; + filename);
+    FileInputStream in = new FileInputStream(realPath);
+
+    //告诉浏览器下载文件MIME类型 Content-Type
+    String mimeType = servletContext.getMimeType(filename);
+    resp.setContentType(mimeType);
+
+    //告知浏览器以附件的方式保存 Content-Disposition:attachment;filename=文件名
+    //解决中文乱码和浏览器兼容性
+    String userAgent = req.getHeader(&quot;user-agent&quot;);
+    //调用工具处理
+    filename=DownLoadUtils.getName(userAgent,filename);
+    resp.setHeader(&quot;content-disposition&quot;, &quot;attachment;filename=&quot; + filename);
+</code></pre>
+<p>&#x2F;&#x2F;        resp.setHeader(“Content-Disposition”, “attachment;filename&#x3D;” + filename);<br>        &#x2F;&#x2F;获取response的字节输出流<br>        ServletOutputStream out &#x3D; resp.getOutputStream();<br>        &#x2F;&#x2F;IO流Copy<br>&#x2F;&#x2F;        byte[] bys &#x3D; new byte[1024];<br>&#x2F;&#x2F;        int len &#x3D; 0;<br>&#x2F;&#x2F;        while ((len &#x3D; in.read(bys)) !&#x3D; -1) {<br>&#x2F;&#x2F;            out.write(bys, 0, len);<br>&#x2F;&#x2F;        }<br>        IoUtil.copy(in,out);<br>        &#x2F;&#x2F;释放资源<br>        out.close();&#x2F;&#x2F;可以交给Tomcat关闭<br>        in.close();<br>    }<br>}<br>中文乱码问题<br>如果该下载文件名是中文的话，会出现乱码…<br>谷歌和绝大多数的浏览器是通过 url编码<br>URLEncode() 编码<br>URLDecode() 解码<br>火狐浏览器 base64编码<br>如下工具包解决乱码问题:<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>public class DownLoadUtils {</p>
+<pre><code>public static String getName(String agent, String filename) throws UnsupportedEncodingException &#123;
+    if (agent.contains(&quot;Firefox&quot;)) &#123;
+        // 火狐浏览器
+        BASE64Encoder base64Encoder = new BASE64Encoder();
+        filename = &quot;=?utf-8?B?&quot; + base64Encoder.encode(filename.getBytes(&quot;utf-8&quot;)) + &quot;?=&quot;;
+    &#125; else &#123;
+        // 其它浏览器
+        filename = URLEncoder.encode(filename, &quot;utf-8&quot;);
+    &#125;
+    return filename;
+&#125;
+</code></pre>
+<p>}<br>3.2.2.1 hutool工具包<br>官网:<a target="_blank" rel="noopener" href="https://www.hutool.cn/">https://www.hutool.cn/</a></p>
+<p>hutool-all-5.2.3.jar<br>总结<br>一 ServletContext<br>概述<br>代表当前web项目对象<br>主要作用<br>共享数据（域对象）</p>
+<p>获取资源文件在服务器上真实路径</p>
+<p>获取全局的配置参数</p>
+<p>web.xml中配置<br>获取文件MIME类型</p>
+<p>互联网传输数据时，识别文件的类型<br>案例：统计网站的访问次数<br>二 Response<br>概述<br>开发人员可以使用response对象的方法，设置要返回给浏览器的响应信息<br>Response设置响应消息<br>设置响应行</p>
+<p>void setStatus(int sc)<br>设置响应头</p>
+<p>void setHeader(String name, String value)<br>设置响应体</p>
+<p>ServletOutputStream getOutputStream() 字节输出流<br>PrintWriter getWriter() 字符输出流<br>响应重定向<br>转发与重定向的区别</p>
+<p>转发</p>
+<p>地址栏： 没有改变<br>浏览器： 发了一次请求<br>服务器： 只有一对请求和响应对象<br>发生的位置： 服务器<br>重定向</p>
+<p>地址栏： 发生了改变<br>浏览器： 发了两次请求<br>服务器： 有两对请求和响应对象<br>发生的位置： 浏览器<br>响应定时刷新<br>响应中文<br>response.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>三 综合案例<br>点击切换验证码<br>随机数欺骗浏览器<br>文件下载<br>解决了中文编码<br>hutool工具包</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/15/Java-Web-Request/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1999,194 +2271,6 @@ $(&#39;#btn3&#39;).click(function () &#123;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/04/HTML-%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/04/HTML-%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">HTML 入门</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-04 01:01:44" itemprop="dateCreated datePublished" datetime="2020-04-04T01:01:44+08:00">2020-04-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:48" itemprop="dateModified" datetime="2022-07-15T01:25:48+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.HTML概述<br>超文本标记语言(Hyper Text Markup Language)<br>作用：搭建基础网页<br>超文本:具有普通文本的特性，同时还可以假如图片、视频、超链接等等<br>标记:即标签。预定义好的标签有不同的效果或者功能<br>语言:人与计算机沟通桥梁<br>二.HTML基础<br>创建:在IntelliJ IDEA-New Project-New Moudle-Static Web</p>
-<p>Editor-&gt;Code Style-&gt;HTML-&gt;Other-&gt;Do not indent children of去除即可快捷键格式化</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span><span class="comment">&lt;!--文档声明，声明当前html版本为5，固定格式 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;zh-CN&quot;</span>&gt;</span><span class="comment">&lt;!-- 表示当前网页语言 en英语，zh-CN简体中文 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>First Html<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    Hello,World</span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>2.2 书写规范<br>文档声明<br>要求:必须在第一行，固定格式</p>
-<p>标签<br>要求：正确嵌套，正确闭合<br>双标签&lt;开始&gt;&lt;&#x2F;结束&gt;<br>单标签&lt;开始&#x2F;&gt;</p>
-<p>属性<br>要求：必须在开始标签中编写，属性值单双引都可以<br>&lt;开始 属性名&#x3D;”属性值”&gt;&lt;&#x2F;结束&gt;</p>
-<p>文本<br>要求：在标签题内编写</p>
-<p>注释</p>
-<p>1</p>
-<!-- 注释内容 -->
-<p>三.HTML常用标签<br>标签语义<br>标签语义：这个标签能干啥</p>
-<p>3.1 标题标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">&lt;hn&gt;&lt;/hn&gt;</span></span><br><span class="line"><span class="comment">n表示取值范围:1~6</span></span><br><span class="line"><span class="comment">数值越小，字体越大</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">align:对齐方式</span></span><br><span class="line"><span class="comment">取值:left center right</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span>&gt;</span>我是H1标题<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span> <span class="attr">align</span>=<span class="string">&quot;left&quot;</span>&gt;</span>我是H2标题<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h3</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>我是H3标题<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h4</span>&gt;</span>我是H4标题<span class="tag">&lt;/<span class="name">h4</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h5</span>&gt;</span>我是H5标题<span class="tag">&lt;/<span class="name">h5</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h6</span>&gt;</span>我是H6标题<span class="tag">&lt;/<span class="name">h6</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.2 水平线标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">水平线:&lt;hr/&gt;</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">color:颜色</span></span><br><span class="line"><span class="comment">R(0-255)G(0-255)B(0-255) #ff ff ff</span></span><br><span class="line"><span class="comment">width: 宽度</span></span><br><span class="line"><span class="comment">1.像素 px 固定值</span></span><br><span class="line"><span class="comment">2.百分比 % 屏幕自适应</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">hr</span> <span class="attr">color</span>=<span class="string">&quot;red&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">hr</span> <span class="attr">color</span>=<span class="string">&quot;#183624&quot;</span> <span class="attr">width</span>=<span class="string">&quot;500px&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">hr</span> <span class="attr">color</span>=<span class="string">&quot;grey&quot;</span> <span class="attr">width</span>=<span class="string">&quot;50%&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.3 段落和换行标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">换行:&lt;br&gt;</span></span><br><span class="line"><span class="comment">段落:&lt;p&gt;&lt;/p&gt;</span></span><br><span class="line"><span class="comment">上下留白</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  1<span class="tag">&lt;<span class="name">br</span>&gt;</span>2<span class="tag">&lt;<span class="name">br</span>&gt;</span>3<span class="tag">&lt;<span class="name">p</span>&gt;</span>4<span class="tag">&lt;/<span class="name">p</span>&gt;</span><span class="tag">&lt;<span class="name">p</span>&gt;</span>5<span class="tag">&lt;/<span class="name">p</span>&gt;</span><span class="tag">&lt;<span class="name">p</span>&gt;</span>6<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>3.4 超链接</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">超链接&lt;a&gt;&lt;/a&gt;</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">href:页面跳转地址</span></span><br><span class="line"><span class="comment">1.绝对地址 www.baidu.com</span></span><br><span class="line"><span class="comment">2.相对地址</span></span><br><span class="line"><span class="comment">./当前目录</span></span><br><span class="line"><span class="comment">../上级目录</span></span><br><span class="line"><span class="comment">3.target:打开方式</span></span><br><span class="line"><span class="comment">_self(default):当前窗口跳转</span></span><br><span class="line"><span class="comment">_blank:打开新窗口跳转      </span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;http://www.baidu.com&quot;</span>&gt;</span>百度<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;./01%20Caption.html&quot;</span>&gt;</span>相对地址标题 <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;02%20Horizontal.html&quot;</span>&gt;</span>水平线标题 <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;../index.html&quot;</span>&gt;</span>index.html <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;../../Day26_Web.iml&quot;</span>&gt;</span>index.html <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;http://www.bing.com&quot;</span> <span class="attr">target</span>=<span class="string">&quot;_blank&quot;</span>&gt;</span>Bing<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.5 图像标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">图像:&lt;img/&gt;</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">src: 图片资源地址</span></span><br><span class="line"><span class="comment">相对地址:网站内部地址</span></span><br><span class="line"><span class="comment">绝对地址:网站外部地址</span></span><br><span class="line"><span class="comment">alt:图片资源丢失后，问题提示</span></span><br><span class="line"><span class="comment">width:图片宽度</span></span><br><span class="line"><span class="comment">1.px像素固定值</span></span><br><span class="line"><span class="comment">2.% 百分比</span></span><br><span class="line"><span class="comment">height:高度</span></span><br><span class="line"><span class="comment">一般不使用，会失真</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;../img/Danboard.jpg&quot;</span> <span class="attr">width</span>=<span class="string">&quot;200px&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;../../img/Danboard.jpg&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;错误&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;http://suo.im/5zeYyC&quot;</span> <span class="attr">width</span>=<span class="string">&quot;200px&quot;</span> <span class="attr">height</span>=<span class="string">&quot;200px&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;错误&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.6 列表</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">有序列表:&lt;ol&gt;&lt;/ol&gt;</span></span><br><span class="line"><span class="comment">无序列表:&lt;ul&gt;&lt;/ul&gt;</span></span><br><span class="line"><span class="comment">共同自标签:&lt;li&gt;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ol</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>A<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>B<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>C<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>D<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>E<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>F<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.7 div和span标签<br>没有语义的，就是一个容器，用来装内容，万物皆容器</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--    &lt;div&gt;和&lt;span&gt;是没有语义的,就是一个容器,用来装内容</span></span><br><span class="line"><span class="comment">div(块级元素):大容器,特点:独自占用一行</span></span><br><span class="line"><span class="comment">span(行内元素):小容器,特点:内容有多大占用就多大</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>AAAAAAAAAAAAABBBBBBBBBBBBB<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">span</span>&gt;</span>AAAAAAAAAAAAA<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">span</span>&gt;</span>BBBBBBBBBBBBB<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.8 转义(实体)字符</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">在HTML中有两种特殊的转义符号</span></span><br><span class="line"><span class="comment">1.与HTML语法有冲突,例如a&lt;b&gt;c 小于号 &amp;lt;</span></span><br><span class="line"><span class="comment">2.输入法不方便输入 ❤️</span></span><br><span class="line"><span class="comment">常用字体符(了解)</span></span><br><span class="line"><span class="comment">&amp;nbsp; 英文半角空格</span></span><br><span class="line"><span class="comment">&amp;emsp; 中文汉字空格</span></span><br><span class="line"><span class="comment">&amp;lt;   小于号</span></span><br><span class="line"><span class="comment">&amp;gt;   大于号</span></span><br><span class="line"><span class="comment">&amp;amp;  &amp;符号</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="symbol">&amp;nbsp;</span><span class="symbol">&amp;nbsp;</span><span class="symbol">&amp;nbsp;</span><span class="symbol">&amp;nbsp;</span><span class="symbol">&amp;nbsp;</span><span class="symbol">&amp;nbsp;</span>AAA</span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">  <span class="symbol">&amp;emsp;</span>AAA <span class="symbol">&amp;lt;</span> <span class="symbol">&amp;amp;</span> <span class="symbol">&amp;gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>3.9 基本表格<br>有条理性地展示内容</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">table --表格</span></span><br><span class="line"><span class="comment">tr —— 列</span></span><br><span class="line"><span class="comment">td —— 行</span></span><br><span class="line"><span class="comment">th -- 列表单元格(居中，加粗)</span></span><br><span class="line"><span class="comment">table常用属性</span></span><br><span class="line"><span class="comment">border:边框</span></span><br><span class="line"><span class="comment">width:宽度</span></span><br><span class="line"><span class="comment">height:高度</span></span><br><span class="line"><span class="comment">align:表格对齐方式</span></span><br><span class="line"><span class="comment">取值：left,center,right</span></span><br><span class="line"><span class="comment">cellspacing：单元格外边距，通常取值 0</span></span><br><span class="line"><span class="comment">cellpadding：单元格内边距，通常取值 0</span></span><br><span class="line"><span class="comment">bgcolor:表格背景色</span></span><br><span class="line"><span class="comment">tr常用属性</span></span><br><span class="line"><span class="comment">bgcolor:表格背景色</span></span><br><span class="line"><span class="comment">align:内容对齐方式</span></span><br><span class="line"><span class="comment">取值：left,center,right</span></span><br><span class="line"><span class="comment">height:行高</span></span><br><span class="line"><span class="comment">td常用属性</span></span><br><span class="line"><span class="comment">bgcolor:表格背景色</span></span><br><span class="line"><span class="comment">align:内容对齐方式</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">&quot;1&quot;</span> <span class="attr">width</span>=<span class="string">&quot;300px&quot;</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span> <span class="attr">cellpadding</span>=<span class="string">&quot;0&quot;</span> <span class="attr">cellspacing</span>=<span class="string">&quot;0&quot;</span> <span class="attr">bgcolor</span>=<span class="string">&quot;red&quot;</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span> <span class="attr">bgcolor</span>=<span class="string">&quot;green&quot;</span> <span class="attr">height</span>=<span class="string">&quot;50&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>2<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>3<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>5<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>6<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>7<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span> <span class="attr">bgcolor</span>=<span class="string">&quot;pink&quot;</span> <span class="attr">align</span>=<span class="string">&quot;right&quot;</span>&gt;</span>8<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>9<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>3.10 合并表格</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">跨行合并：rowspan = &quot;合并行数&quot;</span></span><br><span class="line"><span class="comment">跨列合并：colspan = &quot;合并列数&quot;</span></span><br><span class="line"><span class="comment">1.确定跨行还是跨列</span></span><br><span class="line"><span class="comment">2.确定目标单元格</span></span><br><span class="line"><span class="comment">3.删除被合并的单元格</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">&quot;1&quot;</span> <span class="attr">width</span>=<span class="string">&quot;300px&quot;</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span> <span class="attr">cellpadding</span>=<span class="string">&quot;0&quot;</span> <span class="attr">cellspacing</span>=<span class="string">&quot;0&quot;</span> <span class="attr">bgcolor</span>=<span class="string">&quot;red&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span> <span class="attr">bgcolor</span>=<span class="string">&quot;green&quot;</span> <span class="attr">height</span>=<span class="string">&quot;50&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span>2<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!--        &lt;td&gt;3&lt;/td&gt;--&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span> <span class="attr">rowspan</span>=<span class="string">&quot;2&quot;</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>5<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>6<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!--        &lt;td&gt;7&lt;/td&gt;--&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>8<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>9<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>四.HTML的form表单<br>4.1 采集用户数据<br>4.2 发送数据到服务端(Java服务器)</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">表单:&lt;form&gt;&lt;/form&gt;(容器)</span></span><br><span class="line"><span class="comment">常用属性：</span></span><br><span class="line"><span class="comment">action:表单提交服务器的地址，今天暂时用#(当前页面)</span></span><br><span class="line"><span class="comment">method:表单提交方式，有两种:get(默认),post</span></span><br><span class="line"><span class="comment">get:</span></span><br><span class="line"><span class="comment">格式：提交地址:username=A&amp;password=B&amp;birthday=&amp;gender=Male</span></span><br><span class="line"><span class="comment">特点：</span></span><br><span class="line"><span class="comment">参数在地址栏拼接，不太安全</span></span><br><span class="line"><span class="comment">浏览器地址大学有限制</span></span><br><span class="line"><span class="comment">post:</span></span><br><span class="line"><span class="comment">格式:username=A&amp;password=B&amp;birthday=&amp;gender=Male</span></span><br><span class="line"><span class="comment">特点:</span></span><br><span class="line"><span class="comment">参数没有在地址栏拼接，相对安全(HTTP请求体)</span></span><br><span class="line"><span class="comment">浏览器不会对请求体做大小对限制</span></span><br><span class="line"><span class="comment">表单项标签:</span></span><br><span class="line"><span class="comment">1)文本框&lt;input&gt;</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">name:表单项的参数名(想要表单被提交，必须知道name的值)</span></span><br><span class="line"><span class="comment">value:表单项的值(用户输入,用户选择)</span></span><br><span class="line"><span class="comment">type:表单项类型，有很多中，不同的类型功能和展示效果也有所不同。</span></span><br><span class="line"><span class="comment">常用9种:</span></span><br><span class="line"><span class="comment">a.text 文本框(默认)</span></span><br><span class="line"><span class="comment">b.password 密码框 特点:掩码</span></span><br><span class="line"><span class="comment">c.date 日期选择框</span></span><br><span class="line"><span class="comment">d.radio 单选框  特点:同一组(name的值相等)只能选一个，checked=&quot;checked&quot;设置默认选中</span></span><br><span class="line"><span class="comment">e.checkbox 复选框 特点:同一组(name的值相等)能选择多个，checked=&quot;checked&quot;设置默认选中</span></span><br><span class="line"><span class="comment">f.file 文件上传 特点:必须post方式</span></span><br><span class="line"><span class="comment">reset 重置按钮(清空表单),特点:value属性就是按钮名称</span></span><br><span class="line"><span class="comment">submit 提交按钮,特点:value属性就是按钮名称</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">2)下拉框:&lt;select&gt;&lt;/select&gt;</span></span><br><span class="line"><span class="comment">列表项:&lt;option&gt;&lt;/option&gt;</span></span><br><span class="line"><span class="comment">常用属性: selected=&quot;selected&quot;默认列表项被选中</span></span><br><span class="line"><span class="comment">3)文本域:&lt;textarea&gt;&lt;/textarea&gt;</span></span><br><span class="line"><span class="comment">常用属性:</span></span><br><span class="line"><span class="comment">rows:行高</span></span><br><span class="line"><span class="comment">cols:列宽</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;#&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span>&gt;</span></span><br><span class="line">    Name:<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">placeholder</span>=<span class="string">&quot;Please Input Name&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    Passwd:<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;password&quot;</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">placeholder</span>=<span class="string">&quot;Please Input Passwd&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    Birthday:<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;date&quot;</span> <span class="attr">name</span>=<span class="string">&quot;birthday&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    Gender:</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;radio&quot;</span> <span class="attr">name</span>=<span class="string">&quot;gender&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Male&quot;</span> <span class="attr">checked</span>=<span class="string">&quot;checked&quot;</span>&gt;</span>Male</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;radio&quot;</span> <span class="attr">name</span>=<span class="string">&quot;gender&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Female&quot;</span>&gt;</span>Female</span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    Hobby:</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;smoke&quot;</span>&gt;</span> Smoke</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;drink&quot;</span>&gt;</span> Drink</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hobby&quot;</span> <span class="attr">value</span>=<span class="string">&quot;perm&quot;</span> <span class="attr">checked</span>=<span class="string">&quot;checked&quot;</span>&gt;</span> perm</span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;pic&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    Level:</span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">name</span>=<span class="string">&quot;Level&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;1&quot;</span>&gt;</span>One<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;2&quot;</span> <span class="attr">selected</span>=<span class="string">&quot;selected&quot;</span>&gt;</span>Two<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;3&quot;</span>&gt;</span>Three<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    Intro:</span><br><span class="line">    <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">name</span>=<span class="string">&quot;intro&quot;</span> <span class="attr">rows</span>=<span class="string">&quot;5&quot;</span> <span class="attr">cols</span>=<span class="string">&quot;20&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;reset&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Reset Button&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;Submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit Button&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>总结<br>第1章 概述<br>HTML</p>
-<p>超文本标记语言</p>
-<p>作用：搭建基础网页结构<br>第2章 基础<br>开发工具</p>
-<p>idea</p>
-<p>搭建 static web 模块<br>书写规范</p>
-<p>文档声明</p>
-<p>标签</p>
-<p>双标签</p>
-<p>单标签</p>
-<p>&lt;开始&#x2F;&gt;<br>属性</p>
-<p>文本</p>
-<p>注释</p>
-<p>第3章 常用标签<br>标题</p>
-<p>hn</p>
-<p>h1~h6<br>水平线</p>
-<p>hr</p>
-<p>color</p>
-<p>光三原色<br>段落换行</p>
-<p>br</p>
-<p>换行<br>p</p>
-<p>段落</p>
-<p>特点：上下留白<br>a</p>
-<p>超链接</p>
-<p>href</p>
-<p>绝对地址</p>
-<p>相对地址</p>
-<p>.&#x2F;当前目录<br>..&#x2F;上一级目录<br>target</p>
-<p>_self（默认）</p>
-<p>_blank</p>
-<p>打开新窗口<br>img</p>
-<p>src</p>
-<p>相对地址</p>
-<p>.&#x2F;当前目录<br>..&#x2F;上一级目录<br>绝对地址</p>
-<p>width</p>
-<p>纵横比缩放<br>height</p>
-<p>alt</p>
-<p>列表</p>
-<p>ul</p>
-<p>无序<br>ol</p>
-<p>有序<br>li</p>
-<p>容器</p>
-<p>div</p>
-<p>块级元素，特点：独自占用一行<br>span</p>
-<p>行内元素，特点：内容有多少，就占用多少<br>转义字符</p>
-<p>&amp;XXX;</p>
-<p>英文半角
- </p>
-<p>中文汉字</p>
-<blockquote>
-</blockquote>
-<p>&lt;</p>
-<p>表格</p>
-<p>table</p>
-<p>border<br>bgcolor<br>cellspacing<br>cellpadding<br>width<br>height<br>align<br>tr</p>
-<p>height<br>align<br>td</p>
-<p>width</p>
-<p>align</p>
-<p>表格合并</p>
-<p>colspan<br>rowspan<br>th</p>
-<p>列标题单元格</p>
-<p>特点：居中、加粗<br>第4章 表单<br>表单容器</p>
-<p>form</p>
-<p>action</p>
-<p>method</p>
-<p>get</p>
-<p>post</p>
-<p>推荐使用<br>表单标签</p>
-<p>input</p>
-<p>name</p>
-<p>value</p>
-<p>type</p>
-<p>text<br>password<br>date<br>radio<br>checkbox<br>file<br>reset<br>submit<br>button<br>checked</p>
-<p>用于设置单选和复选默认选中<br>label</p>
-<p>for</p>
-<p>表单项辅助标签</p>
-<p>需要跟表单项id进行绑定<br>select</p>
-<p>option</p>
-<p>selected</p>
-<p>默认选中<br>textarea</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2256,7 +2340,7 @@ $(&#39;#btn3&#39;).click(function () &#123;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">196</span>
+          <span class="site-state-item-count">197</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

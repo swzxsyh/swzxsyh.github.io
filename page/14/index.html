@@ -181,6 +181,141 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/04/MySQL%E5%87%BD%E6%95%B0-%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/04/MySQL%E5%87%BD%E6%95%B0-%E4%BA%8B%E5%8A%A1/" class="post-title-link" itemprop="url">MySQL函数 & 事务</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-04 01:34:03" itemprop="dateCreated datePublished" datetime="2020-05-04T01:34:03+08:00">2020-05-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.MySQL函数<br>1.1 字符串函数<br>函数	描述	实例<br>CONCAT(s1,s2…sn)	字符串 s1,s2 等多个字符串合并为一个字符串	select concat(‘A’,’-‘,’B’);<br>CHAR_LENGTH(str)	返回字符串 str 的字符数	select char_length(‘Hello，World’);<br>LENGTH(str)	返回字符串 s 的字节数	select length(‘你好,World’);<br>UCASE(s) | UPPER(s)	将字符串转换为大写	select ucase(‘oracle’);<br>LCASE(s) | LOWER(s)	将字符串转换为小写	select lcase(‘MySQL’);<br>LOCATE(s1,s)	从字符串 s 中获取 s1 的开始位置	select locate(‘wo’,’world’);<br>TRIM(str) | LTRIM(str) | RTRIM(str)	字符串去空格	select trim(‘ 莘莘学子 ‘);<br>REPLACE(s,s1,s2)	将字符串 s2 替代字符串 s 中的字符串 s1	select replace(‘abc’,’b’,’x’);<br>SUBSTR(s, start, length)	从字符串 s 的 start 位置截取长度为 length 的子字符串	select substr(‘itcast’,’2’,’3’);<br>STRCMP(str1,str2)	比较字符串大小,左大于右时返回1，左等于右时返回0，，左小于于右时返回-1，	select strcmp(‘a’,’b’);<br>练习<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>– 1.将所有员工的昵称改为大写<br>SELECT UCASE(nickname) FROM emp;<br>– 2.显示所有员工的姓氏，截取<br>SELECT ename,SUBSTR(ename,1,1) FROM emp;<br>– 3.显示所有员工姓名字符长度<br>SELECT CHAR_LENGTH(ename) FROM emp;<br>– 4.显示所有员工姓名字节长度 SELECT LENGTH(ename) FROM emp;<br>– 5.将所有姓李的员工，姓氏替换为li<br>SELECT REPLACE(ename,’李’,’li’) FROM emp;<br>– 6.将所有员工的姓名和昵称拼接在一起<br>SELECT CONCAT(ename,nickname) FROM emp;<br>1.2 日期函数<br>函数	描述	实例<br>NOW() | CURDATE() | CURTIME()	获取系统当前日期时间、日期、时间	select now();<br>YEAR(DATE) | MONTH(DATE) | DAY(DATE)	从日期中选择出年、月、日	select year(now());<br>LAST_DAY(DATE)	返回月份的最后一天	select last_day(now());<br>ADDDATE(DATE,n) | SUBDATE(DATE,n)	计算起始日期 DATE 加(减) n 天的日期	select subdate(now(),10);<br>QUARTER(DATE)	返回日期 DATE 是第几季节，返回 1 到 4	select quarter(now());<br>DATEDIFF(d1,d2)	计算日期 d1-&gt;d2 之间相隔的天数	select datediff(now(),’1999-1-1’);<br>DATE_FORMAT(d,f)	按表达式 f的要求显示日期 d	select date_format(now(),’%Y-%m-%d’);<br>练习<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>– 1.统计每个员工入职的天数<br>SELECT ename,DATEDIFF(NOW(),joindate) FROM emp;<br>– 2.统计每个员工的工龄<br>SELECT ename,DATEDIFF(NOW(),joindate)&#x2F;365 FROM emp;<br>– 3.查询2011年入职的员工<br>SELECT * FROM emp WHERE YEAR(joindate) &#x3D; ‘2011’;<br>– 4.统计入职10年以上的员工信息<br>SELECT * FROM emp WHERE DATEDIFF(NOW(),joindate)&#x2F;365 &gt;10;<br>1.3 数字函数<br>函数	描述	实例<br>ABS(x)	返回 x 的绝对值	select abs(-10);<br>CEIL(x)|FLOOR(x)	向上(下)取整	select ceil(1.5);<br>MOD(x,y)	返回x mod y的结果，取余	select mod(5,4);<br>RAND()	返回 0 到 1 的随机数	select rand();<br>ROUND(x)	四舍五入	select round(1.2345);<br>TRUNCATE(x,y)	返回数值 x 保留到小数点后 y 位的值	select truncate(5633.123324,2);<br>练习<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>– 1.统计每个员工的工龄，超过半年的算一年<br>SELECT ename,ROUND( DATEDIFF(NOW(),joindate)&#x2F;365) FROM emp;<br>– 2.统计每个部门的平均薪资,保留2位小数<br>SELECT dept_id,TRUNCATE( AVG(salary),2 )FROM emp GROUP BY dept_id;<br>– 3.统计每个部门的平均薪资,小数向上取整<br>SELECT dept_id,CEIL( AVG(salary) )FROM emp GROUP BY dept_id;<br>– 4.统计每个部门的平均薪资,小数向下取整<br>SELECT dept_id,FLOOR( AVG(salary) )FROM emp GROUP BY dept_id;<br>1.4 高级函数<br>1.4.1 CASE表达式<br>相当于java中swtich语句</p>
+<p>语法</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>SELECT<br>CASE [字段,值] WHEN 判断条件1<br>THEN 希望的到的值1 WHEN 判断条件2<br>THEN 希望的到的值2<br>ELSE 前面条件都没有满足情况下得到的值<br>END<br>FROM<br>table_name;<br>练习</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>– 查询每个员工的工资等级并排序<br>– 工资等级在1显示为 ‘努力赚钱’<br>– 工资等级在2显示为 ‘小康生活’<br>– 工资等级在3显示为 ‘可以娶媳妇’<br>– 工资等级在4显示为 ‘可以买车’<br>– 工资等级在5显示为 ‘可以买房’<br>– 工资等级不在以上列表中显示为 ‘土豪’<br>– 1.确定几张表<br>SELECT * FROM emp e INNER JOIN salarygrade sg;<br>– 2.确定连接条件<br>SELECT * FROM emp e INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code>;<br>– 3.确定显示字段<br>SELECT e.ename,e.<code>salary</code>,sg.<code>grade</code> FROM emp e INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code>;<br>– 4.确定业务条件<br>SELECT e.ename,e.<code>salary</code>,<br>CASE sg.<code>grade</code> WHEN 1 THEN WHEN 2 THEN WHEN 3 THEN WHEN 4 THEN WHEN 5 THEN<br>ELSE ‘土豪’ END AS ‘生活状态’<br>‘努力赚钱’ ‘小康生活’ ‘可以娶媳妇’ ‘可以买车’ ‘可以买房’<br>FROM emp e INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code> ORDER BY sg.<code>grade</code> ASC;<br>1.4.2 IF表达式<br>相当于java中三元运算符</p>
+<p>语法</p>
+<p>1<br>SELECT IF(1 &gt; 0,’真’,’假’) from 表名;<br>练习</p>
+<p>1<br>2<br>– 工资+奖金大于20000的员工 显示家有娇妻，否则显示单身狗<br>SELECT ename,IF(salary+IFNULL(bonus,0) &gt; 20000,’家有娇妻’,’单身狗’) AS 家里有啥 FROM emp;<br>二.MySQL综合练习<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>– 1.计算员工的日薪(按30天)，保留二位小数<br>SELECT ename,TRUNCATE(salary&#x2F;30,2) FROM emp;<br>– 2.计算出员工的年薪(12月)，并且以年薪排序 降序<br>SELECT ename,(salary + IFNULL(bonus,0)) * 12 AS 年薪 FROM emp ORDER BY 年薪 DESC;<br>– 3.找出奖金少于5000或者没有获得奖金的员工的信息<br>SELECT * FROM emp WHERE IFNULL(bonus,0) &lt; 5000;</p>
+<p>– 4.返回员工职务名称及其从事此职务的最低工资<br>– 4.1 确定几张表<br>SELECT * FROM emp e INNER JOIN job j;<br>– 4.2 确定连接条件<br>SELECT * FROM emp e INNER JOIN job j ON e.<code>job_id</code> &#x3D; j.<code>id</code>;<br>– 4.3 确定显示字段<br>SELECT j.<code>jname</code> FROM emp e INNER JOIN job j ON e.<code>job_id</code> &#x3D; j.<code>id</code>;<br>– 4.4 确定业务条件(分组+最低工资)<br>SELECT j.<code>jname</code>,MIN(e.<code>salary</code>) FROM emp e INNER JOIN job j ON e.<code>job_id</code> &#x3D; j.<code>id</code> GROUP BY j.<code>jname</code>;</p>
+<p>– 5.返回工龄超过10年，且2月份入职的员工信息<br>SELECT * FROM emp WHERE DATEDIFF(NOW(),joindate)&#x2F;365 &gt; 10 AND MONTH(joindate) &#x3D; 2;<br>– 6.返回与 林冲 同一年入职的员工<br>SELECT YEAR(joindate) FROM emp WHERE ename &#x3D; ‘林冲’;<br>SELECT * FROM emp WHERE YEAR(joindate) &#x3D; (SELECT YEAR(joindate) FROM emp WHERE ename &#x3D; ‘林 冲’);<br>– 7.返回每个员工的名称及其上级领导的名称(自关联)<br>SELECT a.<code>ename</code>,b.<code>ename</code> FROM emp a LEFT OUTER JOIN emp b ON a.<code>mgr</code> &#x3D; b.<code>id</code>;</p>
+<p>– 8.返回工资为二等级(工资等级表)的职员名字(员工表)、部门名称(部门表)<br>– 8.1 确定几张表<br>SELECT * FROM emp e<br>    INNER JOIN dept d<br>INNER JOIN salarygrade sg;<br>– 8.2 确定连接条件<br>SELECT * FROM emp e<br>INNER JOIN dept d ON e.<code>dept_id</code> &#x3D; d.<code>id</code><br>INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code>;<br>– 8.3 确定显示字段<br>SELECT sg.<code>grade</code>,e.<code>ename</code>,d.<code>dname</code> FROM emp e<br>INNER JOIN dept d ON e.<code>dept_id</code> &#x3D; d.<code>id</code><br>INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code>;<br>– 8.4 确定业务条件<br>SELECT sg.<code>grade</code>,e.<code>ename</code>,d.<code>dname</code> FROM emp e<br>INNER JOIN dept d ON e.<code>dept_id</code> &#x3D; d.<code>id</code><br>INNER JOIN salarygrade sg ON e.<code>salary</code> BETWEEN sg.<code>losalary</code> AND sg.<code>hisalary</code> WHERE sg.<code>grade</code> &#x3D; 2;</p>
+<p>– 9.涨工资:董事长2000 经理1500 其他800<br>– 9.1<br>SELECT<br>– 9.2<br>SELECT<br>确定几张表和连接条件</p>
+<ul>
+<li>FROM emp e INNER JOIN job j ON e.<code>job_id</code> &#x3D; j.<code>id</code>; 显示字段(case表达式)<br>e.<code>ename</code>,j.<code>jname</code>,e.<code>salary</code> AS 涨前,<br>CASE j.<code>jname</code><br>WHEN ‘董事长’ THEN e.salary + 2000 WHEN ‘经理’ THEN e.salary + 1500 ELSE e.salary + 800<br>END AS 涨后<br>FROM emp e INNER JOIN job j ON e.<code>job_id</code> &#x3D; j.<code>id</code>;</li>
+</ul>
+<p>三.事务安全 TCL<br>3.1 概述<br>如果一个包含多个步骤的业务操作，被事务管理，那么这些操作要么同时成功，要么同时失败。</p>
+<p>应用场景:用户转账</p>
+<p>准备数据</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>– 创建库<br>create database day46_pro;<br>– 使用库<br>use day46_pro;<br>– 创建数据表<br>CREATE TABLE account ( – 账户表<br>id INT PRIMARY KEY AUTO_INCREMENT, <code>name</code> VARCHAR(32),<br>money DOUBLE<br>);<br>– 添加数据<br>INSERT INTO account (<code>name</code>, money) VALUES (‘蝴蝶姐’, 1000), (‘罗志祥’, 1000);<br>模拟转账<br>1<br>2<br>3<br>4<br>5<br>– 罗志祥扣钱(转出)<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 机器故障了<br>– 蝴蝶姐加强(转入)<br>UPDATE account SET money &#x3D; money + 100 WHERE id &#x3D; 1;<br>3.2 操作事务<br>3.2.1 手动提交事务<br>开启事务 begin</p>
+<p>提交事务 commit</p>
+<p>回滚事务 rollback</p>
+<p>转账成功<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>– 1. 开启事务 begin;<br>– 2. 罗志祥扣钱<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 3. 蝴蝶姐加钱<br>UPDATE account SET money &#x3D; money + 100 WHERE id &#x3D; 1;<br>– 4. 提交事务<br>commit;<br>转账失败<br>1<br>2<br>3<br>4<br>5<br>6<br>– 1.开启事务 begin;<br>– 2.罗志祥扣钱<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 3.机器故障<br>– 4.回滚事务<br>rollback;<br>3.2.2 自动提交事务<br>默认情况下，在MySQL中每一条DML(增删改)语句，就是一个独立的事务</p>
+<p>查看MySQL是否开启自动提交</p>
+<p>1<br>show variables like ‘autocommit’;<br>临时关闭自动提交(手动)</p>
+<p>1<br>set autocommit&#x3D;off;<br>3.3 事务工作原理<br>注意:<br>在同一个事务中，出现bug(异常)，必须执行rollback命令，不然会影响同一个事务中下一次提交</p>
+<p>3.4 保存(回滚)点<br>当事务开启后，一部分sql执行成功，添加一个保存点，后续操作报错了，回滚到保存点，保证之前的操作可以成功提交</p>
+<p>设置保存点	savepoint 保存点名;<br>回滚到保存点	rollback to 保存点名;<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>– 1.开启事务 begin;<br>– 2.罗志祥扣钱一次(凤姐)<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 3.罗志祥扣钱二次(芙蓉姐姐)<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 4.设置一个保存点 savepoint ol;<br>– 5.罗志祥扣钱三次(石榴姐)<br>UPDATE account SET money &#x3D; money -100 WHERE id &#x3D; 2;<br>– 6.机器故障<br>– 7.回滚点保存点 rollback to ol;<br>– 8.提交事务 commit;<br>3.5 事务特性 ACID<br>原子性 A atomicity</p>
+<p>如果一个包含多个步骤的业务操作，被事务管理，那么这些操作要么同时成功，要么同时失败。</p>
+<p>一致性 C consistency</p>
+<p>事务在执行前后，保证数据的一致性</p>
+<p>隔离性 I isolation</p>
+<p>多个事务之间，相互独立，互不干扰….</p>
+<p>持久性 D durability</p>
+<p>事务一旦成功提交，保存到磁盘文件，不可逆….</p>
+<p>3.6 事务隔离性<br>多个事务之间隔离的，相互独立的。但是如果多个事务操作同一批数据，则会引发一些问题，设置不同的隔离级别就</p>
+<p>可以解决这些问题。</p>
+<p>脏读【必须要避免】</p>
+<p>一个事务中，读取到另一个事务，未提交的数据</p>
+<p>不可重复读</p>
+<p>一个事务中，二次读取的内容不一致，另外一个事务做了update操作</p>
+<p>幻读<br>一个事务中，二次读取的数量不一致，另外一个事务做了insert、delete操作</p>
+<p>3.6.1 MySQL数据库隔离级别<br>级别	名字	隔离级别	脏读	不可重复读	幻读	数据库默认隔离级别<br>1	读未提交	read uncommitted	是	是	是	<br>2	读已提交	read committed	否	是	是	Oracle和SQL Server<br>3	可重复读	repeatable read	否	否	是	MySQL<br>4	串行化	serializable	否	否	否	<br>性能角度:1&gt;2&gt;3&gt;4</p>
+<p>安全角度:4&gt;3&gt;2&gt;1</p>
+<p>综合考虑:2 or 3</p>
+<p>3.6.2 演示隔离级别产生的问题<br>级别	代码<br>查看当前数据库隔离级别	show variables like ‘%isolation%’;<br>临时修改隔离级别	set session transaction isolation level 级别字符串;<br>演示脏读<br>设置数据库隔离级别 read uncommitted;<br>1<br>set session transaction isolation level read uncommitted;<br>解决脏读问题(引出:不可重复读问题) 设置数据库隔离级别 read committed;<br>1<br>set session transaction isolation level read committed;<br>解决不可重复读问题(出现幻读问题) 设置数据库隔离级别 repeatable read;<br>1<br>set session transaction isolation level repeatable read;<br>解决幻读问题<br>设置数据库隔离级别 serializable;<br>1<br>set session transaction isolation level serializable;<br>总结<br>一 MySQL函数<br>字符串<br>concat()</p>
+<p>拼接<br>char_length()</p>
+<p>字符长度<br>trim()</p>
+<p>去掉前后空格<br>replace()</p>
+<p>替换<br>substr()</p>
+<p>截取<br>日期<br>now()、curdate()、curtime()</p>
+<p>year()、month()、day()</p>
+<p>adddate()、subdate()</p>
+<p>datediff()</p>
+<p>日期间之间的计算<br>数学<br>ceil()、floor()</p>
+<p>向上向下取整<br>rand()</p>
+<p>随机数<br>round()</p>
+<p>四舍五入<br>truncate()</p>
+<p>保留指定小数位<br>高级函数<br>case表达式</p>
+<p>相当于java中swtich<br>if表达式</p>
+<p>相当于java中三元运算符<br>二 MySQL综合练习<br>课下必须写二遍<br>三 事务安全 TCL<br>什么是事务：<br>是指的是多个步骤的一组业务操作，要么都成功，要么都失败<br>操作<br>手动提交</p>
+<p>begin<br>commit<br>rollback<br>自动提交</p>
+<p>默认</p>
+<p>我们使用JDBC时，手动关闭自动提交事务<br>事务原理<br>临时日志文件<br>保存点<br>设置保存点</p>
+<p>savepoint 保存点名<br>回滚保存点</p>
+<p>rollback to 保存点名<br>事务特性<br>A</p>
+<p>原子性<br>C</p>
+<p>一致性<br>I</p>
+<p>隔离性<br>D</p>
+<p>持久性<br>隔离性会出现问题<br>脏读<br>不可重复读<br>幻读（虚读）<br>数据库隔离级别<br>读未提交</p>
+<p>读已提交</p>
+<p>oracle 和 sqlServer 默认<br>可重复读</p>
+<p>MySQL 默认<br>串行化</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/29/MySQL%E6%9F%A5%E8%AF%A2-%E7%BA%A6%E6%9D%9F-%E5%A4%9A%E8%A1%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1198,278 +1333,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/16/Java-Web-ServletContext-Response/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/16/Java-Web-ServletContext-Response/" class="post-title-link" itemprop="url">Java Web - ServletContext & Response</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-16 01:19:47" itemprop="dateCreated datePublished" datetime="2020-04-16T01:19:47+08:00">2020-04-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.ServletContext<br>1.1 概述<br>ServletContext是一个容器(域对象)可以存储键值对数据(String key,Object value)，保存在ServletContext中的 数据不仅可以提供给所有的servlet使用，而且可以在整个项目范围内使用。</p>
-<p>它的主要作用有3个:<br>作为域对象<br>可以获取当前应用下任何路径下的任何资源<br>获取初始化参数<br>获取文件MIME类型</p>
-<p>1.2 域对象<br>说明	API<br>往servletcontext容器中存入数据，name为数据名称，object为数据的值	void setAttribute(String name,Object object)<br>从ServletContext中获取数据，根据指定的数据名称	Object getAttribute(String name)<br>从ServletContext中移除数据，根据指定的数据名称	void removeAttribute(String name)<br>生命周期<br>何时创建:项目加载时创建<br>何时销毁:项目卸载时销毁<br>作用范围:整个项目(多个Servlet都可以使用它)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;OneServlet”)<br>public class OneServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //向ServletContext域存储数据
-    ServletContext sc1 = req.getServletContext();
-    ServletContext sc2 = getServletContext();
-    sc1.setAttribute(&quot;user&quot;,&quot;jack&quot;);
-    resp.getWriter().write(&quot;Set Message&quot;);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;TwoServlet”)<br>public class TwoServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //从ServletContext域存储数据
-    String user = (String) req.getServletContext().getAttribute(&quot;user&quot;);
-    resp.getWriter().write(&quot;Get Message:&quot;+user);
-&#125;
-</code></pre>
-<p>}<br>1.3 获取资源在服务器的真实地址<br>可以实现Web项目的移植性，动态获取文件真实路径<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RealPath”)<br>public class RealPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //获取web.xml文件真实路径
-    String realPath = req.getServletContext().getRealPath(&quot;/WEB-INF/web.xml&quot;);
-    resp.getWriter().write(realPath);
-&#125;
-</code></pre>
-<p>}<br>1.4 获取全局的配置函数<br>读取web.xml配置文件中<context-param>标签,实现参数和代码的解耦(多个Servlet可以获取)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>@WebServlet(“&#x2F;ContextPath”)<br>public class ContextPath extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</context-param></p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //获取全局参数
-    String value = req.getServletContext().getInitParameter(&quot;encode&quot;);
-    System.out.println(value);
-    resp.getWriter().write(value);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5</p>
-<!--   全局配置参数：所有Servlet都可以读取    -->
-<context-param>
-    <param-name>encode</param-name>
-    <param-value>UTF-8</param-value>
-</context-param>
-1.5 获取文件MIME类型
-互联网通信中的一种数据类型
-格式:大类型/小类型
-例如:text/html image/jpeg
-
-<p>1<br><a href="/Day35_war_exploded/MIMEServlet?filename=a.jpeg">Get MIME</a><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;MIMEServlet”)<br>public class MIMEServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //获取请求参数
-    String filename = req.getParameter(&quot;filename&quot;);
-    //获取指定文件的mime类型
-    String mimeType = req.getServletContext().getMimeType(filename);
-    resp.getWriter().write(filename+&quot;=&quot;+mimeType);
-&#125;
-</code></pre>
-<p>}<br>1.6 案例:统计网站的访问次数<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>@WebServlet(value &#x3D; “&#x2F;CountServlet”,loadOnStartup &#x3D; 4)&#x2F;&#x2F;服务器启动时，创建此servlet对象<br>public class CountServlet extends HttpServlet {<br>    @Override<br>    public void init() throws ServletException {<br>        getServletContext().setAttribute(“count”,0);<br>    }</p>
-<pre><code>@Override
-protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    this.doPost(req, resp);
-&#125;
-
-@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //设置response响应编码
-    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
-    resp.getWriter().write(&quot;&lt;h1&gt;Welcome&lt;/h1&gt;&quot;);
-
-    //用户每次访问,从域中取出，++再存入
-    Integer count = (Integer) req.getServletContext().getAttribute(&quot;count&quot;);
-    count++;
-    getServletContext().setAttribute(&quot;count&quot;, count);
-
-    resp.getWriter().write(&quot;&lt;div&gt;You are the &quot;+count+&quot; visitor&lt;/div&gt;&quot;);
-&#125;
-</code></pre>
-<p>}<br>二.Response<br>2.1 概述<br>response对象表示web服务器给浏览器返回的响应信息</p>
-<p>作用:开发人员可以使用response对象方法,设置要返回给浏览器的响应信息</p>
-<p>Response体系结构</p>
-<p>ServletResponse<br>⬆<br>HttpServletResponse<br>⬆<br>org.apache.catalina.connector.ResponseFacade 实现类(由Tomcat提供)<br>2.2 设置Http响应消息<br>2.2.1 响应行<br>格式<br>协议&#x2F;版本号 状态码<br>例如<br>HTTP&#x2F;1.1 200<br>API<br>说明	API<br>设置状态码	void setStatus()<br>2.2.2 响应头<br>格式<br>响应头名称:响应头的值<br>例如<br>Location:<a target="_blank" rel="noopener" href="http://www.oracle.com/">http://www.oracle.com</a><br>API<br>说明	API<br>设置指定头名称和对应的值	void setHeader(String name,String vale);<br>2.2.3 响应体<br>API(输出流对象)<br>说明	API<br>字符输出流	PrintWriter getWriter()<br>字节输出流	ServletOutputStream getOutputStream()<br>注意:在同一个Servlet中，不能同时存在两种流，互斥</p>
-<p>2.3 响应重定向<br>2.3.1 重定向特点<br>地址栏会发生改变<br>重定向是二次请求<br>重定向是客户端(浏览器)行为,可以跳转到服务器外部资源<br>不能使用request域共享数据<br>2.3.2 方式一<br>说明	API<br>设置状态码	response.setStatus(302)<br>设置响应头Location	response.setHeader(“Location”,”重定向网络地址”);<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    System.out.println(&quot;AServlet Run&quot;);
-   resp.setStatus(302);
-   resp.setHeader(&quot;Location&quot;,&quot;/Day35_war_exploded/BServlet&quot;);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@WebServlet(“&#x2F;BServlet”)<br>public class BServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    System.out.println(&quot;Bservlet Run&quot;);
-&#125;
-</code></pre>
-<p>}<br>2.3.3 方式二<br>说明	API<br>response专门处理重定向的方法	response.sendRedirect(“重定向网络地址”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@WebServlet(“&#x2F;AServlet”)<br>public class AServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    System.out.println(&quot;AServlet Run&quot;);
-    resp.sendRedirect(&quot;http://www.baidu.com&quot;);
-&#125;
-</code></pre>
-<p>}<br>2.3.4 转发与重定向区别<br>哪个对象<br>API<br>转发(request对象的方法)	request.getRequestDispatcher(“&#x2F;bServlet”).forward(request,response);<br>重定向(response对象的方法)	response.sendRedirect(“&#x2F;Day35_war_exploded&#x2F;bServlet”);<br>几次请求<br>转发	重定向<br>地址栏	没有改变	发生了改变<br>浏览器	发了一次请求	发了两次请求<br>服务器	只有一对请求和响应对象	有两对请求和响应对象<br>发生的位置	服务器	浏览器<br>小结<br>写法	说明<br>转发	(“&#x2F;servlet资源路径”) 服务器内部行为<br>重定向	(“&#x2F;虚拟路径(项目名)&#x2F;servlet资源路径”) 浏览器外部行为<br>使用场景</p>
-<p>使用场景	说明<br>如果需要传递数据(request域)	使用转发<br>如果不需要传递数据(request域)	使用重定向<br>2.4 响应定时刷新<br>说明	API<br>通过response设置响应头Refresh	response.setHeader(“Refresh”,”间隔时间(秒);跳转页面”)<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@WebServlet(“&#x2F;RefreshServlet”)<br>public class RefreshServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    resp.setHeader(&quot;Refresh&quot;,&quot;3;http://www.baidu.com&quot;);
-    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
-    resp.getWriter().write(&quot;Success,Redirect After 3 seconds&quot;);
-&#125;
-</code></pre>
-<p>}<br>2.5 响应中文<br>步骤:</p>
-<p>说明	API<br>统一服务器编码:指定服务器响应编码方式	resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>通过response获取字符输出流	PrintWriter pw &#x3D; response.getWriter();<br>通过字符输出流输出文本	pw.write()<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>@WebServlet(“&#x2F;EncodeServlet”)<br>public class EncodeServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //可以解决客户端中文乱码，但是编码不统一
-</code></pre>
-<p>&#x2F;&#x2F;        resp.setCharacterEncoding(“GBK”);<br>        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>&#x2F;&#x2F;        PrintWriter pw &#x3D; resp.getWriter();<br>&#x2F;&#x2F;        pw.write(“中文”);</p>
-<pre><code>    //链式编程
-    resp.getWriter().write(&quot;中文&quot;);
-&#125;
-</code></pre>
-<p>}<br>综合案例<br>3.1 点击切换验证码<br>在页面展示登陆验证码，点击可以更换新验证码<br>作用:防止表单的恶意提交<br>本质:图片<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br><img src="/2020/04/16/Java-Web-ServletContext-Response/CheckCodeServlet" alt id="image1"></p>
-<script>
-    document.getElementById("image1").onclick = function () {
-        //reset src path
-        // new Date().getTime()为了欺骗浏览器使用不同src，强制刷新
-        this.src = '/Day35_war_exploded/CheckCodeServlet?' + new Date().getTime();
-    }
-</script>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>@WebServlet(“&#x2F;CheckCodeServlet”)<br>public class CheckCodeServlet extends HttpServlet {<br>    private static final long serialVersionUID &#x3D; 1L;<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-</code></pre>
-<p>&#x2F;&#x2F;  创建画布<br>        int width &#x3D; 120;<br>        int height &#x3D; 40;<br>        BufferedImage bufferedImage &#x3D; new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);<br>        &#x2F;&#x2F;  获得画笔<br>        Graphics g &#x3D; bufferedImage.getGraphics();<br>        &#x2F;&#x2F;  填充背景颜色<br>        g.setColor(Color.white);<br>        g.fillRect(0, 0, width, height);<br>        &#x2F;&#x2F;  绘制边框<br>        g.setColor(Color.red);<br>        g.drawRect(0, 0, width - 1, height - 1);<br>        &#x2F;&#x2F;  生成随机字符<br>        &#x2F;&#x2F;  准备数据<br>        String data &#x3D; “ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890”;<br>        &#x2F;&#x2F;  准备随机对象<br>        Random r &#x3D; new Random();<br>        &#x2F;&#x2F;  声明一个变量 保存验证码<br>        String code &#x3D; “”;<br>        &#x2F;&#x2F;  书写4个随机字符<br>        for (int i &#x3D; 0; i &lt; 4; i++) {<br>            &#x2F;&#x2F;  设置字体<br>            g.setFont(new Font(“宋体”, Font.BOLD, 28));<br>            &#x2F;&#x2F;  设置随机颜色<br>            g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));</p>
-<pre><code>        String str = data.charAt(r.nextInt(data.length())) + &quot;&quot;;
-        g.drawString(str, 10 + i * 28, 30);
-
-        //  将新的字符 保存到验证码中
-        code = code + str;
-    &#125;
-    //  绘制干扰线
-    for (int i = 0; i &lt; 6; i++) &#123;
-        //  设置随机颜色
-        g.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
-
-        g.drawLine(r.nextInt(width), r.nextInt(height), r.nextInt(width), r.nextInt(height));
-    &#125;
-
-    //  将验证码 打印到控制台
-    System.out.println(code);
-
-    //  将验证码放到session中
-    req.getSession().setAttribute(&quot;code_session&quot;, code);
-
-    //  将画布显示在浏览器中
-    ImageIO.write(bufferedImage, &quot;jpg&quot;, resp.getOutputStream());
-&#125;
-</code></pre>
-<p>}<br>3.2 文件下载<br>用户点击页面的链接，浏览器开始下载文件。<br>3.2.1 使用链接下载文件<br>1<br><a href="/Day35_war_exploded/download/web.xml">Download_XML</a><br><br>缺点<br>浏览器可识别的媒体类型，是直接打开而不是下载<br>不能判断用户是否登录(vip)，进行限制</p>
-<p>3.2.2 使用Servlet下载文件<br>二个响应头二个字节流</p>
-<p>说明	API<br>被下载文件的字节输入流	FileInputStream<br>response字节输出流	response字节输出流<br>告知客户端下载文件的MIME类型	Content-Type:MIME类型<br>告知浏览器以附件的方式保存	Content-Disposition:attachment;filename&#x3D;文件名<br>1<br><a href="/Day35_war_exploded/DownloadServlet?filename=web.xml">Download_XML</a><br><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>@WebServlet(“&#x2F;DownloadServlet”)<br>public class DownloadServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //获取文件名
-    String filename = req.getParameter(&quot;filename&quot;);
-    //获取文件真实路径，封装字节输入流
-    ServletContext servletContext = req.getServletContext();
-    String realPath = servletContext.getRealPath(&quot;/download/&quot; + filename);
-    FileInputStream in = new FileInputStream(realPath);
-
-    //告诉浏览器下载文件MIME类型 Content-Type
-    String mimeType = servletContext.getMimeType(filename);
-    resp.setContentType(mimeType);
-
-    //告知浏览器以附件的方式保存 Content-Disposition:attachment;filename=文件名
-    //解决中文乱码和浏览器兼容性
-    String userAgent = req.getHeader(&quot;user-agent&quot;);
-    //调用工具处理
-    filename=DownLoadUtils.getName(userAgent,filename);
-    resp.setHeader(&quot;content-disposition&quot;, &quot;attachment;filename=&quot; + filename);
-</code></pre>
-<p>&#x2F;&#x2F;        resp.setHeader(“Content-Disposition”, “attachment;filename&#x3D;” + filename);<br>        &#x2F;&#x2F;获取response的字节输出流<br>        ServletOutputStream out &#x3D; resp.getOutputStream();<br>        &#x2F;&#x2F;IO流Copy<br>&#x2F;&#x2F;        byte[] bys &#x3D; new byte[1024];<br>&#x2F;&#x2F;        int len &#x3D; 0;<br>&#x2F;&#x2F;        while ((len &#x3D; in.read(bys)) !&#x3D; -1) {<br>&#x2F;&#x2F;            out.write(bys, 0, len);<br>&#x2F;&#x2F;        }<br>        IoUtil.copy(in,out);<br>        &#x2F;&#x2F;释放资源<br>        out.close();&#x2F;&#x2F;可以交给Tomcat关闭<br>        in.close();<br>    }<br>}<br>中文乱码问题<br>如果该下载文件名是中文的话，会出现乱码…<br>谷歌和绝大多数的浏览器是通过 url编码<br>URLEncode() 编码<br>URLDecode() 解码<br>火狐浏览器 base64编码<br>如下工具包解决乱码问题:<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>public class DownLoadUtils {</p>
-<pre><code>public static String getName(String agent, String filename) throws UnsupportedEncodingException &#123;
-    if (agent.contains(&quot;Firefox&quot;)) &#123;
-        // 火狐浏览器
-        BASE64Encoder base64Encoder = new BASE64Encoder();
-        filename = &quot;=?utf-8?B?&quot; + base64Encoder.encode(filename.getBytes(&quot;utf-8&quot;)) + &quot;?=&quot;;
-    &#125; else &#123;
-        // 其它浏览器
-        filename = URLEncoder.encode(filename, &quot;utf-8&quot;);
-    &#125;
-    return filename;
-&#125;
-</code></pre>
-<p>}<br>3.2.2.1 hutool工具包<br>官网:<a target="_blank" rel="noopener" href="https://www.hutool.cn/">https://www.hutool.cn/</a></p>
-<p>hutool-all-5.2.3.jar<br>总结<br>一 ServletContext<br>概述<br>代表当前web项目对象<br>主要作用<br>共享数据（域对象）</p>
-<p>获取资源文件在服务器上真实路径</p>
-<p>获取全局的配置参数</p>
-<p>web.xml中配置<br>获取文件MIME类型</p>
-<p>互联网传输数据时，识别文件的类型<br>案例：统计网站的访问次数<br>二 Response<br>概述<br>开发人员可以使用response对象的方法，设置要返回给浏览器的响应信息<br>Response设置响应消息<br>设置响应行</p>
-<p>void setStatus(int sc)<br>设置响应头</p>
-<p>void setHeader(String name, String value)<br>设置响应体</p>
-<p>ServletOutputStream getOutputStream() 字节输出流<br>PrintWriter getWriter() 字符输出流<br>响应重定向<br>转发与重定向的区别</p>
-<p>转发</p>
-<p>地址栏： 没有改变<br>浏览器： 发了一次请求<br>服务器： 只有一对请求和响应对象<br>发生的位置： 服务器<br>重定向</p>
-<p>地址栏： 发生了改变<br>浏览器： 发了两次请求<br>服务器： 有两对请求和响应对象<br>发生的位置： 浏览器<br>响应定时刷新<br>响应中文<br>response.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);<br>三 综合案例<br>点击切换验证码<br>随机数欺骗浏览器<br>文件下载<br>解决了中文编码<br>hutool工具包</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1539,7 +1402,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">196</span>
+          <span class="site-state-item-count">197</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

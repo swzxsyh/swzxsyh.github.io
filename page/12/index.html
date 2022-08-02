@@ -181,6 +181,421 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Apache Dubbo 初识</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-19 01:52:09" itemprop="dateCreated datePublished" datetime="2020-06-19T01:52:09+08:00">2020-06-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:48" itemprop="dateModified" datetime="2022-07-15T01:25:48+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.应用架构的演进过程<br>目标</p>
+<p>了解软件架构的演进过程</p>
+<p>学习路径</p>
+<p>主流的互联网技术特点<br>架构演变的过程<br>单体架构<br>垂直架构<br>分布式服务架构<br>SOA架构<br>微服务架构<br>1.1 主流的互联网技术特点<br>分布式 、高并发、集群、负载均衡、高可用。</p>
+<p>分布式：一件事情拆开来做。</p>
+<p>集群：一件事情所有服务器一起做。</p>
+<p>负载均衡：将请求平均分配到不同的服务器中，达到均衡的目的。</p>
+<p>高并发：同一时刻，处理同一件事情的处理能力（解决方案：分布式、集群、负载均衡）</p>
+<p>高可用：系统都是可用的。</p>
+<p>1.2. 架构演变的过程<br>1.2.1 单一应用架构（all in one）<br>当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。</p>
+<p>架构优点：</p>
+<p>架构简单，前期开发成本低、开发周期短，适合小型项目（OA、CRM、ERP 企业内部应用）。</p>
+<p>架构缺点：</p>
+<p>全部功能集成在一个工程中</p>
+<p>业务代码耦合度高，不易维护。</p>
+<p>维护成本高，不易拓展</p>
+<p>并发量大，不易解决</p>
+<p>技术栈受限，只能使用一种语言开发。</p>
+<p>1.2.2 垂直应用架构<br>当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。</p>
+<p>架构优点：</p>
+<p>业务代码相对解耦</p>
+<p>维护成本相对易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
+<p>并发量大相对易于解决（搭建集群）</p>
+<p>技术栈可扩展（不同的系统可以用不同的编程语言编写）。</p>
+<p>架构缺点：</p>
+<p>功能集中在一个项目中，不利于开发、扩展、维护。</p>
+<p>代码之间存在数据、方法的冗余</p>
+<p>1.2.3 分布式服务架构<br>当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。</p>
+<p>架构优点：</p>
+<p>业务代码完全解耦，并可实现通用</p>
+<p>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
+<p>并发量大易于解决（搭建集群）</p>
+<p>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。</p>
+<p>架构缺点：</p>
+<p>缺少统一管理资源调度的框架</p>
+<p>1.2.4 流动计算架构（SOA）<br>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。</p>
+<p>架构优点<br>业务代码完全解耦，并可实现通用<br>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）<br>并发量大易于解决（搭建集群）<br>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。<br>框架实现了服务治理，不去担心集群的使用情况(失败会尝试其它服务….)<br>1.2.5 小结<br>单体架构</p>
+<p>全部功能集中在一个项目内（All in one）。</p>
+<p>垂直架构</p>
+<p>按照业务进行切割，形成小的单体项目。</p>
+<p>分布式</p>
+<p>应用调用服务，服务挂了，有其它可用，缺少服务治理</p>
+<p>SOA架构</p>
+<p>服务的提供者（以服务为主 service调用dao-&gt;数据库），消费者。<br>服务提供者与消费都注册到中心，由中心统一管理分配，失败重试，负载均衡。。。有服务治理<br>可以使用dubbo作为调度的工具（RPC协议）, Zookeeper作为注册中心<br>微服务架构</p>
+<p>将系统服务层完全独立出来，抽取为一个一个的微服务。 以功能为主(controller-&gt;service-dao-&gt;数据库 独立)<br>特点一：抽取的粒度更细，遵循单一原则，数据可以在服务之间完成数据传输（一般使用restful请求调用资源）。<br>特点二： 采用轻量级框架协议传输。（可以使用spring cloud）（http协议 restful json）<br>特点三： 每个服务都使用不同的数据库，完全独立和解耦 (分库分表)。<br>二.RPC（远程过程调用）<br>目标</p>
+<p>了解什么是RPC</p>
+<p>学习路径</p>
+<p>RPC介绍</p>
+<p>RPC组件</p>
+<p>RPC调用</p>
+<p>2.1 RPC介绍<br>​ Remote Procedure Call 远程过程调用，是分布式架构的核心，按响应方式分如下两种：</p>
+<p> 同步调用：客户端调用服务方方法，等待直到服务方返回结果或者超时，再继续自己的操作。</p>
+<p> 异步调用：客户端把消息发送给中间件，不再等待服务端返回，直接继续自己的操作。</p>
+<p>是一种进程间的通信方式</p>
+<p>它允许应用程序调用网络上的另一个应用程序中的方法</p>
+<p>对于服务的消费者而言，无需了解远程调用的底层细节，是透明的</p>
+<p>需要注意的是RPC并不是一个具体的技术，而是指整个网络远程调用过程。</p>
+<p>RPC是一个泛化的概念，严格来说一切远程过程调用手段都属于RPC范畴。各种开发语言都有自己的RPC框架。Java中的RPC框架比较多，广泛使用的有RMI、Hessian、Dubbo、spring Cloud(restapi http)等。</p>
+<p>2.2 RPC组件<br>RPC架构里包含如下4个组件:</p>
+<p>客户端(Client)：服务调用者<br>客户端存根(Client Stub)：存放服务端地址信息，将客户端的请求参数打包成网络消息，再通过网络发送给服务方<br>服务端存根(Server Stub)：接受客户端发送过来的消息并解包，再调用本地服务<br>服务端(Server)：服务提供者。<br>2.3 RPC调用<br>服务调用方（client）调用以本地调用方式调用服务；<br>client stub接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体在Java里就是序列化的过程<br>client stub找到服务地址，并将消息通过网络发送到服务端；<br>server stub收到消息后进行解码,在Java里就是反序列化的过程；<br>server stub根据解码结果调用本地的服务；<br>本地服务执行处理逻辑；<br>本地服务将结果返回给server stub；<br>server stub将返回结果打包成消息，Java里的序列化；<br>server stub将打包后的消息通过网络并发送至消费方；<br>client stub接收到消息，并进行解码, Java里的反序列化；<br>服务调用方（client）得到最终结果。<br>2.3.1 小结<br>RPC 远程过程调用： 一台电脑调用另一台电脑上的方法<br>RPC组件及调用过程 客户端-&gt;客户端存根(序列化(发送)与反序列化(接收),服务端信息)-&gt;服务端存根(接收-反序列，返回结果-序列化)-&gt;服务端真正的方法<br>调用方式：调用方用的是接口，服务方是真正的实现<br>三.Apache Dubbo概述<br>目标</p>
+<p>了解什么是dubbo</p>
+<p>学习路径</p>
+<p>dubbo简介<br>dubbo架构<br>3.1. Dubbo简介<br>Apache Dubbo是一款高性能的Java RPC框架。其前身是阿里巴巴公司开源的一个高性能、轻量级的开源Java RPC框架，可以和Spring框架无缝集成。</p>
+<p>Dubbo官网地址：<a target="_blank" rel="noopener" href="http://dubbo.apache.org/">http://dubbo.apache.org</a></p>
+<p>Dubbo提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。</p>
+<p>3.2. Dubbo架构</p>
+<p>虚线都是异步访问，实线都是同步访问<br>蓝色:在启动时完成的功能<br>红色虚线(实线)都是程序运行过程中执行的功能</p>
+<p>节点	角色名称<br>Provider	暴露服务的服务提供方 服务方<br>Consumer	调用远程服务的服务消费方 调用方<br>Registry	服务注册与发现的注册中心<br>Monitor	统计服务的调用次数和调用时间的监控中心<br>Container	服务运行容器<br>调用关系说明:</p>
+<p>服务容器负责启动，加载，运行服务提供者。<br>服务提供者在启动时，向注册中心注册自己提供的服务。<br>服务消费者在启动时，向注册中心订阅自己所需的服务。<br>注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。<br>服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。<br>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。<br>什么是长连接</p>
+<p>长连接多用于操作频繁，点对点的通讯，而且连接数不能太多情况。每个TCP连接都需要三步握手，这需要时间，如果每个操作都是短连接，再操作的话那么处理速度会降低很多，所以每个操作完后都不断开，下次处理时直接发送数据包就OK了，不用建立TCP连接。</p>
+<p>3.3 小结<br>dubbo 远程调用框架 RPC</p>
+<p>dubbo架构</p>
+<p> 角色： 客户端与服务提供方 监控器注册中心</p>
+<p> 组员：服务消费端（调用者），服务提供方（容器）, 注册中心, 监控中心(负载均衡)</p>
+<p>四.Dubbo快速开发<br>目标</p>
+<p>使用dubbo，完成服务消费者，调用，服务提供者方法</p>
+<p>操作路径</p>
+<p>环境准备<br>创建父工程（dubbo_parent) 依赖管理<br>创建公共子模块(dubbo_common) 实体类<br>创建接口子模块(dubbo_interface)<br>创建服务提供者模块(dubbo_provider) 对接口的实现<br>创建服务消费者模块(dubbo_consumer) 引用接口<br>Zookeeper中存放Dubbo服务结构(注册中心)<br>讲解</p>
+<p>Dubbo作为一个RPC框架，其最核心的功能就是要实现跨网络的远程调用，服务提供者、服务消费者会使用共同的接口，故本小节先创建一个父工程，父工程下有4个子模块，一个是公共子模块，一个是接口模块，一个是服务提供者模块，一个是服务消费者模块。通过Dubbo来实现服务消费方远程调用服务提供方的方法。</p>
+<p>实现的业务为：根据id查询用户对象</p>
+<p>业务描述：页面发送请求：user&#x2F;findById.do?id&#x3D;1 根据id从数据库获取用户对象</p>
+<p>实现步骤：</p>
+<p>环境准备：创建数据库，创建t_user表<br>创建父工程，基于maven，打包方式为pom，工程名：dubbo_parent<br>创建公共子模块,创建user实体类，打包方式为jar，工程名:dubbo_common<br>创建接口子模块，在父工程的基础上，打包方式为jar，模块名：dubbo_interface<br>创建服务提供者子模块，在父工程的基础上，打包方式为war，模块名：dubbo_provider<br>创建服务消费者模子块，在父工程的基础上，打包方式为war，模块名：dubbo_consumer<br>4.1 环境准备</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> database itcastdubbo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_user` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `username` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;张三&quot;,<span class="number">22</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;李四&quot;,<span class="number">20</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;王五&quot;,<span class="number">25</span>);</span><br></pre></td></tr></table></figure>
+
+
+<p>4.2 创建父工程<br>父工程，不实现任何代码，主要是添加工程需要的库的依赖管理（DependencyManagement），依赖管理就是解决项目中多个模块间公共依赖的版本号、scope的控制范围。</p>
+<p>本项目需要使用spring-webmvc，使用dubbo（务必2.6.2以上版本）、zookeeper及其客户端（curator-framework）、Spring、Mybatis依赖库。</p>
+<p>创建结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── dubbo_common</span><br><span class="line">│   ├── dubbo_common.iml</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_consumer</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_interface</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_parent.iml</span><br><span class="line">├── dubbo_provider</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">└── pom.xml</span><br><span class="line">dubbo_parent pom.xml增加依赖</span><br></pre></td></tr></table></figure>
+
+
+
+<p>详细信息<br>4.3 公共子模块 —— dubbo-common<br>pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>创建User实体类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> Integer id;</span><br><span class="line">  <span class="keyword">private</span> String username;</span><br><span class="line">  <span class="keyword">private</span> Integer age;</span><br><span class="line">  <span class="comment">//此处省略getter/setter/toString</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4.4 接口子模块 —— dubbo_interface<br>pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>UserService</p>
+<p>1<br>2<br>3<br>public interface UserService {<br>    User findById(Integer id);<br>}<br>4.5 服务提供者模块<br>此模块是服务提供者模块，需要在容器启动时，把服务注册到zookeeper,故需要引入spring-webmvc,zookeeper及客户端依赖。</p>
+<p>使用war 方式，需要依赖dubbo_interface</p>
+<p>结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── pom.xml</span><br><span class="line">└── src</span><br><span class="line">├── main</span><br><span class="line">│   ├── java</span><br><span class="line">│   │   └── com</span><br><span class="line">│   │       └── <span class="built_in">test</span></span><br><span class="line">│   │           ├── dao</span><br><span class="line">│   │           │   └── UserDao.java</span><br><span class="line">│   │           └── service</span><br><span class="line">│   │               └── impl</span><br><span class="line">│   │                   └── UserServiceImpl.java</span><br><span class="line">│   ├── resources</span><br><span class="line">│   │   ├── com</span><br><span class="line">│   │   │   └── <span class="built_in">test</span></span><br><span class="line">│   │   │       └── dao</span><br><span class="line">│   │   │           └── UserDao.xml</span><br><span class="line">│   │   ├── jdbc.properties</span><br><span class="line">│   │   ├── spring-dao.xml</span><br><span class="line">│   │   ├── spring-provider.xml</span><br><span class="line">│   │   └── spring-service.xml</span><br><span class="line">│   └── webapp</span><br><span class="line">│       └── WEB-INF</span><br><span class="line">│           └── web.xml</span><br><span class="line">└── <span class="built_in">test</span></span><br><span class="line">└── java</span><br></pre></td></tr></table></figure>
+
+<p>4.5.1 配置dubbo_provider依赖<br>pom.xml</p>
+<p>详细信息<br>4.5.2 初始化java资源目录<br>UserDao</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDao</span> &#123;</span><br><span class="line">  User <span class="title function_">findById</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>UserServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">UserService</span> &#123;<span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> UserDao userDao;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span> &#123;</span><br><span class="line"><span class="keyword">return</span> userDao.findById(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>}<br>在resource下创建com&#x2F;test&#x2F;dao目录，创建UserDao接口的映射文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.test.dao.UserDao&quot;</span>&gt;</span></span><br><span class="line">  </span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;findById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.test.pojo.User&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;int&quot;</span>&gt;</span></span><br><span class="line">  select * from t_user where id = #&#123;id&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+4.5.3 初始化resources目录
+spring-dao.xml
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  加载jdbc配置文件   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:property-placeholder</span> <span class="attr">location</span>=<span class="string">&quot;classpath:jdbc.properties&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 数据源   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.alibaba.druid.pool.DruidDataSource&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driverClassName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.user&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 工厂 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.pojo&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- dao扫描   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;basePackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.dao&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>jdbc.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jdbc.driver</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="attr">jdbc.url</span>=<span class="string">jdbc:mysql://localhost:3306/itcastdubbo</span></span><br><span class="line"><span class="attr">jdbc.user</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">jdbc.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">spring-service.xml</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:tx</span>=<span class="string">&quot;http://www.springframework.org/schema/tx&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--  事务管理器  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;transactionManager&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  事务注解  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tx:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入dao  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dao.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>spring-provider.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布服务的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_provider&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心zookeeper:--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- service:  注册上去服务</span></span><br><span class="line"><span class="comment">interface： 发布服务的接口</span></span><br><span class="line"><span class="comment">ref: spring容器的bean对象</span></span><br><span class="line"><span class="comment">将来通过这个interface调用服务时，就来调用spring容器中的对象的方法</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;userService&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务真正的执行者  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入spring-service.xml  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-service.xml&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--发布dubbo协议，默认端口20880--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 超时时间 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;100000&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+log4j.properties
+
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### direct log messages to stdout ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.stdout</span>=<span class="string">org.apache.log4j.ConsoleAppender</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.Target</span>=<span class="string">System.err</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### direct messages to file mylog.log ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.file</span>=<span class="string">org.apache.log4j.FileAppender</span></span><br><span class="line"><span class="attr">log4j.appender.file.File</span>=<span class="string">c:\\mylog.log</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### set log levels - for more verbose logging change &#x27;info&#x27; to &#x27;debug&#x27; ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.rootLogger</span>=<span class="string">debug, stdout</span></span><br></pre></td></tr></table></figure>
+
+<p>4.5.4 启动项目<br>只要能启动spring的容器（加载spring的配置文件）就可以启动项目，因此有2种方式</p>
+<p>ClassPathXmlApplication</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProviderApplication</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ClassPathXmlApplicationContext</span>(<span class="string">&quot;classpath:spring-provider.xml&quot;</span>);</span><br><span class="line">    System.in.read();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>监听器与springMVC</p>
+<p>web.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式一: listener 启动spring容器</span></span><br><span class="line"><span class="comment">&lt;context-param&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-value&gt;classpath:spring-provider.xml&lt;/param-value&gt;</span></span><br><span class="line"><span class="comment">&lt;/context-param&gt;</span></span><br><span class="line"><span class="comment">&lt;listener&gt;</span></span><br><span class="line"><span class="comment">    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;</span></span><br><span class="line"><span class="comment">&lt;/listener&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式二: 启动mvc的核心控制器   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-provider.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+4.5.5 注册中心验证
+启动zookeeper，作为dubbo的注册中心
+
+<p>登录zookeeper客户端，直接查看ls &#x2F;dubbo&#x2F;com.test.service.UserService节点</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 34] <span class="built_in">ls</span> /dubbo/com.test.service.UserService</span><br><span class="line">[configurators, providers]</span><br></pre></td></tr></table></figure>
+
+
+<p>如果 &#x2F;dubbo下面没有这个节点，说明没有注册上，</p>
+<p>如果有，内容是空，说明已经掉线</p>
+<p>正常注册并连接在线</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 35] <span class="built_in">ls</span> /dubbo/com.test.service.UserService/providers</span><br><span class="line">[dubbo%3A%2F%2F10.254.4.87%3A20880%2Fcom.test.service.UserService%3Fanyhost%3Dtrue%26application%3Ddubbo_provide%26dubbo%3D2.6.2%26generic%3Dfalse%26interface%3Dcom.test.service.UserService%26methods%3DfindById%26pid%3D33771%26revision%3D1.0-SNAPSHOT%26side%3Dprovider%26timestamp%3D1592563739288]</span><br></pre></td></tr></table></figure>
+
+
+<p>注意：</p>
+<p>消费者与提供者应用名称不能相同</p>
+<p>如果有多个服务提供者，名称不能相同，通信端口也不能相同</p>
+<p>只有服务提供者才会配置服务发布的协议，默认是dubbo协议，端口号是20880</p>
+<p>可以在spring-dubbo.xml中配置协议的端口</p>
+<p>4.6 服务消费者模块<br>此模块是服务消费者模块，此模块基于是Web应用，需要引入spring-webmvc，需要在容器启动时，去zookeeper注册中心订阅服务,需要引入dubbo、zookeeper及客户端依赖。</p>
+<p>4.6.1 子模块dubbo_consumer导包<br>pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_consumer<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-webmvc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>servlet-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>4.6.2 初始化java资源目录<br>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>}<br>4.6.3 初始化resources资源目录<br>spring-dubbo.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_consumer&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务订阅扫包</span></span><br><span class="line"><span class="comment">      (2.6.0 事务问题)使用了服务的那controller的包, springmvc中的controller也不需要扫包了</span></span><br><span class="line"><span class="comment">      &lt;dubbo:reference&gt;就不要了</span></span><br><span class="line"><span class="comment">      在controller的服务注入使用@Reference(dubbo)</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:annotation</span> <span class="attr">package</span>=<span class="string">&quot;com.test&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  id的值必须与controller中的@autowired的属性名称要一致</span></span><br><span class="line"><span class="comment">    &lt;dubbo:reference interface=&quot;com.test.service.UserService&quot; id=&quot;userService&quot;/&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  启动时是否检查服务提供者是否存在，true: 则会检查【上线时】，没有则报错。false不检查</span></span><br><span class="line"><span class="comment">     retries: 失败后的重试次数</span></span><br><span class="line"><span class="comment">     --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;2000&quot;</span> <span class="attr">retries</span>=<span class="string">&quot;2&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>spring-mvc.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:mvc</span>=<span class="string">&quot;http://www.springframework.org/schema/mvc&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  扫controller--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.test.controller&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注解驱动  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">mvc:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  引入dubbo配置文件--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dubbo.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>log4j.properties</p>
+<p>之前的配置文件直接复制即可</p>
+<p>web.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-mvc.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>encoding<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>4.6.5 启动服务消费者并测试<br>访问：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3<br>显示：{“id”:3,”username”:”C”,”age”:25}<br>注意：因为是RPC的框架，要求传递的参数和实体类要实现序列化</p>
+<p>参数：Integer类型（实现序列化接口java.io.Serializable）</p>
+<p>返回值：User（实现序列化接口java.io.Serializable），如果不进行序列化，抛出异常</p>
+<p>4.7 Zookeeper中存放Dubbo服务结构（作为Dubbo运行的注册中心）<br>Zookeeper树型目录服务：</p>
+<p>流程说明</p>
+<p>服务提供者(Provider)启动时: 向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下写入自己的 URL 地址</p>
+<p>服务消费者(Consumer)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下的提供者 URL 地址。并向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;consumers 目录下写入自己的 URL 地址</p>
+<p>监控中心(Monitor)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService 目录下的所有提供者和消费者 URL 地址</p>
+<p>4.8 小结<br>dubbo_parent 版本控制<br>dubbo_common 实体类<br>dubbo_interface 共用接口<br>dubbo_provider 服务提供者 dao(spring-dao.xml 整合mybatis), 事务(spring-service.xml), 注册到注册中心(spring-prodvider.xml)<br>启动方式： 3种 推荐开发中用main方法类，tomcat来启动(监听器，springmvc的方式)</p>
+<p>dubbo_consumer controller接收参数调用服务接口 spring-mvc.xml, 注册到注册中心 spring-dubbo.xml web.xml dispatcherServlet tomcat来启动</p>
+<p>子模块工程间的关系</p>
+<p>dubbo_consumer依赖于dubbo_interface(依赖于common) war tomcat<br>dubbo_provider(service,dao)依赖于dubbo_interface(依赖于common) war tomcat<br>五.Dubbo管理控制台<br>我们在开发时，需要知道Zookeeper注册中心都注册了哪些服务，有哪些消费者来消费这些服务。我们可以通过部署一个管理中心来实现。其实管理中心就是一个web应用，部署到tomcat即可。</p>
+<p>目标</p>
+<p>Dubbo管理控制台的使用（即Dubbo监控中心）</p>
+<p>使用路径</p>
+<p>安装（dubbo-admin.war）<br>使用（dubbo-admin.war）</p>
+<p>5.1. 安装<br>下载dubbo-admin.war，放入Tomcat的webapps中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find ./apache-tomcat-8.5.54 -name <span class="string">&quot;dubbo*war*&quot;</span> -<span class="built_in">type</span> f    </span><br><span class="line">./apache-tomcat-8.5.54/webapps/dubbo-admin.war</span><br></pre></td></tr></table></figure>
+
+
+<p>启动Tomcat,此war文件会自动解压</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ ./apache-tomcat-8.5.54/bin/startup.sh</span><br><span class="line">Using CATALINA_BASE:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_HOME:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_TMPDIR: /Users/swzxsyh/Program/apache-tomcat-8.5.54/temp</span><br><span class="line">Using JRE_HOME:        /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home</span><br><span class="line">Using CLASSPATH:       /Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/bootstrap.jar:/Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/tomcat-juli.jar</span><br><span class="line">Tomcat started.</span><br></pre></td></tr></table></figure>
+
+
+<p>修改WEB-INF下的dubbo.properties文件</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注意dubbo.registry.address对应的值需要对应当前使用的Zookeeper的ip地址和端口号</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dubbo.registry.address</span>=<span class="string">zookeeper://localhost:2181</span></span><br><span class="line"><span class="attr">dubbo.admin.root.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">dubbo.admin.guest.password</span>=<span class="string">guest</span></span><br><span class="line"><span class="attr">重启tomcat</span></span><br></pre></td></tr></table></figure>
+
+<p>5.2. 使用<br>访问</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localhost:8080/dubbo-admin/</span><br></pre></td></tr></table></figure>
+
+<p>账号密码都为admn或都为guest，上方配置文件中配置的</p>
+<p>启动服务提供者工程和服务消费者工程，可以在查看到对应的信息</p>
+<p>5.3 小结<br>安装（dubbo-admin.war），放置到tomcat webapp目录下，zookeeper不是本地则要修改WEB-INF下的dubbo.properties文件， 改zookeeper的ip地址。</p>
+<p>使用（dubbo-admin.war）</p>
+<p>访问localhost:8080&#x2F;dubbo-admin&#x2F;，输入用户名(root)和密码(root)</p>
+<p>六.Dubbo相关配置说明<br>目标</p>
+<p>Dubbo相关配置说明</p>
+<p>路径</p>
+<p>包扫描（dubbo注解配置）</p>
+<p>服务接口访问协议dubbo协议</p>
+<p>rmi协议</p>
+<p>启动时检查</p>
+<p>超时调用</p>
+<p>6.1. 包扫描<br>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者前面章节实现都是基于配置文件进行服务注册与订阅，如果使用包扫描，可以使用注解方式实现，推荐使用这种方式。</p>
+<p>6.1.1 服务提供者，使用注解实现<br>在spring-dubbo.xml中配置</p>
+<p>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者都需要配置，表示包扫描，作用是扫描指定包(包括子包)下的类。</p>
+<p>同时去掉以下配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--指定暴露的服务接口及实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">ref</span>=<span class="string">&quot;userSerivce&quot;</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!--配置业务类实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userSerivce&quot;</span></span></span><br><span class="line"><span class="tag">      <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>在Controller类中使用@Reference注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line"><span class="keyword">private</span> UserService userService;</span><br></pre></td></tr></table></figure>
+
+
+<p>注意：其中@Reference是dubbo包下（com.alibaba.dubbo.config.annotation.Reference）的注解。表示订阅服务</p>
+<p>6.1.3 重启服务测试使用<br>重启服务提供者模块 dubbo-provider</p>
+<p>重启服务消费者模块 dubbo-consumer</p>
+<p>在浏览器输入测试URL：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3</p>
+<p>6.2 服务接口访问协议【提供方修改】<br>1<br>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;<br>一般在服务提供者一方配置，可以指定使用的协议名称和端口号。</p>
+<p>其中Dubbo支持的协议有：dubbo、rmi、hessian、http、webservice、rest、redis等。</p>
+<p>推荐使用的是dubbo协议，默认端口号：20880。</p>
+<p>dubbo 协议采用单一长连接和 NIO 异步通讯，适合于小数据量、大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。不适合传送大数据量的服务，比如传文件，传视频等，除非请求量很低。</p>
+<p>也可以在同一个工程中配置多个协议，不同服务可以使用不同的协议， 在spring-provider.xml配置文件中添加：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 多协议配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;rmi&quot;</span> <span class="attr">port</span>=<span class="string">&quot;1099&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>dubbo协议：</p>
+<p>连接个数：单连接<br>连接方式：长连接<br>传输协议：TCP<br>传输方式：NIO异步传输<br>序列化：Hessian二进制序列化<br>适用范围：传入传出参数数据包较小（建议小于100K），消费者比提供者个数多，单一消费者无法压满提供者，尽量不要用dubbo协议传输大文件或超大字符串。<br>适用场景：常规远程服务方法调用<br>rmi协议：</p>
+<p>连接个数：多连接<br>连接方式：短连接<br>传输协议：TCP<br>传输方式：同步传输<br>序列化：Java标准二进制序列化<br>适用范围：传入传出参数数据包大小混合，消费者与提供者个数差不多，可传文件。<br>适用场景：常规远程服务方法调用，与原生RMI服务互操作<br>详情使用可通过博客文章：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/duanxz/p/3555876.html%E4%BA%86%E8%A7%A3">https://www.cnblogs.com/duanxz/p/3555876.html了解</a></p>
+<p>6.3 启动时检查<br>1<br>&lt;dubbo:consumer check&#x3D;”false”&#x2F;&gt;<br>上面这个配置需要配置在服务消费者一方，如果不配置默认check值为true。Dubbo 缺省会在启动时检查依赖的服务是否可用，不可用时会抛出异常，阻止 Spring 初始化完成，以便上线时，能及早发现问题。可以通过将check值改为false来关闭检查。</p>
+<p>建议在开发阶段将check值设置为false，在生产环境下改为true。</p>
+<p>如果设置为true，启动服务消费者，会抛出异常，表示没有服务提供者</p>
+<p>6.4. 超时调用<br>默认的情况下，dubbo调用的时间为一秒钟，如果超过一秒钟就会报错，所以我们可以设置超时时间长些，保证调用不出问题，这个时间需要根据业务来进行确定。</p>
+<p>修改消费者 配置文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--超时时间为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">修改提供者配置文件</span><br><span class="line"></span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line"><span class="comment">&lt;!--超时时间设置为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>6.5 小结<br>包扫描（dubbo注解配置）</p>
+<p>&lt;dubbo:annotation package&#x3D;”com.test”&gt;<br>服务提供方: @Service -&gt; alibaba.dubbo包<br>消费方: controller, @Autowired&#x3D;&gt; @Reference-&gt; alibaba.dubbo<br>服务接口访问协议</p>
+<p>（服务提供者）</p>
+<p>dubbo协议<br>rmi协议</p>
+<!--配置Dubbo的协议（dubbo协议，默认端口20880-->
+<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;</p>
+<!--配置rmi的协议-->
+<p>&lt;dubbo:protocol name&#x3D;”rmi” port&#x3D;”1099”&gt;<br>启动时检查</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span> 开发时。发布时一定为true超时调用</span><br><span class="line"></span><br><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">（服务提供者）</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>七.负载均衡<br>目标</p>
+<p>Dubbo配置负载均衡</p>
+<p>学习路径</p>
+<p>负载均衡介绍<br>测试负载均衡效果<br>7.1. 介绍<br>负载均衡（Load Balance）：其实就是将请求分摊到多个操作单元上进行执行，从而共同完成工作任务。</p>
+<p>在集群负载均衡时，Dubbo 提供了多种均衡策略（包括随机random、轮询roundrobin、最少活跃调用数leastactive），缺省【默认】为random随机调用。</p>
+<p>配置负载均衡策略，既可以在服务提供者一方配置（@Service(loadbalance &#x3D; “roundrobin”)），也可以在服务消费者一方配置（@Reference(loadbalance &#x3D; “roundrobin”)），两者取一</p>
+<p>如下在服务消费者指定负载均衡策略，可在@Reference添加@Reference(loadbalance &#x3D; “roundrobin”)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserSerivce userService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>7.2. 测试负载均衡效果<br>增加一个提供者，提供相同的服务;</p>
+<p> 正式生产环境中，最终会把服务端部署到多台机器上，故不需要修改任何代码，只需要部署到不同机器即可测试。下面我们通过启动 ProviderApplication 类来做测试</p>
+<p>修改为轮询</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>先启动一个ProviderApplication</p>
+<p>IDEA——Edit Configuration——Add New Configuration——Application——进行配置</p>
+<p>设置可以启动多个实例</p>
+<p>勾选刚刚配置的Application中的 Allow parallel run</p>
+<p>修改spring-provider.xml 端口依次改为20881,20882,20883</p>
+<p>1<br>2</p>
+<!-- 使用Dubbo协议的服务会在初始化时建立长连接-->
+<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&#x2F;&gt;<br>启动ProviderApplication,最终有3个，分别端口为20881，20882，20883</p>
+<p>其中</p>
+<p>1<br>2<br>@Reference(loadbalance &#x3D; “roundrobin”) 		&#x2F;&#x2F; 表示轮询<br>@Reference(loadbalance &#x3D; “random”)       	&#x2F;&#x2F; 表示随机（默认）<br>访问测试</p>
+<p>启动消费者，访问：<a target="_blank" rel="noopener" href="http://localhost:92/user/findById?id=3">http://localhost:92/user/findById?id=3</a></p>
+<p>7.3 小结<br>负载均衡: 把请求均匀分配到各服务提供者上</p>
+<p>loadbalance:</p>
+<p>random 随机 默认<br>roundrobin 轮循<br>leastactive 最少活跃数<br>consistenhash 一致哈希<br>八.配置中心<br>目标</p>
+<p>Dubbo配置中心</p>
+<p>路径</p>
+<p>配置中心环境介绍</p>
+<p>实现配置中心</p>
+<p>（1）在Zookeeper中添加数据源所需配置</p>
+<p>（2）在dubbo-common中导入jar包, 在这里实现配置中心的读取与监听</p>
+<p>（3）删除数据库配置文件，数据库配置从Zookeeper上读取</p>
+<p>添加watch机制</p>
+<p>添加监听(数据库配置信息的节点， 节点数据变化时，重新设置数据库的配置信息，刷新容器)<br>获取Spring容器对象，再刷新<br>8.1. 环境介绍<br>​ 数据发布&#x2F;订阅即所谓的配置中心：发布者将数据发布到ZooKeeper一系列节点上面，订阅者进行数据订阅，当数据有变化时，可以及时得到数据的变化通知，达到动态及时获取数据的目的。</p>
+<p>现在项目中有两个提供者，配置了相同的数据源，如果此时要修改数据源，必须同时修改两个才可以。</p>
+<p> 我们可以将数据源中需要的配置信息配置存储在zookeeper中，如果修改数据源配置，使用zookeeper的watch机制，同时对提供者的数据源信息更新。</p>
+<p>8.2. 实现配置中心<br>操作路径</p>
+<p>在zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包</p>
+<p>修改数据源，读取zookeeper中数据源所需配置数据</p>
+<p>在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer<br>编写载入zookeeper中配置文件，传递到Properties属性中<br>重写processProperties方法<br>修改spring-dao.xml<br>watch机制</p>
+<p>添加监听<br>获取容器对象，刷新spring容器：SettingCenterUtil,实现ApplicationContextAware<br>8.2.1 在zookeeper中添加数据源所需配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 71] create /config <span class="string">&#x27;config&#x27;</span></span><br><span class="line">Created /config</span><br><span class="line">[zk: localhost:2181(CONNECTED) 72] create /config/jdbc.url <span class="string">&#x27;jdbc:mysql://localhost:3306/test_01&#x27;</span></span><br><span class="line">Created /config/jdbc.url</span><br><span class="line">[zk: localhost:2181(CONNECTED) 76] create /config/jdbc.user <span class="string">&#x27;root</span></span><br><span class="line"><span class="string">Created /config/jdbc.user</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 77] create /config/jdbc.password &#x27;</span>root<span class="string">&#x27; </span></span><br><span class="line"><span class="string">Created /config/jdbc.password     </span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 78] create /config/jdbc.driver &#x27;</span>com.mysql.jdbc.Driver<span class="string">&#x27;</span></span><br><span class="line"><span class="string">Created /config/jdbc.driver</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 79] </span></span><br></pre></td></tr></table></figure>
+
+<p>8.2.2 在dubbo-common中导入jar包<br>详细信息<br>8.2.3 修改数据源，读取zookeeper中数据<br>8.2.3.1 在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> dubbo_common/src/main/java   </span><br><span class="line"> ~/P/i/d/d/s/m/java</span><br><span class="line">$ tree  </span><br><span class="line">.</span><br><span class="line">└── com</span><br><span class="line">    └── <span class="built_in">test</span></span><br><span class="line">        ├── pojo</span><br><span class="line">        │   └── User.java</span><br><span class="line">        └── utils</span><br><span class="line">            └── SettingCenterUtil.java</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SettingCenterUtil</span> <span class="keyword">extends</span> <span class="title class_">PropertyPlaceholderConfigurer</span> </span><br></pre></td></tr></table></figure>
+
+<p>8.2.3.2 编写载入zookeeper中配置文件，传递到Properties属性中<br>详细信息<br>8.2.3.3 重写processProperties方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> * 处理properties内容,相当于此标签</span></span><br><span class="line"><span class="comment"> * &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;&gt;&lt;/context:property-placeholder&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> beanFactoryToProcess</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> BeansException</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  <span class="comment">// 载入zookeeper配置信息，即从Zookeeper中获取数据源的连接信息</span></span><br><span class="line">  loadZk(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>8.2.3.4 修改spring-dao.xml</li>
+</ul>
+ <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--  注释  加载jdbc配置文件   --&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--    &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;--&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--  添加  加载配置中心对象   --&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;com.test.utils.SettingCenterUtil&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>8.2.4 watch机制<br>8.2.4.1 在SettingCenterUtil中添加监听</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">   * 添加对zookeeper中数据库配置的监听</span></span><br><span class="line"><span class="comment">      <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment">          */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">addWatch</span><span class="params">(Properties props)</span>&#123;</span><br><span class="line">  <span class="comment">//connectString       连接字符串 host:port</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">connectString</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1:2181&quot;</span>;</span><br><span class="line">  <span class="comment">//sessionTimeoutMs    session timeout  会话超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">sessionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//connectionTimeoutMs connection timeout 连接超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">connectionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//retryPolicy         retry policy to use  重试策略</span></span><br><span class="line">  <span class="comment">// baseSleepTimeMs  每次重试间隔时间</span></span><br><span class="line">  <span class="comment">// 1.创建重试策略</span></span><br><span class="line">  <span class="type">RetryPolicy</span> <span class="variable">retryPolicy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ExponentialBackoffRetry</span>(<span class="number">1000</span>,<span class="number">1</span>);</span><br><span class="line">  <span class="comment">// 2. 创建客户端</span></span><br><span class="line">  <span class="type">CuratorFramework</span> <span class="variable">client</span> <span class="operator">=</span> CuratorFrameworkFactory.newClient(connectString, sessionTimeoutMs, connectionTimeoutMs, retryPolicy);</span><br><span class="line">  <span class="comment">// 3. 启动</span></span><br><span class="line">  client.start();<span class="comment">// 启动</span></span><br><span class="line"></span><br><span class="line">  <span class="type">TreeCache</span> <span class="variable">treeCache</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeCache</span>(client, <span class="string">&quot;/config&quot;</span>);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    treeCache.start();</span><br><span class="line">    <span class="comment">// 添加监听</span></span><br><span class="line">    treeCache.getListenable().addListener(<span class="keyword">new</span> <span class="title class_">TreeCacheListener</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">childEvent</span><span class="params">(CuratorFramework client, TreeCacheEvent event)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span>(event.getType() == TreeCacheEvent.Type.NODE_UPDATED)&#123;</span><br><span class="line">          <span class="comment">// 如果是jdbc.url的值变更</span></span><br><span class="line">          <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.url&quot;</span>))&#123;</span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.url&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.driver&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 如果 jdbc.driver变更</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.driver&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.user&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 用户名修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.user&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.password&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 密码修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.password&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// 刷新spring容器</span></span><br><span class="line">          applicationContext.refresh();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>注意：</p>
+<p>不要关闭client，否则无法进行监控<br>修改完成后必须刷新spring容器的对象<br>8.2.4.2 获取容器对象，刷新spring容器<br>修改SettingCenterUtil实现ApplicationContextAware接口，重写setApplicationContext方法，获取applicationContext对象。</p>
+<p>AbstractApplicationContext容器对象父类，提供了refresh方法，可以刷新容器中的对象，故强制转换。</p>
+<p>在processProperties的方法中，添加addWatch(props);</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  loadZk(props);</span><br><span class="line">  addWatch(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>修改Zookeeper的配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 79] <span class="built_in">set</span> /config/jdbc.url <span class="string">&quot;jdbc:mysql:///test&quot;</span></span><br><span class="line">[zk: localhost:2181(CONNECTED) 80] get /config/jdbc.url</span><br><span class="line">jdbc:mysql:///test</span><br></pre></td></tr></table></figure>
+
+
+<p>8.3 小结<br>配置中心环境介绍 回看zookeeper配置中心的图<br>实现配置中心<br>在Zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包<br>修改数据源,读取Zookeeper中数据,继承ProperteisPlaceHolderConfigurer.processProperties, 读取zk中的数据库配置,设置进props参数<br>watch机制<br>添加监听 TreeCache, event.type&#x3D;node_update, 注意：判断path 不要关闭客户端<br>获取容器对象且刷新</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/16/Zookepper-%E5%88%9D%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1454,7 +1869,7 @@ parent是有聚合的功能，不需要将ssm_parent，ssm_model，ssm_dao，ssm
 <p>密钥生成后需要在github上配置密钥本地才可以顺利访问。</p>
 <p>在key部分将id_rsa.pub文件内容添加进去，然后点击“Add SSH key”按钮完成配置。</p>
 <p>使用ssh协议同步到远程仓库</p>
-<p>1<br>2<br>$ git remote add origin <a href="mailto:&#x67;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#x6d;">&#x67;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#x6d;</a>:itcast888&#x2F;mytest.git<br>$ git push -u origin master<br>origin就是一个名字，它是在你clone一个托管在Github上代码库时，git为你默认创建的指向这个远程代码库的标签， origin指向的是repository，master只是这个repository中默认创建的第一个分支。</p>
+<p>1<br>2<br>$ git remote add origin <a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#117;&#x62;&#x2e;&#99;&#x6f;&#109;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#117;&#x62;&#x2e;&#99;&#x6f;&#109;</a>:itcast888&#x2F;mytest.git<br>$ git push -u origin master<br>origin就是一个名字，它是在你clone一个托管在Github上代码库时，git为你默认创建的指向这个远程代码库的标签， origin指向的是repository，master只是这个repository中默认创建的第一个分支。</p>
 <p>2.5.2 从远程仓库克隆<br>克隆远程仓库也就是从远程把仓库复制一份到本地，克隆后会创建一个新的本地仓库。选择一个任意部署仓库的目录，然后克隆远程仓库。</p>
 <p>1<br>$ git clone <a href="mailto:git@github.com:sublun/mytest.git">git@github.com:sublun/mytest.git</a><br>2.5.3 从远程仓库取代码<br>1<br>2<br>3</p>
 <ol>
@@ -5018,693 +5433,6 @@ public DataSource createDataSource() &#123;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/28/Spring-%E5%88%9D%E8%AF%86-%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/28/Spring-%E5%88%9D%E8%AF%86-%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Spring 初识 & 相关配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-28 01:41:27" itemprop="dateCreated datePublished" datetime="2020-05-28T01:41:27+08:00">2020-05-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.Spring概述<br>1.1 Spring是什么<br>Spring是分层的 Java SE&#x2F;EE应用 full-stack(全栈) 轻量级开源框架。<br>Spring的核心是 IOC(Inverse Of Control:控制反转)和 AOP(Aspect Oriented Programming:面向切面编程)</p>
-<p>Spring一个全栈应用框架, 提供了表现层 Spring MVC 和持久层 Spring JDBC 以及业务层事务管理等众 多应用技术</p>
-<p>Spring还能整合开源世界众多著名的第三方框架和类库，逐渐成为使用最多的 Java EE 企业应用开源框 架</p>
-<p>Spring官网:<a target="_blank" rel="noopener" href="https://spring.io/">https://spring.io/</a></p>
-<p>1.2 Spring发展历程<br>EJB</p>
-<p>1997 年，IBM提出了EJB 的思想</p>
-<p>1998 年，SUN制定开发标准规范 EJB1.0</p>
-<p>1999 年，EJB1.1 发布</p>
-<p>2001 年，EJB2.0 发布</p>
-<p>2003 年，EJB2.1 发布</p>
-<p>2006 年，EJB3.0 发布</p>
-<p>Spring<br>Rod Johnson 2002年编著《Expert one on one J2EE design and development》指出了JavaEE和EJB组件框架中的存在的一些主要缺陷;提出普通java类依赖注入更为简单的解决方案。</p>
-<p>2004年编著《Expert one-on-one J2EE Development without EJB》 阐述了JavaEE开发时不使用EJB的解决方式(Spring 雏形) 同年4月spring1.0诞生</p>
-<p>2006年10月，发布 Spring2.0</p>
-<p>2009年12月，发布 Spring3.0</p>
-<p>2013年12月，发布 Spring4.0</p>
-<p>2017年9月， 发布最新 Spring5.0 通用版(GA)</p>
-<p>1.3 Spring优势<br>方便解耦，简化开发<br>通过Spring提供的 IOC 容器，可以将对象间的依赖关系交由 Spring 进行控制，避免硬编码所造成的过度耦合。</p>
-<p>AOP编程的支持</p>
-<p>通过Spring的AOP功能，方便进行面向切面编程，可以方便的实现对程序进行权限拦截、运行监控等功能。</p>
-<p>声明式事务的支持</p>
-<p>只需要通过配置就可以完成对事务的管理，而无需手动编程。</p>
-<p>方便程序的测试</p>
-<p>Spring对Junit4支持，可以通过注解方便的测试Spring程序。</p>
-<p>方便集成各种优秀框架</p>
-<p>Spring对各种优秀框架(Struts、Hibernate、Hessian、Quartz等)的支持。</p>
-<p>降低JavaEE API的使用难度</p>
-<p>Spring对JavaEEAPI(如JDBC、JavaMail、RPC等)进行了薄薄的封装层，使这些 API 的使用难度大为降低。</p>
-<p>1.4 Spring体系结构<br>核心容器（Core Container）<br>数据访问&#x2F;集成（Data Access&#x2F;Integration）层<br>Web层<br>AOP（Aspect Oriented Programming）模块<br>植入（Instrumentation）模块<br>消息传输（Messaging）<br>测试（Test）模块</p>
-<p>二.初识IOC<br>2.1 介绍<br>控制反转(Inverse Of Control) 是一种设计思想。它的目的是指导我们设计出更加松耦合的程序。</p>
-<p>控制:在java中指的是对象的控制权限(创建、销毁)</p>
-<p>反转:指的是对象控制权由原来 由开发者在类中手动控制 反转到 由Spring容器控制</p>
-<p>2.2 环境搭建<br>IDEA new empty project &#x3D;&#x3D;&gt;设置Project Name、JDK Version、Encodings&#x3D;&#x3D;&gt;添加maven module&#x3D;&#x3D;&gt;导入Jar包</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</p>
-<!--依赖管理--> 
-<dependencies>
-  <!--dom4j-->
-  <dependency> 
-    <groupId>dom4j</groupId> 
-    <artifactId>dom4j</artifactId> 
-    <version>1.6.1</version>
-  </dependency>
-  <!--xpath-->
-  <dependency> 
-    <groupId>jaxen</groupId> 
-    <artifactId>jaxen</artifactId> 
-    <version>1.1.6</version>
-  </dependency>
-  <!--junit-->
-  <dependency> 
-    <groupId>junit</groupId> 
-    <artifactId>junit</artifactId> 
-    <version>4.12</version>
-  </dependency>
-</dependencies>
-2.3 版本一:原始版本
-编写UserDao接口和实现类
-
-<p>1<br>2<br>3<br>public interface UserDao {<br>    void save();<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public void save() {<br>        System.out.println(“UserDao Saved!”);<br>    }<br>}<br>编写UserService接口和实现类</p>
-<p>1<br>2<br>3<br>public interface UserService {<br>    void save();<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public void save() {<br>        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        userDao.save();<br>    }<br>}<br>编写UserTest</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public class UserTest{<br>  &#x2F;&#x2F;调用Service实现保存<br>  @Test<br>  public void testUser01() throws Exception{<br>    UserServiceImpl userService &#x3D; new UserServiceImpl();<br>    userService.save();<br>  }<br>}<br>问题</p>
-<p>Service层和dao层代码产生耦合——松耦原则：编译期解耦，运行期可以耦合<br>每次调用save方法时，都会创建一个新的dao对象<br>2.4 版本二:工厂解耦<br>编写beans.xml</p>
-<p>1<br>2<br>3<br><beans><br>  <bean id="userDao" class="com.test.dao.impl.UserDaoImpl"></bean><br></beans><br>编写BeanFactory</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>public class BeanFactory {</p>
-<pre><code>public static Object getBean(String id) &#123;
-    Object object = null;
-
-    try &#123;
-        // 1.通过类加载器读取 beans.xml
-        InputStream in = BeanFactory.class.getClassLoader().getResourceAsStream(&quot;beans.xml&quot;);
-
-        // 2.创建dom4j核心解析器对象
-        SAXReader saxReader = new SAXReader();
-        Document document = saxReader.read(in);
-
-        // 3.编写xpath表达式
-        String xpath = &quot;//bean[@id=&#39;&quot; + id + &quot;&#39;]&quot;;
-
-        // 4.获取指定id的标签对象
-        Element element = (Element) document.selectSingleNode(xpath);
-
-        // 5.获取全限定名
-        String className = element.attributeValue(&quot;class&quot;);
-
-        // 6.通过反射创建对象实例
-        object = Class.forName(className).newInstance();
-    &#125; catch (Exception e) &#123;
-        e.printStackTrace();
-    &#125;
-    // 7.返回对象实例
-    return object;
-&#125;
-</code></pre>
-<p>}<br>修改UserServiceImpl</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public void save() {<br>&#x2F;&#x2F;        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        UserDao userDao &#x3D; (UserDao) BeanFactory.getBean(“userDao”);<br>        userDao.save();<br>    }<br>}<br>问题</p>
-<p>每次调用save方法，都会创建一个新的dao对象，工厂每次调用getBean方法都会创建一个新的对象实例，浪费内存</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public void save() {<br>&#x2F;&#x2F;        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        UserDao userDao &#x3D; (UserDao) BeanFactory.getBean(“userDao”);<br>        UserDao userDao1 &#x3D; (UserDao) BeanFactory.getBean(“userDao”);<br>        userDao.save();<br>        userDao1.save();<br>    }<br>}</p>
-<p>&#x2F;*<br>com.test.dao.impl.UserDaoImpl@516be40f<br>com.test.dao.impl.UserDaoImpl@3c0a50da<br>UserDao Saved!<br>UserDao Saved!<br>*&#x2F;<br>2.5 版本三:工厂优化<br>修改BeanFactory</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>public class BeanFactory {</p>
-<pre><code>// 声明存储对象的容器(map集合)
-private static Map&lt;String, Object&gt; ioc = new HashMap&lt;&gt;();
-
-// 静态代码块，初始化ioc容器
-static &#123;
-    String id = null;
-    String className = null;
-    Object object = null;
-
-    try &#123;
-        // 1.通过类加载器读取 beans.xml
-        InputStream in = BeanFactory.class.getClassLoader().getResourceAsStream(&quot;beans.xml&quot;);
-
-        // 2.创建dom4j核心解析器对象
-        SAXReader saxReader = new SAXReader();
-        Document document = saxReader.read(in);
-
-        // 3.编写xpath表达式
-        String xpath = &quot;//bean&quot;;
-
-        // 4.获取所有bean标签对象
-        List&lt;Element&gt; list = document.selectNodes(xpath);
-
-        // 5.遍历集合，创建对象实例，设置到ioc容器中
-        for (Element element : list) &#123;
-            id = element.attributeValue(&quot;id&quot;);
-            className = element.attributeValue(&quot;class&quot;);
-            object = Class.forName(className).newInstance();
-
-            // 设置到map集合
-            ioc.put(id, object);
-        &#125;
-    &#125; catch (
-            Exception e) &#123;
-        e.printStackTrace();
-    &#125;
-&#125;
-
-// 7.从ioc容器获取指定id的对象实例
-public static Object getBean(String id) &#123;
-    return ioc.get(id);
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;*<br>com.test.dao.impl.UserDaoImpl@4ba2ca36<br>com.test.dao.impl.UserDaoImpl@4ba2ca36<br>UserDao Saved!<br>UserDao Saved!<br>*&#x2F;<br>2.6 小结<br>对象的创建由原来的 使用 new关键字 在类中主动创建 变成了 从工厂中获取, 而对象的创建过程由工厂 内部来实现, 而这个工厂就是 Spring的IOC容器。</p>
-<p>也就是以后我们的对象不再自己创建,而是直接向 Spring要, 这种思想就是IOC</p>
-<p>目的：松耦合</p>
-<p>三.Spring快速入门<br>3.1 需求<br>UserServiceImpl		UserDaoImpl<br>UserDao userDao &#x3D; Spring客户端.getBean(id标识)		CURD方法<br>⬆⬇Spring框架		⬆⬇<br>读取xml配置文件<br>根据id标识获得Bean权限定名<br>通过反射创建Bean对象<br>返回对象	➡<br>⬅	xml配置文件<br>id标识&#x3D;com.test.dao.UserDaoImpl<br>3.2 代码实现<br>创建maven的java模块</p>
-<p>IDEA new moudle&#x3D;&#x3D;&gt;MVN&#x3D;&#x3D;&gt;导入依赖管理Spring、Junit坐标，JDK1.8插件</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br><?xml version="1.0" encoding="UTF-8"?><br><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"><br>    <modelVersion>4.0.0</modelVersion></project></p>
-<pre><code>&lt;groupId&gt;org.example&lt;/groupId&gt;
-&lt;artifactId&gt;Spring_online_Day01_ioc_xml&lt;/artifactId&gt;
-&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-
-&lt;build&gt;
-    &lt;plugins&gt;
-        &lt;plugin&gt;
-            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-            &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-            &lt;configuration&gt;
-                &lt;source&gt;1.8&lt;/source&gt;
-                &lt;target&gt;1.8&lt;/target&gt;
-                &lt;encoding&gt;UTF-8&lt;/encoding&gt;
-            &lt;/configuration&gt;
-        &lt;/plugin&gt;
-    &lt;/plugins&gt;
-&lt;/build&gt;
-
-&lt;!--依赖管理--&gt;
-&lt;dependencies&gt;
-    &lt;!--spring的核心坐标--&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.springframework&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
-        &lt;version&gt;5.1.5.RELEASE&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;!--junit--&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;junit&lt;/groupId&gt;
-        &lt;artifactId&gt;junit&lt;/artifactId&gt;
-        &lt;version&gt;4.12&lt;/version&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;
-</code></pre>
-
-编写UserDao接口和实现类(同上)
-
-<p>1<br>2<br>3<br>public interface UserDao {<br>    void save();<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public void save() {<br>        System.out.println(“UserDao Saved!”);<br>    }<br>}<br>创建spring的核心配置文件，导入约束</p>
-<p>官方推荐名称:applicationContext.xml</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"></beans></p>
-
-写bean标签(id、class)
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"></beans></p>
-<pre><code>&lt;!--    将userDao的对象创建权交给ioc容器--&gt;
-&lt;bean id=&quot;userDao&quot; class=&quot;com.test.dao.impl.UserDaoImpl&quot;&gt;&lt;/bean&gt;
-</code></pre>
-
-测试(模拟service层)
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class UserTest {<br>    &#x2F;&#x2F; spring的快速入门<br>    @Test<br>    public void testUser() throws Exception{<br>        &#x2F;&#x2F; 1.通过spring的api读取配置文件<br>        ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>        &#x2F;&#x2F; 2.获取指定id的对象实例<br>        UserDao userDao &#x3D; (UserDao) app.getBean(“userDao”);<br>        userDao.save();<br>    }<br>}<br>四.Spring相关API<br>4.1 二个接口(创建的对象均为单例)<br>BeanFactory</p>
-<p>介绍</p>
-<p>IOC容器的顶级接口，定义了IOC的最基础的功能, 但功能比较简单,一般面向Spring自身使用</p>
-<p>特点(懒汉设计)</p>
-<p>在第一次使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化[用的时候再创建]</p>
-<p>ApplicationContext</p>
-<p>介绍</p>
-<p>这是在BeanFactory基础上衍生出的接口,它扩展了BeanFactory的功能,一般面向程序员使用</p>
-<p>特点(恶汉设计)</p>
-<p>在容器启动时，一次性创建并加载了所有的Bean [初始化的时候全创建好]</p>
-<p>4.2 三个实现类<br>ClassPathXmlApplicationContext</p>
-<p>功能：读取类路径(classpath)下的xml配置文件</p>
-<p>FileSystemXmlApplicationContext</p>
-<p>功能：读取本地磁盘下的xml配置文件</p>
-<p>AnnotationConfigApplicationContext</p>
-<p>功能：读取java配置类加载配置</p>
-<p>4.3 一个方法<br>public Object getBean(String name) throws BeansException;</p>
-<p>功能：通过指定id获取对象的实例，需要手动强转</p>
-<p>public <T> T getBean(Class<T> requiredType);</T></T></p>
-<p>功能：通过指定类型获取对象的实例，不需要强转</p>
-<p>public <T> T getBean(String name, Class<T> requiredType);</T></T></p>
-<p>功能：通过指定id和类型获取对象的实例</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>&#x2F;&#x2F; getBean方法介绍<br>&#x2F;&#x2F; 方式一: 通过指定id获取对象的实例，需要手动强转<br>@Test<br>public void testUserByID() throws Exception {<br>  &#x2F;&#x2F; 1.通过spring的api读取配置文件<br>  ApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>  &#x2F;&#x2F; 2.获取指定id的对象实例<br>  UserDao userDao &#x3D; (UserDao) app.getBean(“userDao”);<br>  userDao.save();<br>}</p>
-<p>&#x2F;&#x2F; getBean方法介绍<br>&#x2F;&#x2F; 方式二:通过指定(接口)类型获取对象的实例，不需要强转<br>&#x2F;&#x2F;缺点:如果同一个接口类型下有多个对象实例，会报错<br>@Test<br>public void testUserByInstance() throws Exception {<br>  &#x2F;&#x2F; 1.通过spring的api读取配置文件<br>  ApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);</p>
-<p>  UserDao userDao &#x3D; app.getBean(UserDao.class);<br>  userDao.save();<br>}</p>
-<p>&#x2F;&#x2F; getBean方法介绍<br>&#x2F;&#x2F; 方式三:通过指定id和类型获取对象的实例<br>@Test<br>public void testUserBySpecifyIdOfType() throws Exception {<br>  &#x2F;&#x2F; 1.通过spring的api读取配置文件<br>  ApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);</p>
-<p>  UserDao userDao &#x3D; app.getBean(“userDao”, UserDao.class);<br>  userDao.save();<br>}</p>
-<p>4.4 知识小结<br>1<br>2<br>3<br>ApplicationContext app &#x3D; new ClasspathXmlApplicationContext(“xml文件”);<br>app.getBean(“id”);<br>app.getBean(Class);<br>五.Spring配置文件<br>5.1 Bean标签基本配置<br>基本配置</p>
-<p>1<br><bean id="userDao" class="cn.itcast.dao.impl.UserDaoImpl"></bean><br>基本属性	<br>id	在ioc容器的唯一标识<br>class	创建对象实例的全限定名<br>作用范围</p>
-<p>scope属性:声明此对象的作用范围	何时创建	对象运行	何时销毁<br>singleton(单例对象)	ioc容器初始化时，创建对象	ioc容器在,对象在	ioc容器关闭时，销毁对象<br>prototype(多例对象)	在调用getBean()方法时，创建	一直使用就一直活着	当对象不再使用后，根据JVM GC机制垃圾回收<br>生命周期</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"></beans></p>
-<pre><code>&lt;!--    将userDao的对象创建权交给ioc容器--&gt;
-</code></pre>
-<p>  <bean id="userDao" class="com.test.dao.impl.UserDaoImpl" scope="singleton" init-method="MethodInit" destroy-method="MethodDestory"></bean><br><br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public void save() {<br>        System.out.println(“UserDao Saved!”);<br>    }</p>
-<p>  &#x2F;&#x2F;当创建时，init-method&#x3D;”MethodInit”<br>    private void MethodInit() {<br>        System.out.println(“Method Init Now”);<br>    }</p>
-<p>  &#x2F;&#x2F;当销毁时，destroy-method&#x3D;”MethodDestory”<br>    private void MethodDestory() {<br>        System.out.println(“Method Die Now”);<br>    }<br>}</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>@Test<br>public void testUserDestory() throws Exception {<br>  &#x2F;&#x2F; 1.通过spring的api读取配置文件<br>  ApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>  &#x2F;&#x2F; 2.获取指定id的对象实例<br>  UserDao userDao &#x3D; (UserDao) app.getBean(“userDao”);<br>  UserDao userDao1 &#x3D; (UserDao) app.getBean(“userDao”);</p>
-<p>  System.out.println(userDao);<br>  System.out.println(userDao1);</p>
-<p>  ((ClassPathXmlApplicationContext) app).close();<br>}</p>
-<p>&#x2F;*<br>Method Init Now<br>com.test.dao.impl.UserDaoImpl@78e67e0a<br>com.test.dao.impl.UserDaoImpl@78e67e0a<br>Method Die Now<br>*&#x2F;<br>5.2 spring创建对象实例三种方式<br>无参构造方法实例化</p>
-<p>在企业开发时，所有的类必须提供无参构造方法</p>
-<p>1<br>2<br>public UserDaoImpl(String a)<br>  &#x2F;&#x2F;若未提供无参构造，则xml中class&#x3D;”com.test.dao.impl.UserDaoImpl” 会报错<br>工厂静态方法实例化</p>
-<p>依赖的jar包中有个A类，A类中有个静态方法m1，m1方法的返回值是一个B对象。如果我们频繁 使用B对象，此时我们可以将B对象的创建权交给spring的IOC容器，以后我们在使用B对象时，无 需调用A类中的m1方法，直接从IOC容器获得。</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>&#x2F;&#x2F;工厂静态方法实例化对象<br>public class StaticFactoryBean {<br>    public static UserDao createUserDao(){<br>        return new UserDaoImpl();<br>    }</p>
-<pre><code>// 传统方式，自己通过工厂获取对象
-public static void main(String[] args) &#123;
-    UserDao userDao = StaticFactoryBean.createUserDao();
-&#125;
-</code></pre>
-<p>}<br>1<br>2</p>
-<!--工厂静态方法实例化对象-->
-<p><bean id="userDao" class="com.test.factory.StaticFactoryBean" factory-method="createUserDao"></bean><br>工厂普通方法实例化</p>
-<p>依赖的jar包中有个A类，A类中有个普通方法m1，m1方法的返回值是一个B对象。如果我们频繁 使用B对象，此时我们可以将B对象的创建权交给spring的IOC容器，以后我们在使用B对象时，无 需调用A类中的m1方法，直接从IOC容器获得。</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>&#x2F;&#x2F;工厂普通方法实例化对象<br>public class DynamicFactoryBean {</p>
-<p>  public UserDao createUserDao() {<br>    return new UserDaoImpl();<br>  }</p>
-<p>  &#x2F;&#x2F; 传统方式，自己通过工厂获取对象<br>  public static void main(String[] args) {<br>    &#x2F;&#x2F; 1.创建工厂对象<br>    DynamicFactoryBean dynamicFactoryBean &#x3D; new DynamicFactoryBean();<br>    &#x2F;&#x2F; 2.创建UserDao对象<br>    UserDao userDao &#x3D; dynamicFactoryBean.createUserDao();<br>  }<br>}<br>1<br>2<br>3</p>
-<!--工厂普通方法实例化对象-->
-<p><bean id="dynamicFactoryBean" class="com.test.factory.DynamicFactoryBean"></bean><br><bean id="userDao" factory-bean="dynamicFactoryBean"></bean><br>5.3 Bean依赖注入<br>5.3.1 概述<br>依赖注入(Dependency Injection, DI) 它是 Spring 框架核心 IOC 的具体实现</p>
-<p>其实就是给对象中的属性赋值的过程，通过spring完成依赖注入</p>
-<p>UserServiceImpl	➡依赖	UserDaoImpl<br>private UserDao userDao<br>userDao.save()		<br>⬆service层需要调用dao层对象的实例，就要从Spring的ioc容器注入此实例，<br>⬆这个过程称为依赖注入		<br>Spring的配置文件		<br><bean id="”userDao”" class="”xxx”"><br><bean id="”userService”" class="”xxx”">		<br>5.3.2 环境搭建<br>IDEA new moudle&#x3D;&#x3D;&gt;MVN&#x3D;&#x3D;&gt;导入依赖管理Spring、Junit坐标，JDK1.8插件&#x3D;&#x3D;&gt;复制UserDao,UserService&#x3D;&#x3D;&gt;编写spring的核心配置文件</bean></bean></p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br><build><br>    <plugins><br>        <plugin><br>            <groupId>org.apache.maven.plugins</groupId><br>            <artifactId>maven-compiler-plugin</artifactId><br>            <configuration><br>                <source>1.8<br>                <target>1.8</target><br>                <encoding>UTF-8</encoding><br>            </configuration><br>        </plugin><br>    </plugins><br></build></p>
-<!--依赖管理-->
-<dependencies>
-    <!--spring的核心坐标-->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>5.1.5.RELEASE</version>
-    </dependency>
-    <!--junit-->
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-    </dependency>
-    <dependency>
-        <groupId>dom4j</groupId>
-        <artifactId>dom4j</artifactId>
-        <version>1.6</version>
-        <scope>compile</scope>
-    </dependency>
-</dependencies>
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
-
-<pre><code>&lt;!--    将userDao的对象创建权交给ioc容器--&gt;
-&lt;bean id=&quot;userDao&quot; class=&quot;com.test.dao.impl.UserDaoImpl&quot;&gt;&lt;/bean&gt;
-
-
-&lt;!--    将userService交给ioc容器--&gt;
-&lt;bean id=&quot;userService&quot; class=&quot;com.test.service.impl.UserServiceImpl&quot;&gt;&lt;/bean&gt;
-</code></pre>
-</beans>
-5.4 Bean依赖注入方式
-构造方法
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public class UserServiceImpl implements UserService {</p>
-<pre><code>private UserDao userDao;
-
-public UserServiceImpl(UserDao userDao) &#123;
-    this.userDao = userDao;
-&#125;
-
-@Override
-public void save() &#123;
-    userDao.save();
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</p>
-<!--
-构造方法注入: <constructor-arg> 子标签
-版本一:
-    name:构造方法参数名称 
-    value:简单数据类型(String、int、double...)
-    ref:引用数据类型(从ioc容器中获取的对象) 
-版本二:
-    index:构造方法参数索引 
-    type:该索引对应的java类型(全限定名) 
-    value:简单数据类型(String、int、double...) 
-    ref:引用数据类型(从ioc容器中获取的对象)
--->
-
-<!--    将userService交给ioc容器-->
-<bean id="userService" class="com.test.service.impl.UserServiceImpl">
-  <constructor-arg name="userDao" ref="userDao"></constructor-arg>
-</bean>
-set方法(推荐使用 )
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>public class UserServiceImpl implements UserService {</p>
-<pre><code>private UserDao userDao;
-</code></pre>
-<p>&#x2F;&#x2F;    public UserServiceImpl(UserDao userDao) {<br>&#x2F;&#x2F;        this.userDao &#x3D; userDao;<br>&#x2F;&#x2F;    }</p>
-<pre><code>public void setUserDao(UserDao userDao) &#123;
-    this.userDao = userDao;
-&#125;
-
-@Override
-public void save() &#123;
-    userDao.save();
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</p>
-<!--    将userDao的对象创建权交给ioc容器-->
-<p><bean id="userDao" class="com.test.dao.impl.UserDaoImpl"></bean></p>
-<!--
-
-    set方法注入:<property> 子标签
-        name:set方法的属性名 setUserDao() -> UserDao -> userDao
-        value:简单数据类型(String、int、double...)
-        ref:引用数据类型(从ioc容器中获取的对象)
-        -->
-<bean id="userService" class="com.test.service.impl.UserServiceImpl">
-  <property name="userDao" ref="userDao"></property>
-</bean>
-P命名空间注入
-
-<p>P命名空间注入底层(本质)使用的也是set方法注入，只是在上着的基础上进行简化</p>
-<p>导入P命名空间约束</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"><br>使用P命名空间注完成注入(单一属性来简洁，但是若变量多，则不如第二种规范)</beans></p>
-<p>1<br><bean id="userService" class="com.test.service.impl.UserServiceImpl" p:userdao-ref="userDao"></bean><br>5.5 Bean依赖注入的数据类型<br>简单数据类型</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>public class User {</p>
-<pre><code>private Integer id;
-
-private String username;
-
-public void setId(Integer id) &#123;
-    this.id = id;
-&#125;
-
-public void setUsername(String username) &#123;
-    this.username = username;
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5</p>
-<!-- 注入简单数据类型 -->
-<bean id="user" class="com.test.domain.User">
-  <property name="id" value="1"></property>
-  <property name="username" value="jack"></property>
-</bean>
-引用数据类型
-
-<p>参考5.4 Bean依赖注入方式</p>
-<p>集合数据类型</p>
-<p>单列集合(list、set、array)</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>public class UserDaoImpl implements UserDao {</p>
-<pre><code>private List&lt;Object&gt; list;
-private Set&lt;Object&gt; set;
-private Object[] array;
-
-public void setList(List&lt;Object&gt; list) &#123;
-    this.list = list;
-&#125;
-
-public void setSet(Set&lt;Object&gt; set) &#123;
-    this.set = set;
-&#125;
-
-public void setArray(Object[] array) &#123;
-    this.array = array;
-&#125;
-
-@Override
-public void save() &#123;
-    System.out.println(&quot;UserDao Saved!&quot;);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40</p>
-<!--
-    di 注入单列集合类型
-        需要在 <property>标签中
-    list集合 使用子标签 <list>
-            <value> 简单数据类型
-            <ref> 引用数据类型(对象在ioc容器中)
-    set集合 使用子标签 <set>
-        <value> 简单数据类型
-        <ref> 引用数据类型(对象在ioc容器中)
-    array数组 使用子标签<array>
-        <value> 简单数据类型
-        <ref> 引用数据类型(对象在ioc容器中)
--->
-
-
-<bean id="userDao" class="com.test.dao.impl.UserDaoImpl">
-  <property name="list">
-    <list>
-      <value>A</value>
-      <value>B</value>
-      <ref bean="user"></ref>
-    </list>
-  </property>
-
-  <property name="set">
-    <set>
-      <value>C</value>
-      <value>D</value>
-      <ref bean="user"></ref>
-    </set>
-  </property>
-
-  <property name="array">
-    <array>
-      <value>E</value>
-      <value>F</value>
-      <ref bean="user"></ref>
-    </array>
-  </property>
-</bean>
-双列集合(map、properties)
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>package com.test.dao.impl;</p>
-<p>import com.test.dao.UserDao;</p>
-<p>import java.util.List;<br>import java.util.Map;<br>import java.util.Properties;<br>import java.util.Set;</p>
-<p>public class UserDaoImpl implements UserDao {</p>
-<p>&#x2F;&#x2F;    private List<Object> list;<br>&#x2F;&#x2F;    private Set<Object> set;<br>&#x2F;&#x2F;    private Object[] array;<br>&#x2F;&#x2F;<br>&#x2F;&#x2F;    public void setList(List<Object> list) {<br>&#x2F;&#x2F;        this.list &#x3D; list;<br>&#x2F;&#x2F;    }<br>&#x2F;&#x2F;<br>&#x2F;&#x2F;    public void setSet(Set<Object> set) {<br>&#x2F;&#x2F;        this.set &#x3D; set;<br>&#x2F;&#x2F;    }<br>&#x2F;&#x2F;<br>&#x2F;&#x2F;    public void setArray(Object[] array) {<br>&#x2F;&#x2F;        this.array &#x3D; array;<br>&#x2F;&#x2F;    }</Object></Object></Object></Object></p>
-<pre><code>private Map&lt;String ,Object&gt; map;
-private Properties properties;
-
-public void setMap(Map&lt;String, Object&gt; map) &#123;
-    this.map = map;
-&#125;
-
-public void setProperties(Properties properties) &#123;
-    this.properties = properties;
-&#125;
-
-@Override
-public void save() &#123;
-    System.out.println(&quot;UserDao Saved!&quot;);
-&#125;
-</code></pre>
-<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</p>
-<!--
-di 注入双列集合类型
-    需要在 <property>标签中
-map集合 使用子标签<map>
-    <entry key="" value="简单数据类型" | value-ref="引用数据类型(对象ioc中)" ></entry>
-properties集合 使用子标签 <props>
-     <prop key="" >value</prop>
--->
-<bean id="userDao" class="com.test.dao.impl.UserDaoImpl">
-    <property name="map">
-        <map>
-            <entry key="k1" value="v1"></entry>
-            <entry key="k2" value="v2"></entry>
-            <entry key="u1" value-ref="user"></entry>
-        </map>
-    </property>
-    <property name="properties">
-        <props>
-            <prop key="k1">v1</prop>
-            <prop key="k3">v2</prop>
-            <prop key="k3">v3</prop>
-        </props>
-    </property>
-</bean>
-5.6 配置文件模块化
-实际开发中，Spring的配置内容非常多，这就导致Spring配置很繁杂且体积很大，所以，可以将部分配置拆解到其他配置文件中，也就是所谓的配置文件模块化。
-
-<p>并列加载</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>&#x2F;&#x2F;并列加载<br>@Test<br>public void testParallels() throws Exception{<br>    ApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext_dao.xml”,”applicationContext_service.xml”);</p>
-<p>}<br>主从配置</p>
-<p>1<br>2<br>3<br>4<br>5<br>tree<br>.<br>├── applicationContext-dao.xml<br>├── applicationContext-service.xml<br>└── applicationContext.xml<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</p>
-<!-- applicationContext.xml-->
-
-<?xml version="1.0" encoding="UTF-8"?>
-<p><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"></beans></p>
-<pre><code>&lt;import resource=&quot;classpath:applicationContext-dao.xml&quot;&gt;&lt;/import&gt;
-&lt;import resource=&quot;classpath:applicationContext-service.xml&quot;&gt;&lt;/import&gt;
-</code></pre>
-<p>注意：不论是否同一个xml，都不得出现相同id，否则触发报错或覆盖问题</p>
-<p>5.7 知识小结<br><bean>标签:创建对象并放到spring的IOC容器</bean></p>
-<p>id属性:在容器中Bean实例的唯一标识，不允许重复</p>
-<p>class属性:要实例化的Bean的全限定名</p>
-<p>scope属性:Bean的作用范围，常用是Singleton(默认)和prototype</p>
-<p><constructor-arg>标签:属性注入</constructor-arg></p>
-<p>name属性:属性名称</p>
-<p>value属性:注入的简单属性值</p>
-<p>ref属性:注入的对象引用值</p>
-<p><property>标签:属性注入</property></p>
-<p>name属性:属性名称</p>
-<p>value属性:注入的简单属性值</p>
-<p>ref属性:注入的对象引用值</p>
-<list>
-<set>
-<array>
-<map>
-<props>
-
-<p><import>标签:导入其他的Spring的分文件</import></p>
-<p>总结</p>
-<h1 id="spring01"><a href="#spring01" class="headerlink" title="spring01"></a>spring01</h1><h2 id="一-Spring概述"><a href="#一-Spring概述" class="headerlink" title="一 Spring概述"></a>一 Spring概述</h2><h3 id="spring是一款-full-stack-轻量级开源框架"><a href="#spring是一款-full-stack-轻量级开源框架" class="headerlink" title="spring是一款 full-stack 轻量级开源框架"></a>spring是一款 full-stack 轻量级开源框架</h3><ul>
-<li>IOC</li>
-</ul>
-<p>​ - 控制反转</p>
-<ul>
-<li>AOP</li>
-</ul>
-<p>​ - 面向切面编程</p>
-<h2 id="二-初识IOC"><a href="#二-初识IOC" class="headerlink" title="二 初识IOC"></a>二 初识IOC</h2><h3 id="控制反转（Inverse-Of-Control）是一种设计思想。它的目的是指导我们设计出更加松耦合的程序。"><a href="#控制反转（Inverse-Of-Control）是一种设计思想。它的目的是指导我们设计出更加松耦合的程序。" class="headerlink" title="控制反转（Inverse Of Control）是一种设计思想。它的目的是指导我们设计出更加松耦合的程序。"></a>控制反转（Inverse Of Control）是一种设计思想。它的目的是指导我们设计出更加松耦合的程序。</h3><h3 id="自定义IOC容器"><a href="#自定义IOC容器" class="headerlink" title="自定义IOC容器"></a>自定义IOC容器</h3><ul>
-<li>BeanFactory</li>
-</ul>
-<h2 id="三-Spring快速入门"><a href="#三-Spring快速入门" class="headerlink" title="三 Spring快速入门"></a>三 Spring快速入门</h2><h3 id="1-创建java项目，导入spring开发基本坐标"><a href="#1-创建java项目，导入spring开发基本坐标" class="headerlink" title="1. 创建java项目，导入spring开发基本坐标"></a>1. 创建java项目，导入spring开发基本坐标</h3><h3 id="2-编写Dao接口和实现类"><a href="#2-编写Dao接口和实现类" class="headerlink" title="2. 编写Dao接口和实现类"></a>2. 编写Dao接口和实现类</h3><h3 id="3-创建spring核心配置文件"><a href="#3-创建spring核心配置文件" class="headerlink" title="3. 创建spring核心配置文件"></a>3. 创建spring核心配置文件</h3><h3 id="4-在spring配置文件中配置-UserDaoImpl"><a href="#4-在spring配置文件中配置-UserDaoImpl" class="headerlink" title="4. 在spring配置文件中配置 UserDaoImpl"></a>4. 在spring配置文件中配置 UserDaoImpl</h3><h3 id="5-使用spring相关API获得Bean实例"><a href="#5-使用spring相关API获得Bean实例" class="headerlink" title="5. 使用spring相关API获得Bean实例"></a>5. 使用spring相关API获得Bean实例</h3><h2 id="四-Spring相关API"><a href="#四-Spring相关API" class="headerlink" title="四 Spring相关API"></a>四 Spring相关API</h2><h3 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h3><ul>
-<li>是 IOC 容器的核心接口，它定义了IOC的基本功能。</li>
-</ul>
-<h3 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h3><ul>
-<li><p>代表应用上下文对象，可以获得spring中IOC容器的Bean对象。</p>
-</li>
-<li><p>常用实现类</p>
-</li>
-</ul>
-<p>​ - 1. ClassPathXmlApplicationContext</p>
-<p>​ - 2. FileSystemXmlApplicationContext</p>
-<p>​ - 3. AnnotationConfigApplicationContext</p>
-<ul>
-<li>常用方法</li>
-</ul>
-<p>​ - 1. Object getBean(String name);</p>
-<p>​ - 2. <T> T getBean(Class<T> requiredType);</T></T></p>
-<p>​ - 3. <T> T getBean(String name,Class<T> requiredType);</T></T></p>
-<h2 id="五-Spring配置文件"><a href="#五-Spring配置文件" class="headerlink" title="五 Spring配置文件"></a>五 Spring配置文件</h2><h3 id="5-1-Bean标签基本配置"><a href="#5-1-Bean标签基本配置" class="headerlink" title="5.1 Bean标签基本配置"></a>5.1 Bean标签基本配置</h3><ul>
-<li><p>id：Bean实例在Spring容器中的唯一标识</p>
-</li>
-<li><p>class：Bean的全限定名</p>
-</li>
-</ul>
-<h3 id="5-2-Bean标签范围配置"><a href="#5-2-Bean标签范围配置" class="headerlink" title="5.2 Bean标签范围配置"></a>5.2 Bean标签范围配置</h3><ul>
-<li>scope</li>
-</ul>
-<p>​ - singleton</p>
-<p>​ - prototype</p>
-<h3 id="5-3-Bean生命周期配置"><a href="#5-3-Bean生命周期配置" class="headerlink" title="5.3 Bean生命周期配置"></a>5.3 Bean生命周期配置</h3><ul>
-<li><p>init-method</p>
-</li>
-<li><p>destroy-method</p>
-</li>
-</ul>
-<h3 id="5-4-Bean实例化三种方式"><a href="#5-4-Bean实例化三种方式" class="headerlink" title="5.4 Bean实例化三种方式"></a>5.4 Bean实例化三种方式</h3><p>无参构造方法</p>
-<p>工厂静态方法</p>
-<p>工厂实例方法</p>
-<h3 id="5-5-Bean依赖注入概述"><a href="#5-5-Bean依赖注入概述" class="headerlink" title="5.5 Bean依赖注入概述"></a>5.5 Bean依赖注入概述</h3><p>通过框架把持久层对象传入业务层，而不用我们自己去获取。</p>
-<h3 id="5-6-Bean依赖注入方式"><a href="#5-6-Bean依赖注入方式" class="headerlink" title="5.6 Bean依赖注入方式"></a>5.6 Bean依赖注入方式</h3><p>构造方法<br><constructor-arg name="”userDao”" ref="”userDao”/"><br>set方法<br><property name="”userDao”" ref="”userDao”/"><br>p命名空间<br><bean id="”userService”" class="”com.test.service.impl.UserServiceImpl”" p:userdao-ref="”userDao”/"></bean></property></constructor-arg></p>
-<h3 id="5-7-Bean依赖注入的数据类型"><a href="#5-7-Bean依赖注入的数据类型" class="headerlink" title="5.7 Bean依赖注入的数据类型"></a>5.7 Bean依赖注入的数据类型</h3><ul>
-<li><p>简单数据类型</p>
-</li>
-<li><p>引用数据类型</p>
-</li>
-<li><p>集合数据类型</p>
-</li>
-</ul>
-<p>​ - list</p>
-<p>​ - set</p>
-<p>​ - array</p>
-<p>​ - map</p>
-<p>​ - properties</p>
-<h3 id="5-8-配置文件模块化"><a href="#5-8-配置文件模块化" class="headerlink" title="5.8 配置文件模块化"></a>5.8 配置文件模块化</h3><ul>
-<li>主从配置</li>
-</ul>
-<import resource="”applicationContext-xxx.xml”/"></import></props></map></array></set></list>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -5774,7 +5502,7 @@ properties集合 使用子标签 <props>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">196</span>
+          <span class="site-state-item-count">197</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
