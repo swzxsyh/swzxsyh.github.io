@@ -181,6 +181,508 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/29/Spring-%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/29/Spring-%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/" class="post-title-link" itemprop="url">Spring 注解开发 & 单元测试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-29 01:42:05" itemprop="dateCreated datePublished" datetime="2020-05-29T01:42:05+08:00">2020-05-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.DbUtils<br>1.1 DbUtils是什么<br>DbUtils是Apache的一款用于简化Dao层代码的工具类，它底层封装了JDBC技术。</p>
+<p>核心对象</p>
+<p>1<br>QueryRunner queryRunner &#x3D; new QueryRunner(DataSource dataSource);<br>核心方法</p>
+<p>方法	<br>int update();	执行增、删、改语句<br>T query();<br>      ResultSetHandler<T>	执行查询语句<br>      这是一个接口，主要作用是将数据库返回的记录封装到实体对象<br>例</T></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>public class DbUtilsTest {<br>    @Test<br>    public void findAllTest() throws Exception {<br>        &#x2F;&#x2F; 创建DBUtils工具类，传入连接池<br>        QueryRunner queryRunner &#x3D; new QueryRunner(JdbcUtils.getDataSource());<br>        &#x2F;&#x2F; 编写sql<br>        String sql &#x3D; “select * from account”;<br>        &#x2F;&#x2F; 执行sql<br>        List<Account> list &#x3D; queryRunner.query(sql, new BeanListHandler<Account><br>                (Account.class));<br>        &#x2F;&#x2F; 打印结果<br>        for (Account account : list) {<br>            System.out.println(account);<br>        }<br>    }<br>}<br>1.2 DbUtils快速入门<br>准备数据库环境</Account></Account></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>CREATE DATABASE spring_db&#96; </p>
+<p>USE <code>spring_db</code>;</p>
+<p>DROP TABLE IF EXISTS <code>account</code>;</p>
+<p>CREATE TABLE <code>account</code> (<br>  <code>id</code> int(11) NOT NULL AUTO_INCREMENT,<br>  <code>name</code> varchar(32) DEFAULT NULL,<br>  <code>money</code> double DEFAULT NULL,<br>  PRIMARY KEY (<code>id</code>)<br>) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;3 DEFAULT CHARSET&#x3D;utf8;</p>
+<p>insert  into <code>account</code>(<code>id</code>,<code>name</code>,<code>money</code>) values (1,’tom’,1000),(2,’jerry’,1000);<br>创建maven的java模块</p>
+<p>IDEA new moudle&#x3D;&#x3D;&gt;Maven&#x3D;&#x3D;&gt;moudle_name</p>
+<p>导入相关jar包</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</p>
+<!--依赖管理-->
+<dependencies>
+    <!--mysql驱动-->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.47</version>
+    </dependency>
+    <!--druid连接池-->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.1.15</version>
+    </dependency>
+    <!--dbUtils工具包-->
+    <dependency>
+        <groupId>commons-dbutils</groupId>
+        <artifactId>commons-dbutils</artifactId>
+        <version>1.6</version>
+    </dependency>
+    <!--junit单元测试-->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+    </dependency>
+    <!--spring核心-->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>5.1.5.RELEASE</version>
+    </dependency>
+</dependencies>
+JdbcUtils工具类(需组合jdbc.properties)
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>public class JdbcUtils {</p>
+<p>  private static DruidDataSource dc &#x3D;  new DruidDataSource();</p>
+<p>  static {<br>    ResourceBundle bundle &#x3D; ResourceBundle.getBundle(“jdbc”);<br>    String driverClass &#x3D; bundle.getString(“jdbc.driver”);<br>    String jdbcUrl &#x3D; bundle.getString(“jdbc.url”);<br>    String username &#x3D; bundle.getString(“jdbc.username”);<br>    String password &#x3D; bundle.getString(“jdbc.password”);</p>
+<pre><code>dc.setDriverClassName(driverClass);
+dc.setUrl(jdbcUrl);
+dc.setUsername(username);
+dc.setPassword(password);
+</code></pre>
+<p>  }</p>
+<p>  public static Connection getConnection() throws SQLException {<br>    return dc.getConnection();<br>  }</p>
+<p>  public static DataSource getDataSource(){<br>    return dc;<br>  }<br>}<br>新增&#x2F;修改&#x2F;删除一条记录</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>public class DbUtilsTest {<br>  &#x2F;&#x2F; 新增记录<br>  @Test<br>  public void testCreate() throws Exception{<br>    &#x2F;&#x2F; 1.创建QueryRunner核心对象<br>    QueryRunner queryRunner &#x3D; new QueryRunner(JdbcUtils.getDataSource());<br>    &#x2F;&#x2F; 2.编写sql语句<br>    String sql &#x3D; “INSERT INTO account(name,money) VALUES(?,?)”;<br>    &#x2F;&#x2F; 3.执行sql<br>    queryRunner.update(sql,”TEST_CREATE”,0);<br>  }</p>
+<p>  &#x2F;&#x2F; 修改记录<br>  @Test<br>  public void testUpdate() throws Exception{</p>
+<pre><code>QueryRunner queryRunner = new QueryRunner(JdbcUtils.getDataSource());
+
+String sql = &quot;UPDATE account SET name=?,money=? WHERE id = ?&quot;;
+queryRunner.update(sql,&quot;test_Update&quot;,100,2 );
+</code></pre>
+<p>  }<br>  &#x2F;&#x2F; 删除记录<br>  @Test<br>  public void testDelete() throws Exception{</p>
+<pre><code>QueryRunner queryRunner = new QueryRunner(JdbcUtils.getDataSource());
+String sql = &quot;DELETE FROM account WHERE id = ?&quot;;
+queryRunner.update(sql,3);
+</code></pre>
+<p>  }<br>}<br>查询记录</p>
+<p>实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>package com.test.domain;</p>
+<p>public class Account {<br>    private Integer id;<br>    private String name;<br>    private Double money;</p>
+<p>&#x2F;&#x2F;省略getter&#x2F;setter，toString方法<br>api介绍</p>
+<p>1<br>2<br>3<br>4<br>public <T> T query(String sql, ResultSetHandler<T> rsh, Object… params) throws SQLException {<br>  Connection conn &#x3D; this.prepareConnection();<br>  return this.query(conn, true, sql, rsh, params);<br>}<br>参数	说明<br>String sql	执行的sql语句<br>ResultSetHandler<T> rsh	返回查询结果的映射处理<br>Object… params	设置的实际参数<br>查询结果映射介绍</T></T></T></p>
+<p>1<br>2<br>3<br>4<br>5<br>&#x2F;&#x2F;查询多条记录<br>public class BeanListHandler<T> implements ResultSetHandler&lt;List<T>&gt; </T></T></p>
+<p>&#x2F;&#x2F;查询单条记录<br>public BeanHandler(Class<T> type)<br>测试代码</T></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>&#x2F;&#x2F; 根据id查询<br>@Test<br>public void testFindById() throws Exception{<br>  QueryRunner queryRunner &#x3D; new QueryRunner(JdbcUtils.getDataSource());</p>
+<p>  String sql &#x3D; “SELECT * FROM account WHERE id &#x3D; ?”;</p>
+<p>  Account query &#x3D; queryRunner.query(sql, new BeanHandler&lt;&gt;(Account.class),2);</p>
+<p>  System.out.println(query);<br>}</p>
+<p>&#x2F;&#x2F; 查询所有<br>@Test<br>public void testFindAll() throws Exception{<br>  QueryRunner queryRunner &#x3D; new QueryRunner(JdbcUtils.getDataSource());</p>
+<p>  String sql &#x3D; “SELECT * FROM account”;</p>
+<p>  List<Account> query &#x3D; queryRunner.query(sql, new BeanListHandler&lt;&gt;(Account.class));</Account></p>
+<p>  System.out.println(query);<br>}<br>1.3 Spring的xml整合DbUtils<br>需求</p>
+<p>基于Spring的xml配置实现账户的CRUD案例</p>
+<p>编写AccountDao接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public interface AccountDao {<br>    void save(Account account);<br>    void update(Account account);<br>    void delete(Integer id);<br>    List<Account> findAll();<br>    Account findById(Integer id);<br>}<br>AccountDaoImpl</Account></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>public class AccountDaoImpl implements AccountDao {</p>
+<p>  &#x2F;&#x2F; 声明 QueryRunner 对象<br>  private QueryRunner queryRunner;</p>
+<p>  public void setQueryRunner(QueryRunner queryRunner) {<br>    this.queryRunner &#x3D; queryRunner;<br>  }</p>
+<p>  @Override<br>  public void save(Account account) {<br>    try {<br>      String sql &#x3D; “INSERT INTO account(name,money) VALUES(?,?)”;<br>      queryRunner.update(sql, account.getName(), account.getMoney());<br>    } catch (SQLException throwables) {<br>      throwables.printStackTrace();<br>    }<br>  }</p>
+<p>  @Override<br>  public void update(Account account) {<br>    try {<br>      String sql &#x3D; “UPDATE account SET name&#x3D;?,money&#x3D;? WHERE id &#x3D; ?”;<br>      queryRunner.update(sql, account.getName(), account.getMoney(), account.getId());<br>    } catch (SQLException throwables) {<br>      throwables.printStackTrace();<br>    }<br>  }</p>
+<p>  @Override<br>  public void delete(Integer id) {<br>    try {<br>      String sql &#x3D; “DELETE FROM account WHERE id &#x3D; ?”;<br>      queryRunner.update(sql, id);<br>    } catch (SQLException throwables) {<br>      throwables.printStackTrace();<br>    }<br>  }</p>
+<p>  @Override<br>  public List<Account> findAll() {<br>    List<Account> list &#x3D; null;</Account></Account></p>
+<pre><code>try &#123;
+  String sql = &quot;SELECT * FROM account&quot;;
+  list = queryRunner.query(sql, new BeanListHandler&lt;&gt;(Account.class));
+&#125; catch (SQLException throwables) &#123;
+  throwables.printStackTrace();
+&#125;
+return list;
+</code></pre>
+<p>  }</p>
+<p>  @Override<br>  public Account findById(Integer id) {</p>
+<pre><code>Account account = null;
+
+try &#123;
+  String sql = &quot;SELECT * FROM account WHERE id = ?&quot;;
+  account = queryRunner.query(sql, new BeanHandler&lt;&gt;(Account.class), id);
+&#125; catch (SQLException throwables) &#123;
+  throwables.printStackTrace();
+&#125;
+return account;
+</code></pre>
+<p>  }<br>}<br>编写AccountService接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public interface AccountService {</p>
+<pre><code>void save(Account account);
+void update(Account account);
+void delete(Integer id);
+List&lt;Account&gt; findAll();
+Account findById(Integer id);
+</code></pre>
+<p>}<br>AccountServiceImpl实现类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>private AccountDao accountDao;
+
+public void setAccountDao(AccountDao accountDao) &#123;
+    this.accountDao = accountDao;
+&#125;
+
+@Override
+public void save(Account account) &#123;
+    accountDao.save(account);
+&#125;
+
+@Override
+public void update(Account account) &#123;
+    accountDao.update(account);
+&#125;
+
+@Override
+public void delete(Integer id) &#123;
+    accountDao.delete(id);
+&#125;
+
+@Override
+public List&lt;Account&gt; findAll() &#123;
+    return accountDao.findAll();
+&#125;
+
+@Override
+public Account findById(Integer id) &#123;
+    return accountDao.findById(id);
+&#125;
+</code></pre>
+<p>}<br>编写spring的核心配置文件</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd"></beans></p>
+<pre><code>&lt;!--druid连接交给ioc容器--&gt;
+&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
+    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;
+    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/spring_db&quot;/&gt;
+    &lt;property name=&quot;username&quot; value=&quot;root&quot;/&gt;
+    &lt;property name=&quot;password&quot; value=&quot;root&quot;/&gt;
+&lt;/bean&gt;
+
+&lt;!--queryRunner交给ioc容器--&gt;
+&lt;bean id=&quot;queryRunner&quot; class=&quot;org.apache.commons.dbutils.QueryRunner&quot;&gt;
+    &lt;constructor-arg name=&quot;ds&quot; ref=&quot;dataSource&quot;/&gt;
+&lt;/bean&gt;
+&lt;!--accountDao交给ioc容器--&gt;
+&lt;bean id=&quot;accountDao&quot; class=&quot;com.test.dao.impl.AccountDaoImpl&quot;&gt;
+    &lt;property name=&quot;queryRunner&quot; ref=&quot;queryRunner&quot;/&gt;
+&lt;/bean&gt;
+&lt;!--accountService交给ioc容器--&gt;
+&lt;bean id=&quot;accountService&quot; class=&quot;com.test.service.impl.AccountServiceImpl&quot;&gt;
+    &lt;property name=&quot;accountDao&quot; ref=&quot;accountDao&quot;/&gt;
+&lt;/bean&gt;
+</code></pre>
+
+测试代码
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>public class AccountTest {</p>
+<p>  @Test<br>  public void testCreate() throws Exception{<br>    ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>    AccountService accountService &#x3D; app.getBean(AccountService.class);<br>    Account account &#x3D; new Account();<br>    account.setMoney(100.0);<br>    account.setName(“testCreate”);<br>    accountService.save(account);<br>  }<br>  @Test<br>  public void testUpdate() throws Exception{<br>    ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>    AccountService accountService &#x3D; app.getBean(AccountService.class);<br>    Account account &#x3D; new Account();<br>    account.setId(4);<br>    account.setMoney(100.0);<br>    account.setName(“testUpdate”);<br>    accountService.update(account);<br>  }</p>
+<p>  @Test<br>  public void testDelete() throws Exception{</p>
+<pre><code>ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext(&quot;applicationContext.xml&quot;);
+AccountService accountService = app.getBean(AccountService.class);
+accountService.delete(3);
+</code></pre>
+<p>  }<br>  @Test<br>  public void testFindAll() throws Exception{<br>    ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>    AccountService accountService &#x3D; app.getBean(AccountService.class);<br>    List<Account> list &#x3D; accountService.findAll();</Account></p>
+<pre><code>for (Account account : list) &#123;
+  System.out.println(account);
+&#125;
+</code></pre>
+<p>  }<br>  @Test<br>  public void testFindById() throws Exception{<br>    ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>    AccountService accountService &#x3D; app.getBean(AccountService.class);<br>    Account byId &#x3D; accountService.findById(2);<br>    System.out.println(byId);<br>  }<br>}<br>1.4 jdbc配置文件抽取<br>引入context命名空间(约束)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd"><br>修改配置文件标签</beans></p>
+<p>1<br>2</p>
+<!-- 加载第三方配置文件 -->
+<p>&lt;context:property-placeholder location&#x3D;”classpath:jdbc.properties”&#x2F;&gt;<br>二.Spring注解开发<br>Spring是轻代码而重配置的框架，配置比较繁重，影响开发效率，所以注解开发是一种趋势，注解代替</p>
+<p>xml配置文件可以简化配置，提高开发效率。</p>
+<p>2.1 Spring常用注解<br>Spring常用注解主要是替代 <bean> 的配置</bean></p>
+<p>2.2.1 IOC:控制反转<br>注解	作用<br>@Component	相当于 <bean></bean><br>@Repository	专门处理dao层，交给ioc容器<br>@Service	专门处理service层，交给ioc容器<br>@Controller	专门处理web层，交给ioc容器<br>如果使用注解开发，必须开启注解组件扫描</p>
+<p>1<br>2</p>
+<!-- 开启注解组件扫描 -->
+<p>&lt;context:component-scan base-package&#x3D;”com.test”&#x2F;&gt;<br>UserDaoImpl</p>
+<p>1<br>2<br>3<br>public interface UserDao {<br>    void save();<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>&#x2F;&#x2F; @Component(“userDao”) value 属性相当于 id&#x3D;”userDao”<br>&#x2F;&#x2F; @Repository(“userDao”)<br>@Repository &#x2F;&#x2F; 如果我们在此处省略了value属性，那么id的默认值就是 类名首字母小写 userDaoImpl<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public void save() {<br>        System.out.println(“UserDao Saved!”);<br>    }<br>}<br>UserService</p>
+<p>1<br>2<br>3<br>public interface UserService {<br>    void save();<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>@Service<br>public class UserServiceImpl implements UserService {</p>
+<pre><code>private UserDao userDao;
+
+public void setUserDao(UserDao userDao) &#123;
+    this.userDao = userDao;
+&#125;
+
+@Override
+public void save() &#123;
+    userDao.save();
+&#125;
+</code></pre>
+<p>}<br>2.2.2 DI:依赖注入<br>注解	作用<br>@Autowired	相当于 <property></property> ，根据类型注入<br>@Qualifies	与@Autowired一起使用，根据id查找同类型下的实例<br>@Resource	JDK提供的注解(@Autowired+@Qualifies)<br>UserServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@Service<br>public class UserServiceImpl implements UserService {</p>
+<p>  &#x2F;&#x2F;使用注解完成注入，代替set方法<br>  @Autowired<br>  private UserDao userDao;</p>
+<p>  @Override<br>  public void save() {<br>    userDao.save();<br>  }<br>}<br>IOC容器结构图</p>
+<p>Type	id	Class<br>UserDao	userDaoImpl	com.test.dao.impl.userDaoImpl<br>UserDao	userDaoImplPro	com.test.dao.impl.userDaoImplPro<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@Service<br>public class UserServiceImpl implements UserService {</p>
+<pre><code>//使用注解完成注入，代替set方法
+@Autowired//根据类型注入
+@Resource(name = &quot;userDaoImpl&quot;)//JDK提供，ID+类型
+private UserDao userDao;
+
+@Override
+public void save() &#123;
+    userDao.save();
+&#125;
+</code></pre>
+<p>}<br>2.2.3 补充<br>注解	作用<br>@Scope	相当于 <bean scope="””"></bean><br>@PostConstruct	相当于 <bean init-method="””"></bean><br>@PreDestroy	相当于 <bean detroy-method="””"></bean><br>@Value	通过${} SPEL,从配置文件中获取数据<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>@Service<br>public class UserServiceImpl implements UserService {</p>
+<p>  &#x2F;&#x2F;使用注解完成注入，代替set方法<br>  @Autowired&#x2F;&#x2F;根据类型注入<br>  @Resource(name &#x3D; “userDaoImpl”)&#x2F;&#x2F;JDK提供，ID+类型<br>  private UserDao userDao;</p>
+<p>  @Value(“A”)<br>  private String name;</p>
+<p>  @Value(“${jdbc.driver}”)<br>  private String driver;</p>
+<p>  @Override<br>  public void save() {<br>    userDao.save();<br>  }</p>
+<p>  @PostConstruct<br>  public void init(){<br>    System.out.println(“Init Run”);<br>  }<br>  @PreDestroy<br>  public void destory(){<br>    System.out.println(“Destory Run”);<br>  }<br>}<br>2.2 Spring常用注解整合DbUtils<br>复制java模块并改名导入</p>
+<p>IDEA new&#x3D;&#x3D;&gt;Exist moudle&#x3D;&#x3D;&gt;SELECT Moudle&#x3D;&#x3D;&gt;Rename Moudle&#x3D;&#x3D;&gt;修改pom.xml</p>
+<p>AccountDao</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>@Repository<br>public class AccountDaoImpl implements AccountDao {</p>
+<pre><code>@Autowired
+// 声明 QueryRunner 对象
+private QueryRunner queryRunner;
+</code></pre>
+<p>AccountService</p>
+<p>1<br>2<br>3<br>4<br>5<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>@Autowired
+private AccountDao accountDao;
+</code></pre>
+<p>修改spring配置文件</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd"></beans></p>
+<pre><code>&lt;!-- 开启注解组件扫描 --&gt;
+&lt;context:component-scan base-package=&quot;com.test&quot;/&gt;
+
+&lt;!-- 加载第三方配置文件 --&gt;
+&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
+
+&lt;!--druid连接交给ioc容器,第三方类目前仅能用bean标签--&gt;
+&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
+    &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
+    &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
+    &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
+    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
+&lt;/bean&gt;
+
+&lt;!--queryRunner交给ioc容器,第三方类目前仅能用bean标签--&gt;
+&lt;bean id=&quot;queryRunner&quot; class=&quot;org.apache.commons.dbutils.QueryRunner&quot;&gt;
+    &lt;constructor-arg name=&quot;ds&quot; ref=&quot;dataSource&quot;/&gt;
+&lt;/bean&gt;
+</code></pre>
+
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>@Test<br>public void testFindAll() throws Exception{<br>    ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>    AccountService accountService &#x3D; app.getBean(AccountService.class);<br>    List<Account> list &#x3D; accountService.findAll();</Account></p>
+<pre><code>for (Account account : list) &#123;
+    System.out.println(account);
+&#125;
+</code></pre>
+<p>}<br>2.3 Spring新注解<br>使用上面的注解还不能全部替代xml配置文件，还需要使用注解替代的配置</p>
+<p>注解	作用<br>@Configuration	相当于applicationContext.xml<br>@Bean	加载第三方类(对象)，交给ioc容器<br>@PropertySource	相当于 &lt;context:property-placeholder location&#x3D;””&#x2F;&gt;<br>@ComponentScan	相当于 &lt;context:component-scan base-package&#x3D;””&#x2F;&gt;<br>@Import	相当于 <import resource="””"></import><br>2.4 Spring纯注解整合DbUtils<br>创建SpringConfig配置类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>@Configuration<br>@ComponentScan(“com.test”)<br>@PropertySource(“classpath:jdbc.properties”)<br>public class SpringConfig {</p>
+<p>  @Value(“${jdbc.driver}”)<br>  private String driverClassName;</p>
+<p>  @Value(“${jdbc.url}”)<br>  private String url;</p>
+<p>  @Value(“${jdbc.username}”)<br>  private String username;</p>
+<p>  @Value(“${jdbc.password}”)<br>  private String password;</p>
+<p>  &#x2F;&#x2F; 自定义druid对象，交给ioc容器<br>  &#x2F;*<br><bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"><br>    <property name="driverClassName" value="${jdbc.driver}"></property><br>    <property name="url" value="${jdbc.url}"></property><br>    <property name="username" value="${jdbc.username}"></property><br>    <property name="password" value="${jdbc.password}"></property><br></bean><br>*&#x2F;</p>
+<p>  @Bean(“dataSource”)<br>  public DataSource createDataSource() {<br>    DruidDataSource druidDataSource &#x3D; new DruidDataSource();<br>    druidDataSource.setDriverClassName(driverClassName);<br>    druidDataSource.setUrl(url);<br>    druidDataSource.setUsername(username);<br>    druidDataSource.setPassword(password);<br>    return druidDataSource;<br>  }</p>
+<p>  &#x2F;&#x2F; 自定义queryRunner对象，交给ioc容器<br>  &#x2F;*<br><bean id="queryRunner" class="org.apache.commons.dbutils.QueryRunner"><br>    <constructor-arg name="ds" ref="dataSource"></constructor-arg><br></bean><br>*&#x2F;<br>  @Bean(“queryRunner”)<br>  public QueryRunner createQueryRunner(@Autowired DataSource dataSource) {<br>    QueryRunner queryRunner &#x3D; new QueryRunner(dataSource);<br>    return queryRunner;<br>  }<br>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>@Test<br>public void testAnnoQueryRunner() throws Exception {</p>
+<p>  AnnotationConfigApplicationContext app &#x3D; new AnnotationConfigApplicationContext(SpringConfig.class);</p>
+<p>  AccountService accountService &#x3D; app.getBean(AccountService.class);</p>
+<p>  Account byId &#x3D; accountService.findById(1);<br>  System.out.println(byId);<br>}<br>2.5 配置类模块化<br>编写DataSourceConfig</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>public class DataSourceConfig {<br>    @Value(“${jdbc.driver}”)<br>    private String driverClassName;</p>
+<pre><code>@Value(&quot;$&#123;jdbc.url&#125;&quot;)
+private String url;
+
+@Value(&quot;$&#123;jdbc.username&#125;&quot;)
+private String username;
+
+@Value(&quot;$&#123;jdbc.password&#125;&quot;)
+private String password;
+</code></pre>
+<p>&#x2F;&#x2F; 自定义druid对象，交给ioc容器<br>&#x2F;*<br><bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"><br>    <property name="driverClassName" value="${jdbc.driver}"></property><br>    <property name="url" value="${jdbc.url}"></property><br>    <property name="username" value="${jdbc.username}"></property><br>    <property name="password" value="${jdbc.password}"></property><br></bean><br>*&#x2F;</p>
+<pre><code>@Bean(&quot;dataSource&quot;)
+public DataSource createDataSource() &#123;
+    DruidDataSource druidDataSource = new DruidDataSource();
+    druidDataSource.setDriverClassName(driverClassName);
+    druidDataSource.setUrl(url);
+    druidDataSource.setUsername(username);
+    druidDataSource.setPassword(password);
+    return druidDataSource;
+&#125;
+</code></pre>
+<p>}<br>修改主配置类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@Configuration<br>@ComponentScan(“com.test”)<br>@PropertySource(“classpath:jdbc.properties”)<br>@Import({DataSourceConfig.class})<br>public class SpringConfig {<br>&#x2F;*<br>    @Value(“${jdbc.driver}”)<br>    private String driverClassName;<br>三.Spring整合Junit<br>3.1 介绍<br>Junit是一个单元测试工具，点击run的执行测试方法时，其实底层是通过runner(运行器)来工作的， 默认的Junit是不会自动加载spring环境。</p>
+<p>1<br>2<br>public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {<br>  private final ConcurrentHashMap&lt;FrameworkMethod, Description&gt; methodDescriptions &#x3D; new ConcurrentHashMap&lt;FrameworkMethod, Description&gt;();<br>如果想在Junit中直接获取spring的容器，我们需要导入spring提供的测试整合包，切换为spring的运行 器，就可以直接获取IOC容器中的对象了。</FrameworkMethod></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</p>
+<!--junit单元测试-->
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+  <version>4.12</version>
+</dependency>
+<!--spring整合junit-->
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-test</artifactId>
+  <version>5.1.5.RELEASE</version>
+</dependency>
+3.2 使用
+在进行单元测试时，指定junti的运行器为spring的
+
+<p>1<br>2<br>@RunWith(SpringRunner.class) &#x2F;&#x2F; 将单元测试的运行器，切换为spring的</p>
+<p>指定加载配置文件或者配置类</p>
+<p>1<br>@ContextConfiguration(classes &#x3D; SpringConfig.class) &#x2F;&#x2F; 加载配置类的<br>总结</p>
+<h1 id="spring02"><a href="#spring02" class="headerlink" title="spring02"></a>spring02</h1><h2 id="一-DbUtils"><a href="#一-DbUtils" class="headerlink" title="一 DbUtils"></a>一 DbUtils</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li><p>DbUtils是Apache一款用于简化jdbc操作的工具类</p>
+</li>
+<li><p>核心对象</p>
+</li>
+</ul>
+<p>​ - QueryRunner queryRunner &#x3D; new QueryRunner(DataSource dataSource);</p>
+<ul>
+<li>核心方法</li>
+</ul>
+<p>​ - int update();</p>
+<p>​ - DML类型</p>
+<p>​ - T query();</p>
+<p>​ - DQL类型</p>
+<h3 id="Spring的xml整合DbUtils"><a href="#Spring的xml整合DbUtils" class="headerlink" title="Spring的xml整合DbUtils"></a>Spring的xml整合DbUtils</h3><ul>
+<li>spring整合第三方数据源</li>
+</ul>
+<p>​ - Druid</p>
+<ul>
+<li>spring整合DbUtils</li>
+</ul>
+<p>​ - QueryRunner</p>
+<ul>
+<li>加载第三方配置文件</li>
+</ul>
+<p>​ - &lt;context:property-placeholder location&#x3D;”classpath:jdbc.properties”&#x2F;&gt;</p>
+<ul>
+<li>使用SPEL</li>
+</ul>
+<p>​ - ${xxxxxx}</p>
+<h2 id="二-Spring注解开发"><a href="#二-Spring注解开发" class="headerlink" title="二 Spring注解开发"></a>二 Spring注解开发</h2><h3 id="常用注解"><a href="#常用注解" class="headerlink" title="常用注解"></a>常用注解</h3><ul>
+<li>IOC</li>
+</ul>
+<p>​ - @Component</p>
+<p>​ - @Controller</p>
+<p>​ - @Service</p>
+<p>​ - @Repository</p>
+<ul>
+<li>DI</li>
+</ul>
+<p>​ - @Autowired</p>
+<p>​ - 根据类型</p>
+<p>​ - @Qualifier</p>
+<p>​ - 在@Autowired基础上+id</p>
+<p>​ - @Resource</p>
+<p>​ - @Autowired + @Qualifier</p>
+<p>​ - @Value</p>
+<p>​ - 通过SPEL表达式，获取第三方配置文件的值</p>
+<ul>
+<li>生命周期</li>
+</ul>
+<p>​ - @Scope</p>
+<p>​ - 作用范围</p>
+<p>​ - singleton</p>
+<p>​ - prototype</p>
+<p>​ - @PostConstruct</p>
+<p>​ - 初始化执行方法</p>
+<p>​ - @PreDestroy</p>
+<p>​ - 销毁执行方法</p>
+<h3 id="新注解"><a href="#新注解" class="headerlink" title="新注解"></a>新注解</h3><ul>
+<li>@Configuration</li>
+</ul>
+<p>​ - spring的配置文件</p>
+<p>​ - applicationContext.xml</p>
+<ul>
+<li>@Bean</li>
+</ul>
+<p>​ - 将第三方类，交给ioc容器</p>
+<ul>
+<li>@PropertySource</li>
+</ul>
+<p>​ - 加载第三方配置文件</p>
+<ul>
+<li>@ComponentScan</li>
+</ul>
+<p>​ - 开启注解组件扫描</p>
+<ul>
+<li>@Import</li>
+</ul>
+<p>​ - 配置类模块化</p>
+<h2 id="三-Spring整合Junit"><a href="#三-Spring整合Junit" class="headerlink" title="三 Spring整合Junit"></a>三 Spring整合Junit</h2><h3 id="Runwith注解替换原来的运行器"><a href="#Runwith注解替换原来的运行器" class="headerlink" title="@Runwith注解替换原来的运行器"></a>@Runwith注解替换原来的运行器</h3><ul>
+<li>@RunWith(SpringRunner.class)</li>
+</ul>
+<h3 id="使用-ContextConfiguration指定配置文件或配置类"><a href="#使用-ContextConfiguration指定配置文件或配置类" class="headerlink" title="使用@ContextConfiguration指定配置文件或配置类"></a>使用@ContextConfiguration指定配置文件或配置类</h3><ul>
+<li><p>@ContextConfiguration(value &#x3D; {“classpath:applicationContext.xml”})</p>
+</li>
+<li><p>@ContextConfiguration(classes &#x3D; {SpringConfig.class})</p>
+</li>
+</ul>
+<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="DBUtil快速入门"><a href="#DBUtil快速入门" class="headerlink" title="DBUtil快速入门"></a>DBUtil快速入门</h3><h3 id="spring的xml版本整合DBUtils"><a href="#spring的xml版本整合DBUtils" class="headerlink" title="spring的xml版本整合DBUtils"></a>spring的xml版本整合DBUtils</h3><h3 id="spring的常用注解版本整合DBUtils"><a href="#spring的常用注解版本整合DBUtils" class="headerlink" title="spring的常用注解版本整合DBUtils"></a>spring的常用注解版本整合DBUtils</h3><h3 id="spring的纯注解版本整合DBUtils"><a href="#spring的纯注解版本整合DBUtils" class="headerlink" title="spring的纯注解版本整合DBUtils"></a>spring的纯注解版本整合DBUtils</h3><h3 id="spring整合junit"><a href="#spring整合junit" class="headerlink" title="spring整合junit"></a>spring整合junit</h3>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/28/Spring-%E5%88%9D%E8%AF%86-%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -4920,417 +5422,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/06/JDBC%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/06/JDBC%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">JDBC基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-06 01:35:06" itemprop="dateCreated datePublished" datetime="2020-05-06T01:35:06+08:00">2020-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.JDBC基础<br>1.1 概述<br>Java 数据库连接(Java DataBase Connectivity)</p>
-<p>作用:通过Java语言操作数据库</p>
-<p>本质:是官方(sun公司)定义的一套操作所有关系型数据库的规则(接口)。各个数据库厂商去实现这套接口，提 供数据库驱动jar包。我们可以使用这套接口(JDBC)编程，运行时的代码其实是驱动jar包中的实现类。</p>
-<p>1.2 快速入门<br>需求</p>
-<p>通过java代码向数据库user表插入一条记录</p>
-<p>准备数据库和表</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>CREATE DATABASE Day48;<br>USE Day48;<br>CREATE TABLE USER<br>(<br>    id       INT PRIMARY KEY AUTO_INCREMENT,<br>    username VARCHAR(50),<br>    password VARCHAR(50)<br>);<br>INSERT INTO USER (username, password)<br>VALUES (‘admin’, ‘123’),<br>       (‘tom’, ‘123’),<br>       (‘jack’, ‘123’);</p>
-<p>SELECT * FROM USER;<br>创建java工程，导入MySQL驱动jar包</p>
-<p>mysql-connector-java-5.1.45-bin.jar</p>
-<p>编写插入代码</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>public class JDBCDEMO {<br>    public static void main(String[] args) throws Exception {<br>        &#x2F;&#x2F;1.注册驱动<br>&#x2F;&#x2F;        DriverManager.registerDriver(new Driver());<br>        Class.forName(“com.mysql.jdbc.Driver”);<br>        &#x2F;&#x2F;2.建立连接<br>        Connection connection &#x3D; DriverManager.getConnection(“jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;Day48”, “root”, “root”);<br>        &#x2F;&#x2F;3.编写sql<br>        String sql &#x3D; “insert into user values(4,’lucy’,666)”;<br>        &#x2F;&#x2F;4.获取sql执行对象<br>        Statement statement &#x3D; connection.createStatement();<br>        &#x2F;&#x2F;5.执行sql并返回结果<br>        int i &#x3D; statement.executeUpdate(sql);<br>        &#x2F;&#x2F;6.处理结果<br>        if (i &gt; 0) {<br>            System.out.println(“Success”);<br>        } else {<br>            System.out.println(“Failed”);<br>        }<br>        &#x2F;&#x2F;7.释放资源<br>        statement.close();<br>        connection.close();<br>    }<br>}<br>1.3 API介绍<br>sun公司提供的:java.sql包下</p>
-<p>DriverManager:驱动管理对象</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>1.注册驱动<br>        1)static void registerDriver(Driver driver)<br>        我们通过翻看MySQL Driver实现类的源码发现内部的静态代码已经提供了注册驱动功能<br>static {<br>        try{<br>                DriverManager.registerDriver(new Driver());<br>        }catch(SQLException var1){<br>                throw new RuntimeException(“Can’t register driver!”);<br>            }<br>        }<br>        2)反射<br>        Class.forName(“com.mysql.jdbc.Driver”);<br>        3)SPI 服务提供接口 【Service Provider Interface】<br>2.建立连接<br>static Connection getConnection(String url,String user,String password)<br>参数说明:<br>        url:连接指定数据库地址【固定格式】<br>        格式:jdbc:mysql:&#x2F;&#x2F;ip地址+端口&#x2F;数据库名<br>        实例:<br>        jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;day23<br>        jdbc:mysql:&#x2F;&#x2F;&#x2F;day23<br>      user:用户名<br>      password:密码<br>Connection:数据库连接对象</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</p>
-<ol>
-<li>获取sql执行对象【小货车】<br>  Statement createStatement()<br>  PreparedStatement prepareStatement(String sql)  </li>
-<li>事务管理<br> 1)关闭自动提交(开启事务)<br>     void setAutoCommit(boolean autoCommit)<br>   参数:<br>   true:自动提交【默认值】<br>   false:手动提交<br> 2)提交事务<br> void commit()<br> 3)回滚事务<br> void rollback()<br>Statement:执行sql的对象</li>
-</ol>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
-<ol>
-<li>执行所有类型sql语句【了解】<br> boolean execute(String sql)</li>
-<li>仅执行DML类型sql语句<br> int executeUpdate(String sql)<br>   参数:dml类型sql(insert、update、delete)<br>   返回值:影响行数</li>
-<li>仅执行DQL类型sql语句<br> ResultSet executeQuery(String sql)<br> 参数:dql类型sql(select)<br> 返回值:结果集<br>ResultSet:结果集对象,封装查询结果</li>
-</ol>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</p>
-<ol>
-<li><p>指针下移<br> boolean next()<br>     返回值:<br>   true:表示此行有数据<br>   false:表示此行没有数据<br> while(resultSet.next){<br>     &#x2F;&#x2F;获取一行数据<br> }</p>
-</li>
-<li><p>获取数据<br>  根据制定列编号和数据类型获取<br> T getXxx(int 列编号)<br>  根据指定列名和数据类型获取<br> T getXxx(String 列名)</p>
-<p> 补充:获取所有类型<br> Object getObject(String 列名)<br> String getString(String 列名)</p>
-</li>
-</ol>
-<p>1.4 CRUD操作<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>&#x2F;&#x2F; 1.注册驱动<br>&#x2F;&#x2F; 2.建立连接<br>&#x2F;&#x2F; 3.编写sql<br>&#x2F;&#x2F; 4.获取sql执行对象 &#x2F;&#x2F; 5.执行sql并返回结果 &#x2F;&#x2F; 6.处理结果<br>&#x2F;&#x2F; 7.释放资源</p>
-<p>public class CRUDDEMO {<br>    &#x2F;&#x2F;新增<br>    @Test<br>    public void testInsert() throws Exception {<br>        Class.forName(“com.mysql.jdbc.Driver”);<br>        Connection connection &#x3D; DriverManager.getConnection(“jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;Day48”, “root”, “root”);<br>        String sql &#x3D; “insert into user values(NULL,’testInsert’,666)”;<br>        Statement statement &#x3D; connection.createStatement();<br>        int i &#x3D; statement.executeUpdate(sql);<br>        if (i &gt; 0) {<br>            System.out.println(“Successful”);<br>        } else {<br>            System.out.println(“Failed”);<br>        }<br>        statement.close();<br>        connection.close();<br>    }</p>
-<pre><code>//修改
-@Test
-public void testUpdate() throws Exception &#123;
-    Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
-    Connection connection = DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/Day48&quot;, &quot;root&quot;, &quot;root&quot;);
-    String sql = &quot;UPDATE user SET username=&#39;testUpdate&#39; WHERE id = 4&quot;;
-    Statement statement = connection.createStatement();
-    int i = statement.executeUpdate(sql);
-    if (i &gt; 0) &#123;
-        System.out.println(&quot;Successful&quot;);
-    &#125; else &#123;
-        System.out.println(&quot;Failed&quot;);
-    &#125;
-    statement.close();
-    connection.close();
-&#125;
-
-//删除
-@Test
-public void testAlter() throws Exception &#123;
-    Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
-    Connection connection = DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/Day48&quot;, &quot;root&quot;, &quot;root&quot;);
-    String sql = &quot;delete from user WHERE id = 2&quot;;
-    Statement statement = connection.createStatement();
-    int i = statement.executeUpdate(sql);
-    if (i &gt; 0) &#123;
-        System.out.println(&quot;Successful&quot;);
-    &#125; else &#123;
-        System.out.println(&quot;Failed&quot;);
-    &#125;
-    statement.close();
-    connection.close();
-&#125;
-
-//查询
-@Test
-public void testFindAll() throws Exception &#123;
-    Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
-    Connection connection = DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/Day48&quot;, &quot;root&quot;, &quot;root&quot;);
-    String sql = &quot;SELECT * FROM user&quot;;
-    Statement statement = connection.createStatement();
-    ResultSet resultSet = statement.executeQuery(sql);
-
-    while (resultSet.next()) &#123;
-        int id = resultSet.getInt(&quot;id&quot;);
-        String username = resultSet.getString(&quot;username&quot;);
-        String password = resultSet.getString(&quot;password&quot;);
-        System.out.println(&quot;\tID:&quot; + id + &quot;\tUSERNAME:&quot; + username + &quot;\tPASSWORD:&quot; + password);
-    &#125;
-    resultSet.close();
-    statement.close();
-    connection.close();
-&#125;
-</code></pre>
-<p>}<br>1.5 工具类<br>通过上面案例需求我们会发现每次去执行SQL语句都需要注册驱动，获取连接，得到Statement，以及释放资源。发</p>
-<p>现很多重复的劳动，我们可以将重复的代码定义到一个工具类中。</p>
-<p>目的:简化书写，一劳永逸</p>
-<p>步骤分析</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class JdbcUtils{<br>&#x2F;&#x2F; 1.注册驱动【保证一次】<br>static{ }<br>&#x2F;&#x2F; 2.提供获取连接的静态方法<br>public static Connection getConnection(){<br>        return null;<br>    }<br>&#x2F;&#x2F; 3.提供释放资源的方法<br>  public void close(){<br>        }<br>}<br>1.5.1 版本一<br>该版本具有耦合性<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>public class JdbcUtils1 {<br>    &#x2F;&#x2F; 1.注册驱动【保证一次】<br>    static {<br>        try {<br>            Class.forName(“com.mysql.jdbc.Driver”);<br>        } catch (ClassNotFoundException e) {<br>            throw new RuntimeException(“Load JDBC Driver Failed”);<br>        }<br>    }</p>
-<pre><code>// 2.提供获取连接的静态方法
-public static Connection getConnection() throws SQLException &#123;
-    return DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/Day48&quot;, &quot;root&quot;, &quot;root&quot;);
-&#125;
-
-// 3.提供释放资源的方法
-public void close(ResultSet resultSet, Statement statement, Connection connection) &#123;
-    if (resultSet != null) &#123;
-        try &#123;
-            resultSet.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (statement != null) &#123;
-        try &#123;
-            statement.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (connection != null) &#123;
-        try &#123;
-            connection.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-&#125;
-
-// 重载关闭方法
-public static void close(Statement statement, Connection connection) &#123;
-    close(statement, connection);
-&#125;
-</code></pre>
-<p>}</p>
-<p>1.5.2 版本二<br>解耦合版本</p>
-<p>1<br>2<br>3<br>4<br>5<br>#K-V<br>jdbc.driver&#x3D;com.mysql.jdbc.Driver<br>jdbc.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;Day48<br>jdbc.user&#x3D;root<br>jdbc.password&#x3D;root<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>public class JdbcUitls {</p>
-<pre><code>// 声明变量
-private static String driver = null;
-private static String url = null;
-private static String user = null;
-private static String password = null;
-
-// 加载jdbc.properties配置文件，初始化变量
-static &#123;
-    ResourceBundle jdbc = ResourceBundle.getBundle(&quot;jdbc&quot;);
-    driver = jdbc.getString(&quot;jdbc.driver&quot;);
-    url = jdbc.getString(&quot;jdbc.url&quot;);
-    user = jdbc.getString(&quot;jdbc.user&quot;);
-    password = jdbc.getString(&quot;jdbc.password&quot;);
-&#125;
-
-// 1.注册驱动【保证一次】
-static &#123;
-    try &#123;
-        Class.forName(driver);
-    &#125; catch (ClassNotFoundException e) &#123;
-        throw new RuntimeException(&quot;Load Driver Failed&quot;);
-    &#125;
-&#125;
-
-// 2.提供获取连接的静态方法
-public static Connection getConnection() throws Exception &#123;
-    return DriverManager.getConnection(url, user, password);
-&#125;
-
-// 3.提供释放资源的方法
-public static void close(ResultSet resultSet, Statement statement, Connection connection) &#123;
-    if (resultSet != null) &#123;
-        try &#123;
-            resultSet.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (statement != null) &#123;
-        try &#123;
-            statement.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (connection != null) &#123;
-        try &#123;
-            connection.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-&#125;
-
-// 重载关闭方法
-public static void close(Statement statement, Connection connection) &#123;
-    close(null, statement, connection);
-&#125;
-</code></pre>
-<p>}</p>
-<p>1.6 事务操作<br>事务</p>
-<p>如果一个包含多个步骤的业务操作，被事务管理，那么这些操作要么同时成功，要么同时失败</p>
-<p>MySQL事务操作</p>
-<p>事务	<br>开启事务	begin | start transaction;<br>提交事务	commit;<br>回顾事务	rollback;<br>Java操作(使用Connection对象)</p>
-<p>事务	<br>关闭自动提交(开启事务)	void setAutoCommit(false);<br>提交事务	void commit();<br>回顾事务	void rollback();<br>需求:</p>
-<p>通过Java代码实现转账案例</p>
-<p>导入账户表</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>CREATE TABLE account(<br>  id INT PRIMARY KEY AUTO_INCREMENT,<br>  <code>name</code> VARCHAR(10),<br>  money DOUBLE<br>);<br>INSERT INTO account(<code>name</code>,money) VALUES (‘UserA’,1000),(‘UserB’,1000);</p>
-<p>编写转账代码</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>public class TXDemo{<br>@Test<br>    public void testTX(){<br>        try{<br>          &#x2F;&#x2F; 1.获取连接【JdbcUtils工具类】<br>          &#x2F;&#x2F; 2.开启事务<br>                    &#x2F;&#x2F; 3.UserA扣钱<br>                    &#x2F;&#x2F; 机器故障<br>                    &#x2F;&#x2F; 4.UserB加钱<br>                    &#x2F;&#x2F; 5.提交事务<br>        }catch(Exception e){<br>          &#x2F;&#x2F; 6.回滚事务<br>                }finally{<br>                    &#x2F;&#x2F; 7.释放资源<br>            }<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>public class TXDemo {<br>@Test<br>    public void testTX() {<br>        Connection connection &#x3D; null;<br>        Statement statement &#x3D; null;<br>        try {<br>          &#x2F;&#x2F; 1.获取连接【JdbcUtils工具类】<br>                    connection &#x3D; JdbcUitls.getConnection();<br>          &#x2F;&#x2F; 2.开启事务<br>          connection.setAutoCommit(false);<br>          tatement &#x3D; connection.createStatement();<br>          &#x2F;&#x2F; 3.UserA扣钱<br>          &#x2F;&#x2F; 机器故障<br>          &#x2F;&#x2F; 4.UserB加钱<br>          &#x2F;&#x2F; 5.提交事务<br>          connection.commit();<br>          } catch (Exception e) {<br>    try {<br>                    &#x2F;&#x2F; 6.回滚事务<br>                    connection.rollback();<br>    } catch (SQLException e1) {<br>                    e1.printStackTrace();<br>    }<br>} finally {<br>                    &#x2F;&#x2F; 7.释放资源<br>                    JdbcUitls.close(statement, connection);<br>        }<br>        }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>public class TXDemo {<br>    @Test<br>    public void testTX() {<br>        Connection connection &#x3D; null;<br>        Statement statement &#x3D; null;<br>        try {<br>            &#x2F;&#x2F; 1.获取连接【JdbcUtils工具类】<br>            connection &#x3D; JdbcUitls.getConnection();<br>            &#x2F;&#x2F; 2.开启事务<br>            connection.setAutoCommit(false);<br>            statement &#x3D; connection.createStatement();</p>
-<pre><code>        // 3.UserA扣钱
-        String ASql = &quot;update account set money = money-100 where id=2;&quot;;
-        int AResult = statement.executeUpdate(ASql);
-        if (AResult &gt; 0) &#123;
-            System.out.println(&quot;User A Payment Successful&quot;);
-        &#125;
-        // 机器故障
-        int a = 1 / 0;
-        String BSql = &quot;update account set money = money +100 where id =1;&quot;;
-        // 4.UserB收到钱
-        int BResult = statement.executeUpdate(BSql);
-        if (BResult &gt; 0) &#123;
-            System.out.println(&quot;User B Get the Payment&quot;);
-        &#125;
-        // 5.提交事务
-        connection.commit();
-    &#125; catch (Exception e) &#123;
-        e.printStackTrace();
-        try &#123;
-            // 6.回滚事务
-            connection.rollback();
-        &#125; catch (SQLException throwables) &#123;
-            throwables.printStackTrace();
-        &#125;
-    &#125; finally &#123;
-        // 7.释放资源
-        JdbcUitls.close(statement, connection);
-    &#125;
-&#125;
-</code></pre>
-<p>}<br>二.案例:用户登陆<br>2.1 需求分析<br>浏览器登录		<br>⬇		<br>服务器LoginServlet		<br>接收用户请求<br>用户名，密码		<br>⬇		<br>操作JDBC<br>根据用户名和密码查询数据库	➡<br>⬅	Server<br>⬇		<br>判断用户是否登录成功		<br>⬇正确	➡错误	转发登录页面提示<br>重定向至list.jsp		<br>2.2 代码实现<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>package com.test.web;</p>
-<p>import com.test.util.JdbcUitls;</p>
-<p>import javax.servlet.ServletException;<br>import javax.servlet.annotation.WebServlet;<br>import javax.servlet.http.HttpServlet;<br>import javax.servlet.http.HttpServletRequest;<br>import javax.servlet.http.HttpServletResponse;<br>import java.io.IOException;<br>import java.sql.Connection;<br>import java.sql.ResultSet;<br>import java.sql.Statement;</p>
-<p>@WebServlet(“&#x2F;LoginServlet”)<br>public class LoginServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    //统一编码
-    req.setCharacterEncoding(&quot;utf-8&quot;);
-    resp.setContentType(&quot;text/html;charset=utf-8&quot;);
-    //接收请求
-    String username = req.getParameter(&quot;username&quot;);
-    String password = req.getParameter(&quot;password&quot;);
-
-    try &#123;
-        // 2.操作JDBC
-        // 2.1 获取连接
-        Connection connection = JdbcUitls.getConnection();
-
-        // 2.2 编写sql
-        // String sql = &quot;select * from user where username =&#39;admin&#39; and password=&#39;123&#39;&quot;;
-        String sql = &quot;SELECT * FROM user WHERE username=&#39;&quot; + username + &quot;&#39;AND password =&#39;&quot; + password + &quot;&#39;&quot;;
-        System.out.println(sql);
-
-        // 2.3 获取sql执行对象
-        Statement statement = connection.createStatement();
-
-        // 2.4 执行sql并返回结果
-        ResultSet resultSet = statement.executeQuery(sql);
-
-        // 3.判断是否登录成功
-        if (resultSet.next()) &#123;// 成功
-            String loginUsername = resultSet.getString(&quot;username&quot;);
-            req.getSession().setAttribute(&quot;loginUsername&quot;, loginUsername);
-            resp.sendRedirect(req.getContextPath() + &quot;/list.jsp&quot;);
-        &#125; else &#123;// 失败
-            req.setAttribute(&quot;error&quot;, &quot;Username/Password Wrong&quot;);
-            req.getRequestDispatcher(&quot;/login.jsp&quot;).forward(req, resp);
-        &#125;
-    &#125; catch (Exception e) &#123;
-        e.printStackTrace();
-    &#125;
-
-&#125;
-</code></pre>
-<p>}</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><h2 id="jdbc"><a href="#jdbc" class="headerlink" title="jdbc"></a>jdbc</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><ul>
-<li>通过java语言操作数据库</li>
-</ul>
-<h3 id="本质"><a href="#本质" class="headerlink" title="本质"></a>本质</h3><ul>
-<li><p>面向接口编程思想</p>
-</li>
-<li><p>sun公司通过操作关系型数据库的一套规范（接口），所有的数据库厂商都需要实现这套接口，对于开发者只需要学习这套接口的API就可以操作所有类型的关系型数据库，真正的执行者是实现类（jar包驱动）</p>
-</li>
-</ul>
-<h3 id="快速入门"><a href="#快速入门" class="headerlink" title="快速入门"></a>快速入门</h3><ul>
-<li><p>1.注册驱动</p>
-</li>
-<li><p>2.建立连接</p>
-</li>
-<li><p>3.编写sql</p>
-</li>
-<li><p>4.获取sql执行对象</p>
-</li>
-<li><p>5.执行sql并返回结果</p>
-</li>
-<li><p>6.处理结果</p>
-</li>
-<li><p>7.释放资源</p>
-</li>
-</ul>
-<h3 id="API详解"><a href="#API详解" class="headerlink" title="API详解"></a>API详解</h3><ul>
-<li>DriverManager</li>
-</ul>
-<p>​ - 1.注册驱动</p>
-<p>​ - Class.forName()</p>
-<p>​ - 2.建立连接</p>
-<ul>
-<li>Connection</li>
-</ul>
-<p>​ - 1.获取sql执行对象</p>
-<p>​ - Statement</p>
-<p>​ - PreparedStatement</p>
-<p>​ - 2.事务安全</p>
-<ul>
-<li>Statement</li>
-</ul>
-<p>​ - 1.仅执行DML类型sql语句</p>
-<p>​ - int executeUpdate(String sql)</p>
-<p>​ - 2.仅执行DQL类型sql语句</p>
-<p>​ - ResultSet executeQuery(String sql)</p>
-<ul>
-<li>ResultSet</li>
-</ul>
-<p>​ - 1.指针下移</p>
-<p>​ - boolean next()</p>
-<p>​ - 2.获取数据</p>
-<p>​ - T getXxx(String 列名)</p>
-<h3 id="crud练习"><a href="#crud练习" class="headerlink" title="crud练习"></a>crud练习</h3><ul>
-<li><p>新增</p>
-</li>
-<li><p>修改</p>
-</li>
-<li><p>删除</p>
-</li>
-<li><p>查询所有</p>
-</li>
-</ul>
-<h3 id="JdbcUtils"><a href="#JdbcUtils" class="headerlink" title="JdbcUtils"></a>JdbcUtils</h3><ul>
-<li><p>版本一</p>
-</li>
-<li><p>版本二</p>
-</li>
-</ul>
-<h3 id="事务安全"><a href="#事务安全" class="headerlink" title="事务安全"></a>事务安全</h3><ul>
-<li>模拟转账</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -5400,7 +5491,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">197</span>
+          <span class="site-state-item-count">198</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
