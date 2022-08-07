@@ -181,6 +181,106 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">Redis-持久化方案</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:18:16" itemprop="dateCreated datePublished" datetime="2022-06-30T17:18:16+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis持久化方案"><a href="#Redis持久化方案" class="headerlink" title="Redis持久化方案"></a>Redis持久化方案</h1><h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><ul>
+<li>Append only File，在redis执行写命令的时，会追加该命令到日志文件中。当Redis故障重启后，读取该日志文件的命令即可恢复数据</li>
+</ul>
+<h3 id="配置："><a href="#配置：" class="headerlink" title="配置："></a>配置：</h3><ul>
+<li>默认不开启，需在配置文件中打开    appendonly &#x3D; yes</li>
+</ul>
+<h3 id="策略："><a href="#策略：" class="headerlink" title="策略："></a>策略：</h3><p><img src="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/2a0f68bc4c5a151503bd47834f69f775c48cb7ddcd832464856d8190fecf0fc1.png" alt="image"></p>
+<ul>
+<li><p>Redis先执行写命令之后才将命令记录到AOF日志中（主进程执行命令写入内存-Redis数据，再写日志到AOF缓冲，缓冲后落盘）</p>
+<ul>
+<li><p>优势：</p>
+<ul>
+<li>避免额外的检查开销。因为如果先记录日志在执行命令的话，如果当前命令语法有问题，那么如果不进行命令语法检查，那么错误的命令就会被记录到日志，Redis在使用日志恢复时可能或出错。</li>
+<li>不阻塞当前写操作命令的执行。因为写命令执行成功后才会记录到AOF日志中。</li>
+</ul>
+</li>
+<li><p>风险（AOF日志回写硬盘的时机有关）：</p>
+<ul>
+<li><p>数据丢失风险</p>
+<p>执行写操作命令和记录日志是两个过程，当Redis还没来得及将命令写入到硬盘时，服务器发生宕机，那么数据就会丢失</p>
+</li>
+<li><p>给下一个命令带来阻塞风险</p>
+<p>由于写命令执行成功后才会记录AOF日志，所以不会阻塞当前写操作的命令执行，当会给下一个命令带来阻塞风险。写日志时，服务器的硬盘IO压力太大就会导致写硬盘速度很慢进而阻塞住</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -904,79 +1004,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">SpringCloud入门</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-13 01:53:41" itemprop="dateCreated datePublished" datetime="2020-07-13T01:53:41+08:00">2020-07-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.SpringCloud介绍<br>1.1 介绍<br>Spring Cloud是在Spring Boot的基础上构建的，用于简化分布式系统构建的工具集。该工具集为微服务架构中所涉及的配置管理、服务发现、智能路由、熔断器、控制总线等操作提供了一种简单的开发方式。也就是说Spring Cloud把非常流行的微服务的技术（组件）整合到一起，方便开发。</p>
-<p>注册中心：Eureka<br>负载均衡：Ribbon<br>熔断器：Hystrix<br>服务通信：Feign<br>网关：Gateway<br>配置中心 ：config<br>消息总线：Bus</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1046,7 +1073,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">198</span>
+          <span class="site-state-item-count">199</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

@@ -181,6 +181,403 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/" class="post-title-link" itemprop="url">PreparedStatement & 连接池</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-08 01:35:47" itemprop="dateCreated datePublished" datetime="2020-05-08T01:35:47+08:00">2020-05-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.PreparedStatement<br>1.1 概述<br>SQL注入问题</p>
+<p>我们让用户输入的信息和SQL语句进行字符串拼接。用户输入的内容作为了SQL语句语法的一部分，改变了原有SQL</p>
+<p>真正的意义，以上问题称为SQL注入。</p>
+<p>1<br>2<br>3<br>– 这条sql语句原有的含义是根据用户名和密码查询<br>– 现在用户输入了一些特殊字符，改变了sql原有的含义，这种行为成为sql注入<br>SELECT * FROM USER WHERE username &#x3D;’admin’# ‘ and password &#x3D;’’<br>解决SQL注入问题</p>
+<p>我们就不能让用户输入的信息和SQL语句进行字符串拼接。需要使用PreparedSatement对象解决SQL注入。</p>
+<p>1<br>2<br>3<br>4<br>– 在java语言中修复sql注入问题，通过占位符代替实际参数<br>SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?<br>– 仅仅模拟sql解决思想，非真实解决方案<br>SELECT * FROM USER WHERE username &#x3D; “admin’#” AND PASSWORD &#x3D; “”<br>PreparedSatement基础语法</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>&#x2F;&#x2F; 1.获取连接<br>&#x2F;&#x2F; 2.编写sql【占位符代替实际参数】<br>String sql &#x3D; “SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?”;<br>&#x2F;&#x2F; 3.获取sql预编译执行对象，先发送给数据库进行预编译<br>PreparedStatement pstmt &#x3D; connection.prepareStatement(sql);<br>&#x2F;&#x2F; 4.设置占位符实际参数<br>pstmt.setString(1,”admin’#”);<br>pstmt.setString(2,””);<br>&#x2F;&#x2F; 5.执行sql语句，并返回结果【注意，不需要传递sql参数】<br>ResultSet resultSet &#x3D; pstmt.executeQuery();<br>&#x2F;&#x2F; 6.处理结果 &#x2F;&#x2F; 7.释放资源<br>优点</p>
+<p>防止sql注入，提高安全性</p>
+<p>参数与sql分离，提高代码可读性</p>
+<p>减少编译次数，提高性能</p>
+<p>1.2 操作<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83</p>
+<p>public class CRUD_DEMO {<br>    &#x2F;&#x2F;新增<br>    @Test<br>    public void testInsert() throws Exception {<br>        &#x2F;&#x2F;获取连接<br>        Connection connection &#x3D; JdbcUtils.getConnection();<br>        &#x2F;&#x2F;编写sql<br>        String sql &#x3D; “INSERT INTO user VALUES (NULL ,?,?);”;<br>        &#x2F;&#x2F;获取sql预编译执行对象<br>        PreparedStatement preparedStatement &#x3D; connection.prepareStatement(sql);<br>        &#x2F;&#x2F;设计实际参数<br>        preparedStatement.setString(1, “Jerry”);<br>        preparedStatement.setString(2, “999”);<br>        &#x2F;&#x2F;执行sql并返回结果<br>        int i &#x3D; preparedStatement.executeUpdate();<br>        &#x2F;&#x2F;处理结果<br>        if (i &gt; 0) {<br>            System.out.println(“First Recording Add Successful”);<br>        }<br>        preparedStatement.setString(1, “Ming”);<br>        preparedStatement.setString(2, “999”);<br>        i &#x3D; preparedStatement.executeUpdate();<br>        if (i &gt; 0) {<br>            System.out.println(“Second Recording Add Successful”);<br>        }<br>        &#x2F;&#x2F;释放资源<br>        JdbcUtils.close(preparedStatement, connection);<br>    }</p>
+<pre><code>//修改
+@Test
+public void testUpdate() throws Exception &#123;
+    //获取连接
+    Connection connection = JdbcUtils.getConnection();
+    //编写sql
+    String sql = &quot;UPDATE user SET username = ? where id = ?;&quot;;
+    //获取预编译sql执行对
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    //设计实际参数
+    preparedStatement.setString(1, &quot;RRR&quot;);
+    preparedStatement.setInt(2, 3);
+    //执行sql,并返回结果
+    int i = preparedStatement.executeUpdate();
+    //处理结果
+    if (i &gt; 0) &#123;
+        System.out.println(&quot;Update Successful&quot;);
+    &#125;
+    //释放资源
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+
+//删除
+@Test
+public void testDelete() throws Exception &#123;
+    Connection connection = JdbcUtils.getConnection();
+    String sql = &quot;DELETE FROM user WHERE id=?&quot;;
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    preparedStatement.setInt(1, 6);
+    int i = preparedStatement.executeUpdate();
+    if (i &gt; 0) &#123;
+        System.out.println(&quot;Delete Successful&quot;);
+    &#125;
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+
+//查询
+@Test
+public void testFindAll() throws Exception &#123;
+    Connection connection = JdbcUtils.getConnection();
+    String sql = &quot;SELECT * FROM user;&quot;;
+    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    ResultSet resultSet = preparedStatement.executeQuery();
+    while (resultSet.next()) &#123;
+        int id = resultSet.getInt(&quot;id&quot;);
+        String username = resultSet.getString(&quot;username&quot;);
+        String password = resultSet.getString(&quot;password&quot;);
+        System.out.println(&quot;\tID:&quot; + id + &quot;\tUSERNAME:&quot; + username + &quot;\tPASSWORD:&quot; + password);
+
+    &#125;
+    JdbcUtils.close(preparedStatement, connection);
+&#125;
+</code></pre>
+<p>}<br>二.连接池<br>2.1 概述<br>连接池其实就是一个容器(集合)，存放数据库连接的容器。</p>
+<p>当系统初始化好后，容器被创建，容器中会申请一些连接对象，当用户来访问数据库时，从容器中获取连接对象，用 户访问完之后，会将连接对象归还给容器。</p>
+<p>优点</p>
+<p>节约资源，减轻服务器压力</p>
+<p>提高连接复用性，用户访问高效</p>
+<p>常见连接池</p>
+<p>DBCP	Apache提供的数据库连接池技术。<br>C3P0	数据库连接池技术，目前使用它的开源项目有Hibernate、Spring等。<br>HikariCP	日本开发的连接池技术，性能之王,目前使用它的开源项目有SpringBoot等。<br>Druid(德鲁伊)	阿里巴巴提供的数据库连接池技术<br>实现</p>
+<p>Java为数据库连接池提供了公共的接口: DataSource ，各个连接池厂商去实现这套接口，提供jar包。</p>
+<p>功能	<br>获取连接	Connection getConnection()<br>归还连接	connection.close()<br>若连接对象通过连接池获取，执行 connection.close() 方法时，是归还到连接池，非销毁对象<br>底层通过动态代理技术对close()方法进行了增强<br>2.2 Druid连接池<br>2.2.1 快速入门<br>导入jar包</p>
+<p>druid-1.1.10.jar</p>
+<p>mysql-connector-java-8.0.16.jar</p>
+<p>编写测试代码(耦合版本)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>public class DruidDemo1 {<br>    public static void main(String[] args) throws SQLException {</p>
+<pre><code>    // 1.创建druid连接池对象
+    DruidDataSource dataSource = new DruidDataSource();
+
+    // 2.与mysql建立连接(初始化一些连接个数)，设置数据库基本四项
+    dataSource.setDriverClassName(&quot;com.mysql.jdbc.Driver&quot;);
+    dataSource.setUrl(&quot;jdbc:mysql://localhost:3306/Day48&quot;);
+    dataSource.setUsername(&quot;root&quot;);
+    dataSource.setPassword(&quot;root&quot;);
+
+    // 3.从连接池中获取连接
+    Connection connection = dataSource.getConnection();
+
+    // 4.处理业务
+    System.out.println(connection);
+    // 5.归还连接,注意，非销毁
+    connection.close();
+
+&#125;
+</code></pre>
+<p>}<br>2.2.2 配置文件<br>参数设置	作用<br>initialSize	初始化建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时<br>maxActivve	最大连接池数量<br>MinIdle	最小连接池数量<br>maxWait	获取连接时最大等待时间，ms<br>定义配置文件</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>#druid.properties<br>#基本4项，必须有，左边名称限定<br>driverClassName&#x3D;com.mysql.jdbc.Driver<br>url&#x3D;jdbc:mysql:&#x2F;&#x2F;127.0.0.1:3306&#x2F;Day48<br>username&#x3D;root<br>password&#x3D;root</p>
+<h1 id="初始化个数"><a href="#初始化个数" class="headerlink" title="初始化个数"></a>初始化个数</h1><p>initialSize&#x3D;5<br>#最大连接个数<br>maxActivve&#x3D;10<br>#等待时间，ms<br>maxWait&#x3D;3000<br>编写代码(解耦合版)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>public class DruidDemo2 {</p>
+<pre><code>public static void main(String[] args) throws Exception &#123;
+    // 通过类加载器读取src目录下配置文件，获取io流
+    InputStream is = DruidDemo2.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
+    // 创建 Properties对象
+    Properties properties = new Properties();
+    properties.load(is);
+
+    // druid连接池工厂对象，初始化连接池
+    DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
+
+    // 获取连接
+    for (int i = 0; i &lt;= 11; i++) &#123;
+        Connection connection = dataSource.getConnection();
+        System.out.println(connection);
+        if (i == 10) &#123;
+            connection.close();
+        &#125;
+    &#125;
+        // 归还连接
+        //connection.close();
+
+&#125;
+</code></pre>
+<p>}<br>2.3 连接工具类<br>我们每次操作数据库都需要创建连接池，获取连接，关闭资源，都是重复的代码。我们可以将创建连接池和获取连接</p>
+<p>池的代码放到一个工具类中。</p>
+<p>保证连接池对象，只创建一次</p>
+<p>目的:简化书写，提高效率</p>
+<p>1<br>2<br>3<br>4<br>5<br>public class JdbcUtils{<br>&#x2F;&#x2F; 1.初始化连接池对象(druid)，一个项目只有一个 static{} &#x2F;&#x2F; 2.提供获取连接池对象静态方法<br>&#x2F;&#x2F; 3.提供连接对象的静态方法<br>&#x2F;&#x2F; 4.提供释放资源的静态方法(connection是归还)<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>public class JdbcUtils {</p>
+<pre><code>private static DataSource dataSource = null;
+
+// 1.初始化连接池对象(druid)，一个项目只有一个 static&#123;&#125;
+static &#123;
+    try &#123;
+        // 通过类加载器读取src目录下配置文件，获取io流
+        InputStream is = JdbcUtils.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
+        // 创建 Properties对象
+        Properties properties = new Properties();
+        properties.load(is);
+        // druid连接池工厂对象，初始化连接池
+        dataSource = DruidDataSourceFactory.createDataSource(properties);
+    &#125; catch (Exception e) &#123;
+        e.printStackTrace();
+    &#125;
+&#125;
+
+// 2.提供获取连接池对象静态方法
+public static DataSource getDataSource() &#123;
+    return dataSource;
+&#125;
+
+// 3.提供连接对象的静态方法
+public static Connection getConnection() throws SQLException &#123;
+    return dataSource.getConnection();
+&#125;
+
+// 4.提供释放资源的静态方法(connection是归还)
+public static void close(ResultSet resultSet, Statement statement, Connection connection) &#123;
+    if (resultSet != null) &#123;
+        try &#123;
+            resultSet.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+    if (statement != null) &#123;
+        try &#123;
+            statement.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+    if (connection != null) &#123;
+        try &#123;
+            connection.close();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+&#125;
+
+// 重载关闭方法
+public static void close(Statement statement, Connection connection) &#123;
+    close(null, statement, connection);
+&#125;
+</code></pre>
+<p>}<br>三.案例:用户登录<br>需求</p>
+<p>使用三层架构+JDBC连接池技术(面向接口编程)，实现用户登录案例</p>
+<p>3.1 需求分析<br>Login.jsp			Server			数据库<br>web层	service层	dao层		<br>UserName<br>Password	➡<br>⬅	Servlet接口	UserService接口	UserDao接口	➡<br>⬅	SQL<br>Login		⬆	⬆	⬆		<br>LoginServlet<br>1.接收请求<br>2.调用service<br>3.判断转发&#x2F;重定向	UserServiceImpl实现类	UserDaoImpl实现类		<br>Login.jsp			Server			数据库<br>LoginServlet	UserServiceImpl	UserDaoImpl		<br>UserName<br>Password	➡<br>⬅	实现了Servlet接口	实现了UserService接口	实现了UserDao接口	➡<br>⬅	SQL<br>Login		1.接收请求参数<br>username<br>password<br>2.调用service，返回User对象<br>3.判断User对象<br>转发，提示用户名&#x2F;密码错误<br>重定向list.jsp	public User login(user, pwd) {<br>调用dao，返回user对象<br>}	public User login(user, pwd) {<br>使用JDBC连接池获取连接<br>查询数据库<br>将结果封装到user对象中 }		<br>3.2 环境搭建<br>使用昨天的数据库和user表</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>CREATE TABLE USER<br>(<br>    id       INT PRIMARY KEY AUTO_INCREMENT,<br>    username VARCHAR(50),<br>    password VARCHAR(50)<br>);<br>INSERT INTO USER (username, password)<br>VALUES (‘admin’, ‘123’),<br>       (‘tom’, ‘123’),<br>       (‘jack’, ‘123’);</p>
+<p>创建web工程，导入相关jar包</p>
+<p>commons-beanutils-1.8.3.jar</p>
+<p>commons-logging-1.1.1.jar</p>
+<p>druid-1.1.10.jar</p>
+<p>javax.servlet.jsp.jstl.jar</p>
+<p>jstl-impl.jar</p>
+<p>mysql-connector-java-8.0.16.jar</p>
+<p>导入页面资源</p>
+<p>创建三层包目录结构</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>src<br>├── com<br>│   └── case<br>│       ├── dao<br>│       │   ├── UserDao.java<br>│       │   └── UserDaoImpl.java<br>│       ├── domain<br>│       │   └── User.java<br>│       ├── service<br>│       │   ├── UserService.java<br>│       │   └── UserServiceImpl.java<br>│       ├── util<br>│       │   └── JdbcUtils.java<br>│       └── web<br>│           ├── filter<br>│           │   └── EncodeFilter.java<br>│           └── servlet<br>│               └── LoginServlet.java<br>└── druid.properties</p>
+<p>9 directories, 9 files<br>导入JbdcUtils工具类</p>
+<p>编写User实体类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private String password;</p>
+<pre><code>//省略getter/setter，toString，全参构造
+</code></pre>
+<p>3.3 代码实现<br>LoginServlet<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>@WebServlet(“&#x2F;LoginServlet”)<br>public class LoginServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    // 处理编码
+</code></pre>
+<p>&#x2F;&#x2F;        req.setCharacterEncoding(“utf-8”);<br>&#x2F;&#x2F;        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);</p>
+<pre><code>    // 1.接收请求参数
+    String username = req.getParameter(&quot;username&quot;);
+    String password = req.getParameter(&quot;password&quot;);
+
+    // 2.调用service
+    UserServiceImpl userService = new UserServiceImpl();
+    User user = userService.login(username, password);
+
+    // 3.判断
+    if(user==null)&#123;
+        // 登录失败，友情提示
+        req.setAttribute(&quot;error&quot;,&quot;Username/Password Wrong&quot;);
+        req.getRequestDispatcher(&quot;/login.jsp&quot;).forward(req,resp);
+    &#125;else &#123;
+        // 登录成功
+        req.getSession().setAttribute(&quot;user&quot;,user);
+        resp.sendRedirect(req.getContextPath()+&quot;/list.jsp&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>UserService 接口</p>
+<p>1<br>2<br>3<br>4<br>5<br>public interface UserService {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}</p>
+<p>UserServiceImpl 实现类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public User login(String username, String password) {<br>        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        return userDao.login(username,password);<br>    }<br>}<br>UserDao 接口</p>
+<p>1<br>2<br>3<br>4<br>public interface UserDao {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}<br>UserDaoImpl 实现类</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public User login(String username, String password) {<br>        Connection connection &#x3D; null;<br>        PreparedStatement preparedStatement &#x3D; null;<br>        ResultSet resultSet &#x3D; null;</p>
+<pre><code>    try &#123;
+        // 1.获取连接【从连接池】
+        connection = JdbcUtils.getConnection();
+        // 2.编写sql
+        String sql = &quot;SELECT * FROM user WHERE username= ? AND password = ?;&quot;;
+        // 3.获取sql预编译执行对象
+        preparedStatement = connection.prepareStatement(sql);
+        // 4.设置实际参数
+        preparedStatement.setString(1, username);
+        preparedStatement.setString(2, password);
+        // 5.执行sql并返回结果
+        resultSet = preparedStatement.executeQuery();
+        // 6.处理结果
+        User user = null;
+
+        if (resultSet.next()) &#123;
+            // 获取 id 用户名、密码
+            int id = resultSet.getInt(&quot;id&quot;);
+            username = resultSet.getString(&quot;username&quot;);
+            password = resultSet.getString(&quot;password&quot;);
+            user = new User();
+            user.setId(id);
+            user.setUsername(username);
+            user.setPassword(password);
+        &#125;
+        return user;
+
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125; finally &#123;
+        // 7.释放资源
+        JdbcUtils.close(resultSet, preparedStatement, connection);
+    &#125;
+    return null;
+&#125;
+</code></pre>
+<p>}<br>总结</p>
+<h2 id="PreparedStatement"><a href="#PreparedStatement" class="headerlink" title="PreparedStatement"></a>PreparedStatement</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>预编译sql执行对象</li>
+</ul>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>1）防止sql注入，提高安全性</p>
+</li>
+<li><p>2）减少编译次数，提高效率</p>
+</li>
+<li><p>3）参数与sql语句分离，提高可读性</p>
+</li>
+</ul>
+<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li><p>1）注册驱动</p>
+</li>
+<li><p>2）建立连接</p>
+</li>
+<li><p>3）编写sql ?占位符代替参数</p>
+</li>
+<li><p>4）获取sql预编译执行对象 先将sql发送到数据库</p>
+</li>
+<li><p>5）设置实际参数</p>
+</li>
+<li><p>6）执行sql并返回结果</p>
+</li>
+<li><p>7）处理结果</p>
+</li>
+<li><p>8）释放资源</p>
+</li>
+</ul>
+<h3 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h3><ul>
+<li><p>重写登录案例</p>
+</li>
+<li><p>CRUD练习</p>
+</li>
+</ul>
+<h2 id="datasource"><a href="#datasource" class="headerlink" title="datasource"></a>datasource</h2><h3 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h3><ul>
+<li>在系统初始化时，创建一个连接池生成一些连接对象，用户访问数据库时，从连接池获取连接，使用完毕归还到连接池</li>
+</ul>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>1）减轻服务器压力</p>
+</li>
+<li><p>2）提高连接复用性</p>
+</li>
+</ul>
+<h3 id="dataSource"><a href="#dataSource" class="headerlink" title="dataSource"></a>dataSource</h3><ul>
+<li>是sun公司提供连接池规范（接口），连接池厂商根据接口编写实现类</li>
+</ul>
+<p>​ - c3p0</p>
+<p>​ - hikariCP</p>
+<p>​ - Druid</p>
+<h3 id="作业-1"><a href="#作业-1" class="headerlink" title="作业"></a>作业</h3><ul>
+<li>druid快速入门</li>
+</ul>
+<p>​ - 1）导入jar包</p>
+<p>​ - 2）定义配置文件</p>
+<p>​ - 3）编写代码</p>
+<ul>
+<li>druid连接池工具类</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/06/JDBC%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1520,122 +1917,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/04/18/Java-Web-Session/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/18/Java-Web-Session/" class="post-title-link" itemprop="url">Java Web - Session</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-18 01:22:35" itemprop="dateCreated datePublished" datetime="2020-04-18T01:22:35+08:00">2020-04-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.Session<br>1.1 概述<br>1.2 快速入门<br>HttpSession也是一个对象</p>
-<p>说明	API<br>存储数据	void setAttribute(String name,Object value)<br>获取数据	Object getAttribute(String name)<br>删除数据	void removeAttribute(String name)<br>步骤分析</p>
-<p>将数据存储到session中</p>
-<p>说明	API<br>通过request对象，获取session对象	HttpSession session &#x3D; req.getSession();<br>操作session的API，存储数据	session.setAttribute(“username”,”AAABBBCCCC”);<br>从session中获取数据<br>说明	API<br>通过request对象，获取session对象	HttpSession session &#x3D; req.getSession();<br>操作session的API，获取数据	session.getAttribute(“username”);</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SetSession&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SetSession</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//通过request对象，获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//操作session的API，存储数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>,<span class="string">&quot;AAABBBCCCC&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@WebServlet(&quot;/GetSession&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GetSession</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//通过request对象，获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//操作session的API，获取数据</span></span><br><span class="line">    <span class="type">String</span>  <span class="variable">username</span> <span class="operator">=</span> (String) session.getAttribute(<span class="string">&quot;username&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;GetSession:&quot;</span>+username);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>1.3 工作原理<br>Session基于Cookie技术实现<br>HttpSession session &#x3D; req.getSession();<br>如果用户是第一次访问:表示创建Session对象，生成编号<br>如果用户是第N次访问，根据浏览器携带编号找session对象</p>
-<p>1.4 Session细节<br>1.4.1 客户端关闭，服务器不关闭，两次获取的Session数据是否相同<br>默认情况下，浏览器关闭再打开，两次获取的Session不同(基于cookie实现，浏览器关闭，cookie销毁)<br>设置cookie的存活时间(JESSIONID)，代替服务器，覆盖JESSIONID，指定持久化时间</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SessionDemo01&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SessionDemo01</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//指定JESSIONID时间</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//向session中存数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>,<span class="string">&quot;zZZ&quot;</span>);</span><br><span class="line">    <span class="comment">//获取SESSION 的唯一编号</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">id</span> <span class="operator">=</span> session.getId();</span><br><span class="line">    <span class="comment">//设置cookie时长</span></span><br><span class="line">    <span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(<span class="string">&quot;JESSIONID&quot;</span>, id);</span><br><span class="line">    <span class="comment">//设置存活时间</span></span><br><span class="line">    cookie.setMaxAge(<span class="number">60</span>*<span class="number">2</span>);</span><br><span class="line">    <span class="comment">//当前项目下共享</span></span><br><span class="line">    cookie.setPath(req.getContextPath());</span><br><span class="line">    <span class="comment">//response响应cookie</span></span><br><span class="line">    resp.addCookie(cookie);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>1.4.2 客户端不关闭，服务器关闭，两次获取的Session数据是否相同<br>当服务器正常关闭，重启后，两次获取的session数据一样<br>Tomcat实现了以下功能<br>钝化(序列化):当服务器正常关闭时,session中当数据，会序列化到磁盘<br>活化(反序列化):当服务器开启后，从磁盘中读取文件，反序列化到内存中<br>1.4.3 生命周期<br>何时创建</p>
-<p>用户第一次调用req.getAttribute()时，创建<br>何时销毁</p>
-<p>服务器非正常关闭<br>非活跃状态30分钟后销毁(tomcat&#x2F;conf&#x2F;web.xml官方已配置)<br>session.invalidate();立即销毁<br>作用范围</p>
-<p>一次会话中，多次请求之间<br>注意:每一个浏览器和服务器之间都是独立的会话<br>1.4.4 URL重写<br>Session基于Cookie技术实现；浏览器Cookie可以禁用，一旦禁用，Session会出现问题<br>开发中，一般不考虑禁用Cookie用户</p>
-<p>如果真要处理，可以使用URL重写</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/SessionDemo02&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SessionDemo02</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//获取session对象</span></span><br><span class="line">    <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> req.getSession();</span><br><span class="line">    <span class="comment">//向session中存数据</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;username&quot;</span>, <span class="string">&quot;SIODJOISDJSO&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义URL</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;/Day37_war_exploded/GetSession&quot;</span>;</span><br><span class="line">    <span class="comment">//重写URL，拼接JESSIONID</span></span><br><span class="line">    url = resp.encodeURL(url);</span><br><span class="line"></span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;a href&#x27;&quot;</span> + url + <span class="string">&quot;&#x27;&gt;Direct to get Session&lt;/a&gt;&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>1.5 Session特点<br>session存储数据在服务器<br>session存储类型任意(Object)<br>session存储大小和数据没有限制(相对于内存)<br>session存储数据相对安全<br>cookie和session的选择</p>
-<p>cookie将数据保存在浏览器端，数据相对不安全，建议敏感数据不要放在cookie中，且数据大小有限制<br>成本低，对服务器要求不高<br>浏览器为了解决该不足，前端使用了localStroage</p>
-<p>session将数据保存在服务器端，数据相对安全，数据大小比cookie中灵活<br>成本较高，对服务器压力大</p>
-<p>二. 三大域对象总结<br>request,session,ServletContext</p>
-<p>2.1 API<br>设置数据	void setAttribute(String name,Object o)<br>获取数据	Object getAttribute(String name)<br>删除数据	void removeAttribute(String name)<br>2.2 生命周期<br>2.2.1 ServleetContext域对象<br>何时创建	服务器正常启动，项目加载时创建<br>何时销毁	服务器关闭或项目卸载时，卸载<br>作用范围	整个web项目(共享数据)<br>2.2.2 HttpSession域对象<br>何时创建	用户第一次调用req.getSession() 方法时创建<br>用户访问携带的JESSIONID与服务器不匹配时创建<br>何时销毁	服务器非正常关闭时<br>未活跃时间30 min<br>session.invalidate();立即销毁<br>作用范围	一次会话中，多次请求间(共享数据)<br>2.2.3 HttpServletRequest域对象<br>何时创建	用户发送请求时创建<br>何时销毁	服务器做出响应后销毁<br>作用范围	一次请求中，多次转发间(共享数据)<br>2.3 小结<br>能用小的不用大的:request&lt;session&lt;servletContext</p>
-<p>常用场景</p>
-<p>request	一次查询的结果 (servlet转发jsp)<br>session	存放当前会话的私有数据<br>(验证码、购物车、等)<br>servletContext:若需要所有的Servlet都能访问到，才使用这个域对象</p>
-<p>三.综合案例<br>3.1 商品购物车<br>3.1.1 需求分析<br>addCatrSetvlet</p>
-<p>1.获取请求参数name(product)<br>2.返回:product 商品已加入购物车<br>3.从session中获取购物车<br>4.如果购物车为空，创建cart &#x3D; new HashMap()<br>5.判断，此商品是否存在于购物车<br>6.不存在，添加商品数量1<br>7.存在，在原商品基础上+1<br>8.将购物车重写到session中</p>
-<p>cart.jsp</p>
-<p>1.从session中获取购物车对象<br>2.判断是否为空<br>3.如果空，显示购物车空<br>4.如果不为空，遍历展示商品和数量</p>
-<p>3.1.2 代码实现<br>goods.jsp<br>addCartServlet<br>cart.jsp</p>
-<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">&quot;text/html;charset=UTF-8&quot;</span> language=<span class="string">&quot;java&quot;</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line"></span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;title&gt;Goods&lt;/title&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line"></span><br><span class="line">  &lt;body&gt;</span><br><span class="line"></span><br><span class="line">    &lt;h3&gt;商品列表&lt;/h3&gt;</span><br><span class="line"></span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=TV&quot;</span>&gt;TV,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=PC&quot;</span>&gt;PC,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">    &lt;a href=<span class="string">&quot;/Day37_war_exploded/AddCartServlet?name=Phone&quot;</span>&gt;Phone,add to cart&lt;/a&gt;&lt;br&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/AddCartServlet&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AddCartServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="built_in">this</span>.doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="comment">//设置编码</span></span><br><span class="line">    req.setCharacterEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取请求参数</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">product</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">    resp.getWriter().write(product + <span class="string">&quot;, has add to Cart&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//从session中获取购物车</span></span><br><span class="line">    Map&lt;String, Integer&gt; cart = (Map&lt;String, Integer&gt;) req.getSession().getAttribute(<span class="string">&quot;cart&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断购物车是否为空</span></span><br><span class="line">    <span class="keyword">if</span> (cart == <span class="literal">null</span>) &#123;</span><br><span class="line">      cart = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断购物车中是否包含本次商品</span></span><br><span class="line">    <span class="keyword">if</span> (cart.containsKey(product)) &#123;</span><br><span class="line">      <span class="comment">//存在,product++</span></span><br><span class="line">      <span class="type">Integer</span> <span class="variable">oldCount</span> <span class="operator">=</span> cart.get(product);<span class="comment">//之前的数量</span></span><br><span class="line">      cart.put(product, ++oldCount);<span class="comment">//数量加一</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//不存在 ,加入购物车</span></span><br><span class="line">      cart.put(product, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//重新将购物车写入到session中</span></span><br><span class="line">    req.getSession().setAttribute(<span class="string">&quot;cart&quot;</span>, cart);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//继续浏览</span></span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;br&gt;&lt;a href=&#x27;/Day37_war_exploded/goods.jsp&#x27;&gt;Continue View&lt;/a&gt;&lt;br&gt;&quot;</span>);</span><br><span class="line">    <span class="comment">//查看购物车</span></span><br><span class="line">    resp.getWriter().write(<span class="string">&quot;&lt;br&gt;&lt;a href=&#x27;/Day37_war_exploded/cart.jsp&#x27;&gt;Check Shopping Cart&lt;/a&gt;&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">&quot;1&quot;</span> <span class="attr">width</span>=<span class="string">&quot;200px&quot;</span> <span class="attr">align</span>=<span class="string">&quot;center&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">th</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">th</span>&gt;</span>Quantity<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  &lt;%</span><br><span class="line">     //从session中获取购物车</span><br><span class="line">     Map&lt;String, Integer&gt; cart = (Map&lt;String, Integer&gt;) request.getSession().getAttribute(&quot;cart&quot;);</span><br><span class="line">  //判断是否为空</span><br><span class="line">  if (cart == null) &#123;</span><br><span class="line">  out.write(&quot;No Product here<span class="tag">&lt;<span class="name">br</span>&gt;</span>&quot;);</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">  for (String product : cart.keySet()) &#123;</span><br><span class="line">  out.write(&quot;<span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>&quot; + product + &quot;<span class="tag">&lt;/<span class="name">td</span>&gt;</span>  <span class="tag">&lt;<span class="name">td</span>&gt;</span>&quot; + cart.get(product) + &quot;<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">tr</span>/&gt;</span>&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  %&gt;</span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&#x27;/Day37_war_exploded/goods.jsp&#x27;</span>&gt;</span>Continue View<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>3.2 用户登陆(验证码)<br>3.2.1 需求分析<br>3.2.2 代码实现</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(&quot;/LoginServlet&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    doPost(req, resp);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//课下作业实现非空判断</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    req.setCharacterEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    resp.setContentType(<span class="string">&quot;text/html;charset=utf-8&quot;</span>);</span><br><span class="line">    <span class="comment">//获取用户输入验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">checkcode</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;checkcode&quot;</span>);</span><br><span class="line">    <span class="comment">//获取session验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">codeSession</span> <span class="operator">=</span> (String) req.getSession().getAttribute(<span class="string">&quot;code_session&quot;</span>);</span><br><span class="line">    <span class="comment">//校验匹配</span></span><br><span class="line">    <span class="keyword">if</span> (!checkcode.equalsIgnoreCase(codeSession)) &#123;</span><br><span class="line">      <span class="comment">//验证码不匹配提示</span></span><br><span class="line">      req.setAttribute(<span class="string">&quot;Error&quot;</span>, <span class="string">&quot;Check Code Wrong&quot;</span>);</span><br><span class="line">      <span class="comment">//转发到login.jsp</span></span><br><span class="line">      req.getRequestDispatcher(<span class="string">&quot;/login.jsp&quot;</span>).forward(req, resp);</span><br><span class="line">      <span class="comment">//代码不再向下执行</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取用户输入到用户名和密码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;username&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> req.getParameter(<span class="string">&quot;password&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断用户名密码</span></span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">&quot;jack&quot;</span>.equals(username) &amp;&amp; <span class="string">&quot;123&quot;</span>.equals(password))) &#123;</span><br><span class="line">      <span class="comment">//用户名密码不匹配提示</span></span><br><span class="line">      req.setAttribute(<span class="string">&quot;Error&quot;</span>, <span class="string">&quot;Username or Password Wrong&quot;</span>);</span><br><span class="line">      <span class="comment">//转发到login.jsp</span></span><br><span class="line">      req.getRequestDispatcher(<span class="string">&quot;/login.jsp&quot;</span>).forward(req, resp);</span><br><span class="line">      <span class="comment">//代码不再向下执行</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//将用户名存入session</span></span><br><span class="line">    req.getSession().setAttribute(<span class="string">&quot;username&quot;</span>, username);</span><br><span class="line">    <span class="comment">//重定向到Succes.jsp</span></span><br><span class="line">    resp.sendRedirect(req.getContextPath() + <span class="string">&quot;/success.jsp&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=<span class="string">&quot;/war_exploded/LoginServlet&quot;</span> method=<span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">  <span class="title class_">Name</span>: &lt;input type=&quot;text&quot; name=&quot;username&quot;&gt;&lt;br&gt;</span><br><span class="line">    Password: &lt;input type=&quot;password&quot; name=&quot;password&quot;&gt;&lt;br&gt;</span><br><span class="line">      Checkcode: &lt;input type=&quot;text&quot; name=&quot;checkcode&quot;&gt;&lt;img src=&quot;/Day37_war_exploded/CheckCodeServlet&quot; id=&quot;image1&quot;</span><br><span class="line">alt=&quot;&quot;&gt;&lt;br&gt;</span><br><span class="line">  &lt;input type=&quot;submit&quot; value=&quot;Login&quot;&gt;</span><br><span class="line">    &lt;span style=&quot;color: red&quot;&gt;</span><br><span class="line">      &lt;%</span><br><span class="line">      String error = (String) request.getAttribute(&quot;Error&quot;);</span><br><span class="line">if (error != null) &#123;</span><br><span class="line">  out.write(error);</span><br><span class="line">&#125;</span><br><span class="line">%&gt;</span><br><span class="line"></span><br><span class="line">  &lt;/span&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">  document.getElementById(&quot;image1&quot;).onclick = function () &#123;</span><br><span class="line">  this.src = &#x27;/Day37_war_exploded/CheckCodeServlet?&#x27; + new Date().getTime();</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line"></span><br><span class="line">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;</span><br><span class="line">  &lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">  &lt;title&gt;Success&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;%</span><br><span class="line">  //获取用户信息</span><br><span class="line">  String username = (String) request.getSession().getAttribute(&quot;username&quot;);</span><br><span class="line">if (username != null)&#123;</span><br><span class="line">  out.write(&quot;Welcome ,&quot;+username);</span><br><span class="line">&#125;</span><br><span class="line">%&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-<p>总结<br>概述<br>在一次会话的多次请求之间共享数据，将数据保存到服务器端<br>实现原理<br>基于Cookie技术<br>jsessionid&#x3D;xxxx<br>常用方法<br>获取session<br>request.getSession()<br>使用session<br>setAttribute()<br>getAttribute()<br>remomveAttribute()<br>生命周期<br>何时创建<br>用户第一次执行getSession()方法时，创建<br>用户携带的jssionid与服务器不匹配时，创建<br>何时销毁<br>服务器非正常关闭时<br>session.invalidate()<br>session默认销毁时间30分钟</p>
-<p>tomcat目录&#x2F;conf&#x2F;web.xm<br>作用范围<br>一次会话中，多次请求之间<br>特点</p>
-<ol>
-<li>session在服务器端存储数据</li>
-<li>session存储数据格式可以是任意类型</li>
-<li>session存储数据没有大小限制（相对于内存）</li>
-<li>session存储数据相对安全<br>三个域对象<br>ServletContext<br>创建<br>销毁<br>作用域<br>HttpSession<br>创建<br>销毁<br>作用域<br>HttpServletRequest<br>创建<br>销毁<br>作用域<br>综合案例<br>商品购物车<br>用户登录（验证码）</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1705,7 +1986,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">198</span>
+          <span class="site-state-item-count">199</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

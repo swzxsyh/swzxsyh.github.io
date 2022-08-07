@@ -181,6 +181,854 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/31/Spring-Transaction-CGlib-AOP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/31/Spring-Transaction-CGlib-AOP/" class="post-title-link" itemprop="url">Spring Transaction,CGlib & AOP</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-31 01:42:58" itemprop="dateCreated datePublished" datetime="2020-05-31T01:42:58+08:00">2020-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>一.转账案例基础<br>需求</p>
+<p>使用Spring框架整合DbUtils技术，实现用户转账功能</p>
+<p>1.1 转账基础功能<br>Java环境与数据库准备</p>
+<p>IDEA new moudle&#x3D;&#x3D;&gt;MAVEN&#x3D;&#x3D;&gt;创建moudle&#x3D;&#x3D;&gt;导入包，复制applicationContext.xml和jdbc.properties</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39</p>
+<!--依赖管理-->
+<dependencies>
+    <!--mysql-->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.47</version>
+    </dependency>
+    <!--druid-->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.1.15</version>
+    </dependency>
+    <!--dbUtils-->
+    <dependency>
+        <groupId>commons-dbutils</groupId>
+        <artifactId>commons-dbutils</artifactId>
+        <version>1.6</version>
+    </dependency>
+    <!--spring核心-->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>5.1.5.RELEASE</version>
+    </dependency>
+    <!--junit-->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+    </dependency>
+    <!--spring整合junit-->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>5.1.5.RELEASE</version>
+    </dependency>
+</dependencies>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+<!-- 省略约束 -->
+
+  <!-- 开启注解组件扫描 -->
+<pre><code>  &lt;context:component-scan base-package=&quot;com.test&quot;/&gt;
+
+  &lt;!-- 加载第三方配置文件 --&gt;
+  &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
+
+  &lt;!--druid连接交给ioc容器,第三方类目前仅能用bean标签--&gt;
+  &lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
+      &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
+      &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
+      &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
+      &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
+  &lt;/bean&gt;
+
+  &lt;!--queryRunner交给ioc容器,第三方类目前仅能用bean标签--&gt;
+  &lt;bean id=&quot;queryRunner&quot; class=&quot;org.apache.commons.dbutils.QueryRunner&quot;&gt;
+      &lt;constructor-arg name=&quot;ds&quot; ref=&quot;dataSource&quot;/&gt;
+  &lt;/bean&gt;
+</code></pre>
+  
+编写AccountDao
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public interface AccountDao {</p>
+<pre><code>//转出
+void outUser(String outUser, Double money);
+
+//转入
+void inUser(String inUser, Double money);
+</code></pre>
+<p>}<br>AccountDaoImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>@Repository<br>public class AccountDaoImpl implements AccountDao {</p>
+<pre><code>@Autowired
+private QueryRunner queryRunner;
+
+@Override
+public void outUser(String outUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money-? WHERE name = ?&quot;;
+        queryRunner.update(sql, money, outUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+
+&#125;
+
+@Override
+public void inUser(String inUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money+? WHERE name = ?&quot;;
+        queryRunner.update(sql, money, inUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>编写AccountService</p>
+<p>1<br>2<br>3<br>4<br>5<br>public interface AccountService {<br>    &#x2F;&#x2F;转账<br>    void transfer(String outUser,String inUser,Double money);<br>}</p>
+<p>AccountServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>@Autowired
+private AccountDao accountDao;
+
+@Override
+public void transfer(String outUser, String inUser, Double money) &#123;
+
+    accountDao.outUser(outUser,money);
+    accountDao.inUser(inUser,money);
+&#125;
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration({“classpath:applicationContext.xml”})<br>public class AccountTest {</p>
+<pre><code>@Autowired
+private AccountService accountService;
+
+@Test
+public void testTransfer() throws Exception&#123;
+    accountService.transfer(&quot;tom&quot;,&quot;jerry&quot;,100d);
+&#125;
+</code></pre>
+<p>}<br>目前问题</p>
+<p>若服务器出现宕机等事故，事务无回滚，导致只执行一半的问题</p>
+<p>1.2 事务控制<br>解决方案</p>
+<p>将service方法的多个dao层代码，看做一个事务，要么都成功，要么都失败</p>
+<p>Version_1:手动控制事务，通过一个connection来操作核心业务</p>
+<p>修改AccountServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>// 依赖dataSource
+@Autowired
+private AccountDao accountDao;
+
+//Version_1
+@Autowired
+private DataSource dataSource;
+
+@Override
+public void transfer(String outUser, String inUser, Double money) &#123;
+    Connection connection = null;
+
+    try &#123;
+        // 获取conn手动控制事务
+        connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        // 业务代码-------- start
+        // 转出
+        accountDao.outUser(connection, outUser, money);
+
+        // 转入
+        accountDao.inUser(connection, inUser, money);
+        // 提交事务
+        connection.commit();
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+        try &#123;
+            // 回滚事务
+            connection.rollback();
+        &#125; catch (SQLException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125; finally &#123;
+        try &#123;
+            // 再改为自动提交
+            connection.setAutoCommit(true);
+            // 释放资源
+            connection.close();
+        &#125; catch (SQLException throwables) &#123;
+            throwables.printStackTrace();
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<p>  }<br>修改AccountDao</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>@Repository<br>public class AccountDaoImpl implements AccountDao {</p>
+<pre><code>@Autowired
+private QueryRunner queryRunner;
+
+@Autowired
+private ConnectionUtils connectionUtils;
+
+@Override
+public void outUser(String outUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money-? WHERE name = ?&quot;;
+        Connection threadConnection = connectionUtils.getThreadConnection();
+        queryRunner.update(threadConnection,sql, money, outUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+
+&#125;
+
+@Override
+public void inUser(String inUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money+? WHERE name = ?&quot;;
+        Connection threadConnection = connectionUtils.getThreadConnection();
+        queryRunner.update(threadConnection,sql, money, inUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+
+@Override
+public List&lt;Account&gt; findAll() &#123;
+
+    List&lt;Account&gt; list = null;
+
+    try &#123;
+        String sql = &quot;SELECT * FROM account&quot;;
+        list=queryRunner.query(sql,new BeanListHandler&lt;&gt;(Account.class));
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+
+    return list;
+&#125;
+
+@Override
+public void outUser(Connection connection, String outUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money-? WHERE name = ?&quot;;
+        queryRunner.update(connection,sql, money, outUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+
+@Override
+public void inUser(Connection connection, String inUser, Double money) &#123;
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money+? WHERE name = ?&quot;;
+        queryRunner.update(connection,sql, money, inUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration({“classpath:applicationContext.xml”})<br>public class AccountTest {</p>
+<p>  @Test<br>  public void testTransferVersionOne() throws Exception{<br>    accountService.transfer(“tom”,”jerry”,100d);<br>  }<br>}<br>问题</p>
+<p>不应该将service的conn对象传递到dao层，这种方式，就产生了dao层与service的耦合性问题</p>
+<p>1.3 ThreadLocal<br>解决方案</p>
+<p>ThreadLocal是一个线程的局部变量,此处用作线程K-V 线程map集合的存取</p>
+<p>编写ConnectionUtils</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>&#x2F;*<br>ThreadLocal操作的工具类</p>
+<ol>
+<li>从当前线程内绑定并获取conn对象</li>
+<li>移除当前线程的conn对象<br>*&#x2F;</li>
+</ol>
+<p>&#x2F;&#x2F; 交给ioc容器<br>@Component<br>public class ConnectionUtils {<br>    @Autowired<br>    private DataSource dataSource;</p>
+<pre><code>// 线程隔离
+private static final ThreadLocal&lt;Connection&gt; tl = new ThreadLocal&lt;&gt;();
+
+// 1.从当前线程内绑定并获取conn对象
+public Connection getThreadConnection()&#123;
+    // 第一次执行get，肯定获取不到
+    Connection connection = tl.get();
+    if(connection==null)&#123;
+
+        try &#123;
+            connection = dataSource.getConnection();
+            tl.set(connection);
+        &#125; catch (SQLException throwables) &#123;
+            throwables.printStackTrace();
+        &#125;
+    &#125;
+    return connection;
+&#125;
+// 2.移除当前线程的conn对象
+public void removeThreadConnection()&#123;
+    tl.remove();
+&#125;
+</code></pre>
+<p>}<br>修改AccountServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<p>  &#x2F;&#x2F; 依赖dataSource<br>  @Autowired<br>  private AccountDao accountDao;</p>
+<p>  &#x2F;&#x2F;Version_2</p>
+<p>  @Autowired<br>  private ConnectionUtils connectionUtils;</p>
+<p>  @Override<br>  public void transfer(String outUser, String inUser, Double money) {<br>    Connection connection&#x3D;null;</p>
+<pre><code>try &#123;
+  // 获取conn手动控制事务
+  connection = connectionUtils.getThreadConnection();
+  connection.setAutoCommit(false);
+  // 业务代码-------- start
+  // 转出
+  accountDao.outUser(outUser,money);
+  // 转入
+  accountDao.inUser(inUser,money);
+  // 业务代码-------- end
+  // 提交事务
+  connection.commit();
+&#125; catch (SQLException throwables) &#123;
+  throwables.printStackTrace();
+  try &#123;
+    // 回滚事务
+    connection.rollback();
+  &#125; catch (SQLException e) &#123;
+    e.printStackTrace();
+  &#125;
+&#125;finally &#123;
+  try &#123;
+    // 再改为自动提交
+    connection.setAutoCommit(true);
+    // 释放资源
+    connection.close();
+  &#125; catch (SQLException throwables) &#123;
+    throwables.printStackTrace();
+  &#125;
+&#125;
+</code></pre>
+<p>  }<br>}<br>修改AccountDao</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>@Repository<br>public class AccountDaoImpl implements AccountDao {</p>
+<pre><code>@Autowired
+private QueryRunner queryRunner;
+
+@Autowired
+private ConnectionUtils connectionUtils;
+
+@Override
+public void outUser(String outUser, Double money) &#123;
+
+    try &#123;
+        // 1.编写sql
+        String sql = &quot;UPDATE account SET money=money-? WHERE name = ?&quot;;
+        // 获取当前线程内的 conn
+        Connection threadConnection = connectionUtils.getThreadConnection();
+        // 2.执行sql
+        queryRunner.update(threadConnection,sql, money, outUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+
+&#125;
+
+@Override
+public void inUser(String inUser, Double money) &#123;
+
+    try &#123;
+        String sql = &quot;UPDATE account SET money=money+? WHERE name = ?&quot;;
+        Connection threadConnection = connectionUtils.getThreadConnection();
+        queryRunner.update(threadConnection,sql, money, inUser);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+</code></pre>
+<p>  }<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration({“classpath:applicationContext.xml”})<br>public class AccountTest {</p>
+<p>  @Autowired<br>  private AccountService accountService;</p>
+<p>  @Test<br>  public void testTransferVersionTwo() throws Exception{<br>    accountService.transfer(“tom”,”jerry”,100d);<br>  }<br>}<br>翻看源码</p>
+<p>向当前线程map集合存值</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>public void set(T value) {<br>    Thread t &#x3D; Thread.currentThread();<br>    ThreadLocalMap map &#x3D; getMap(t);<br>    if (map !&#x3D; null)<br>        map.set(this, value);<br>    else<br>        createMap(t, value);<br>}<br>当前线程map取值</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public T get() {<br>    Thread t &#x3D; Thread.currentThread();<br>    ThreadLocalMap map &#x3D; getMap(t);<br>    if (map !&#x3D; null) {<br>        ThreadLocalMap.Entry e &#x3D; map.getEntry(this);<br>        if (e !&#x3D; null) {<br>            @SuppressWarnings(“unchecked”)<br>            T result &#x3D; (T)e.value;<br>            return result;<br>        }<br>    }<br>    return setInitialValue();<br>}<br>从当前线程map移出值</p>
+<p>1<br>2<br>3<br>4<br>5<br>public void remove() {<br>  ThreadLocalMap m &#x3D; getMap(Thread.currentThread());<br>  if (m !&#x3D; null)<br>    m.remove(this);<br>}<br>问题</p>
+<p>在企业开发时，我们基础每一个业务层方法都需要进行事务的控制，这部分代码属于公共业务且重复 的，出现了大量的代码冗余</p>
+<p>1.4 事务管理器<br>解决方案</p>
+<p>这时候我们可以把这部分代码抽取到工具类(事务管理器)</p>
+<p>编写TransactionManager</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>@Component<br>public class TransactionManager {</p>
+<pre><code>@Autowired
+private ConnectionUtils connectionUtils;
+
+// 1.开启事务
+public void beginTransaction()&#123;
+    try &#123;
+        connectionUtils.getThreadConnection().setAutoCommit(false);
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+
+// 2.提交事务
+public void commit()&#123;
+    try &#123;
+        connectionUtils.getThreadConnection().commit();
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+
+// 3.回滚事务
+public void rollback()&#123;
+    try &#123;
+        connectionUtils.getThreadConnection().rollback();
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+
+// 4.释放资源
+public void release()&#123;
+
+    try &#123;
+        // 恢复自动提交
+        connectionUtils.getThreadConnection().setAutoCommit(true);
+        // 归还到连接池
+        connectionUtils.getThreadConnection().close();
+        // 从当前线程删除conn对象
+        connectionUtils.removeThreadConnection();
+    &#125; catch (SQLException throwables) &#123;
+        throwables.printStackTrace();
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>修改AccountService</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>//Version_3
+
+@Autowired
+private TransactionManager transactionManager;
+
+@Override
+public void transfer(String outUser, String inUser, Double money) &#123;
+
+    try &#123;
+        // 开启事务
+        transactionManager.beginTransaction();
+        // 业务代码-------- start
+        // 转出
+        accountDao.outUser(outUser,money);
+        // 转入
+        accountDao.inUser(inUser,money);
+        // 业务代码-------- end
+        // 提交事务
+        transactionManager.commit();
+    &#125; catch (Exception e) &#123;
+        e.printStackTrace();
+        // 回滚事务
+        transactionManager.rollback();
+    &#125; finally &#123;
+        // 释放资源
+        transactionManager.release();
+    &#125;
+&#125;
+</code></pre>
+<p>   }<br>测试</p>
+<p>1<br>2<br>3<br>4<br>@Test<br>public void testTransferVersionThree() throws Exception{<br>    accountService.transfer(“tom”,”jerry”,100d);<br>}<br>问题</p>
+<p>所有事务都不可避免使用事务管理器控制<br>事务管理器属于通用业务，与核心代码产生耦合性<br>二.转账案例进阶<br>可以将业务代码和事务代码进行拆分，通过动态代理的方式，对业务方法进行事务的增强。这样就 不会对业务层产生影响，解决了耦合性的问题</p>
+<p>常用的动态代理技术</p>
+<p>JDK 代理 : 基于接口的动态代理技术</p>
+<p>CGLIB代理:基于父类的动态代理技术</p>
+<p>修改AccountService代码</p>
+<p>企业开发时业务层，只有核心业务代码，不会出现事务相关代码</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@Service<br>public class AccountServiceImpl implements AccountService {</p>
+<pre><code>// 依赖dataSource
+@Autowired
+private AccountDao accountDao;
+
+@Override
+public void transfer(String outUser, String inUser, Double money) &#123;
+    accountDao.outUser(outUser,money);
+    accountDao.inUser(inUser,money);
+&#125;
+</code></pre>
+<p>}<br>2.1 JDK动态代理<br>思想</p>
+<p>JDKProxyFactory工厂，生产多个代理对象，进行事务增强</p>
+<p>目标对象——目标接口——基于接口，创建代理对象(method.invoke调用目标对象原有功能进行增强)</p>
+<p>目标对象</p>
+<p>1<br>public class AccountServiceImpl implements AccountService<br>编写JdkProxyFactory</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>&#x2F;*<br>基于jdk，实现对目标对象，进行事务的增强<br>*&#x2F;<br>@Component<br>public class JdkProxyFactory {</p>
+<pre><code>@Autowired
+private TransactionManager transactionManager;
+
+public Object createJDKProxyTx(Object target) &#123;
+    Object proxy = null;
+
+
+    // 使用sun公司提供的jdk代理工具类
+</code></pre>
+<p>&#x2F;*<br>        1.目标对象类加器<br>        2.目标对象接口数组<br>        3.实现增强的业务逻辑(匿名内部类、lambda)<br>                *&#x2F;</p>
+<pre><code>    //目标对象类 加载器
+    ClassLoader classLoader = target.getClass().getClassLoader();
+    // 目标对象实现的接口数组
+    Class&lt;?&gt;[] interfaces = target.getClass().getInterfaces();
+    proxy = Proxy.newProxyInstance(classLoader, interfaces, new InvocationHandler() &#123;
+
+        /*
+</code></pre>
+<p>invoke 方法是代理对象的入口<br>proxy:jdk工具类生产的代理对象 method:当前用户执行的某个具体方法<br>args:当前用户执行的某个具体方法传递的实际参数列表<br>*&#x2F;<br>            @Override<br>            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {<br>                Object result &#x3D; null;</p>
+<pre><code>            try &#123;
+                // 开启事务
+                transactionManager.beginTransaction();
+                // 执行目标对象原有的功能
+                result = method.invoke(target, args);
+
+                // 提交事务
+                transactionManager.commit();
+            &#125; catch (Exception e) &#123;
+                e.printStackTrace();
+                // 回滚事务
+                transactionManager.rollback();
+            &#125; finally &#123;
+                // 释放资源
+                transactionManager.release();
+            &#125;
+            return result;
+        &#125;
+    &#125;);
+    // 返回增强后的代理对象
+    return proxy;
+&#125;
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration({“classpath:applicationContext.xml”})<br>public class AccountTest {</p>
+<pre><code>// 目标对象
+@Autowired
+private AccountService accountService;
+
+// jdk生产代理对象工厂
+@Autowired
+private JdkProxyFactory jdkProxyFactory;
+
+@Test
+public void testJDKProxy() throws Exception&#123;
+    // 目标对象没有事务增强
+    // accountService.transfer(&quot;tom&quot;, &quot;jerry&quot;, 100d);
+    // 使用jdk对目标对象事务增强
+    AccountService jdkProxy = (AccountService) jdkProxyFactory.createJDKProxyTx(accountService);
+    jdkProxy.transfer(&quot;tom&quot;,&quot;jerry&quot;,100d);
+&#125;
+</code></pre>
+<p>  }<br>2.2 CGLIB动态代理<br>问题</p>
+<p>进入公司，可能有些代码没有接口，但又需要动态代理进行增强，这时候sun公司提供jdk工具就无法实 现了</p>
+<p>解决方案</p>
+<p>基于CGLIB技术，对普通java类型实现代理增强(第三方，需导包)</p>
+<p>代理对象获取父对象所有方法(method.invoke)，用户访问代理增强对象即可</p>
+<p>目标对象</p>
+<p>1<br>public class AccountServiceImpl implements AccountService<br>编写CglibProxyFactory</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>&#x2F;*<br>基于cglib，实现对目标对象，进行事务的增强<br>*&#x2F;<br>@Component<br>public class CglibProxyFactory {</p>
+<pre><code>@Autowired
+private TransactionManager transactionManager;
+
+public Object createCglibProxyTx(Object target) &#123;
+    Object proxy = null;
+
+
+    // 使用cglib提供的工具类
+    /*
+    1. 目标对象class类
+    2. 实现增强的业务逻辑(匿名内部类、lambda) */
+
+    proxy = Enhancer.create(target.getClass(), new MethodInterceptor() &#123;
+        /*
+        intercept 代理对象方法入口
+        1.o cglib生产出来的代理对象
+        2.method 执行代理对象(子)，被拦截的方法
+        3.objects 执行代理对象，被拦截的方法的参数列表
+        4.methodProxy 目标对象(父)，被拦截的方法，功能与method一样的
+        */
+        @Override
+        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable &#123;
+            Object result = null;
+
+            try &#123;
+                // 开启事务
+                transactionManager.beginTransaction();
+                // 调用目标对象原有的功能
+                result=method.invoke(target,objects);
+                // 提交事务
+                transactionManager.commit();
+            &#125; catch (Exception e) &#123;
+                e.printStackTrace();
+                // 回滚事务
+                transactionManager.rollback();
+            &#125; finally &#123;
+                // 释放资源
+                transactionManager.release();
+            &#125;
+
+            return result;
+        &#125;
+    &#125;);
+    // 返回增强后的代理对象
+    return proxy;
+&#125;
+</code></pre>
+<p>}<br>测试</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration({“classpath:applicationContext.xml”})<br>public class AccountTest {</p>
+<p>  &#x2F;&#x2F; 目标对象<br>  @Autowired<br>  private AccountService accountService;</p>
+<p>  @Autowired<br>  private CglibProxyFactory cglibProxyFactory;</p>
+<p>  @Test<br>  public void testCglibProxy() throws Exception{<br>    &#x2F;&#x2F; 使用cglib对目标对象事务增强<br>    AccountService jdkProxy &#x3D; (AccountService) cglibProxyFactory.createCglibProxyTx(accountService);<br>    jdkProxy.transfer(“tom”,”jerry”,100d);<br>  }<br>2.3 总结<br>2.3.1 jdk和cglib两种代理方式的选择?<br>优先使用jdk，性能高于cglib</p>
+<p>如果目标对象有接口，一定使用jdk创建代理对象</p>
+<p>如果目标对象没有接口，没办法只能使用cglib创建代理对象</p>
+<p>2.3.2 当核心业务(转账)和通用业务(事务、日志)同时出现时?<br>开发阶段</p>
+<p>拆分(核心业务在service，事务管理在单独工具类中):解耦</p>
+<p>运行阶段</p>
+<p>通过动态代理技术，进行组合:功能增强</p>
+<p>三.SpringAOP简介<br>3.1 概述<br>AOP( 面向切面编程 )是一种思想, 它的目的就是在不修改源代码的基础上,对原有功能进行增强。 Spring AOP是对AOP思想的一种实现, Spring底层同时支持jdk和cglib动态代理。</p>
+<p>优势<br>在程序运行期间，在不修改源码的情况下对方法进行功能增强<br>逻辑清晰，开发核心业务的时候，不必关注增强业务的代码<br>减少重复代码，提高开发效率，便于后期维护<br>Spring会根据被代理的类是否有接口自动选择代理方式<br>如果有接口,就采用jdk动态代理<br>没有接口就采用cglib的方式<br>3.2 相关术语<br>术语	解释	目标对象<br>Target	目标对象	service层的核心业务<br>JoinPoint	连接点	目标对象中的所有方法<br>Pointcut	切点	目标对象需要增强的方法<br>Advice	通知(增强)	实现增强的功能的<br>Weaving	织入	将通知和切点进行织入(动作)<br>Aspect	切面(spring术语)	通知 + 切点 &#x3D; 切面<br>Proxy	代理对象(底层实现)	通知 + 切点 &#x3D; 代理对象<br>3.3 明确注意事项<br>开发阶段</p>
+<p>编写核心业务代码(开发主线):要求熟悉业务需求。<br>把公用代码抽取出来，制作成通知，要求熟悉AOP思想。<br>在配置文件中，声明切入点与通知间的关系，即切面，要求熟悉AOP思想。<br>运行阶段(Spring框架完成的)</p>
+<p>Spring读取配置文件中的切面信息，根据切面中的描述，将增强功能增加在目标对象的切点方法上，动 态创建代理对象，最后将经过代理之后对象放入ioc容器中</p>
+<p>必知必会</p>
+<p>能够编写目标对象(转账)<br>能够看懂通知类(事务管理器)<br>能够配置aop切面(切点+通知)，spring自动创建代理对象<br>四.基于XML的AOP开发<br>4.1 快速入门<br>需求</p>
+<p>实现对转账方法的增强</p>
+<p>创建maven的java模块，导入坐标</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</p>
+<!--依赖管理-->
+<dependencies>
+  <!--spring的核心-->
+  <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.1.5.RELEASE</version>
+  </dependency>
+  <!--aspectj-->
+  <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.5</version>
+  </dependency>
+  <!--junit-->
+  <dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+  </dependency>
+  <!--spring整合junit-->
+  <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>5.1.5.RELEASE</version>
+  </dependency>
+</dependencies>
+编写目标类(AccountService)
+
+<p>1<br>2<br>3<br>4<br>public interface AccountService {<br>    void transfer();<br>    void save();<br>}<br>AccountServiceImpl</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@Service<br>public class AccountServiceImpl implements AccountService {<br>    @Override<br>    public void transfer() {<br>        System.out.println(“Transfer”);<br>    }</p>
+<pre><code>@Override
+public void save() &#123;
+    System.out.println(&quot;Save&quot;);
+&#125;
+</code></pre>
+<p>}<br>编写通知类(增强)</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>&#x2F;&#x2F;通知类(增强)<br>public class MyAdvice {</p>
+<pre><code>public void before()&#123;
+    System.out.println(&quot;Advance notice&quot;);
+&#125;
+</code></pre>
+<p>}<br>配置spring的AOP(切点+通知)</p>
+<p>如果spring要使用aop，需要再引入schema约束+命名空间</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p" xsi:schemalocation="
+           http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd"></beans></p>
+<bean id="accountService" class="com.test.service.impl.AccountServiceImpl">
+    </bean>
+
+<pre><code>&lt;bean id=&quot;myAdvice&quot; class=&quot;com.test.advice.MyAdvice&quot;&gt;&lt;/bean&gt;
+
+&lt;aop:config&gt;
+    &lt;aop:aspect ref=&quot;myAdvice&quot;&gt;
+        &lt;aop:before method=&quot;before&quot; pointcut=&quot;execution(public void com.test.service.impl.AccountServiceImpl.transfer())&quot;&gt;&lt;/aop:before&gt;
+    &lt;/aop:aspect&gt;
+&lt;/aop:config&gt;
+</code></pre>
+
+测试
+
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration(“classpath:applicationContext.xml”)<br>public class AccountTest {</p>
+<pre><code>// 配置了aop之后，这就是代理对象
+@Autowired
+private AccountService accountService;
+
+@Test
+public void testAOP() throws Exception&#123;
+    accountService.transfer();
+&#125;
+</code></pre>
+<p>}<br>4.2 xml配置详解<br>4.2.1 切点表达式<br>表达式语法</p>
+<p>1<br>execution([修饰符] 返回值类型 包名.类名.方法名(参数列表))<br>访问修饰符可以省略</p>
+<p>返回值类型、包名、类名、方法名可以使用星号 * 代替，代表任意</p>
+<p>包名与类名之间一个点 . 代表当前包下的类，两个点 .. 表示当前包及其子包下的类</p>
+<p>参数列表可以使用两个点 .. 表示任意个数，任意类型的参数列表</p>
+<p>4.2.2 通知类型<br>通知的配置语法</p>
+<p>1<br>&lt;aop:通知类型 method&#x3D;”通知类中方法名” pointcut&#x3D;”切点表达式”&gt;&lt;&#x2F;aop:通知类型&gt;<br>四大通知</p>
+<p>名称	标签	说明<br>前置通知	<a href="aop:before">aop:before</a>	在切入点方法之前执行<br>后置通知	<a href="aop:afterReturning">aop:afterReturning</a>	在切入点方法正常运行之后执行<br>异常通知	<a href="aop:afterThrowing">aop:afterThrowing</a>	在切点方法发生异常的时候执行<br>最终通知	<a href="aop:after">aop:after</a>	无论切入点方法执行时是否有异常，都会执行<br>环绕通知</p>
+<p>名称	标签	说明<br>环绕通知	<a href="aop:around">aop:around</a>	可以灵活实现四大通知的所有效果<br>4.2.3 知识小结<br>aop织入的配置<br>1<br>2<br>3<br>4<br>5<br>6<br><a href="aop:config">aop:config</a></p>
+<p>&lt;aop:aspect ref&#x3D;“通知类”&gt;<br>&lt;aop:before method&#x3D;“通知方法名称” pointcut&#x3D;“切点表达式”&gt;&lt;&#x2F;aop:before&gt;<br><br><br>通知的类型</p>
+<p>前置通知、后置通知、异常通知、最终通知</p>
+<p>环绕通知</p>
+<p>切点表达式</p>
+<p>1<br>execution([修饰符] 返回值类型 包名.类名.方法名(参数列表))<br>总结</p>
+<h1 id="spring03"><a href="#spring03" class="headerlink" title="spring03"></a>spring03</h1><h2 id="一-转账案例基础"><a href="#一-转账案例基础" class="headerlink" title="一 转账案例基础"></a>一 转账案例基础</h2><h3 id="基础功能"><a href="#基础功能" class="headerlink" title="基础功能"></a>基础功能</h3><ul>
+<li><p>转出</p>
+</li>
+<li><p>转入</p>
+</li>
+</ul>
+<h3 id="传统事务控制"><a href="#传统事务控制" class="headerlink" title="传统事务控制"></a>传统事务控制</h3><ul>
+<li>ConnectionUtils</li>
+</ul>
+<p>​ - ThreadLocal</p>
+<p>​ - 线程局部变量，存储空间（Thread.ThreadLocalMap）</p>
+<ul>
+<li>TransactionManager</li>
+</ul>
+<p>​ - 事务管理器</p>
+<h3 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h3><ul>
+<li>核心业务 和 通用业务 产生了代码入侵</li>
+</ul>
+<h2 id="二-转账案例进阶"><a href="#二-转账案例进阶" class="headerlink" title="二 转账案例进阶"></a>二 转账案例进阶</h2><h3 id="代理事务控制"><a href="#代理事务控制" class="headerlink" title="代理事务控制"></a>代理事务控制</h3><ul>
+<li><p>JDK</p>
+</li>
+<li><p>CGLIB</p>
+</li>
+</ul>
+<h2 id="三-SpringAOP简介"><a href="#三-SpringAOP简介" class="headerlink" title="三 SpringAOP简介"></a>三 SpringAOP简介</h2><h3 id="AOP：面向切面编程"><a href="#AOP：面向切面编程" class="headerlink" title="AOP：面向切面编程"></a>AOP：面向切面编程</h3><ul>
+<li>在不修改源代码情况下，实现对方法的增强</li>
+</ul>
+<h3 id="spring的AOP"><a href="#spring的AOP" class="headerlink" title="spring的AOP"></a>spring的AOP</h3><ul>
+<li>简化了增强部分的配置，使开发者只关注业务本身</li>
+</ul>
+<h3 id="AOP底层实现"><a href="#AOP底层实现" class="headerlink" title="AOP底层实现"></a>AOP底层实现</h3><ul>
+<li>动态代理</li>
+</ul>
+<h3 id="AOP相关概念"><a href="#AOP相关概念" class="headerlink" title="AOP相关概念"></a>AOP相关概念</h3><ul>
+<li>Target</li>
+</ul>
+<p>​ - 目标对象</p>
+<ul>
+<li>Joinpoint</li>
+</ul>
+<p>​ - 连接点</p>
+<ul>
+<li>Pointcut</li>
+</ul>
+<p>​ - 切点</p>
+<ul>
+<li>Advice</li>
+</ul>
+<p>​ - 通知</p>
+<ul>
+<li>Weaving</li>
+</ul>
+<p>​ - 织入</p>
+<ul>
+<li>Aspect</li>
+</ul>
+<p>​ - 切面</p>
+<ul>
+<li>Proxy</li>
+</ul>
+<p>​ - 代理对象</p>
+<h2 id="四-基于XML的AOP开发"><a href="#四-基于XML的AOP开发" class="headerlink" title="四 基于XML的AOP开发"></a>四 基于XML的AOP开发</h2><h3 id="aop织入的配置"><a href="#aop织入的配置" class="headerlink" title="aop织入的配置"></a>aop织入的配置</h3><ul>
+<li>aop:config</li>
+</ul>
+<p>​ &lt;aop:aspect ref&#x3D;“通知类”&gt;</p>
+<p>​ &lt;aop:before method&#x3D;“通知方法名称” pointcut&#x3D;“切点表达式”&gt;</p>
+<p>​ </p>
+<p></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/29/Spring-%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -5025,403 +5873,6 @@ public void testFindById() throws Exception&#123;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/08/PreparedStatement-%E8%BF%9E%E6%8E%A5%E6%B1%A0/" class="post-title-link" itemprop="url">PreparedStatement & 连接池</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-08 01:35:47" itemprop="dateCreated datePublished" datetime="2020-05-08T01:35:47+08:00">2020-05-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-15 01:25:49" itemprop="dateModified" datetime="2022-07-15T01:25:49+08:00">2022-07-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.PreparedStatement<br>1.1 概述<br>SQL注入问题</p>
-<p>我们让用户输入的信息和SQL语句进行字符串拼接。用户输入的内容作为了SQL语句语法的一部分，改变了原有SQL</p>
-<p>真正的意义，以上问题称为SQL注入。</p>
-<p>1<br>2<br>3<br>– 这条sql语句原有的含义是根据用户名和密码查询<br>– 现在用户输入了一些特殊字符，改变了sql原有的含义，这种行为成为sql注入<br>SELECT * FROM USER WHERE username &#x3D;’admin’# ‘ and password &#x3D;’’<br>解决SQL注入问题</p>
-<p>我们就不能让用户输入的信息和SQL语句进行字符串拼接。需要使用PreparedSatement对象解决SQL注入。</p>
-<p>1<br>2<br>3<br>4<br>– 在java语言中修复sql注入问题，通过占位符代替实际参数<br>SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?<br>– 仅仅模拟sql解决思想，非真实解决方案<br>SELECT * FROM USER WHERE username &#x3D; “admin’#” AND PASSWORD &#x3D; “”<br>PreparedSatement基础语法</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>&#x2F;&#x2F; 1.获取连接<br>&#x2F;&#x2F; 2.编写sql【占位符代替实际参数】<br>String sql &#x3D; “SELECT * FROM USER WHERE username &#x3D; ? AND password &#x3D; ?”;<br>&#x2F;&#x2F; 3.获取sql预编译执行对象，先发送给数据库进行预编译<br>PreparedStatement pstmt &#x3D; connection.prepareStatement(sql);<br>&#x2F;&#x2F; 4.设置占位符实际参数<br>pstmt.setString(1,”admin’#”);<br>pstmt.setString(2,””);<br>&#x2F;&#x2F; 5.执行sql语句，并返回结果【注意，不需要传递sql参数】<br>ResultSet resultSet &#x3D; pstmt.executeQuery();<br>&#x2F;&#x2F; 6.处理结果 &#x2F;&#x2F; 7.释放资源<br>优点</p>
-<p>防止sql注入，提高安全性</p>
-<p>参数与sql分离，提高代码可读性</p>
-<p>减少编译次数，提高性能</p>
-<p>1.2 操作<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83</p>
-<p>public class CRUD_DEMO {<br>    &#x2F;&#x2F;新增<br>    @Test<br>    public void testInsert() throws Exception {<br>        &#x2F;&#x2F;获取连接<br>        Connection connection &#x3D; JdbcUtils.getConnection();<br>        &#x2F;&#x2F;编写sql<br>        String sql &#x3D; “INSERT INTO user VALUES (NULL ,?,?);”;<br>        &#x2F;&#x2F;获取sql预编译执行对象<br>        PreparedStatement preparedStatement &#x3D; connection.prepareStatement(sql);<br>        &#x2F;&#x2F;设计实际参数<br>        preparedStatement.setString(1, “Jerry”);<br>        preparedStatement.setString(2, “999”);<br>        &#x2F;&#x2F;执行sql并返回结果<br>        int i &#x3D; preparedStatement.executeUpdate();<br>        &#x2F;&#x2F;处理结果<br>        if (i &gt; 0) {<br>            System.out.println(“First Recording Add Successful”);<br>        }<br>        preparedStatement.setString(1, “Ming”);<br>        preparedStatement.setString(2, “999”);<br>        i &#x3D; preparedStatement.executeUpdate();<br>        if (i &gt; 0) {<br>            System.out.println(“Second Recording Add Successful”);<br>        }<br>        &#x2F;&#x2F;释放资源<br>        JdbcUtils.close(preparedStatement, connection);<br>    }</p>
-<pre><code>//修改
-@Test
-public void testUpdate() throws Exception &#123;
-    //获取连接
-    Connection connection = JdbcUtils.getConnection();
-    //编写sql
-    String sql = &quot;UPDATE user SET username = ? where id = ?;&quot;;
-    //获取预编译sql执行对
-    PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    //设计实际参数
-    preparedStatement.setString(1, &quot;RRR&quot;);
-    preparedStatement.setInt(2, 3);
-    //执行sql,并返回结果
-    int i = preparedStatement.executeUpdate();
-    //处理结果
-    if (i &gt; 0) &#123;
-        System.out.println(&quot;Update Successful&quot;);
-    &#125;
-    //释放资源
-    JdbcUtils.close(preparedStatement, connection);
-&#125;
-
-//删除
-@Test
-public void testDelete() throws Exception &#123;
-    Connection connection = JdbcUtils.getConnection();
-    String sql = &quot;DELETE FROM user WHERE id=?&quot;;
-    PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    preparedStatement.setInt(1, 6);
-    int i = preparedStatement.executeUpdate();
-    if (i &gt; 0) &#123;
-        System.out.println(&quot;Delete Successful&quot;);
-    &#125;
-    JdbcUtils.close(preparedStatement, connection);
-&#125;
-
-//查询
-@Test
-public void testFindAll() throws Exception &#123;
-    Connection connection = JdbcUtils.getConnection();
-    String sql = &quot;SELECT * FROM user;&quot;;
-    PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    ResultSet resultSet = preparedStatement.executeQuery();
-    while (resultSet.next()) &#123;
-        int id = resultSet.getInt(&quot;id&quot;);
-        String username = resultSet.getString(&quot;username&quot;);
-        String password = resultSet.getString(&quot;password&quot;);
-        System.out.println(&quot;\tID:&quot; + id + &quot;\tUSERNAME:&quot; + username + &quot;\tPASSWORD:&quot; + password);
-
-    &#125;
-    JdbcUtils.close(preparedStatement, connection);
-&#125;
-</code></pre>
-<p>}<br>二.连接池<br>2.1 概述<br>连接池其实就是一个容器(集合)，存放数据库连接的容器。</p>
-<p>当系统初始化好后，容器被创建，容器中会申请一些连接对象，当用户来访问数据库时，从容器中获取连接对象，用 户访问完之后，会将连接对象归还给容器。</p>
-<p>优点</p>
-<p>节约资源，减轻服务器压力</p>
-<p>提高连接复用性，用户访问高效</p>
-<p>常见连接池</p>
-<p>DBCP	Apache提供的数据库连接池技术。<br>C3P0	数据库连接池技术，目前使用它的开源项目有Hibernate、Spring等。<br>HikariCP	日本开发的连接池技术，性能之王,目前使用它的开源项目有SpringBoot等。<br>Druid(德鲁伊)	阿里巴巴提供的数据库连接池技术<br>实现</p>
-<p>Java为数据库连接池提供了公共的接口: DataSource ，各个连接池厂商去实现这套接口，提供jar包。</p>
-<p>功能	<br>获取连接	Connection getConnection()<br>归还连接	connection.close()<br>若连接对象通过连接池获取，执行 connection.close() 方法时，是归还到连接池，非销毁对象<br>底层通过动态代理技术对close()方法进行了增强<br>2.2 Druid连接池<br>2.2.1 快速入门<br>导入jar包</p>
-<p>druid-1.1.10.jar</p>
-<p>mysql-connector-java-8.0.16.jar</p>
-<p>编写测试代码(耦合版本)</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>public class DruidDemo1 {<br>    public static void main(String[] args) throws SQLException {</p>
-<pre><code>    // 1.创建druid连接池对象
-    DruidDataSource dataSource = new DruidDataSource();
-
-    // 2.与mysql建立连接(初始化一些连接个数)，设置数据库基本四项
-    dataSource.setDriverClassName(&quot;com.mysql.jdbc.Driver&quot;);
-    dataSource.setUrl(&quot;jdbc:mysql://localhost:3306/Day48&quot;);
-    dataSource.setUsername(&quot;root&quot;);
-    dataSource.setPassword(&quot;root&quot;);
-
-    // 3.从连接池中获取连接
-    Connection connection = dataSource.getConnection();
-
-    // 4.处理业务
-    System.out.println(connection);
-    // 5.归还连接,注意，非销毁
-    connection.close();
-
-&#125;
-</code></pre>
-<p>}<br>2.2.2 配置文件<br>参数设置	作用<br>initialSize	初始化建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时<br>maxActivve	最大连接池数量<br>MinIdle	最小连接池数量<br>maxWait	获取连接时最大等待时间，ms<br>定义配置文件</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>#druid.properties<br>#基本4项，必须有，左边名称限定<br>driverClassName&#x3D;com.mysql.jdbc.Driver<br>url&#x3D;jdbc:mysql:&#x2F;&#x2F;127.0.0.1:3306&#x2F;Day48<br>username&#x3D;root<br>password&#x3D;root</p>
-<h1 id="初始化个数"><a href="#初始化个数" class="headerlink" title="初始化个数"></a>初始化个数</h1><p>initialSize&#x3D;5<br>#最大连接个数<br>maxActivve&#x3D;10<br>#等待时间，ms<br>maxWait&#x3D;3000<br>编写代码(解耦合版)</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>public class DruidDemo2 {</p>
-<pre><code>public static void main(String[] args) throws Exception &#123;
-    // 通过类加载器读取src目录下配置文件，获取io流
-    InputStream is = DruidDemo2.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
-    // 创建 Properties对象
-    Properties properties = new Properties();
-    properties.load(is);
-
-    // druid连接池工厂对象，初始化连接池
-    DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
-
-    // 获取连接
-    for (int i = 0; i &lt;= 11; i++) &#123;
-        Connection connection = dataSource.getConnection();
-        System.out.println(connection);
-        if (i == 10) &#123;
-            connection.close();
-        &#125;
-    &#125;
-        // 归还连接
-        //connection.close();
-
-&#125;
-</code></pre>
-<p>}<br>2.3 连接工具类<br>我们每次操作数据库都需要创建连接池，获取连接，关闭资源，都是重复的代码。我们可以将创建连接池和获取连接</p>
-<p>池的代码放到一个工具类中。</p>
-<p>保证连接池对象，只创建一次</p>
-<p>目的:简化书写，提高效率</p>
-<p>1<br>2<br>3<br>4<br>5<br>public class JdbcUtils{<br>&#x2F;&#x2F; 1.初始化连接池对象(druid)，一个项目只有一个 static{} &#x2F;&#x2F; 2.提供获取连接池对象静态方法<br>&#x2F;&#x2F; 3.提供连接对象的静态方法<br>&#x2F;&#x2F; 4.提供释放资源的静态方法(connection是归还)<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>public class JdbcUtils {</p>
-<pre><code>private static DataSource dataSource = null;
-
-// 1.初始化连接池对象(druid)，一个项目只有一个 static&#123;&#125;
-static &#123;
-    try &#123;
-        // 通过类加载器读取src目录下配置文件，获取io流
-        InputStream is = JdbcUtils.class.getClassLoader().getResourceAsStream(&quot;druid.properties&quot;);
-        // 创建 Properties对象
-        Properties properties = new Properties();
-        properties.load(is);
-        // druid连接池工厂对象，初始化连接池
-        dataSource = DruidDataSourceFactory.createDataSource(properties);
-    &#125; catch (Exception e) &#123;
-        e.printStackTrace();
-    &#125;
-&#125;
-
-// 2.提供获取连接池对象静态方法
-public static DataSource getDataSource() &#123;
-    return dataSource;
-&#125;
-
-// 3.提供连接对象的静态方法
-public static Connection getConnection() throws SQLException &#123;
-    return dataSource.getConnection();
-&#125;
-
-// 4.提供释放资源的静态方法(connection是归还)
-public static void close(ResultSet resultSet, Statement statement, Connection connection) &#123;
-    if (resultSet != null) &#123;
-        try &#123;
-            resultSet.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (statement != null) &#123;
-        try &#123;
-            statement.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-    if (connection != null) &#123;
-        try &#123;
-            connection.close();
-        &#125; catch (SQLException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-&#125;
-
-// 重载关闭方法
-public static void close(Statement statement, Connection connection) &#123;
-    close(null, statement, connection);
-&#125;
-</code></pre>
-<p>}<br>三.案例:用户登录<br>需求</p>
-<p>使用三层架构+JDBC连接池技术(面向接口编程)，实现用户登录案例</p>
-<p>3.1 需求分析<br>Login.jsp			Server			数据库<br>web层	service层	dao层		<br>UserName<br>Password	➡<br>⬅	Servlet接口	UserService接口	UserDao接口	➡<br>⬅	SQL<br>Login		⬆	⬆	⬆		<br>LoginServlet<br>1.接收请求<br>2.调用service<br>3.判断转发&#x2F;重定向	UserServiceImpl实现类	UserDaoImpl实现类		<br>Login.jsp			Server			数据库<br>LoginServlet	UserServiceImpl	UserDaoImpl		<br>UserName<br>Password	➡<br>⬅	实现了Servlet接口	实现了UserService接口	实现了UserDao接口	➡<br>⬅	SQL<br>Login		1.接收请求参数<br>username<br>password<br>2.调用service，返回User对象<br>3.判断User对象<br>转发，提示用户名&#x2F;密码错误<br>重定向list.jsp	public User login(user, pwd) {<br>调用dao，返回user对象<br>}	public User login(user, pwd) {<br>使用JDBC连接池获取连接<br>查询数据库<br>将结果封装到user对象中 }		<br>3.2 环境搭建<br>使用昨天的数据库和user表</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>CREATE TABLE USER<br>(<br>    id       INT PRIMARY KEY AUTO_INCREMENT,<br>    username VARCHAR(50),<br>    password VARCHAR(50)<br>);<br>INSERT INTO USER (username, password)<br>VALUES (‘admin’, ‘123’),<br>       (‘tom’, ‘123’),<br>       (‘jack’, ‘123’);</p>
-<p>创建web工程，导入相关jar包</p>
-<p>commons-beanutils-1.8.3.jar</p>
-<p>commons-logging-1.1.1.jar</p>
-<p>druid-1.1.10.jar</p>
-<p>javax.servlet.jsp.jstl.jar</p>
-<p>jstl-impl.jar</p>
-<p>mysql-connector-java-8.0.16.jar</p>
-<p>导入页面资源</p>
-<p>创建三层包目录结构</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>src<br>├── com<br>│   └── case<br>│       ├── dao<br>│       │   ├── UserDao.java<br>│       │   └── UserDaoImpl.java<br>│       ├── domain<br>│       │   └── User.java<br>│       ├── service<br>│       │   ├── UserService.java<br>│       │   └── UserServiceImpl.java<br>│       ├── util<br>│       │   └── JdbcUtils.java<br>│       └── web<br>│           ├── filter<br>│           │   └── EncodeFilter.java<br>│           └── servlet<br>│               └── LoginServlet.java<br>└── druid.properties</p>
-<p>9 directories, 9 files<br>导入JbdcUtils工具类</p>
-<p>编写User实体类</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>public class User {<br>    private Integer id;<br>    private String username;<br>    private String password;</p>
-<pre><code>//省略getter/setter，toString，全参构造
-</code></pre>
-<p>3.3 代码实现<br>LoginServlet<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>@WebServlet(“&#x2F;LoginServlet”)<br>public class LoginServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        this.doPost(req, resp);<br>    }</p>
-<pre><code>@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    // 处理编码
-</code></pre>
-<p>&#x2F;&#x2F;        req.setCharacterEncoding(“utf-8”);<br>&#x2F;&#x2F;        resp.setContentType(“text&#x2F;html;charset&#x3D;utf-8”);</p>
-<pre><code>    // 1.接收请求参数
-    String username = req.getParameter(&quot;username&quot;);
-    String password = req.getParameter(&quot;password&quot;);
-
-    // 2.调用service
-    UserServiceImpl userService = new UserServiceImpl();
-    User user = userService.login(username, password);
-
-    // 3.判断
-    if(user==null)&#123;
-        // 登录失败，友情提示
-        req.setAttribute(&quot;error&quot;,&quot;Username/Password Wrong&quot;);
-        req.getRequestDispatcher(&quot;/login.jsp&quot;).forward(req,resp);
-    &#125;else &#123;
-        // 登录成功
-        req.getSession().setAttribute(&quot;user&quot;,user);
-        resp.sendRedirect(req.getContextPath()+&quot;/list.jsp&quot;);
-    &#125;
-&#125;
-</code></pre>
-<p>}<br>UserService 接口</p>
-<p>1<br>2<br>3<br>4<br>5<br>public interface UserService {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}</p>
-<p>UserServiceImpl 实现类</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>public class UserServiceImpl implements UserService {<br>    @Override<br>    public User login(String username, String password) {<br>        UserDaoImpl userDao &#x3D; new UserDaoImpl();<br>        return userDao.login(username,password);<br>    }<br>}<br>UserDao 接口</p>
-<p>1<br>2<br>3<br>4<br>public interface UserDao {<br>    &#x2F;&#x2F;根据用户名密码查询User对象<br>    public User login(String username, String password);<br>}<br>UserDaoImpl 实现类</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>public class UserDaoImpl implements UserDao {<br>    @Override<br>    public User login(String username, String password) {<br>        Connection connection &#x3D; null;<br>        PreparedStatement preparedStatement &#x3D; null;<br>        ResultSet resultSet &#x3D; null;</p>
-<pre><code>    try &#123;
-        // 1.获取连接【从连接池】
-        connection = JdbcUtils.getConnection();
-        // 2.编写sql
-        String sql = &quot;SELECT * FROM user WHERE username= ? AND password = ?;&quot;;
-        // 3.获取sql预编译执行对象
-        preparedStatement = connection.prepareStatement(sql);
-        // 4.设置实际参数
-        preparedStatement.setString(1, username);
-        preparedStatement.setString(2, password);
-        // 5.执行sql并返回结果
-        resultSet = preparedStatement.executeQuery();
-        // 6.处理结果
-        User user = null;
-
-        if (resultSet.next()) &#123;
-            // 获取 id 用户名、密码
-            int id = resultSet.getInt(&quot;id&quot;);
-            username = resultSet.getString(&quot;username&quot;);
-            password = resultSet.getString(&quot;password&quot;);
-            user = new User();
-            user.setId(id);
-            user.setUsername(username);
-            user.setPassword(password);
-        &#125;
-        return user;
-
-    &#125; catch (SQLException throwables) &#123;
-        throwables.printStackTrace();
-    &#125; finally &#123;
-        // 7.释放资源
-        JdbcUtils.close(resultSet, preparedStatement, connection);
-    &#125;
-    return null;
-&#125;
-</code></pre>
-<p>}<br>总结</p>
-<h2 id="PreparedStatement"><a href="#PreparedStatement" class="headerlink" title="PreparedStatement"></a>PreparedStatement</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
-<li>预编译sql执行对象</li>
-</ul>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
-<li><p>1）防止sql注入，提高安全性</p>
-</li>
-<li><p>2）减少编译次数，提高效率</p>
-</li>
-<li><p>3）参数与sql语句分离，提高可读性</p>
-</li>
-</ul>
-<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
-<li><p>1）注册驱动</p>
-</li>
-<li><p>2）建立连接</p>
-</li>
-<li><p>3）编写sql ?占位符代替参数</p>
-</li>
-<li><p>4）获取sql预编译执行对象 先将sql发送到数据库</p>
-</li>
-<li><p>5）设置实际参数</p>
-</li>
-<li><p>6）执行sql并返回结果</p>
-</li>
-<li><p>7）处理结果</p>
-</li>
-<li><p>8）释放资源</p>
-</li>
-</ul>
-<h3 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h3><ul>
-<li><p>重写登录案例</p>
-</li>
-<li><p>CRUD练习</p>
-</li>
-</ul>
-<h2 id="datasource"><a href="#datasource" class="headerlink" title="datasource"></a>datasource</h2><h3 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h3><ul>
-<li>在系统初始化时，创建一个连接池生成一些连接对象，用户访问数据库时，从连接池获取连接，使用完毕归还到连接池</li>
-</ul>
-<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
-<li><p>1）减轻服务器压力</p>
-</li>
-<li><p>2）提高连接复用性</p>
-</li>
-</ul>
-<h3 id="dataSource"><a href="#dataSource" class="headerlink" title="dataSource"></a>dataSource</h3><ul>
-<li>是sun公司提供连接池规范（接口），连接池厂商根据接口编写实现类</li>
-</ul>
-<p>​ - c3p0</p>
-<p>​ - hikariCP</p>
-<p>​ - Druid</p>
-<h3 id="作业-1"><a href="#作业-1" class="headerlink" title="作业"></a>作业</h3><ul>
-<li>druid快速入门</li>
-</ul>
-<p>​ - 1）导入jar包</p>
-<p>​ - 2）定义配置文件</p>
-<p>​ - 3）编写代码</p>
-<ul>
-<li>druid连接池工具类</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -5491,7 +5942,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">198</span>
+          <span class="site-state-item-count">199</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
