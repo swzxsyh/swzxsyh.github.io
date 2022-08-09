@@ -13,38 +13,15 @@ tags:
 
 跟RabbitMQ、RocketMQ等目前流行的开源消息中间件相比，Kakfa具有高吞吐、低延迟等特点，在大数据、日志收集等应用场景下被广泛使用
 
+<!-- more -->
+
 ## 作用
 
-- 解耦
-- 流量削峰
-
-## MQ模型
-
-### JMS
-
-- P2P
-
-  使用队列（Queue）作为消息通信载体：满足**生产者与消费者模式，一条消息只能被一个消费者使用，未被消费的消息在队列中保留直到被消费或超时**。
-
-  ![](./MessageQueue-Kafka/P2P.jpg)
-
-- Pub/Sub
-
-  发布订阅模型（Pub/Sub） 使用主题（Topic）作为消息通信载体，类似于广播模式,发布者发布一条消息，**该消息通过主题传递给所有的订阅者**，一条消息可以被多个消费者使用。
-
-  **在一条消息广播之后才订阅的用户则是收不到该条消息的**。在发布 - 订阅模型中，如果只有⼀个订阅者，那它和队列模型就基本是⼀样的了。所以说，**发布 - 订阅模型在功能层⾯上是可以兼容点到点（P2P）模型的**
-
-  ![](./MessageQueue-Kafka/Pub_Sub.jpg)
-
-### AMQP
-
-## MQ问题
-
-- **系统可用性降低**：系统可用性在某种程度上降低，在加入MQ之前，不用考虑消息丢失或者说MQ挂掉等等的情况，但是，引入MQ之后就需要去考虑了
-- **系统复杂性提高**：加入MQ之后，需要保证**消息没有被重复消费、处理消息丢失的情况、保证消息传递的顺序性**，消息服务器有没有宕机等问题
-- **一致性问题**：消息队列可以实现异步，异步确实可以提高系统响应速度。但是，万一消息的真正消费者并没有正确消费消息就会导致数据不一致的情况了。
-
-其实这些问题就是作为一个消息队列中间件所要面对的挑战，这个消息中间件该如何设计才能解决消息框架可能遇到的一系列问题：**故障转移恢复、数据一致性保证、数据可靠性保证**
+- 解耦：允许我们独立的扩展或修改队列两边的处理过程。
+- 流量削峰：不会因为突发的超负荷的请求而完全崩溃，消息队列能够使关键组件顶住突发的访问压力。
+- 可恢复性：即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。
+- 缓冲：有助于解决生产消息和消费消息的处理速度不一致的情况。
+- 异步通信：消息队列允许用户把消息放入队列但不立即处理它。
 
 
 
@@ -60,7 +37,7 @@ tags:
 
 高并发：支持数千个客户端同时读写
 
-## 设计目标：
+## 设计目标
 
 1.以时间复杂度O(1)的方式提供消息持久化能力（顺序写）
 
@@ -74,7 +51,7 @@ tags:
 
 ## 架构
 
-![](./MessageQueue-Kafka/construct.jpg)
+![structure](./MessageQueue-Kafka/structure.png)
 
 一个典型的 Kafka 集群中包含 Producer、broker、Consumer Group、Zookeeper 集群。
 
@@ -87,15 +64,17 @@ Producer 使用 push 模式将消息发布到 broker，Consumer 使用 pull 模�
 ### 基本概念
 
 - **Producer**：负责发布消息到kafka broker
+- **Consumer**：消息消费者，向kafka broker读取消息的客户端
+- **Consumer Group**：消费者组。每个consumer属于一个特定的consumer group（可为每个consumer指定group name，若不指定则属于默认的group）。consumer group是kafka提供的可扩展且具有容错性的消费者机制。组内可以有多个消费者或消费者实例，它们共享一个公共的group ID。组内的所有消费者协调在一起来共享订阅主题的所有分区。
+- **Broker**：kafka集群包含一个或多个服务器，这种服务器被称为broker（等同于queue），负责消息存储和转发
 - **Topic**：每条发布到kafka集群的消息都有一个类别，这个类别被称为Topic（物理上不同Topic的消息被拆分成分区分开存储，逻辑上一个Topic的消息虽然保存于一个或多个broker上，但用户只需指定消息的topic即可生产或消费数据而不必关心数据存于何处）。Kafka按照topic来分类消息。
 - **Partition**：Topic的分区，一个Topic可以包含多个Partition，Topic消息保存在各个Partition上，每个Partition包含N个副本。一个非常大的Topic可以分布到多个Broker（即服务器）上，一个topic可以分为多个partition，每个partition是一个有序的队列， partition中的每条消息都会被分配一个有序的id（offset 分区偏移量）。kafka只保证按一个partition中的顺序将消息发给consumer，不保证一个topic的整体（多个partition间）的顺序。
+- **Replica：** 副本，为实现备份的功能，保证集群中的某个节点发生故障时，该节点上的 partition 数据不丢失，且 Kafka 仍然能够继续工作，Kafka 提供了副本机制，一个 topic 的每个分区都有若干个副本，一个 leader 和若干个 follower。
 - **Leader（领导者）【针对某个分区的Leader副本】**：Leader 负责指定分区的所有读取和写入的操作。每个分区都有一个服务器充当Leader。
 - **Follower（追随者）【针对某个分区的Follower副本】**：跟随领导者指令的节点被称为Follower。如果领导失败，一个追随者将自动成为新的领导者。跟随者作为正常消费者，拉取消息并更新其自己的数据存储。**follower从不用来读取或写入数据**， 它们用于防止数据丢失。
 - **Kafka Cluster（Kafka集群）**：Kafka有多个服务器被称为Kafka集群。可以扩展Kafka集群，无需停机。这些集群用于管理消息数据的持久性和复制。
-- **Broker**：kafka集群包含一个或多个服务器，这种服务器被称为broker（等同于queue），负责消息存储和转发
 - **offset**：消息在日志中的位置，可以理解是消息在partition上的偏移量
-- **Consumer**：消息消费者，向kafka broker读取消息的客户端
-- **Consumer Group**：消费者组。每个consumer属于一个特定的consumer group（可为每个consumer指定group name，若不指定则属于默认的group）。consumer group是kafka提供的可扩展且具有容错性的消费者机制。组内可以有多个消费者或消费者实例，它们共享一个公共的group ID。组内的所有消费者协调在一起来共享订阅主题的所有分区。
+- **Zookeeper：** Kafka 集群能够正常工作，需要依赖于 zookeeper，zookeeper 帮助 Kafka 存储和管理集群信息。
 
 **`Kafka集群和Kafka服务器属于物理机器上的概念，而主题和分区属于发出去的消息的分类，一个纵向，一个横向，一个broker上可以有很多主题的分区，一个主题也可以在很多broker上放置分区，是多对多的关系`。**
 
