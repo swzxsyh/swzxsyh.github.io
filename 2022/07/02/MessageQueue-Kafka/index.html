@@ -47,6 +47,10 @@
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/follower_fetch.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/follower_fetch_2.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/follower_fetch_3.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/stickPicture.png">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/HW_update.jpg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/write.jpg">
+<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/HW_leader_down.jpg">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/copy.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/Kafka_Cluster.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/Sender_pic.png">
@@ -55,11 +59,6 @@
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/ack.jpg">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/ack_sync.jpg">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/ack_repeat.jpg">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/stickPicture.png">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/HW_commit.jpg">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/HW_update.jpg">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/write.jpg">
-<meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/HW_leader_down.jpg">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/consumer.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/distribute.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/distribute2.png">
@@ -70,7 +69,7 @@
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/group.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/diff.png">
 <meta property="article:published_time" content="2022-07-02T09:02:54.000Z">
-<meta property="article:modified_time" content="2022-08-11T21:00:49.390Z">
+<meta property="article:modified_time" content="2022-08-12T20:31:29.313Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/02/MessageQueue-Kafka/structure.png">
@@ -258,7 +257,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-12 05:00:49" itemprop="dateModified" datetime="2022-08-12T05:00:49+08:00">2022-08-12</time>
+                <time title="修改时间：2022-08-13 04:31:29" itemprop="dateModified" datetime="2022-08-13T04:31:29+08:00">2022-08-13</time>
               </span>
 
           
@@ -430,6 +429,14 @@
 <li><strong>消费者将收到消息进行处理,一旦消息被处理</strong>，消费者将向Kafka代理发送确认。消费者需要实时的记录自己消费到了哪个offset，便于后续发生故障恢复后继续消费。Kafka 0.9版本之前，consumer默认将offset保存在Zookeeper中，从0.9版本开始，consumer默认将offset保存在Kafka一个内置的topic中 一旦Kafka收到确认，它将offset更改为新值，并在Zookeeper中更新它。</li>
 </ol>
 <p>以上流程将重复，直到消费者停止请求。消费者可以随时回退&#x2F;跳到所需的主题偏移量，并阅读所有后续消息</p>
+<h4 id="响应式模型"><a href="#响应式模型" class="headerlink" title="响应式模型"></a>响应式模型</h4><p>Kafka 采用的是一种 响应式(Reactor)模型，Reactor 模式是事件驱动架构的一种实现方式，特别适合应用于处理多个客户端并发向服务器端发送请求的场景</p>
+<p>Kafka 的 broker 端有个 SocketServer 组件，类似于处理器，SocketServer 是基于 TCP 的 Socket 连接的，它用于接受客户端请求，所有的请求消息都包含一个消息头，消息头中都包含如下信息</p>
+<ul>
+<li>Request type （也就是 API Key）</li>
+<li>Request version（broker 可以处理不同版本的客户端请求，并根据客户版本做出不同的响应）</li>
+<li>Correlation ID — 一个具有唯一性的数字，用于标示请求消息，同时也会出现在响应消息和错误日志中（用于诊断问题）</li>
+<li>Client ID — 用于标示发送请求的客户端</li>
+</ul>
 <h2 id="存储机制"><a href="#存储机制" class="headerlink" title="存储机制"></a>存储机制</h2><p><img src="/2022/07/02/MessageQueue-Kafka/Kafka_Storage.png"></p>
 <p>虽然我们已经把Topic物理上划分为多个Partion用来<strong>负载均衡</strong>，但即使是对一个Partition 而言，如果消息量过大的话也会有堵塞的风险，所以我们需要定期清理消息。</p>
 <p>清理消息时如果只有一个Partion，那么就得全盘清除，这将对消息文件的维护以及已消费的消息的清理带来严重的影响。<strong>所以我们需要在物理上进一步细分Partition</strong></p>
@@ -467,9 +474,11 @@
 <p>避免GC问题：Java中的内存垃圾回收会随着堆内数据不断增长而变得越来越不明确，回收所花费的代价也会越来越大。</p>
 <p>简单可靠：OS会调用所有的空闲内存作为PageCache，并在其上做了大量的优化：预读，后写，flush管理等，这些都不用应用层操心，而是由OS自动完成。</p>
 <h2 id="Kafka-副本同步"><a href="#Kafka-副本同步" class="headerlink" title="Kafka 副本同步"></a>Kafka 副本同步</h2><p>Kafka中主题的每个Partition有一个预写式日志文件，每个Partition都由一系列有序的、不可变的消息组成，这些消息被连续的追加到Partition中，Partition中的每个消息都有一个连续的序列号叫做offset，确定它在分区日志中唯一的位置。</p>
+<p><strong>Base Offset</strong>：是起始位移，该副本中第一条消息的offset，如下图，这里的起始位移是1，如果一个日志文件写满1G后（默认1G后会log rolling），这个起始位移就不是1开始了。</p>
 <p><strong>Last Commit Offset :</strong> 消费者最新提交的offset</p>
-<p><strong>High Watermark</strong>：已经成功备份到其他 replicas 中的最新一条数据的 offset。也就是说 Log End Offset 与 High Watermark 之间的数据已经写入到该 partition 的 leader 中，但是还未成功备份到其他的 replicas 中。</p>
-<p><strong>Log End Offset</strong>：Producer 写入到 Kafka 中的最新一条数据的 offset， LEO 其实就是最新的 offset+ 1 。</p>
+<p>**High Watermark(HW)**：已经成功备份到其他 replicas 中的最新一条数据的 offset。也就是说 Log End Offset 与 High Watermark 之间的数据已经写入到该 partition 的 leader 中，但是还未成功备份到其他的 replicas 中，通过它可以得知副本中已提交或已备份消息的范围，leader副本中的HW，决定了消费者能消费的最新消息能到哪个offset。如下图所示，HW值为9，代表offset为[1,9]的9条消息都可以被消费到，它们是对消费者可见的，而[10,11]这2条消息由于未提交，对消费者是不可见的。</p>
+<p>注意HW最多达到LEO值时，这时可见范围不会包含HW值对应的那条消息了，如下图如果HW也是11，则消费的消息范围就是[0,10]。</p>
+<p><strong>Log End Offset(LEO)<strong>：Producer 写入到 Kafka 中的最新一条数据的 offset， LEO 其实就是最新的 offset+ 1 。</strong>这个offset上实际是没有消息的。不管是leader副本还是follower副本，都有这个值。当leader副本收到生产者的一条消息，LEO通常会自增1</strong>，而follower副本需要从leader副本fetch到数据后，才会增加它的LEO，最后<strong>leader副本会比较自己的LEO以及满足条件的follower副本上的LEO，选取两者中较小值作为新的HW，来更新自己的HW值</strong>。</p>
 <p><img src="/2022/07/02/MessageQueue-Kafka/prelog.png" alt="image"></p>
 <p>初始状态下，leader 和 follower 的 HW 和 LEO 都是 0。同时 leader 副本会缓存其他follower的 LEO（后续称为remote LEO），也会被初始化为 0。</p>
 <p>这个时候，producer 没有发送消息。follower 会不断地向 leader 发送 fetch 请求拉取数据，但是因为没有数据，这个请求会被 leader 寄存，当在指定的时间之后会强 制 完 成 请 求 ， 这 个 时 间 配 置 是 (replica.fetch.wait.max.ms)，如果在指定时间内 producer有消息发送过来，那么 kafka 会唤醒 fetch 请求，让 leader继续处理。</p>
@@ -527,6 +536,129 @@
 </li>
 </ol>
 <p>具体来说是这样的一种情况，首先很多时候是leader 成功写入消息就完成对于producer的成功写入响应的，在这种情形下当完成第一轮写入，成功返回后follower 挂掉了，然后HW未更新，当重启时会做日志截断，所以实际上HW值是比leader小的，然后正要同步消息的时候，leader挂了，然后刚才重启的follower成为了leader，之前的leader 重启后就会更新HW值为最小值，所以就导致了刚才那条消息的丢失。通常就是这种轮着宕机轮着重启情况下才会出现的问题，虽然极端，但还是有这个风险。</p>
+<h3 id="ISR机制"><a href="#ISR机制" class="headerlink" title="ISR机制"></a>ISR机制</h3><p>​    <img src="/2022/07/02/MessageQueue-Kafka/stickPicture.png" alt="在这里插入图片描述"></p>
+<p>K<strong>afka 动态维护了一个同步状态的副本的集合（a set of In-Sync Replicas），简称ISR</strong></p>
+<h4 id="ISR选举策略"><a href="#ISR选举策略" class="headerlink" title="ISR选举策略"></a>ISR选举策略</h4><p>replica.lag.time.max.ms 的值，这个参数的含义就是跟随者副本能够落后领导者副本最长的时间间隔。<br>replica.lag.time.max.ms 参数默认的时间是 10 秒，如果跟随者副本落后领导者副本的时间不超过 10 秒，那么 Kafka 就认为领导者和跟随者是同步的。即使此时跟随者副本中存储的消息要小于领导者副本。如果跟随者副本要落后于领导者副本 10 秒以上的话，跟随者副本就会从 ISR 被剔除。倘若该副本后面慢慢地追上了领导者的进度，那么它是能够重新被加回 ISR 的。这也表明，ISR 是一个<strong>动态调整</strong>的集合，而非静态不变的。</p>
+<h5 id="Exactly-Once"><a href="#Exactly-Once" class="headerlink" title="Exactly Once"></a>Exactly Once</h5><p>在一个分布式发布订阅消息系统中，组成系统的计算机总会由于各自的故障而不能工作。在Kafka中，一个单独的broker，可能会在生产者发送消息到一个topic的时候宕机，或者出现网络故障，从而导致生产者发送消息失败。根据生产者如何处理这样的失败，产生了不同的语义：</p>
+<ol>
+<li>至少一次语义（At least once semantics）：如果生产者收到了Kafka broker的确认（acknowledgement，ack），并且生产者的acks配置项设置为all（或-1），这就意味着消息已经被精确一次写入Kafka topic了。然而，如果生产者接收ack超时或者收到了错误，它就会认为消息没有写入Kafka topic而尝试重新发送消息。如果broker恰好在消息已经成功写入Kafka topic后，发送ack前，出了故障，生产者的重试机制就会导致这条消息被写入Kafka两次，从而导致同样的消息会被消费者消费不止一次。每个人都喜欢一个兴高采烈的给予者，但是这种方式会导致重复的工作和错误的结果。</li>
+<li>至多一次语义（At most once semantics）：如果生产者在ack超时或者返回错误的时候不重试发送消息，那么消息有可能最终并没有写入Kafka topic中，因此也就不会被消费者消费到。但是为了避免重复处理的可能性，我们接受有些消息可能被遗漏处理。</li>
+<li>精确一次语义（Exactly once semantics）： 即使生产者重试发送消息，也只会让消息被发送给消费者一次。精确一次语义是最令人满意的保证，但也是最难理解的。因为它需要消息系统本身和生产消息的应用程序还有消费消息的应用程序一起合作。比如，在成功消费一条消息后，你又把消费的offset重置到之前的某个offset位置，那么你将收到从那个offset到最新的offset之间的所有消息。这解释了为什么消息系统和客户端程序必须合作来保证精确一次语义。</li>
+</ol>
+<h5 id="Kafka的exactly-once语义"><a href="#Kafka的exactly-once语义" class="headerlink" title="Kafka的exactly-once语义"></a>Kafka的exactly-once语义</h5><p>对于一些非常重要的信息，消费者要求数据既不重复也不丢失，即 <strong>Exactly Once 语义</strong>。其实以上讨论的三种策略可以如此归类语义：</p>
+<ol>
+<li>将服务器 ACK 级别设置为 0，可以保证生产者每条消息只会被发送一次，即 At Most Once 语义，极容易丢失数据。</li>
+<li>将服务器 ACK 级别设置为 1，可以理解为碰运气语义，正常情况下，leader不宕机且刚好宕机前将数据同步给了副本的话不会丢失数据，其它情况就会造成数据的丢失。</li>
+<li>将服务器的 ACK 级别设置为-1，可以保证 Producer 到 Server 之间不会丢失数据，即 At Least Once 语义，At Least Once <strong>可以保证数据不丢失，但是不能保证数据不重复</strong></li>
+</ol>
+<p>顾名思义，我们一定是需要在不丢数据的基础上去去重，在 0.11 版本以前的 Kafka，对此是无能为力的，只能保证数据不丢失，再在下游消费者对数据做全局去重。对于多个下游应用的情况，每个都需要单独做全局去重，这就对性能造成了很大影响。</p>
+<h6 id="幂等性"><a href="#幂等性" class="headerlink" title="幂等性"></a>幂等性</h6><p>幂等操作(Partion Exactly Once)，是指可以执行多次，而不会产生与仅执行一次不同结果的操作，Producer的send操作现在是幂等的。在任何导致producer重试的情况下，相同的消息，如果被producer发送多次，也只会被写入Kafka一次。要打开此功能，并让所有partition获得exactly-once delivery、无数据丢失和in-order语义，需要修改broker的配置：<strong>enable.idempotence &#x3D; true</strong>。</p>
+<p>Kafka的幂等性实现其实就是将原来下游需要做的去重放在了数据上游。开启幂等性的 Producer 在初始化的时候会被分配一个 PID，发往同一 Partition 的消息会附带 Sequence Number，该序列号用于重复数据的删除。而Broker 端会对&lt;PID, Partition, SeqNumber&gt;做缓存，当具有相同主键的消息提交时，Broker 只会持久化一条。<strong>序列号将被持久化存储topic中，因此即使leader replica失败，接管的任何其他broker也将能感知到消息是否重复。但是 PID 重启就会变化，同时不同的 Partition 也具有不同主键，所以幂等性无法保证跨分区跨会话的 Exactly Once。</strong></p>
+<p>这种机制的开销相当低：它只是在每批消息中添加了几个额外字段:</p>
+<ul>
+<li>PID，在Producer初始化时分配，作为每个Producer会话的唯一标识；</li>
+<li>序列号（sequence number），Producer发送的每条消息（更准确地说是每一个消息批次，即ProducerBatch）都会带有此序列号，从0开始单调递增。Broker根据它来判断写入的消息是否可接受。</li>
+</ul>
+<h6 id="生产者事务"><a href="#生产者事务" class="headerlink" title="生产者事务"></a>生产者事务</h6><p>为了实现跨分区跨会话的事务以及防止PID重启造成的数据重复，需要引入一个Topic全局唯一的 Transaction ID，并<strong>将 Producer获得的PID和Transaction ID绑定</strong>。这样当Producer重启后就可以通过正在进行的TransactionID 获得原来的 PID。为了管理 Transaction，Kafka 引入了一个新的组件 Transaction Coordinator。Producer 就是通过和 Transaction Coordinator 交互获得 Transaction ID 对应的任务状态TransactionCoordinator 还负责将事务所有写入 Kafka 的一个内部 Topic，这样<strong>即使整个服务重启，由于事务状态得到保存，进行中的事务状态可以得到恢复，从而继续进行(Topic Exactly Once)。</strong></p>
+<h4 id="Leader-Election算法"><a href="#Leader-Election算法" class="headerlink" title="Leader Election算法"></a>Leader Election算法</h4><p>Leader选举本质上是一个分布式锁，有两种方式实现基于ZooKeeper的分布式锁：</p>
+<ul>
+<li>节点名称唯一性：多个客户端创建一个节点，只有成功创建节点的客户端才能获得锁</li>
+<li>临时顺序节点：所有客户端在某个目录下创建自己的临时顺序节点，只有序号最小的才获得锁</li>
+</ul>
+<p>一种非常常用的选举leader的方式是“Majority Vote”（“少数服从多数”），但Kafka并未采用这种方式。在生产环境下为了保证较高的容错程度，必须要有大量的Replica，而大量的Replica又会在大数据量下导致性能的急剧下降。这就是这种算法更多用在ZooKeeper这种共享集群配置的系统中而很少在需要存储大量数据的系统中使用的原因。</p>
+<p>Kafka在ZooKeeper中动态维护了一个ISR（in-sync replicas），这个ISR里的所有Replica都跟上了leader，<strong>只有ISR里的成员才有被选为Leader的可能</strong>。在这种模式下，对于f+1个Replica，一个Partition能在保证不丢失已经commit的消息的前提下容忍f个Replica的失败。在大多数使用场景中，这种模式是非常有利的。事实上，为了容忍f个Replica的失败，Majority Vote和ISR在commit前需要等待的Replica数量是一样的，但是ISR需要的总的Replica的个数几乎是Majority Vote的一半。</p>
+<p>虽然Majority Vote与ISR相比有不需等待最慢的Broker这一优势，但是Kafka作者认为Kafka可以通过Producer选择是否被commit阻塞来改善这一问题，并且节省下来的Replica和磁盘使得ISR模式仍然值得。</p>
+<h5 id="如何处理所有Replica都不工作"><a href="#如何处理所有Replica都不工作" class="headerlink" title="如何处理所有Replica都不工作"></a>如何处理所有Replica都不工作</h5><p>当 ISR 中至少有一个 follower 时（ISR 包括 leader），Kafka 可以确保已经 commit 的消息不丢失，但如果某一个 partition 的所有 replica 都挂了，自然就无法保证数据不丢失了。这种情况下如何进行 leader 选举呢？通常有两种方案：</p>
+<ul>
+<li>等待 ISR 中任意一个 replica 恢复过来，并且选它作为 leader <strong>【高可靠性】</strong>，如果一定要等待 ISR 中的 replica 恢复过来，不可用的时间就可能会相对较长。而且如果 ISR 中所有的 replica 都无法恢复了，或者数据丢失了，这个 partition 将永远不可用。</li>
+<li>选择第一个恢复过来的 replica（并不一定是在 ISR 中）作为leader <strong>【高可用性】</strong>，选择第一个恢复过来的 replica 作为 leader，如果这个 replica 不是 ISR 中的 replica，那么，它可能并不具备所有已经 commit 的消息，从而造成消息丢失。</li>
+</ul>
+<p>默认情况下，Kafka 采用第二种策略，即 unclean.leader.election.enable&#x3D;true，也可以将此参数设置为 false 来启用第一种策略</p>
+<h5 id="Unclean-领导者选举（Unclean-Leader-Election）"><a href="#Unclean-领导者选举（Unclean-Leader-Election）" class="headerlink" title="Unclean 领导者选举（Unclean Leader Election）"></a>Unclean 领导者选举（Unclean Leader Election）</h5><p>既然 ISR 是可以动态调整的，那么自然就可以出现这样的情形：ISR 为空。因为 Leader 副本天然就在 ISR 中，如果 ISR 为空了，就说明 Leader 副本也“挂掉”了，Kafka 需要重新选举一个新的 Leader。可是 ISR 是空，此时该怎么选举新 Leader 呢？</p>
+<p><strong>Kafka 把所有不在 ISR 中的存活副本都称为非同步副本。</strong>通常来说，非同步副本落后 Leader 太多，因此，如果选择这些副本作为新 Leader，就可能出现数据的丢失。毕竟，这些副本中保存的消息远远落后于老 Leader 中的消息。在 Kafka 中，选举这种副本的过程称为 Unclean 领导者选举。<strong>Broker 端参数 unclean.leader.election.enable 控制是否允许 Unclean 领导者选举。</strong></p>
+<p>开启 Unclean 领导者选举可能会造成数据丢失，但好处是，它使得分区 Leader 副本一直存在，不至于停止对外提供服务，因此提升了高可用性。反之，禁止 Unclean 领导者选举的好处在于维护了数据的一致性，避免了消息丢失，但牺牲了高可用性。</p>
+<p>如果你听说过 CAP 理论的话，你一定知道，一个分布式系统通常只能同时满足一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）中的两个。显然，在这个问题上，Kafka 赋予你选择 C 或 A 的权利。</p>
+<p>你可以根据你的实际业务场景决定是否开启 Unclean 领导者选举。不过，我强烈建议你<strong>不要</strong>开启它，毕竟我们还可以通过其他的方式来提升高可用性。如果为了这点儿高可用性的改善，牺牲了数据一致性，那就非常不值当了。</p>
+<h5 id="副本异常"><a href="#副本异常" class="headerlink" title="副本异常"></a>副本异常</h5><ul>
+<li><p><strong>慢副本</strong>：在一定周期时间内follower不能追赶上leader。最常见的原因之一是I &#x2F; O瓶颈导致follower追加复制消息速度慢于从leader拉取速度。</p>
+</li>
+<li><p><strong>卡住副本</strong>：在一定周期时间内follower停止从leader拉取请求。follower replica卡住了是由于GC暂停或follower失效或死亡。</p>
+</li>
+<li><p><strong>新启动副本</strong>：当用户给主题增加副本因子时，新的follower不在同步副本列表中，直到他们完全赶上了leader日志。</p>
+</li>
+</ul>
+<h5 id="副本恢复到ISR"><a href="#副本恢复到ISR" class="headerlink" title="副本恢复到ISR"></a>副本恢复到ISR</h5><p>1、leader挂掉了，从它的follower中选举一个作为leader，并把挂掉的leader从ISR中移除，继续处理数据。一段时间后该leader重新启动了，它知道它之前的数据到哪里了，尝试获取它挂掉后leader处理的数据，获取完成后它就加入了ISR。</p>
+<p>2、等待ISR中任一Replica恢复,并选它为Leader</p>
+<ul>
+<li>等待时间较长,降低可用性</li>
+<li>或ISR中的所有Replica都无法恢复或者数据丢失,则该Partition将永不可用</li>
+</ul>
+<p>3、选择第一个恢复的Replica为新的Leader,无论它是否在ISR中（即：<strong>Unclean 领导者选举</strong>）</p>
+<ul>
+<li>并未包含所有已被之前Leader Commit过的消息,因此会造成数据丢失</li>
+<li>可用性较高</li>
+</ul>
+<h5 id="选举Leader"><a href="#选举Leader" class="headerlink" title="选举Leader"></a>选举Leader</h5><p>最简单最直观的方案是，所有Follower都在ZooKeeper上设置一个Watch，一旦Leader宕机，其对应的ephemeral znode会自动删除，此时所有Follower都尝试创建该节点，而创建成功者（ZooKeeper保证只有一个能创建成功）即是新的Leader，其它Replica即为Follower。</p>
+<p>但是该方法会有3个问题：</p>
+<p>1.split-brain 这是由ZooKeeper的特性引起的，虽然ZooKeeper能保证所有Watch按顺序触发，但并不能保证同一时刻所有Replica“看”到的状态是一样的，这就可能造成不同Replica的响应不一致</p>
+<p>2.herd effect 如果宕机的那个Broker上的Partition比较多，会造成多个Watch被触发，造成集群内大量的调整</p>
+<p>3.ZooKeeper负载过重 每个Replica都要为此在ZooKeeper上注册一个Watch，当集群规模增加到几千个Partition时ZooKeeper负载会过重。</p>
+<p>Kafka 0.8.*的Leader Election方案解决了上述问题，它在所有broker中选出一个controller，所有Partition的Leader选举都由controller决定。controller会将Leader的改变直接通过RPC的方式（比ZooKeeper Queue的方式更高效）通知需为为此作为响应的Broker。同时controller也负责增删Topic以及Replica的重新分配。</p>
+<h5 id="Controller"><a href="#Controller" class="headerlink" title="Controller"></a>Controller</h5><p>控制器组件（Controller），它是 Kafka 的核心组件。它的主要作用是在 ZooKeeper 的帮助下管理和协调整个 Kafka 集群。</p>
+<p>Kafka集群中的其中一个Broker会被选举为Controller，主要负责Partition管理和副本状态管理，也会执行类似于重分配partition之类的管理任务。在符合某些特定条件下，Controller下的LeaderSelector会选举新的leader，ISR和新的leader_epoch及controller_epoch写入Zookeeper的相关节点中。同时发起LeaderAndIsrRequest通知所有的replicas。</p>
+<h6 id="控制器的选举"><a href="#控制器的选举" class="headerlink" title="控制器的选举"></a>控制器的选举</h6><p>Kafka 当前选举控制器的规则是：Kafka 集群中第一个启动的 broker 通过在 ZooKeeper 里创建一个临时节点 &#x2F;controller 让自己成为 controller 控制器。其他 broker 在启动时也会尝试创建这个节点，但是由于这个节点已存在，所以后面想要创建 &#x2F;controller 节点时就会收到一个 节点已存在 的异常。然后其他 broker 会在这个控制器上注册一个 ZooKeeper 的 watch 对象，&#x2F;controller节点发生变化时，其他 broker 就会收到节点变更通知。这种方式可以确保只有一个控制器存在。那么只有单独的节点一定是有个问题的，那就是单点问题。</p>
+<p>如果控制器关闭或者与 ZooKeeper 断开链接，ZooKeeper 上的临时节点就会消失。集群中的其他节点收到 watch 对象发送控制器下线的消息后，其他 broker 节点都会尝试让自己去成为新的控制器。其他节点的创建规则和第一个节点的创建原则一致，都是第一个在 ZooKeeper 里成功创建控制器节点的 broker 会成为新的控制器，那么其他节点就会收到节点已存在的异常，然后在新的控制器节点上再次创建 watch 对象进行监听。</p>
+<h6 id="控制器的作用"><a href="#控制器的作用" class="headerlink" title="控制器的作用"></a>控制器的作用</h6><p>Kafka 被设计为一种模拟状态机的多线程控制器，它可以作用有下面这几点</p>
+<ul>
+<li>控制器相当于部门（集群）中的部门经理（broker controller），用于管理部门中的部门成员（broker）</li>
+<li>控制器是所有 broker 的一个监视器，用于监控 broker 的上线和下线</li>
+<li>在 broker 宕机后，控制器能够选举新的分区 Leader</li>
+<li>控制器能够和 broker 新选取的 Leader 发送消息</li>
+</ul>
+<p>当控制器发现一个 broker 离开集群（通过观察相关 ZooKeeper 路径），控制器会收到消息：这个 broker 所管理的那些分区需要一个新的 Leader。控制器会依次遍历每个分区，确定谁能够作为新的 Leader，然后向所有包含新 Leader 或现有 Follower 的分区发送消息，该请求消息包含谁是新的 Leader 以及谁是 Follower 的信息。随后，新的 Leader 开始处理来自生产者和消费者的请求，Follower 用于从新的 Leader 那里进行复制。</p>
+<h6 id="broker-controller-数据存储"><a href="#broker-controller-数据存储" class="headerlink" title="broker controller 数据存储"></a>broker controller 数据存储</h6><p>可以对上面保存信息归类，主要分为三类<br>broker 上的所有信息，包括 broker 中的所有分区，broker 所有分区副本，当前都有哪些运行中的 broker，哪些正在关闭中的 broker 。<br>所有主题信息，包括具体的分区信息，比如领导者副本是谁，ISR 集合中有哪些副本等。<br>所有涉及运维任务的分区。包括当前正在进行 Preferred 领导者选举以及分区重分配的分区列表</p>
+<h4 id="故障转移机制"><a href="#故障转移机制" class="headerlink" title="故障转移机制"></a>故障转移机制</h4><ul>
+<li>使用<strong>故障转移机制</strong>【HW&amp;LEO概念、故障同步机制、Leader选举】来<strong>保证消息的数据一致性</strong>，防止意外宕机丢数据导致不一致【高可用】</li>
+</ul>
+<p>故障发生的时候，我们如何将集群恢复正常</p>
+<ul>
+<li>Leader和副本之间LEO及HW的更新时机如下</li>
+</ul>
+<p><img src="/2022/07/02/MessageQueue-Kafka/HW_update.jpg"></p>
+<ul>
+<li><strong>remote LEO是保存在leader副本上的follower副本的LEO</strong>，可以看出leader副本上保存所有副本的LEO，当然也包括自己的。remote LEO是保存在leader副本上的follower副本的LEO，可以看出leader副本上保存所有副本的LEO，当然也包括自己的。</li>
+<li><strong>follower LEO就是follower副本的LEO</strong>，它的更新是在follower副本得到leader副本发送的数据并随后写入到log文件，就会更新自己的LEO</li>
+</ul>
+<h5 id="标准写入流程"><a href="#标准写入流程" class="headerlink" title="标准写入流程"></a>标准写入流程</h5><p>在了解故障转移机制前，我们先来看看标准的写入流程是什么样的，这样在故障的时候我们可以看到故障发生在哪些节点影响标准写入流程，以及故障转移机制如何处理使其恢复正常：</p>
+<p><img src="/2022/07/02/MessageQueue-Kafka/write.jpg"></p>
+<ol>
+<li>producer发送消息4、5给leader【之前提到过只有leader可以读写数据】，leader收到后更新自己的LEO为5</li>
+<li>fetch尝试更新remote LEO，因为此时leader的HW为3，且follower1和follower2的最小LEO也是3，所以remote LEO为3</li>
+<li>leader判读ISR中哪些副本还和自己保持同步，剔除不能保持同步的follower，得出follower1和follower2都可以</li>
+<li>leader计算自己的HW，取所有分区LEO的最小值为HW为3</li>
+<li>leader将消息4、5以及自己的HW发往follower1和follower2，follower1和follower2开始向自己的log写日志并更新消息4、5，但是follower1更新的快些，leo为5，而follower2更新的慢些，leo为4</li>
+<li>fetch再次更新remote LEO，取所有follower中的最小LEO为4，然后更新Leader的HW为4</li>
+<li>leader将自己的HW发往follower1和follower2，直到follower2同步完了更新自己的LEO为5，remote LEO为5，leaderHW为5，更新follower2中的HW为5则同步结束</li>
+</ol>
+<p>实质上，<code>Leader的HW是所有LEO最短的offset，并且是消费者需要认定的offset，Follower的HW则是Leader的HW和自身LEO取最小值，也就是长度不能超过消费者认定的offset</code>Kafka 的复制机制既不是完全的同步复制，也不是单纯的异步复制。</p>
+<ul>
+<li>同步复制要求所有能工作的 follower 都复制完，这条消息才会被 commit，这种复制方式受限于复制最慢的 follower，会极大的影响吞吐率。<strong>也就是 request.required.acks &#x3D; -1策略</strong></li>
+<li>异步复制方式下，follower 异步的从 leader 复制数据，数据只要被 leader 写入 log 就被认为已经 commit，这种情况下如果 follower 都还没有复制完，落后于 leader 时，突然 leader 宕机，则会丢失数据，降低可靠性，<strong>也就是 request.required.acks &#x3D; 1策略</strong></li>
+</ul>
+<p>而 Kafka 使用<code>request.required.acks = -1 + ISR</code> 的策略则在可靠性和吞吐率方面取得了较好的平衡，同步复制并干掉复制慢的副本，只同步ISR中的Follwer，</p>
+<h5 id="机器宕机故障"><a href="#机器宕机故障" class="headerlink" title="机器宕机故障"></a>机器宕机故障</h5><p>当不同的机器宕机故障时来看看ISR如何处理集群以及消息，分为 follower 故障和leader故障：</p>
+<ul>
+<li>follower故障，follower 发生故障后会被临时踢出 ISR，待该 follower 恢复后，follower 会读取本地磁盘记录的上次的 follower HW，并将 log 文件高于follower HW 的【follower HW一定小于leader HW】部分截取掉，令副本的LEO与故障时的follower HW一致，然后follower LEO 开始从 leader 同步。等该 follower 的 LEO 大于等于该 Partition 的 的 HW【也就是leader的HW】，即 follower 追上 leader 之后，就可以重新加入 ISR 了。你可能会问为什么不从follower的LEO之后开始截呢？试想一下，如果follower故障离场后，leader也故障离场，一个LEO比故障follower的ISR follower当选为新leader，那么故障follower回归后会比新leader多消息，这显然造成了数据不一致。</li>
+<li>leader 故障，leader 发生故障之后，会从 ISR 中选出一个新的 leader之后，为保证多个副本之间的数据一致性，其余的 follower 会先将各自的 log 文件高于HW【也就是leader的HW】的部分截掉，然后从新的 leader同步数据。如果新leader的LEO就是HW，则直接接收新的消息即可，如果是其它某个Follower的LEO是HW，则从新Leader同步Leader的LEO-HW之间的消息给所有副本</li>
+</ul>
+<p>总而言之，要以所有副本都同步好的<strong>最新的HW为准（这样可以保证follower的消息永远是小于等于leader的）</strong>。但这只是处理方法，并不能保证数据不重复或者不丢失，我们来看一种数据重复的案例：<strong>Leader宕机</strong>：考虑这样一种场景：acks&#x3D;-1，部分 ISR 副本完成同步，此时leader挂掉，如下图所示：</p>
+<p><img src="/2022/07/02/MessageQueue-Kafka/HW_leader_down.jpg"></p>
+<ol>
+<li>follower1 同步了消息 4、5，follower2 同步了消息 4，HW为4。</li>
+<li>leader宕机，由于还未收到follower2 同步完成的消息，所以没有给生产者发送ACK，与此同时 follower1 被选举为 leader，follower2从follower1开始同步数据。当然如果follower2被选为leader，那么follower就需要截断自己的消息5。</li>
+<li>producer未收到ACK，于是重新发送，发送了给了新的leader(老的follower1)，但因为follower1其实已经同步了4、5，所以此时来的消息就是重复消息。</li>
+</ol>
+<p>这样就出现了<strong>数据重复</strong>的现象，<code>所以HW&amp;LEO机制只能保证副本之间保持同步，并不能保证数据不重复或不丢失，要想都保证，需要结合ACK机制使用</code></p>
 <h2 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h2><p>Kafka两个重要过程都使用了零拷贝技术，且都是操作系统层面的狭义零拷贝，一是Producer生产的数据存到broker，二是 Consumer从broker读取数据。消息数据直接从 page cache 发送到网络 通常的文件读取需要经历如图的流程，有两次用户态与内核态之间内存的拷贝。</p>
 <p>kafka使用零拷贝，避免消息在内核态和用户态间的来回拷贝。Producer生产的数据持久化到broker，采用mmap文件映射，实现顺序的快速写入；</p>
 <p>Customer从broker读取数据，采用sendfile，将磁盘文件读到OS内核缓冲区后，直接转到socket buffer进行网络发送。</p>
@@ -634,7 +766,16 @@
 </ul>
 <p><img src="/2022/07/02/MessageQueue-Kafka/ack_repeat.jpg"></p>
 <p>当 request.required.acks &#x3D; -1时需要注意，如果要提高数据的可靠性，在设置 request.required.acks&#x3D;-1 的同时，还需参数 <code>min.insync.replicas</code> 配合，如此才能发挥最大的功效。min.insync.replicas 这个参数用于设定 ISR 中的最小副本数，默认值为1，<strong>当且仅当 request.required.acks 参数设置为-1时，此参数才生效。当 ISR 中的副本数少于 min.insync.replicas 配置的数量时，客户端会返回异常</strong>：<code>org.apache.kafka.common.errors.NotEnoughReplicasExceptoin: Messages are rejected since there are fewer in-sync replicas than required</code>。通过将参数 min.insync.replicas 设置为 2，当 ISR 中实际副本数为 1 时（只有leader），将无法保证可靠性，<strong>因为如果发送ack后leader宕机，那么此时该条消息就会被丢失</strong>，所以应该拒绝客户端的写请求以防止消息丢失。在-1策略下有三个问题单独讨论一下：</p>
-<h5 id="副本数据同步策略"><a href="#副本数据同步策略" class="headerlink" title="副本数据同步策略"></a>副本数据同步策略</h5><p>当 request.required.acks&#x3D;-1时需要ISR中的全部副本都同步完成，才返回ACK，但是其实在最终确定这个方案之前还有一些别的方案，讨论核心是那么到底多少foller副本同步完成，才发送ack?</p>
+<h5 id="ACK前需要保证有多少个副本数据"><a href="#ACK前需要保证有多少个副本数据" class="headerlink" title="ACK前需要保证有多少个副本数据"></a>ACK前需要保证有多少个副本数据</h5><p>对于Kafka而言，定义一个Broker是否“活着”包含两个条件：</p>
+<ul>
+<li>一是它必须维护与ZooKeeper的session（这个通过ZooKeeper的Heartbeat机制来实现）。</li>
+<li>二是Follower必须能够及时将Leader的消息复制过来，不能“落后太多”。</li>
+</ul>
+<p>Leader会跟踪与其保持同步的Replica列表，该列表称为<strong>ISR</strong>（即in-sync Replica）</p>
+<p>当 request.required.acks&#x3D;-1时需要ISR中的全部副本都同步完成，才返回ACK，但Kafka的复制机制既不是完全的同步复制，也不是单纯的异步复制。</p>
+<p>事实上，完全同步复制要求所有能工作的Follower都复制完，这条消息才会被认为commit，这种复制方式极大的影响了吞吐率（高吞吐率是Kafka非常重要的一个特性）。</p>
+<p>而异步复制方式下，Follower异步的从Leader复制数据，数据只要被Leader写入log就被认为已经commit，这种情况下如果Follower都复制完都落后于Leader，而如果Leader突然宕机，则会丢失数据。</p>
+<p>而Kafka的这种使用ISR的方式则很好的均衡了确保数据不丢失以及吞吐率。Follower可以批量的从Leader复制数据，这样极大的提高复制性能（批量写磁盘），极大减少了Follower与Leader的差距。</p>
 <table>
 <thead>
 <tr>
@@ -654,74 +795,8 @@
 <td><strong>延迟高</strong></td>
 </tr>
 </tbody></table>
-<p>现有的两种方案我们选择了第二种，第一种占用的机器资源过多，造成了大量的数据冗余，而网络延迟对于Kafka的影响并不大。</p>
-<h5 id="ISR机制"><a href="#ISR机制" class="headerlink" title="ISR机制"></a>ISR机制</h5><p>​    <img src="/2022/07/02/MessageQueue-Kafka/stickPicture.png" alt="在这里插入图片描述"></p>
-<p>K<strong>afka 动态维护了一个同步状态的副本的集合（a set of In-Sync Replicas），简称ISR</strong></p>
-<h5 id="ISR选举策略"><a href="#ISR选举策略" class="headerlink" title="ISR选举策略"></a>ISR选举策略</h5><p>replica.lag.time.max.ms 的值，这个参数的含义就是跟随者副本能够落后领导者副本最长的时间间隔。<br>replica.lag.time.max.ms 参数默认的时间是 10 秒，如果跟随者副本落后领导者副本的时间不超过 10 秒，那么 Kafka 就认为领导者和跟随者是同步的。即使此时跟随者副本中存储的消息要小于领导者副本。如果跟随者副本要落后于领导者副本 10 秒以上的话，跟随者副本就会从 ISR 被剔除。倘若该副本后面慢慢地追上了领导者的进度，那么它是能够重新被加回 ISR 的。这也表明，ISR 是一个<strong>动态调整</strong>的集合，而非静态不变的。</p>
-<h5 id="Exactly-Once语义"><a href="#Exactly-Once语义" class="headerlink" title="Exactly Once语义"></a>Exactly Once语义</h5><p>对于一些非常重要的信息，消费者要求数据既不重复也不丢失，即 <strong>Exactly Once 语义</strong>。其实以上讨论的三种策略可以如此归类语义：</p>
-<ol>
-<li>将服务器 ACK 级别设置为 0，可以保证生产者每条消息只会被发送一次，即 At Most Once 语义，极容易丢失数据。</li>
-<li>将服务器 ACK 级别设置为 1，可以理解为碰运气语义，正常情况下，leader不宕机且刚好宕机前将数据同步给了副本的话不会丢失数据，其它情况就会造成数据的丢失。</li>
-<li>将服务器的 ACK 级别设置为-1，可以保证 Producer 到 Server 之间不会丢失数据，即 At Least Once 语义，At Least Once <strong>可以保证数据不丢失，但是不能保证数据不重复</strong></li>
-</ol>
-<p>顾名思义，我们一定是需要在不丢数据的基础上去去重，在 0.11 版本以前的 Kafka，对此是无能为力的，只能保证数据不丢失，再在下游消费者对数据做全局去重。对于多个下游应用的情况，每个都需要单独做全局去重，这就对性能造成了很大影响。</p>
-<h6 id="幂等性【partion-Exactly-Once】"><a href="#幂等性【partion-Exactly-Once】" class="headerlink" title="幂等性【partion Exactly Once】"></a>幂等性【partion Exactly Once】</h6><p>0.11 版本的 Kafka，引入了一项重大特性：幂等性。所谓的幂等性就是指 Producer 不论向 Server 发送多少次重复数据，Server 端都只会持久化一条。幂等性结合 At Least Once 语义，就构成了 Kafka 的 Exactly Once 语义。即：<code>At Least Once + 幂等性 = Exactly Once</code></p>
-<p>要启用幂等性，只需要将 Producer 的参数中 enable.idompotence 设置为 true 即可。Kafka的幂等性实现其实就是将原来下游需要做的去重放在了数据上游。开启幂等性的 Producer 在初始化的时候会被分配一个 PID，发往同一 Partition 的消息会附带 Sequence Number。而Broker 端会对&lt;PID, Partition, SeqNumber&gt;做缓存，当具有相同主键的消息提交时，Broker 只会持久化一条。<strong>但是 PID 重启就会变化，同时不同的 Partition 也具有不同主键，所以幂等性无法保证跨分区跨会话的 Exactly Once。</strong></p>
-<h6 id="生产者事务【topic-Exactly-Once】"><a href="#生产者事务【topic-Exactly-Once】" class="headerlink" title="生产者事务【topic Exactly Once】"></a>生产者事务【topic Exactly Once】</h6><p>为了实现跨分区跨会话的事务以及防止PID重启造成的数据重复，需要引入一个Topic全局唯一的 Transaction ID，并<strong>将 Producer获得的PID和Transaction ID绑定</strong>。这样当Producer重启后就可以通过正在进行的TransactionID 获得原来的 PID。为了管理 Transaction，Kafka 引入了一个新的组件 Transaction Coordinator。Producer 就是通过和 Transaction Coordinator 交互获得 Transaction ID 对应的任务状态TransactionCoordinator 还负责将事务所有写入 Kafka 的一个内部 Topic，这样即使整个服务重启，由于事务状态得到保存，进行中的事务状态可以得到恢复，从而继续进行。</p>
-<h4 id="故障转移机制"><a href="#故障转移机制" class="headerlink" title="故障转移机制"></a>故障转移机制</h4><ul>
-<li>使用<strong>故障转移机制</strong>【HW&amp;LEO概念、故障同步机制、Leader选举】来<strong>保证消息的数据一致性</strong>，防止意外宕机丢数据导致不一致【高可用】</li>
-</ul>
-<p>在数据可靠性保障策略中我们了解到如何通过分区和副本，以及动态的ISR和ACK机制来确保消息的可靠，那么接下来深入探讨下，<strong>故障发生的时候，我们如何将集群恢复正常</strong>？首先需要明确两个概念：LEO和HW：</p>
-<ul>
-<li><strong>Base Offset</strong>：是起始位移，该副本中第一条消息的offset，如下图，这里的起始位移是0，如果一个日志文件写满1G后（默认1G后会log rolling），这个起始位移就不是0开始了。</li>
-<li><strong>HW（high watermark）</strong>：副本的高水印值，<strong>replica中leader副本和follower副本都会有这个值，通过它可以得知副本中已提交或已备份消息的范围，leader副本中的HW，决定了消费者能消费的最新消息能到哪个offset</strong>。如下图所示，HW值为8，代表offset为[0,8]的9条消息都可以被消费到，它们是对消费者可见的，而[9,12]这4条消息由于未提交，对消费者是不可见的。注意HW最多达到LEO值时，这时可见范围不会包含HW值对应的那条消息了，如下图如果HW也是13，则消费的消息范围就是[0,12]。</li>
-<li><strong>LEO（log end offset）</strong>：日志末端位移，代表日志文件中下一条待写入消息的offset，<strong>这个offset上实际是没有消息的。不管是leader副本还是follower副本，都有这个值。当leader副本收到生产者的一条消息，LEO通常会自增1</strong>，而follower副本需要从leader副本fetch到数据后，才会增加它的LEO，最后<strong>leader副本会比较自己的LEO以及满足条件的follower副本上的LEO，选取两者中较小值作为新的HW，来更新自己的HW值</strong>。</li>
-</ul>
-<p><img src="/2022/07/02/MessageQueue-Kafka/HW_commit.jpg"></p>
-<p>而leader和副本之间LEO及HW的更新时机如下：</p>
-<p><img src="/2022/07/02/MessageQueue-Kafka/HW_update.jpg"></p>
-<ul>
-<li><strong>remote LEO是保存在leader副本上的follower副本的LEO</strong>，可以看出leader副本上保存所有副本的LEO，当然也包括自己的。remote LEO是保存在leader副本上的follower副本的LEO，可以看出leader副本上保存所有副本的LEO，当然也包括自己的。</li>
-<li><strong>follower LEO就是follower副本的LEO</strong>，它的更新是在follower副本得到leader副本发送的数据并随后写入到log文件，就会更新自己的LEO</li>
-</ul>
-<h5 id="标准写入流程"><a href="#标准写入流程" class="headerlink" title="标准写入流程"></a>标准写入流程</h5><p>在了解故障转移机制前，我们先来看看标准的写入流程是什么样的，这样在故障的时候我们可以看到故障发生在哪些节点影响标准写入流程，以及故障转移机制如何处理使其恢复正常：</p>
-<p><img src="/2022/07/02/MessageQueue-Kafka/write.jpg"></p>
-<ol>
-<li>producer发送消息4、5给leader【之前提到过只有leader可以读写数据】，leader收到后更新自己的LEO为5</li>
-<li>fetch尝试更新remote LEO，因为此时leader的HW为3，且follower1和follower2的最小LEO也是3，所以remote LEO为3</li>
-<li>leader判读ISR中哪些副本还和自己保持同步，剔除不能保持同步的follower，得出follower1和follower2都可以</li>
-<li>leader计算自己的HW，取所有分区LEO的最小值为HW为3</li>
-<li>leader将消息4、5以及自己的HW发往follower1和follower2，follower1和follower2开始向自己的log写日志并更新消息4、5，但是follower1更新的快些，leo为5，而follower2更新的慢些，leo为4</li>
-<li>fetch再次更新remote LEO，取所有follower中的最小LEO为4，然后更新Leader的HW为4</li>
-<li>leader将自己的HW发往follower1和follower2，直到follower2同步完了更新自己的LEO为5，remote LEO为5，leaderHW为5，更新follower2中的HW为5则同步结束</li>
-</ol>
-<p>实质上，<code>Leader的HW是所有LEO最短的offset，并且是消费者需要认定的offset，Follower的HW则是Leader的HW和自身LEO取最小值，也就是长度不能超过消费者认定的offset</code>Kafka 的复制机制既不是完全的同步复制，也不是单纯的异步复制。</p>
-<ul>
-<li>同步复制要求所有能工作的 follower 都复制完，这条消息才会被 commit，这种复制方式受限于复制最慢的 follower，会极大的影响吞吐率。<strong>也就是 request.required.acks &#x3D; -1策略</strong></li>
-<li>异步复制方式下，follower 异步的从 leader 复制数据，数据只要被 leader 写入 log 就被认为已经 commit，这种情况下如果 follower 都还没有复制完，落后于 leader 时，突然 leader 宕机，则会丢失数据，降低可靠性，<strong>也就是 request.required.acks &#x3D; 1策略</strong></li>
-</ul>
-<p>而 Kafka 使用<code>request.required.acks = -1 + ISR</code> 的策略则在可靠性和吞吐率方面取得了较好的平衡，同步复制并干掉复制慢的副本，只同步ISR中的Follwer，</p>
-<p>故障转移机制</p>
-<p>当不同的机器宕机故障时来看看ISR如何处理集群以及消息，分为 follower 故障和leader故障：</p>
-<ul>
-<li>follower故障，follower 发生故障后会被临时踢出 ISR，待该 follower 恢复后，follower 会读取本地磁盘记录的上次的 follower HW，并将 log 文件高于follower HW 的【follower HW一定小于leader HW】部分截取掉，令副本的LEO与故障时的follower HW一致，然后follower LEO 开始从 leader 同步。等该 follower 的 LEO 大于等于该 Partition 的 的 HW【也就是leader的HW】，即 follower 追上 leader 之后，就可以重新加入 ISR 了。你可能会问为什么不从follower的LEO之后开始截呢？试想一下，如果follower故障离场后，leader也故障离场，一个LEO比故障follower的ISR follower当选为新leader，那么故障follower回归后会比新leader多消息，这显然造成了数据不一致。</li>
-<li>leader 故障，leader 发生故障之后，会从 ISR 中选出一个新的 leader之后，为保证多个副本之间的数据一致性，其余的 follower 会先将各自的 log 文件高于HW【也就是leader的HW】的部分截掉，然后从新的 leader同步数据。如果新leader的LEO就是HW，则直接接收新的消息即可，如果是其它某个Follower的LEO是HW，则从新Leader同步Leader的LEO-HW之间的消息给所有副本</li>
-</ul>
-<p>总而言之，要以所有副本都同步好的<strong>最新的HW为准（这样可以保证follower的消息永远是小于等于leader的）</strong>。但这只是处理方法，并不能保证数据不重复或者不丢失，我们来看一种数据重复的案例：<strong>Leader宕机</strong>：考虑这样一种场景：acks&#x3D;-1，部分 ISR 副本完成同步，此时leader挂掉，如下图所示：</p>
-<p><img src="/2022/07/02/MessageQueue-Kafka/HW_leader_down.jpg"></p>
-<ol>
-<li>follower1 同步了消息 4、5，follower2 同步了消息 4，HW为4。</li>
-<li>leader宕机，由于还未收到follower2 同步完成的消息，所以没有给生产者发送ACK，与此同时 follower1 被选举为 leader，follower2从follower1开始同步数据。当然如果follower2被选为leader，那么follower就需要截断自己的消息5。</li>
-<li>producer未收到ACK，于是重新发送，发送了给了新的leader(老的follower1)，但因为follower1其实已经同步了4、5，所以此时来的消息就是重复消息。</li>
-</ol>
-<p>这样就出现了<strong>数据重复</strong>的现象，<code>所以HW&amp;LEO机制只能保证副本之间保持同步，并不能保证数据不重复或不丢失，要想都保证，需要结合ACK机制食用</code></p>
-<h5 id="Leader选举"><a href="#Leader选举" class="headerlink" title="Leader选举"></a>Leader选举</h5><p>在可能发生的故障中，当Leader挂了的时候我们需要选举新的leader，遵循如下策略：Kafka 在 ZooKeeper 中为每一个 partition 动态的维护了一个 ISR，这个 ISR 里的所有 replica 都与 leader 保持同步，<strong>只有 ISR 里的成员才能有被选为 leader 的可能</strong>。</p>
-<p>当然也有 <strong>极端情况</strong>：当 ISR 中至少有一个 follower 时（ISR 包括 leader），Kafka 可以确保已经 commit 的消息不丢失，但如果某一个 partition 的所有 replica 都挂了，自然就无法保证数据不丢失了。这种情况下如何进行 leader 选举呢？通常有两种方案：</p>
-<ul>
-<li>等待 ISR 中任意一个 replica 恢复过来，并且选它作为 leader <strong>【高可靠性】</strong>，如果一定要等待 ISR 中的 replica 恢复过来，不可用的时间就可能会相对较长。而且如果 ISR 中所有的 replica 都无法恢复了，或者数据丢失了，这个 partition 将永远不可用。</li>
-<li>选择第一个恢复过来的 replica（并不一定是在 ISR 中）作为leader <strong>【高可用性】</strong>，选择第一个恢复过来的 replica 作为 leader，如果这个 replica 不是 ISR 中的 replica，那么，它可能并不具备所有已经 commit 的消息，从而造成消息丢失。</li>
-</ul>
-<p>默认情况下，Kafka 采用第二种策略，即 unclean.leader.election.enable&#x3D;true，也可以将此参数设置为 false 来启用第一种策略</p>
+<p>Kafka选择了<strong>ISR的全同步策略</strong>，第一种占用的机器资源过多，造成了大量的数据冗余，而网络延迟对于Kafka的影响并不大。</p>
+<p>需要说明的是，Kafka只解决fail&#x2F;recover，不处理“Byzantine”（“拜占庭”）问题。一条消息只有被ISR里的所有Follower都从Leader复制过去才会被认为已提交。这样就避免了部分数据被写进了Leader，还没来得及被任何Follower复制就宕机了，而造成数据丢失（Consumer无法消费这些数据）。而对于Producer而言，它可以选择是否等待消息commit，这可以通过request.required.acks来设置。这种机制确保了只要ISR有一个或以上的Follower，一条被commit的消息就不会丢失。</p>
 <h2 id="Consumer消费者"><a href="#Consumer消费者" class="headerlink" title="Consumer消费者"></a>Consumer消费者</h2><p>任何Consumer必须属于一个Consumer Group</p>
 <p>Consumer Group组内多个的Consumer可以公用一个Consumer Id，组内所有的Consumer只能注册到一个分区上去消费，如图，Consumer Group 1的三个Consumer实例分别消费不同的partition的消息，即，TopicA-part0、TopicA-part1、TopicA-part2。一个Consumer Group只能到一个Topic上去消费。</p>
 <p>partition内消息是有序的，Consumer通过pull方式消费消息。</p>
@@ -731,17 +806,8 @@
 <p>Kafka 有有三种分配策略：<strong>RoundRobin， Range，Sticky</strong>，默认为Range，当消费者组内消费者发生变化时，会触发分区分配策略（方法重新分配）。</p>
 <ul>
 <li>目前我们还不能自定义分区分配策略，只能通过partition.assignment.strategy参数选择 range 或 roundrobin。<strong>partition.assignment.strategy参数默认的值是range</strong>。</li>
-<li><strong>同一个组内同一分区只能被一个消费者消费，可以理解，如果一个组内多个消费者消费同一个分区，那么该消费者组如何保证单分区消息的顺序性呢？</strong></li>
+<li><strong>同一个组内同一分区只能被一个消费者消费，可以理解，如果一个组内多个消费者消费同一个分区，那么该消费者组如何保证单分区消息的顺序性呢</strong></li>
 </ul>
-<p>无论是哪种策略，<code>当消费者组里的消费者个数的变化【增多或减少】或者订阅主题分区的增加都会触发重新分配</code>,这种将分区的所有权从<strong>一个消费者移到另一个消费者称为</strong>重新平衡（rebalance）</p>
-<h4 id="什么情况下会发生消费者的重新负载均衡呢？"><a href="#什么情况下会发生消费者的重新负载均衡呢？" class="headerlink" title="什么情况下会发生消费者的重新负载均衡呢？"></a>什么情况下会发生消费者的重新负载均衡呢？</h4><ol>
-<li><p>当consumer group 新增消费者</p>
-</li>
-<li><p>consumer group有消费者退出时，比如主机停机</p>
-</li>
-<li><p>topic新增分区时，分区的数量发生变化时；</p>
-</li>
-</ol>
 <h4 id="RoudRobin策略"><a href="#RoudRobin策略" class="headerlink" title="RoudRobin策略"></a>RoudRobin策略</h4><p>Round Robin 轮询方式将分区所有作为一个整体进行 <strong>Hash 排序</strong>，消费者组内分配分区个数最大差别为 1，是按照组来分的，可以解决多个消费者消费数据不均衡的问题。</p>
 <p>但是，当消费者组内订阅不同主题时，可能造成消费混乱，如图2所示，Consumer0 订阅主题 A，Consumer1 订阅主题 B,将 A、B 主题的分区排序后分配给消费者组，TopicB 分区中的数据可能分配到 Consumer0 中。</p>
 <p><img src="/2022/07/02/MessageQueue-Kafka/distribute.png"></p>
@@ -826,15 +892,100 @@
 </tr>
 </tbody></table>
 <p>虽然触发了再分配，但是记忆了上一次C0和C1的分配结果。这样的好处是发生分区重分配后，<strong>对于同一个分区而言有可能之前的消费者和新指派的消费者不是同一个，对于之前消费者进行到一半的处理还要在新指派的消费者中再次处理一遍，这时就会浪费系统资源</strong>。而使用Sticky策略就可以让分配策略具备一定的“粘性”，尽可能地让前后两次分配相同，进而可以减少系统资源的损耗以及其它异常情况的发生</p>
-<h3 id="Consumer-再均衡"><a href="#Consumer-再均衡" class="headerlink" title="Consumer 再均衡"></a><strong>Consumer</strong> 再均衡</h3><p>在再均衡发生的时候，消费者无法读取消息，会造成整个消费者组有一小段时间的不可用；当分区被重新分配给另一个消费者时，消费者当前的读取状态会丢失，它有可能需要去刷新缓存，在它重新恢复状态之前会拖慢应用。因此也要尽量避免不必要的再均衡。</p>
-<h4 id="消费者组判断一个消费者是否可用"><a href="#消费者组判断一个消费者是否可用" class="headerlink" title="消费者组判断一个消费者是否可用"></a>消费者组判断一个消费者是否可用</h4><p> 消费者通过向被指派为群组协调器的Broker发送信息来维持它们和群组的从属关系以及它们对分区的所有权关系。只要消费者以正常的时间间隔发送心跳，就被认为是活跃的，说明它还在读取分区里的消息。消费者会在轮询消息或提交偏移量时发送心跳。如果消费者停止发送心跳的时间足够长，会话就会过期，群组协调器认为它已经死亡，就会触发一次再均衡 。</p>
+<h3 id="Consumer-再均衡"><a href="#Consumer-再均衡" class="headerlink" title="Consumer 再均衡"></a><strong>Consumer</strong> 再均衡</h3><p>Rebalance本质上是一种协议，规定了一个Consumer Group下的所有Consumer如何达成一致来分配订阅topic的每个分区。</p>
+<p>Kafka 设计了一套消费者组状态机(State Machine) ，来帮助协调者完成整个重平衡流程。消费者状态机主要有五种状态它们分别是 <strong>Empty、Dead、PreparingRebalance、CompletingRebalance 和 Stable</strong>。</p>
+<table>
+  <tr>
+    <th colspan="2">消费者的5种状态</th>
+  </tr>
+  <tr>
+    <th>状态</th>
+    <th>含义</th>
+  </tr>
+  <tr>
+    <th>Empty</th>
+    <th>组内没有任何成员，但消费者组可能存在已提交的位移数据，而且这些位移尚末过期</th>
+  </tr>
+  <tr>
+    <th>Dead</th>
+    <th>同样是组内没有任何成员，但组的元数据信息已经在协调者端被移除。协调者组件保存着当前向它注册过的所有组信息，所谓的元数据信息就类似于这个注册信息</th>
+  </tr>
+  <tr>
+    <th>PreparingRebalance</th>
+    <th>消费者组准备开启重平衡，此时所有成员都要重新请求加入消费者组</th>
+  </tr>
+  <tr>
+    <th>CompletingRebalance</th>
+    <th>消费者组下所有成员已经加入，各个成员正在等待分配方案。该状态在老一点的版本中被称为AwaitingSync, 它和CompletingRebalance是等价的</th>
+  </tr>
+  <tr>
+    <th>Stable</th>
+    <th>消费者组的稳定状态。该状态表明重平衡已经完成，组内各成员能够正常消费数据了</th>
+  </tr>
+</table>
+
+
+
+<h4 id="Coordinator负责Rebalance及管理Consumer-Group"><a href="#Coordinator负责Rebalance及管理Consumer-Group" class="headerlink" title="Coordinator负责Rebalance及管理Consumer Group"></a>Coordinator负责Rebalance及管理Consumer Group</h4><p>Coordinator一般指的是运行在broker上的group Coordinator，用于管理Consumer Group中各个成员，每个KafkaServer都有一个GroupCoordinator实例，管理多个消费者组，主要用于offset位移管理和Consumer Rebalance。</p>
+<h5 id="Coordinator存储的信息"><a href="#Coordinator存储的信息" class="headerlink" title="Coordinator存储的信息"></a>Coordinator存储的信息</h5><p>对于每个Consumer Group，Coordinator会存储以下信息：</p>
+<ol>
+<li>对每个存在的topic，可以有多个消费组group订阅同一个topic(对应消息系统中的广播)</li>
+<li>对每个Consumer Group，元数据如下：<br>订阅的topics列表<br>Consumer Group配置信息，包括session timeout等<br>组中每个Consumer的元数据。包括主机名，consumer id<br>每个正在消费的topic partition的当前offsets<br>Partition的ownership元数据，包括consumer消费的partitions映射关系</li>
+</ol>
+<ul>
+<li><p>如何确定consumer group的coordinator</p>
+<p>consumer group如何确定自己的coordinator是谁呢？ 简单来说分为两步：</p>
+<blockquote>
+<ol>
+<li><p>确定consumer group位移信息写入__consumers_offsets这个topic的哪个分区。具体计算公式：</p>
+<p>__consumers_offsets partition# &#x3D; Math.abs(groupId.hashCode() % groupMetadataTopicPartitionCount) 注意：groupMetadataTopicPartitionCount由offsets.topic.num.partitions指定，默认是50个分区。</p>
+</li>
+<li><p>该分区leader所在的broker就是被选定的coordinator</p>
+</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h4 id="什么情况下会发生消费者的重新负载均衡呢？"><a href="#什么情况下会发生消费者的重新负载均衡呢？" class="headerlink" title="什么情况下会发生消费者的重新负载均衡呢？"></a>什么情况下会发生消费者的重新负载均衡呢？</h4><ol>
+<li><p>同一个consumer group内新增了消费者</p>
+</li>
+<li><p>消费者离开当前所属的consumer group，比如主动停机或者宕机</p>
+</li>
+<li><p>topic新增了分区（也就是分区数量发生了变化）</p>
+</li>
+</ol>
+<p>kafka consuemr的rebalance机制规定了一个consumer group下的所有consumer如何达成一致来分 配订阅topic的每个分区。而具体如何执行分区策略，就是前面提到过的三种内置的分区策略。而kafka 对于分配策略这块，提供了可插拔的实现方式， 我们还可以创建自己的分配机制。 </p>
+<p>无论是哪种策略，<code>当消费者组里的消费者个数的变化【增多或减少】或者订阅主题分区的增加都会触发重新分配</code>,这种将分区的所有权从<strong>一个消费者移到另一个消费者称为</strong>重新平衡（rebalance）</p>
+<p>在再均衡发生的时候，消费者无法读取消息，会造成整个消费者组有一小段时间的不可用；当分区被重新分配给另一个消费者时，消费者当前的读取状态会丢失，它有可能需要去刷新缓存，在它重新恢复状态之前会拖慢应用。因此也要尽量避免不必要的再均衡。</p>
+<h5 id="Rebalance-JoinGroup"><a href="#Rebalance-JoinGroup" class="headerlink" title="Rebalance - JoinGroup"></a>Rebalance - JoinGroup</h5><p> join: 表示加入到consumer group中，在这一步中，所有的成员都会向coordinator发送joinGroup的请 求。一旦所有成员都发送了joinGroup请求，那么coordinator会选择一个consumer担任leader角色， 并把组成员信息和订阅信息发送消费者。</p>
+<p>   leader选举算法比较简单，如果消费组内没有leader，那么第一个加入消费组的消费者就是消费者 leader，如果这个时候leader消费者退出了消费组，那么重新选举一个leader，这个选举很随意，类似于随机算法。</p>
+<p>每个消费者都可以设置自己的分区分配策略，对于消费组而言，会从各个消费者上报过来的分区分配策 略中选举一个彼此都赞同的策略来实现整体的分区分配，这个”赞同”的规则是，消费组内的各个消费者 会通过投票来决定</p>
+<ol>
+<li>在joingroup阶段，每个consumer都会把自己支持的分区分配策略发送到coordinator</li>
+<li>coordinator收集到所有消费者的分配策略，组成一个候选集</li>
+<li>每个消费者需要从候选集里找出一个自己支持的策略，并且为这个策略投票</li>
+<li>最终计算候选集中各个策略的选票数，票数最多的就是当前消费组的分配策略</li>
+</ol>
+<h5 id="Synchronizing-Group-State阶段"><a href="#Synchronizing-Group-State阶段" class="headerlink" title="Synchronizing Group State阶段"></a>Synchronizing Group State阶段</h5><p>完成分区分配之后，就进入了Synchronizing Group State阶段，主要逻辑是向GroupCoordinator发送 SyncGroupRequest请求，并且处理SyncGroupResponse响应，简单来说，就是leader将消费者对应的partition分配方案同步给consumer group 中的所有consumer</p>
+<p>每个消费者都会向coordinator发送syncgroup请求，不过只有leader节点会发送分配方案，其他消费者只是打打酱油而已。当leader把方案发给coordinator以后，coordinator会把结果设置到 SyncGroupResponse中。这样所有成员都知道自己应该消费哪个分区。</p>
+<p>consumer group的分区分配方案是在客户端执行的！Kafka将这个权利下放给客户端主要是因为这 样做可以有更好的灵活性</p>
+<h4 id="消费者组判断一个消费者是否可用"><a href="#消费者组判断一个消费者是否可用" class="headerlink" title="消费者组判断一个消费者是否可用"></a>消费者组判断一个消费者是否可用</h4><p>消费者通过向被指派为群组协调器的Broker发送信息来维持它们和群组的从属关系以及它们对分区的所有权关系。只要消费者以正常的时间间隔发送心跳，就被认为是活跃的，说明它还在读取分区里的消息。消费者会在轮询消息或提交偏移量时发送心跳。如果消费者停止发送心跳的时间足够长，会话就会过期，群组协调器认为它已经死亡，就会触发一次再均衡 。</p>
 <ol>
 <li><p>可以<strong>session.timeout.ms</strong>指定会话过期时间，<strong>heartbeat.interval.ms</strong>指定心跳时间，防止因为未能及时发送心跳，导致Consumer 超时被踢出消费者组。一般可以把 超时时间设置为 心跳间隔的 3倍。</p>
 </li>
 <li><p>如果Consumer端如果无法在规定时间内消费完 poll 来的消息，那么就认为该消费者有问题，从而该消费者会自主离组，所以我们可以设置 <strong>max.poll.interval.ms</strong>比处理时间略长。</p>
 </li>
 </ol>
-<h4 id="Offset的维护"><a href="#Offset的维护" class="headerlink" title="Offset的维护"></a>Offset的维护</h4><p>Consumer默认将Offset保存在Kafka一个内置的topic中，该topic为<code>__consumer_offsets</code> </p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>consumer group rebalance的过程</p>
+<p>1）对于每个consumer group子集，都会在服务端对应一个GroupCoordinator进行管理， GroupCoordinator会在zookeeper上添加watcher，当消费者加入或者退出consumer group时，会修 改zookeeper上保存的数据，从而触发GroupCoordinator开始Rebalance操作 。</p>
+<p>2）当消费者准备加入某个Consumer group或者GroupCoordinator发生故障转移时，消费者并不知道 GroupCoordinator的在网络中的位置，这个时候就需要确定GroupCoordinator，消费者会向集群中的 任意一个Broker节点发送ConsumerMetadataRequest请求，收到请求的broker会返回一个response 作为响应，其中包含管理当前ConsumerGroup的GroupCoordinator。</p>
+<p>3）消费者会根据broker的返回信息，连接到groupCoordinator，并且发送HeartbeatRequest，发送心 跳的目的是要要奥噶苏GroupCoordinator这个消费者是正常在线的。当消费者在指定时间内没有发送 心跳请求，则GroupCoordinator会触发Rebalance操作。 </p>
+<p><strong>发起join group请求，两种情况 ：</strong></p>
+<blockquote>
+<p>  1、如果GroupCoordinator返回的心跳包数据包含异常，说明GroupCoordinator因为前面说的几种 情况导致了Rebalance操作，那这个时候，consumer会发起join group请求 。</p>
+<p>  2、新加入到consumer group的consumer确定好了GroupCoordinator以后 消费者会向GroupCoordinator发起join group请求，GroupCoordinator会收集全部消费者信息之后，来确认可用的消费者，并从中选取一个消费者成为group_leader。并把相应的信息（分区分 配策略、leader_id、…）封装成response返回给所有消费者，但是只有group leader会收到当前 consumer group中的所有消费者信息。当消费者确定自己是group leader以后，会根据消费者的 信息以及选定分区分配策略进行分区分配 。</p>
+</blockquote>
+<h3 id="Offset的维护"><a href="#Offset的维护" class="headerlink" title="Offset的维护"></a>Offset的维护</h3><p>Consumer默认将Offset保存在Kafka一个内置的topic中，该topic为<code>__consumer_offsets</code> </p>
 <p>同一个组里的，当动态扩展分区分配时新进入的消费者接着消费分区消息而不是重新消费。offset是按照：goup+topic+partion来划分的，这样保证组内机器有问题时能接着消费</p>
 <p>当触发<strong>再均衡（rebalance）</strong>后，每个消费者可能会分配到新的分区，为了能够在在均衡之后继续之前的工作，因此消费者在消费的过程中需要记录自己消费了多少数据，即消费位置信息。再均衡后消费者需要读取每个partition最后一次提交的偏移量，然后从偏移量指定的地方继续处理。</p>
 <p>如果提交的偏移量小于客户端处理的最后一个消息的偏移量，那么处于两个偏移量之间的消息就会被重复处理。</p>
@@ -952,6 +1103,10 @@
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/9088322.html">zookeeper 负载均衡 核心机制-实现原理 包含ZAB协议(滴滴，阿里面试) - aspirant - 博客园 (cnblogs.com)</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/rickiyang/p/14591131.html">Kafka 分区机制产生的消息推送和消费逻辑 - rickiyang - 博客园 (cnblogs.com)</a></li>
 <li><a target="_blank" rel="noopener" href="https://codeantenna.com/a/WXu5VTl7gW">Kafka学习— 消费者分区分配策略与再均衡Rebalance - CodeAntenna</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/luxiaoxun/p/13048474.html">Kafka的Exactly-once语义与事务机制 - 阿凡卢 - 博客园 (cnblogs.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/qingyunzong/p/9004703.html">Kafka学习之路 （三）Kafka的高可用 - 扎心了，老铁 - 博客园 (cnblogs.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://codeantenna.com/a/WXu5VTl7gW">Kafka学习— 消费者分区分配策略与再均衡Rebalance - CodeAntenna</a></li>
+<li><a target="_blank" rel="noopener" href="https://xie.infoq.cn/article/bfa6b22cbe88d7f0e835725bb">一文带你了解 Kafka 原理_kafka_cxuan_InfoQ写作社区</a></li>
 </ul>
 
     </div>
@@ -1033,7 +1188,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka"><span class="nav-number">1.</span> <span class="nav-text">Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka%E7%89%B9%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">Kafka特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="nav-number">1.4.</span> <span class="nav-text">设计目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.5.</span> <span class="nav-text">架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%84%E4%BB%B6"><span class="nav-number">1.5.1.</span> <span class="nav-text">基本组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%9C%AF%E8%AF%AD"><span class="nav-number">1.5.2.</span> <span class="nav-text">基本术语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E7%96%91%E6%83%91%E7%82%B9"><span class="nav-number">1.5.3.</span> <span class="nav-text">个人疑惑点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Partition-Replicas-Broker%E5%85%B3%E8%81%94"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">Partition,Replicas,Broker关联</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Producer%E4%B8%8EPartition%E5%85%B3%E8%81%94"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">Producer与Partition关联</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Partition%E4%B8%8EConsumer%E5%85%B3%E7%B3%BB"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">Partition与Consumer关系</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E5%BC%80%E9%94%80"><span class="nav-number">1.5.3.3.1.</span> <span class="nav-text">分区开销</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%88%86%E5%8C%BA%E6%95%B0%E9%87%8F%E5%91%A2"><span class="nav-number">1.5.3.3.1.1.</span> <span class="nav-text">如何确定分区数量呢</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%881%E4%B8%AApartition%E5%8F%AA%E8%83%BD%E8%A2%AB%E5%90%8C%E7%BB%84%E7%9A%84%E4%B8%80%E4%B8%AAconsumer%E6%B6%88%E8%B4%B9"><span class="nav-number">1.5.3.4.</span> <span class="nav-text">为什么1个partition只能被同组的一个consumer消费</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%88%86%E5%8C%BA"><span class="nav-number">1.5.4.</span> <span class="nav-text">为什么要分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follower%E5%89%AF%E6%9C%AC%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%AF%B9%E5%A4%96%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.5.5.</span> <span class="nav-text">Follower副本为什么不对外提供服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.6.</span> <span class="nav-text">工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%86%99%E5%85%A5%E8%BF%87%E7%A8%8B"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">消息写入过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%B6%88%E6%81%AF%E7%9A%84%E7%94%9F%E4%BA%A7%E4%BC%A0%E9%80%92%E5%92%8C%E6%B6%88%E8%B4%B9%E7%9A%84%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.6.0.2.</span> <span class="nav-text">整体消息的生产传递和消费的的流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%9C%BA%E5%88%B6"><span class="nav-number">1.7.</span> <span class="nav-text">存储机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker%E6%8E%A5%E6%94%B6%E5%88%B0%E6%B6%88%E6%81%AF%E5%90%8E%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%AD%98%E5%82%A8"><span class="nav-number">1.7.1.</span> <span class="nav-text">Broker接收到消息后如何进行存储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">整体存储结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Broker-%E5%86%99%E5%85%A5%E7%A3%81%E7%9B%98%E5%8E%9F%E7%90%86-%E2%80%93-Partition-amp-Segment"><span class="nav-number">1.7.1.2.</span> <span class="nav-text">Broker 写入磁盘原理 – Partition&amp;Segment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Log-Segment%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.7.1.3.</span> <span class="nav-text">Log Segment存储结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E5%86%99%E5%85%A5"><span class="nav-number">1.7.1.4.</span> <span class="nav-text">顺序写入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B5%E7%BC%93%E5%AD%98-Page-Cache"><span class="nav-number">1.7.1.5.</span> <span class="nav-text">页缓存 Page Cache</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-%E5%89%AF%E6%9C%AC%E5%90%8C%E6%AD%A5"><span class="nav-number">1.8.</span> <span class="nav-text">Kafka 副本同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#leader-%E5%89%AF%E6%9C%AC%E6%94%B6%E5%88%B0%E8%AF%B7%E6%B1%82%E4%BB%A5%E5%90%8E"><span class="nav-number">1.8.1.</span> <span class="nav-text">leader 副本收到请求以后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#follower-%E5%8F%91%E9%80%81-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.2.</span> <span class="nav-text">follower 发送 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#follower-%E5%8F%91%E7%AC%AC%E4%BA%8C%E6%AC%A1-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.3.</span> <span class="nav-text">follower 发第二次 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follower-%E5%8F%91%E7%AC%AC%E4%B8%89%E6%AC%A1-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.4.</span> <span class="nav-text">Follower 发第三次 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LEO%E3%80%81HW%E6%9B%B4%E6%96%B0%E5%85%B3%E9%94%AE%E7%82%B9"><span class="nav-number">1.8.5.</span> <span class="nav-text">LEO、HW更新关键点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.9.</span> <span class="nav-text">零拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Producer"><span class="nav-number">1.10.</span> <span class="nav-text">Producer</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%B5%81%E7%A8%8B"><span class="nav-number">1.10.1.</span> <span class="nav-text">Producer消息发送流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Record-Accumulator%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">1.10.1.1.</span> <span class="nav-text">Record Accumulator缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sender"><span class="nav-number">1.10.1.2.</span> <span class="nav-text">Sender</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E9%AB%98%E5%90%9E%E5%90%90%E3%80%81%E4%BD%8E%E5%BB%B6%E6%97%B6%EF%BC%9F"><span class="nav-number">1.10.1.3.</span> <span class="nav-text">如何做到高吞吐、低延时？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.</span> <span class="nav-text">生产者策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.1.</span> <span class="nav-text">分区策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.10.2.1.1.</span> <span class="nav-text">分区的原因</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%9A%84%E5%8E%9F%E5%88%99"><span class="nav-number">1.10.2.1.2.</span> <span class="nav-text">分区的原则</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ACK%E5%BA%94%E7%AD%94%E6%9C%BA%E5%88%B6"><span class="nav-number">1.10.2.2.</span> <span class="nav-text">ACK应答机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.2.1.</span> <span class="nav-text">副本数据同步策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ISR%E6%9C%BA%E5%88%B6"><span class="nav-number">1.10.2.2.2.</span> <span class="nav-text">ISR机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ISR%E9%80%89%E4%B8%BE%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.2.3.</span> <span class="nav-text">ISR选举策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Exactly-Once%E8%AF%AD%E4%B9%89"><span class="nav-number">1.10.2.2.4.</span> <span class="nav-text">Exactly Once语义</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B9%82%E7%AD%89%E6%80%A7%E3%80%90partion-Exactly-Once%E3%80%91"><span class="nav-number">1.10.2.2.4.1.</span> <span class="nav-text">幂等性【partion Exactly Once】</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E4%BA%8B%E5%8A%A1%E3%80%90topic-Exactly-Once%E3%80%91"><span class="nav-number">1.10.2.2.4.2.</span> <span class="nav-text">生产者事务【topic Exactly Once】</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E6%9C%BA%E5%88%B6"><span class="nav-number">1.10.2.3.</span> <span class="nav-text">故障转移机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B"><span class="nav-number">1.10.2.3.1.</span> <span class="nav-text">标准写入流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Leader%E9%80%89%E4%B8%BE"><span class="nav-number">1.10.2.3.2.</span> <span class="nav-text">Leader选举</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-number">1.11.</span> <span class="nav-text">Consumer消费者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer-%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.</span> <span class="nav-text">Consumer 分区分配策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E4%BC%9A%E5%8F%91%E7%94%9F%E6%B6%88%E8%B4%B9%E8%80%85%E7%9A%84%E9%87%8D%E6%96%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.1.1.</span> <span class="nav-text">什么情况下会发生消费者的重新负载均衡呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RoudRobin%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.2.</span> <span class="nav-text">RoudRobin策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Range%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.3.</span> <span class="nav-text">Range策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%82%A3%E4%B9%88%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E6%98%AF%E6%80%8E%E4%B9%88%E7%9F%A5%E9%81%93%E4%B8%80%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E5%8F%AF%E4%B8%8D%E5%8F%AF%E7%94%A8%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.1.3.1.</span> <span class="nav-text">那么消费者组是怎么知道一个消费者可不可用呢？</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sticky%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.4.</span> <span class="nav-text">Sticky策略</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer-%E5%86%8D%E5%9D%87%E8%A1%A1"><span class="nav-number">1.11.2.</span> <span class="nav-text">Consumer 再均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8"><span class="nav-number">1.11.2.1.</span> <span class="nav-text">消费者组判断一个消费者是否可用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Offset%E7%9A%84%E7%BB%B4%E6%8A%A4"><span class="nav-number">1.11.2.2.</span> <span class="nav-text">Offset的维护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E7%A7%BB%E9%87%8F%E6%8F%90%E4%BA%A4%E9%82%A3%E4%B9%88%E6%B6%88%E8%B4%B9%E8%80%85%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4%E5%81%8F%E7%A7%BB%E9%87%8F%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.2.3.</span> <span class="nav-text">偏移量提交那么消费者如何提交偏移量呢？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zookeeper%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.</span> <span class="nav-text">Zookeeper管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E7%AB%AF%E6%B3%A8%E5%86%8C%E5%8F%8A%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.1.</span> <span class="nav-text">Producer端注册及管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka%E9%9B%86%E7%BE%A4%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.2.</span> <span class="nav-text">Kafka集群策略管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer%E7%AB%AF%E6%B3%A8%E5%86%8C%E5%8F%8A%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.3.</span> <span class="nav-text">Consumer端注册及管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.13.</span> <span class="nav-text">Kafka 工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka%E5%8F%AF%E9%9D%A0%E9%AB%98%E6%95%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.13.1.</span> <span class="nav-text">Kafka可靠高效原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kafka%E4%B8%BA%E4%BD%95%E5%BF%AB%EF%BC%9F"><span class="nav-number">1.14.</span> <span class="nav-text">kafka为何快？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kafka%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.15.</span> <span class="nav-text">kafka零拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.</span> <span class="nav-text">如何保证消息不丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E7%94%9F%E4%BA%A7%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.1.</span> <span class="nav-text">Producer生产数据不丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%96%B9%E5%BC%8F"><span class="nav-number">1.16.1.1.</span> <span class="nav-text">发送消息方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ack%E6%9C%BA%E5%88%B6%EF%BC%88%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6%EF%BC%89"><span class="nav-number">1.16.1.2.</span> <span class="nav-text">Ack机制（确认机制）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker%E4%B8%AD%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.2.</span> <span class="nav-text">Broker中数据不丢失</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer%E6%B6%88%E8%B4%B9%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.3.</span> <span class="nav-text">Consumer消费数据不丢失</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka"><span class="nav-number">1.</span> <span class="nav-text">Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka%E7%89%B9%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">Kafka特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="nav-number">1.4.</span> <span class="nav-text">设计目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.5.</span> <span class="nav-text">架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%84%E4%BB%B6"><span class="nav-number">1.5.1.</span> <span class="nav-text">基本组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%9C%AF%E8%AF%AD"><span class="nav-number">1.5.2.</span> <span class="nav-text">基本术语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E7%96%91%E6%83%91%E7%82%B9"><span class="nav-number">1.5.3.</span> <span class="nav-text">个人疑惑点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Partition-Replicas-Broker%E5%85%B3%E8%81%94"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">Partition,Replicas,Broker关联</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Producer%E4%B8%8EPartition%E5%85%B3%E8%81%94"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">Producer与Partition关联</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Partition%E4%B8%8EConsumer%E5%85%B3%E7%B3%BB"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">Partition与Consumer关系</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E5%BC%80%E9%94%80"><span class="nav-number">1.5.3.3.1.</span> <span class="nav-text">分区开销</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%88%86%E5%8C%BA%E6%95%B0%E9%87%8F%E5%91%A2"><span class="nav-number">1.5.3.3.1.1.</span> <span class="nav-text">如何确定分区数量呢</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%881%E4%B8%AApartition%E5%8F%AA%E8%83%BD%E8%A2%AB%E5%90%8C%E7%BB%84%E7%9A%84%E4%B8%80%E4%B8%AAconsumer%E6%B6%88%E8%B4%B9"><span class="nav-number">1.5.3.4.</span> <span class="nav-text">为什么1个partition只能被同组的一个consumer消费</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%88%86%E5%8C%BA"><span class="nav-number">1.5.4.</span> <span class="nav-text">为什么要分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follower%E5%89%AF%E6%9C%AC%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%AF%B9%E5%A4%96%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.5.5.</span> <span class="nav-text">Follower副本为什么不对外提供服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.6.</span> <span class="nav-text">工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%86%99%E5%85%A5%E8%BF%87%E7%A8%8B"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">消息写入过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%B6%88%E6%81%AF%E7%9A%84%E7%94%9F%E4%BA%A7%E4%BC%A0%E9%80%92%E5%92%8C%E6%B6%88%E8%B4%B9%E7%9A%84%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.6.0.2.</span> <span class="nav-text">整体消息的生产传递和消费的的流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E5%BC%8F%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.6.0.3.</span> <span class="nav-text">响应式模型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%9C%BA%E5%88%B6"><span class="nav-number">1.7.</span> <span class="nav-text">存储机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker%E6%8E%A5%E6%94%B6%E5%88%B0%E6%B6%88%E6%81%AF%E5%90%8E%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%AD%98%E5%82%A8"><span class="nav-number">1.7.1.</span> <span class="nav-text">Broker接收到消息后如何进行存储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">整体存储结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Broker-%E5%86%99%E5%85%A5%E7%A3%81%E7%9B%98%E5%8E%9F%E7%90%86-%E2%80%93-Partition-amp-Segment"><span class="nav-number">1.7.1.2.</span> <span class="nav-text">Broker 写入磁盘原理 – Partition&amp;Segment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Log-Segment%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.7.1.3.</span> <span class="nav-text">Log Segment存储结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E5%86%99%E5%85%A5"><span class="nav-number">1.7.1.4.</span> <span class="nav-text">顺序写入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B5%E7%BC%93%E5%AD%98-Page-Cache"><span class="nav-number">1.7.1.5.</span> <span class="nav-text">页缓存 Page Cache</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-%E5%89%AF%E6%9C%AC%E5%90%8C%E6%AD%A5"><span class="nav-number">1.8.</span> <span class="nav-text">Kafka 副本同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#leader-%E5%89%AF%E6%9C%AC%E6%94%B6%E5%88%B0%E8%AF%B7%E6%B1%82%E4%BB%A5%E5%90%8E"><span class="nav-number">1.8.1.</span> <span class="nav-text">leader 副本收到请求以后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#follower-%E5%8F%91%E9%80%81-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.2.</span> <span class="nav-text">follower 发送 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#follower-%E5%8F%91%E7%AC%AC%E4%BA%8C%E6%AC%A1-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.3.</span> <span class="nav-text">follower 发第二次 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follower-%E5%8F%91%E7%AC%AC%E4%B8%89%E6%AC%A1-fetch-%E8%AF%B7%E6%B1%82"><span class="nav-number">1.8.4.</span> <span class="nav-text">Follower 发第三次 fetch 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LEO%E3%80%81HW%E6%9B%B4%E6%96%B0%E5%85%B3%E9%94%AE%E7%82%B9"><span class="nav-number">1.8.5.</span> <span class="nav-text">LEO、HW更新关键点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ISR%E6%9C%BA%E5%88%B6"><span class="nav-number">1.8.6.</span> <span class="nav-text">ISR机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ISR%E9%80%89%E4%B8%BE%E7%AD%96%E7%95%A5"><span class="nav-number">1.8.6.1.</span> <span class="nav-text">ISR选举策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Exactly-Once"><span class="nav-number">1.8.6.1.1.</span> <span class="nav-text">Exactly Once</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Kafka%E7%9A%84exactly-once%E8%AF%AD%E4%B9%89"><span class="nav-number">1.8.6.1.2.</span> <span class="nav-text">Kafka的exactly-once语义</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B9%82%E7%AD%89%E6%80%A7"><span class="nav-number">1.8.6.1.2.1.</span> <span class="nav-text">幂等性</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.8.6.1.2.2.</span> <span class="nav-text">生产者事务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Leader-Election%E7%AE%97%E6%B3%95"><span class="nav-number">1.8.6.2.</span> <span class="nav-text">Leader Election算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E6%89%80%E6%9C%89Replica%E9%83%BD%E4%B8%8D%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.8.6.2.1.</span> <span class="nav-text">如何处理所有Replica都不工作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Unclean-%E9%A2%86%E5%AF%BC%E8%80%85%E9%80%89%E4%B8%BE%EF%BC%88Unclean-Leader-Election%EF%BC%89"><span class="nav-number">1.8.6.2.2.</span> <span class="nav-text">Unclean 领导者选举（Unclean Leader Election）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E5%BC%82%E5%B8%B8"><span class="nav-number">1.8.6.2.3.</span> <span class="nav-text">副本异常</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E6%81%A2%E5%A4%8D%E5%88%B0ISR"><span class="nav-number">1.8.6.2.4.</span> <span class="nav-text">副本恢复到ISR</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%89%E4%B8%BELeader"><span class="nav-number">1.8.6.2.5.</span> <span class="nav-text">选举Leader</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Controller"><span class="nav-number">1.8.6.2.6.</span> <span class="nav-text">Controller</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E9%80%89%E4%B8%BE"><span class="nav-number">1.8.6.2.6.1.</span> <span class="nav-text">控制器的选举</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.8.6.2.6.2.</span> <span class="nav-text">控制器的作用</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#broker-controller-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8"><span class="nav-number">1.8.6.2.6.3.</span> <span class="nav-text">broker controller 数据存储</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E6%9C%BA%E5%88%B6"><span class="nav-number">1.8.6.3.</span> <span class="nav-text">故障转移机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B"><span class="nav-number">1.8.6.3.1.</span> <span class="nav-text">标准写入流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AE%95%E6%9C%BA%E6%95%85%E9%9A%9C"><span class="nav-number">1.8.6.3.2.</span> <span class="nav-text">机器宕机故障</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.9.</span> <span class="nav-text">零拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Producer"><span class="nav-number">1.10.</span> <span class="nav-text">Producer</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%B5%81%E7%A8%8B"><span class="nav-number">1.10.1.</span> <span class="nav-text">Producer消息发送流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Record-Accumulator%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">1.10.1.1.</span> <span class="nav-text">Record Accumulator缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sender"><span class="nav-number">1.10.1.2.</span> <span class="nav-text">Sender</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E9%AB%98%E5%90%9E%E5%90%90%E3%80%81%E4%BD%8E%E5%BB%B6%E6%97%B6%EF%BC%9F"><span class="nav-number">1.10.1.3.</span> <span class="nav-text">如何做到高吞吐、低延时？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.</span> <span class="nav-text">生产者策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="nav-number">1.10.2.1.</span> <span class="nav-text">分区策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.10.2.1.1.</span> <span class="nav-text">分区的原因</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E7%9A%84%E5%8E%9F%E5%88%99"><span class="nav-number">1.10.2.1.2.</span> <span class="nav-text">分区的原则</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ACK%E5%BA%94%E7%AD%94%E6%9C%BA%E5%88%B6"><span class="nav-number">1.10.2.2.</span> <span class="nav-text">ACK应答机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ACK%E5%89%8D%E9%9C%80%E8%A6%81%E4%BF%9D%E8%AF%81%E6%9C%89%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%89%AF%E6%9C%AC%E6%95%B0%E6%8D%AE"><span class="nav-number">1.10.2.2.1.</span> <span class="nav-text">ACK前需要保证有多少个副本数据</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-number">1.11.</span> <span class="nav-text">Consumer消费者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer-%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.</span> <span class="nav-text">Consumer 分区分配策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RoudRobin%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.1.</span> <span class="nav-text">RoudRobin策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Range%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.2.</span> <span class="nav-text">Range策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%82%A3%E4%B9%88%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E6%98%AF%E6%80%8E%E4%B9%88%E7%9F%A5%E9%81%93%E4%B8%80%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E5%8F%AF%E4%B8%8D%E5%8F%AF%E7%94%A8%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.1.2.1.</span> <span class="nav-text">那么消费者组是怎么知道一个消费者可不可用呢？</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sticky%E7%AD%96%E7%95%A5"><span class="nav-number">1.11.1.3.</span> <span class="nav-text">Sticky策略</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer-%E5%86%8D%E5%9D%87%E8%A1%A1"><span class="nav-number">1.11.2.</span> <span class="nav-text">Consumer 再均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Coordinator%E8%B4%9F%E8%B4%A3Rebalance%E5%8F%8A%E7%AE%A1%E7%90%86Consumer-Group"><span class="nav-number">1.11.2.1.</span> <span class="nav-text">Coordinator负责Rebalance及管理Consumer Group</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Coordinator%E5%AD%98%E5%82%A8%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">1.11.2.1.1.</span> <span class="nav-text">Coordinator存储的信息</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E4%BC%9A%E5%8F%91%E7%94%9F%E6%B6%88%E8%B4%B9%E8%80%85%E7%9A%84%E9%87%8D%E6%96%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.2.2.</span> <span class="nav-text">什么情况下会发生消费者的重新负载均衡呢？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Rebalance-JoinGroup"><span class="nav-number">1.11.2.2.1.</span> <span class="nav-text">Rebalance - JoinGroup</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Synchronizing-Group-State%E9%98%B6%E6%AE%B5"><span class="nav-number">1.11.2.2.2.</span> <span class="nav-text">Synchronizing Group State阶段</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E6%B6%88%E8%B4%B9%E8%80%85%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8"><span class="nav-number">1.11.2.3.</span> <span class="nav-text">消费者组判断一个消费者是否可用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.11.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Offset%E7%9A%84%E7%BB%B4%E6%8A%A4"><span class="nav-number">1.11.3.</span> <span class="nav-text">Offset的维护</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E7%A7%BB%E9%87%8F%E6%8F%90%E4%BA%A4%E9%82%A3%E4%B9%88%E6%B6%88%E8%B4%B9%E8%80%85%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4%E5%81%8F%E7%A7%BB%E9%87%8F%E5%91%A2%EF%BC%9F"><span class="nav-number">1.11.3.1.</span> <span class="nav-text">偏移量提交那么消费者如何提交偏移量呢？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zookeeper%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.</span> <span class="nav-text">Zookeeper管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E7%AB%AF%E6%B3%A8%E5%86%8C%E5%8F%8A%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.1.</span> <span class="nav-text">Producer端注册及管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka%E9%9B%86%E7%BE%A4%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.2.</span> <span class="nav-text">Kafka集群策略管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer%E7%AB%AF%E6%B3%A8%E5%86%8C%E5%8F%8A%E7%AE%A1%E7%90%86"><span class="nav-number">1.12.3.</span> <span class="nav-text">Consumer端注册及管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.13.</span> <span class="nav-text">Kafka 工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka%E5%8F%AF%E9%9D%A0%E9%AB%98%E6%95%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.13.1.</span> <span class="nav-text">Kafka可靠高效原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kafka%E4%B8%BA%E4%BD%95%E5%BF%AB%EF%BC%9F"><span class="nav-number">1.14.</span> <span class="nav-text">kafka为何快？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kafka%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.15.</span> <span class="nav-text">kafka零拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.</span> <span class="nav-text">如何保证消息不丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Producer%E7%94%9F%E4%BA%A7%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.1.</span> <span class="nav-text">Producer生产数据不丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%96%B9%E5%BC%8F"><span class="nav-number">1.16.1.1.</span> <span class="nav-text">发送消息方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ack%E6%9C%BA%E5%88%B6%EF%BC%88%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6%EF%BC%89"><span class="nav-number">1.16.1.2.</span> <span class="nav-text">Ack机制（确认机制）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker%E4%B8%AD%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.2.</span> <span class="nav-text">Broker中数据不丢失</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer%E6%B6%88%E8%B4%B9%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.16.3.</span> <span class="nav-text">Consumer消费数据不丢失</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
