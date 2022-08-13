@@ -21,16 +21,16 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="AOPAOP，Aspect Oriented Programming，面向切面编程 AOP的理念：将分散在各个业务逻辑代码中相同的代码通过横向切面的方式，抽取到一个独立的模块中。 SpringAOP底层原理就是动态代理。 代理的意义：增强对象的行为，使用动态代理实质上就是调用时拦截对象方法，对方法进行改造、增强。 Spring AOP使用纯JAVA实现，它不需要专门的编译过程，也不需要特殊的类装载">
+  <meta name="description" content="AOP概念AOP，Aspect Oriented Programming，面向切面编程 AOP的理念：将分散在各个业务逻辑代码中相同的代码通过横向切面的方式，抽取到一个独立的模块中。 SpringAOP底层原理就是动态代理。 代理的意义：增强对象的行为，使用动态代理实质上就是调用时拦截对象方法，对方法进行改造、增强。 Spring AOP使用纯JAVA实现，它不需要专门的编译过程，也不需要特殊的类">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring-AOP">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/07/05/Spring-AOP/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="AOPAOP，Aspect Oriented Programming，面向切面编程 AOP的理念：将分散在各个业务逻辑代码中相同的代码通过横向切面的方式，抽取到一个独立的模块中。 SpringAOP底层原理就是动态代理。 代理的意义：增强对象的行为，使用动态代理实质上就是调用时拦截对象方法，对方法进行改造、增强。 Spring AOP使用纯JAVA实现，它不需要专门的编译过程，也不需要特殊的类装载">
+<meta property="og:description" content="AOP概念AOP，Aspect Oriented Programming，面向切面编程 AOP的理念：将分散在各个业务逻辑代码中相同的代码通过横向切面的方式，抽取到一个独立的模块中。 SpringAOP底层原理就是动态代理。 代理的意义：增强对象的行为，使用动态代理实质上就是调用时拦截对象方法，对方法进行改造、增强。 Spring AOP使用纯JAVA实现，它不需要专门的编译过程，也不需要特殊的类">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/Spring-AOP/stickPicture.png">
 <meta property="article:published_time" content="2022-07-04T16:51:27.000Z">
-<meta property="article:modified_time" content="2022-08-09T20:40:38.147Z">
+<meta property="article:modified_time" content="2022-08-13T20:06:44.180Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/05/Spring-AOP/stickPicture.png">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+                <time title="修改时间：2022-08-14 04:06:44" itemprop="dateModified" datetime="2022-08-14T04:06:44+08:00">2022-08-14</time>
               </span>
 
           
@@ -232,7 +232,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h1><p>AOP，Aspect Oriented Programming，面向切面编程</p>
+        <h1 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>AOP，Aspect Oriented Programming，面向切面编程</p>
 <p>AOP的理念：<strong>将分散在各个业务逻辑代码中相同的代码通过横向切面的方式，抽取到一个独立的模块中</strong>。</p>
 <p>SpringAOP底层原理就是<strong>动态代理</strong>。</p>
 <p>代理的意义：增强对象的行为，使用动态代理实质上就是<strong>调用时拦截对象方法</strong>，<strong>对方法进行改造、增强</strong>。</p>
@@ -242,8 +242,8 @@
 <p>来源《Spring 实战 (第4版)》一句话：</p>
 <p>SpringAOP构建在动态代理之上，因此，Spring对AOP的支持局限于方法拦截。</p>
 <p>在java中动态代理有两种方式：</p>
-<p>1.JDK动态代理</p>
-<p>2.CGlib动态代理</p>
+<p>1.JDK动态代理（针对接口）</p>
+<p>2.CGlib动态代理（针对类）</p>
 <p>​    <img src="/2022/07/05/Spring-AOP/stickPicture.png"></p>
 <p>CGlib代理其生成的动态代理对象是目标类的子类</p>
 <p>SpringAOP<strong>默认</strong>是使用J<strong>DK动态代理</strong>，如果<strong>代理的类没有接口则会使用CGlib代理</strong></p>
@@ -251,6 +251,96 @@
 <p>如果是<strong>单例</strong>模式我们最好使用<strong>CGlib</strong>，如果是<strong>多例</strong>最好使用<strong>JDK动态代理</strong></p>
 <p>原因：</p>
 <p>1.JDK在创建代理对象时的性能要高于CGlib，而生成代理对象的运行性能却比CGlib低</p>
+<h2 id="业务支撑"><a href="#业务支撑" class="headerlink" title="业务支撑"></a>业务支撑</h2><ul>
+<li>日志打印</li>
+<li>性能监控</li>
+<li>事务处理</li>
+</ul>
+<h2 id="组件能力"><a href="#组件能力" class="headerlink" title="组件能力"></a>组件能力</h2><ul>
+<li>XML</li>
+<li>@Annotation</li>
+</ul>
+<p>Aspect - Pointcut - Advice</p>
+<h2 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h2><ul>
+<li>Advisor<ul>
+<li>aspect</li>
+<li>pointcut</li>
+<li>advice</li>
+</ul>
+</li>
+</ul>
+<p>多个切点转换为多个Advisor，形成Chain，递归方法层层调用</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><ul>
+<li><p>接口的实现类打AOP注解使用动态代理方式</p>
+<p>Cglib动态代理</p>
+</li>
+<li><p>使用JDK动态代理时机</p>
+<ul>
+<li>当Bean实现接口时，Spring就会用JDK的动态代理</li>
+<li>当Bean没有实现接口时，Spring使用CGlib是实现</li>
+<li>可以强制使用CGlib（@EnableAspectJAutoProxy(proxyTargetClass &#x3D; true)）</li>
+</ul>
+</li>
+<li><p>注解打在接口方法上能否识别</p>
+<ul>
+<li><p>JDK动态代理不能直接识别</p>
+<ul>
+<li>接口没有实现方法，<code>spring</code>依赖注入管理的是对象，接口<code>spring</code>可管理不到，既然不是<code>spirng</code>管理的对象，<code>spirng+aop</code>的配置肯定是失效的</li>
+<li>注解是可以继承，但只有类的注解是可以继承的,还需要<code>@Inherited</code>，方法的注解继承不了，<code>spring</code>管理的是<strong>实际对象</strong>,加不上注解，更不可能拦截到</li>
+</ul>
+<p>由注解继承规则，该实现类的方法并不能继承接口方法上的注解，因而spring也就无法为该实现类生成代理，aop也就拦截失败</p>
+</li>
+<li><p>CGLIB动态代理</p>
+<p>有类Parent，类Sub，Sub继承自Parent。根据注解的继承原则，切点注解在父类方法，</p>
+<p>若Sub覆写了父类所有带注解方法，实际Sub中并未被AOP标识，所有spring并不会为Sub创建代理类，也就不会被拦截。</p>
+<p>若Sub覆写了父类部分带注解方法，spring会为Sub创建代理类，对于覆写了父类的方法，由于注解未被继承，不会被拦截；未覆写的方法，可以被拦截。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="启动Bean的流程"><a href="#启动Bean的流程" class="headerlink" title="启动Bean的流程"></a>启动Bean的流程</h2><ol>
+<li><p>Refresh </p>
+<ul>
+<li>BeanFactory、后置处理完成</li>
+</ul>
+</li>
+<li><p>preInstantiateSingleton </p>
+</li>
+<li><p>CreateBean </p>
+<ul>
+<li>查找到被Aspect标记的Bean</li>
+</ul>
+</li>
+<li><p>在populate后进行InitalizeBean</p>
+</li>
+<li><p>后置处理</p>
+<ul>
+<li><p>AbstractAutoProxycreator.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(<span class="meta">@Nullable</span> Object bean, String beanName)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean)&#123;</span><br><span class="line">      <span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>JDK&#x2F;CGLIB动态代理 </p>
+</li>
+<li><p>切面转为advisor</p>
+</li>
+<li><p>createAopProxy返回一个Proxy用于其他类的使用</p>
+</li>
+</ol>
+<h2 id="执行动态代理流程"><a href="#执行动态代理流程" class="headerlink" title="执行动态代理流程"></a>执行动态代理流程</h2><p>聚合所有的Chain  递归 </p>
+<ul>
+<li>递归<ul>
+<li>结束条件：Chain执行结束</li>
+<li>Before&#x2F;After invoke()</li>
+</ul>
+</li>
+</ul>
+<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1tS4y1s7ax">https://www.bilibili.com/video/BV1tS4y1s7ax</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15360778/4195832">https://blog.51cto.com/u_15360778/4195832</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_37130607/article/details/113844786">https://blog.csdn.net/qq_37130607/article/details/113844786</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xybz1993/article/details/80627432">https://blog.csdn.net/xybz1993/article/details/80627432</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012938226/article/details/103505875">https://blog.csdn.net/u012938226/article/details/103505875</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000010652475">https://segmentfault.com/q/1010000010652475</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e91ee83f2348">https://www.jianshu.com/p/e91ee83f2348</a></p>
 
     </div>
 
@@ -331,7 +421,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP"><span class="nav-number">1.</span> <span class="nav-text">AOP</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP"><span class="nav-number">1.</span> <span class="nav-text">AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E6%94%AF%E6%92%91"><span class="nav-number">1.2.</span> <span class="nav-text">业务支撑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%83%BD%E5%8A%9B"><span class="nav-number">1.3.</span> <span class="nav-text">组件能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.4.</span> <span class="nav-text">底层实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.5.</span> <span class="nav-text">实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8Bean%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.6.</span> <span class="nav-text">启动Bean的流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%B5%81%E7%A8%8B"><span class="nav-number">1.7.</span> <span class="nav-text">执行动态代理流程</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90%EF%BC%9A"><span class="nav-number">1.7.0.0.0.1.</span> <span class="nav-text">来源：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
