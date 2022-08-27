@@ -21,20 +21,21 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="SpringMVC的工作原理 1.用户发送请求至前端控制器DispatcherServlet 2.DispatcherServlet收到请求对URL进行解析，调用HandlerMapping处理器映射器 3.处理器映射器找到具体的处理器，生成处理器对象以及处理器拦截器，一并返回给DispatcherServlet 4.DispatcherServlet调用HandlerAdapter处理器适配器">
+  <meta name="description" content="SpringMVC的工作原理SpringMVC启动流程 Tomcat启动 解析web.xml listener 创建Spring容器(父容器) 存入servletContext DispatcherServlet实例化 DispatcherServlet对象.init() 创建Spring容器(子容器) wac.setParent(parent) 完成父子关系绑定 接收请求   工作流程 1.用户">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SpringMVC-工作原理">
 <meta property="og:url" content="https://swzxsyh.github.io/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="SpringMVC的工作原理 1.用户发送请求至前端控制器DispatcherServlet 2.DispatcherServlet收到请求对URL进行解析，调用HandlerMapping处理器映射器 3.处理器映射器找到具体的处理器，生成处理器对象以及处理器拦截器，一并返回给DispatcherServlet 4.DispatcherServlet调用HandlerAdapter处理器适配器">
+<meta property="og:description" content="SpringMVC的工作原理SpringMVC启动流程 Tomcat启动 解析web.xml listener 创建Spring容器(父容器) 存入servletContext DispatcherServlet实例化 DispatcherServlet对象.init() 创建Spring容器(子容器) wac.setParent(parent) 完成父子关系绑定 接收请求   工作流程 1.用户">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://docs.spring.io/spring-framework/docs/current/reference/html/images/mvc-context-hierarchy.png">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/principle.jpeg">
 <meta property="og:image" content="https://swzxsyh.github.io/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/DispatcherServlet.jpg">
 <meta property="article:published_time" content="2022-07-04T16:51:50.000Z">
-<meta property="article:modified_time" content="2022-08-09T20:40:38.187Z">
+<meta property="article:modified_time" content="2022-08-21T19:14:32.887Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://swzxsyh.github.io/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/principle.jpeg">
+<meta name="twitter:image" content="https://docs.spring.io/spring-framework/docs/current/reference/html/images/mvc-context-hierarchy.png">
 
 <link rel="canonical" href="https://swzxsyh.github.io/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
 
@@ -219,7 +220,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+                <time title="修改时间：2022-08-22 03:14:32" itemprop="dateModified" datetime="2022-08-22T03:14:32+08:00">2022-08-22</time>
               </span>
 
           
@@ -233,7 +234,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="SpringMVC的工作原理"><a href="#SpringMVC的工作原理" class="headerlink" title="SpringMVC的工作原理"></a>SpringMVC的工作原理</h1><p><img src="/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/principle.jpeg"></p>
+        <h1 id="SpringMVC的工作原理"><a href="#SpringMVC的工作原理" class="headerlink" title="SpringMVC的工作原理"></a>SpringMVC的工作原理</h1><h2 id="SpringMVC启动流程"><a href="#SpringMVC启动流程" class="headerlink" title="SpringMVC启动流程"></a>SpringMVC启动流程</h2><ol>
+<li>Tomcat启动</li>
+<li>解析web.xml listener 创建Spring容器(父容器) 存入servletContext</li>
+<li>DispatcherServlet实例化</li>
+<li>DispatcherServlet对象.init() 创建Spring容器(子容器) wac.setParent(parent) 完成父子关系绑定</li>
+<li>接收请求</li>
+</ol>
+<p><img src="https://docs.spring.io/spring-framework/docs/current/reference/html/images/mvc-context-hierarchy.png" alt="mvc-context-hierarchy"></p>
+<h2 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h2><p><img src="/2022/07/05/SpringMVC-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/principle.jpeg"></p>
 <p>1.用户发送请求至前端控制器DispatcherServlet</p>
 <p>2.DispatcherServlet收到请求对URL进行解析，调用HandlerMapping处理器映射器</p>
 <p>3.处理器映射器找到具体的处理器，生成处理器对象以及处理器拦截器，一并返回给DispatcherServlet</p>
@@ -275,6 +284,9 @@
 <li><p>一旦DispatcherServlet将视图名称解析称为试图对象，它就会呈现视图对象，并传递控制器返回的模型。视图的任务是将模型属性展示给用户。</p>
 </li>
 </ol>
+<p>来源：</p>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-servlet-context-hierarchy">Web on Servlet Stack (spring.io)</a></p>
+<p>[没有套路，全是技术：思路最清晰的Spring源码分析教程，最后再给你手写一个Spring，就问你顶不顶]<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Q44y1V7fi">https://www.bilibili.com/video/BV1Q44y1V7fi</a>)</p>
 
     </div>
 
@@ -309,6 +321,7 @@
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -355,7 +368,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringMVC%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">SpringMVC的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">组件说明：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">组件：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DispatcherServlet%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">DispatcherServlet工作原理</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringMVC%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">SpringMVC的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringMVC%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">SpringMVC启动流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">工作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="nav-number">1.3.</span> <span class="nav-text">组件说明：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">组件：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DispatcherServlet%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">DispatcherServlet工作原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -473,6 +486,26 @@
   
 
   
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '713a28a3ad93f2aa2323',
+      clientSecret: '39dc40bb09b422ca4c99a748b5984a4d205e91be',
+      repo        : 'swzxsyh.github.io',
+      owner       : 'swzxsyh',
+      admin       : ['swzxsyh'],
+      id          : '06c41b58943d0e8a5b93af08f4dc716e',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>
