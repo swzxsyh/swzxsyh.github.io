@@ -212,7 +212,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-08 00:26:01" itemprop="dateModified" datetime="2022-09-08T00:26:01+08:00">2022-09-08</time>
+                <time title="修改时间：2022-09-08 00:32:56" itemprop="dateModified" datetime="2022-09-08T00:32:56+08:00">2022-09-08</time>
               </span>
 
           
@@ -238,43 +238,14 @@
 <li>获得了一个指向该实例的全局访问节点</li>
 <li>仅在首次请求单例对象时对其进行初始化</li>
 </ul>
-<h3 id="Cons"><a href="#Cons" class="headerlink" title="Cons"></a>Cons</h3><ul>
-<li>违反了<em>单一职责原则</em>。 该模式同时解决了两个问题</li>
-<li>单例模式可能掩盖不良设计， 比如程序各组件之间相互了解过多等</li>
-<li>该模式在多线程环境下需要进行特殊处理， 避免多个线程多次创建单例对象</li>
-<li>单例的客户端代码单元测试可能会比较困难， 因为许多测试框架以基于继承的方式创建模拟对象。 由于单例类的构造函数是私有的， 而且绝大部分语言无法重写静态方法， 所以你需要想出仔细考虑模拟单例的方法。 要么干脆不编写测试代码， 或者不使用单例模式</li>
-</ul>
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadSafeSingleton</span>()&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">ThreadSafeSingleton</span><span class="params">()</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> ThreadSafeSingleton instance;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> ThreadSafeSingleton <span class="title function_">getInstance</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(instance == <span class="literal">null</span>)&#123;</span><br><span class="line">      <span class="keyword">synchronized</span>(ThreadSafeSingleton.class)&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="literal">null</span>)&#123;</span><br><span class="line">          instance = <span class="keyword">new</span> <span class="title class_">ThreadSafeSingleton</span>();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><h3 id="不加锁的问题"><a href="#不加锁的问题" class="headerlink" title="不加锁的问题"></a>不加锁的问题</h3><ul>
-<li>多线程情况下就不再是单例Object</li>
-</ul>
-<h3 id="synchronized直接修饰方法的问题"><a href="#synchronized直接修饰方法的问题" class="headerlink" title="synchronized直接修饰方法的问题"></a>synchronized直接修饰方法的问题</h3><ul>
-<li>每次访问方法都会加锁，性能开销大</li>
-</ul>
-<h3 id="双重检查锁-double-checked-locking"><a href="#双重检查锁-double-checked-locking" class="headerlink" title="双重检查锁(double checked locking)"></a>双重检查锁(double checked locking)</h3><ul>
-<li>针对对象加synchronized锁（低性能损耗下，返回单例Object）</li>
-<li>对象必须加Volatile修饰（处理重排序问题）</li>
-</ul>
-<h3 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h3><p>new 方法编译后实际会出现</p>
-<blockquote>
-<ul>
-<li>分配内存空间</li>
-<li>将对象指向刚分配的内存空间</li>
-<li>初始化对象</li>
-</ul>
-</blockquote>
-<p>多个操作，即使synchronized已经加了锁，在多线程访问情况下，可能访问获得到的是一个<strong>初始化未完成</strong>的对象。</p>
-<p>因此，添加<code>Volatile</code>关键字禁止重排序，所有的write都发生在read操作前，获取完整对象</p>
-<h1 id="Source"><a href="#Source" class="headerlink" title="Source"></a>Source</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://hyrepo.com/tech/double-check-lock/#%E5%8A%A0%E9%94%81">https://hyrepo.com/tech/double-check-lock/#加锁</a></li>
-<li><a target="_blank" rel="noopener" href="https://refactoringguru.cn/design-patterns/singleton">https://refactoringguru.cn/design-patterns/singleton</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/java-singleton-design-pattern-best-practices-examples">https://www.digitalocean.com/community/tutorials/java-singleton-design-pattern-best-practices-examples</a></li>
-<li><a target="_blank" rel="noopener" href="https://qa.1r1g.com/sf/ask/2910754521/">https://qa.1r1g.com/sf/ask/2910754521/</a></li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/09/06/GOF23-Singleton/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
