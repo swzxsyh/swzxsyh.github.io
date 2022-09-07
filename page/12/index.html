@@ -181,6 +181,76 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/16/Elasticsearch%E5%88%9D%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/16/Elasticsearch%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Elasticsearch初识</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-16 01:59:30" itemprop="dateCreated datePublished" datetime="2020-07-16T01:59:30+08:00">2020-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Single Node</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">$ docker pull elasticsearch:5.6.8</span><br><span class="line"><span class="comment">#启动，需要配置JVM，否则报OOM</span></span><br><span class="line"><span class="comment"># 9200为  ES节点 和 外部 通讯使用</span></span><br><span class="line"><span class="comment"># 9300是tcp通讯端口，集群间和TCPClient走它</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">&quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;</span> --name es -p 9200:9200 -p 9300:9300 -e <span class="string">&quot;discovery.type=single-node&quot;</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"><span class="comment">#如果要使用kibana，最好先在此开启映射，否则需要更改container内部json数据</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">&quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;</span> --name es -p 9200:9200 -p 9300:9300 -p 5601:5601 -e <span class="string">&quot;discovery.type=single-node&quot;</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 localhost:9200 可以看到JSON格式数据</span></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span> : <span class="string">&quot;wCWV0cR&quot;</span>,</span><br><span class="line">  <span class="string">&quot;cluster_name&quot;</span> : <span class="string">&quot;elasticsearch&quot;</span>,</span><br><span class="line">  <span class="string">&quot;cluster_uuid&quot;</span> : <span class="string">&quot;5krSWTgVQUuxvyQvF8LCTw&quot;</span>,</span><br><span class="line">  <span class="string">&quot;version&quot;</span> : &#123;</span><br><span class="line">    <span class="string">&quot;number&quot;</span> : <span class="string">&quot;5.6.8&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_hash&quot;</span> : <span class="string">&quot;688ecce&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_date&quot;</span> : <span class="string">&quot;2018-02-16T16:46:30.010Z&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_snapshot&quot;</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">&quot;lucene_version&quot;</span> : <span class="string">&quot;6.6.1&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;tagline&quot;</span> : <span class="string">&quot;You Know, for Search&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器，安装ik</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -it es /bin/bash     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 要安装对应版本 </span></span><br><span class="line">root@b340ba8042f5:/usr/share/elasticsearch<span class="comment"># ./bin/elasticsearch -version</span></span><br><span class="line">Version: 5.6., Build: cfe3d9f/2018-09-10T20:12:43.732Z, JVM: 1.8.0_181</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决跨域问题</span></span><br><span class="line"><span class="comment"># container没有vi，使用echo添加到最后</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch<span class="comment"># cd config/</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo &quot;http.cors.enabled: true&quot;&gt;&gt; elasticsearch.yml </span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo -e &quot;http.cors.allow-origin: \&quot;*\&quot;&quot;&gt;&gt; elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决宿主机无法访问问题</span></span><br><span class="line"><span class="comment"># 让所有IP都可访问</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># sed -i &#x27;s/^#\(transport.host: 0.0.0.0\)/\1/&#x27; elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否写入成功</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># cat elasticsearch.yml </span></span><br><span class="line">http.host: 0.0.0.0</span><br><span class="line"><span class="comment"># Uncomment the following lines for a production cluster deployment</span></span><br><span class="line">transport.host: 0.0.0.0</span><br><span class="line"><span class="comment">#discovery.zen.minimum_master_nodes: 1</span></span><br><span class="line">http.cors.enabled: <span class="literal">true</span></span><br><span class="line">http.cors.allow-origin: <span class="string">&quot;*&quot;</span></span><br><span class="line">network.host: 127.0.0.1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载对应版本的ik</span></span><br><span class="line">./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.6.8/elasticsearch-analysis-ik-5.6.8.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后面分词器用的上，先配置</span></span><br><span class="line"><span class="comment"># 配置自己的扩展字典</span></span><br><span class="line"><span class="comment"># 配置自己设置的停止词字典</span></span><br><span class="line"><span class="comment"># sed 用法 在某个单词后添加某语句</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i &#x27;s/&lt;entry key=&quot;ext_dict&quot;&gt;/&amp;ext.did/&#x27; IKAnalyzer.cfg.xmllocation&lt;/entry&gt; --&gt;</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i &#x27;s/&lt;entry key=&quot;ext_stopwords&quot;&gt;/&amp;stopword.dic/&#x27; IKAnalyzer.cfg.xml</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># cat IKAnalyzer.cfg.xml</span></span><br><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE properties SYSTEM <span class="string">&quot;http://java.sun.com/dtd/properties.dtd&quot;</span>&gt;</span><br><span class="line">&lt;properties&gt;</span><br><span class="line">	&lt;comment&gt;IK Analyzer 扩展配置&lt;/comment&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span><br><span class="line">	&lt;entry key=<span class="string">&quot;ext_dict&quot;</span>&gt;ext.dic&lt;/entry&gt;</span><br><span class="line">	 &lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span><br><span class="line">	&lt;entry key=<span class="string">&quot;ext_stopwords&quot;</span>&gt;stopword.dic&lt;/entry&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">&quot;remote_ext_dict&quot;</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">&quot;remote_ext_stopwords&quot;</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">&lt;/properties&gt;</span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置ik/config/stopword.dic，添加自定义停止词</span></span><br><span class="line"><span class="comment"># 在ik/config/目录下添加ext.dic文件，并自定义扩展词语</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启container</span></span><br><span class="line">$ docker restart es</span><br><span class="line"></span><br><span class="line"><span class="comment"># head图形化界面</span></span><br><span class="line"><span class="comment"># 下载镜像(head属于本地端，可以直接本机安装)</span></span><br><span class="line">$ docker pull mobz/elasticsearch-head:5 </span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">$ docker run -d -p 9100:9100 docker.io/mobz/elasticsearch-head:5   </span><br><span class="line"><span class="comment">#访问 localhost:9100 ，可以连接上9200的es</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># kibana数据显示页面，需要与ES版本匹配</span></span><br><span class="line"><span class="comment"># 注意，此处使用了 --network ，因安全限制无法再暴露端口，若要使用则由es暴露端口，建议在es启动时直接暴露</span></span><br><span class="line">$ docker run -it -d -e ELASTICSEARCH_URL=http://127.0.0.1:9200 --name kibana --network=container:es  kibana:5.6.8  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 若ES未暴露Port，又不想重新经历步骤，只能修改container内部json数据</span></span><br><span class="line"><span class="comment"># 停止容器-&gt;修改两个json文件-&gt;停止docker-&gt;启动docker-&gt;启动容器。否则container会恢复为旧版本</span></span><br><span class="line"><span class="comment"># macOS 需screen进入tty</span></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/hostconfig.json</span><br><span class="line"><span class="comment"># 在PortBindings中添加</span></span><br><span class="line"><span class="string">&quot;5601/tcp&quot;</span>: [&#123;<span class="string">&quot;HostIp&quot;</span>: <span class="string">&quot;&quot;</span>,<span class="string">&quot;HostPort&quot;</span>: <span class="string">&quot;5601&quot;</span>&#125;]</span><br><span class="line"></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/config.v2.json</span><br><span class="line"><span class="comment"># 在ExposedPorts中添加</span></span><br><span class="line"><span class="string">&quot;5601/tcp&quot;</span>: &#123;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p><a target="_blank" rel="noopener" href="https://shipengliang.com/software-exp/docker-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F.html">https://shipengliang.com/software-exp/docker-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.amd5.cn/atang_4301.html">http://www.amd5.cn/atang_4301.html</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/15/RabbitMQ%E5%85%A5%E9%97%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2080,7 +2150,7 @@ parent是有聚合的功能，不需要将ssm_parent，ssm_model，ssm_dao，ssm
 <p>密钥生成后需要在github上配置密钥本地才可以顺利访问。</p>
 <p>在key部分将id_rsa.pub文件内容添加进去，然后点击“Add SSH key”按钮完成配置。</p>
 <p>使用ssh协议同步到远程仓库</p>
-<p>1<br>2<br>$ git remote add origin <a href="mailto:&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#116;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;">&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#116;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;</a>:itcast888&#x2F;mytest.git<br>$ git push -u origin master<br>origin就是一个名字，它是在你clone一个托管在Github上代码库时，git为你默认创建的指向这个远程代码库的标签， origin指向的是repository，master只是这个repository中默认创建的第一个分支。</p>
+<p>1<br>2<br>$ git remote add origin <a href="mailto:&#x67;&#105;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#109;">&#x67;&#105;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#109;</a>:itcast888&#x2F;mytest.git<br>$ git push -u origin master<br>origin就是一个名字，它是在你clone一个托管在Github上代码库时，git为你默认创建的指向这个远程代码库的标签， origin指向的是repository，master只是这个repository中默认创建的第一个分支。</p>
 <p>2.5.2 从远程仓库克隆<br>克隆远程仓库也就是从远程把仓库复制一份到本地，克隆后会创建一个新的本地仓库。选择一个任意部署仓库的目录，然后克隆远程仓库。</p>
 <p>1<br>$ git clone <a href="mailto:git@github.com:sublun/mytest.git">git@github.com:sublun/mytest.git</a><br>2.5.3 从远程仓库取代码<br>1<br>2<br>3</p>
 <ol>
@@ -2544,779 +2614,10 @@ parent是有聚合的功能，不需要将ssm_parent，ssm_model，ssm_dao，ssm
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/03/Spring-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/03/Spring-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="post-title-link" itemprop="url">Spring 声明式事务</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-03 01:44:21" itemprop="dateCreated datePublished" datetime="2020-06-03T01:44:21+08:00">2020-06-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.Spring的事务<br>Spring的事务控制可以分为编程式事务控制和声明式事务控制。</p>
-<p>编程式事务</p>
-<p>就是将业务代码和事务代码放在一起书写,它的耦合性太高,开发中不使用</p>
-<p>声明式事务</p>
-<p>其实就是将事务代码和业务代码隔离开发, 然后通过一段配置让他们组装运行, 最后达到事务控制的目的.</p>
-<p>声明式事务就是通过AOP原理实现的.</p>
-<p>1.1 Spring声明式事务<br>在 Spring 配置文件中声明式的处理事务来代替代码式的处理事务。底层采用AOP思想来实现的</p>
-<p>1.1.1 思想<br>目标对象:AccountServiceImpl<br>通知对象:DataSourceTransactionManager<br>配置切面:xml、注解<br>1.1.2 环境搭建<br>创建java模块</p>
-<p>导入jar包</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51</p>
-<!--依赖管理-->
-<dependencies>
-    <!--mysql驱动-->
-    <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.47</version>
-    </dependency>
-    <!--druid连接池-->
-    <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>druid</artifactId>
-        <version>1.1.15</version>
-    </dependency>
-    <!--spring-jdbc-->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jdbc</artifactId>
-        <version>5.1.5.RELEASE</version>
-    </dependency>
-    <!--spring核心-->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>5.1.5.RELEASE</version>
-    </dependency>
-    <!--junit-->
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-    </dependency>
-    <!--spring整合junit-->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>5.1.5.RELEASE</version>
-    </dependency>
-    <!--spring的orm-->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-orm</artifactId>
-        <version>5.1.5.RELEASE</version>
-    </dependency>
-    <!--aspectj-->
-    <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>1.9.5</version>
-    </dependency>
-</dependencies>
-编写AccountDao
-
-<p>1<br>2<br>3<br>4<br>5<br>public interface AccountDao {<br>    void outUser(String outUser, Double money);</p>
-<pre><code>void inUser(String inUser, Double money);
-</code></pre>
-<p>}<br>编写AccountDaoImpl</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>public class AccountDaoImpl implements AccountDao {</p>
-<pre><code>private JdbcTemplate jdbcTemplate;
-
-public void setJdbcTemplate(JdbcTemplate jdbcTemplate) &#123;
-    this.jdbcTemplate = jdbcTemplate;
-&#125;
-
-@Override
-public void outUser(String outUser, Double money) &#123;
-    String sql = &quot;UPDATE account SET money = money - ? WHERE name  = ?&quot;;
-    jdbcTemplate.update(sql, money, outUser);
-
-&#125;
-
-@Override
-public void inUser(String inUser, Double money) &#123;
-    String sql = &quot;UPDATE account SET money = money + ? WHERE name  = ?&quot;;
-    jdbcTemplate.update(sql, money, inUser);
-&#125;
-</code></pre>
-<p>}<br>编写AccountService</p>
-<p>1<br>2<br>3<br>public interface AccountService {<br>    void transfer(String outUser,String inUser,Double money);<br>}<br>编写AccountServiceImpl</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>public class AccountServiceImpl implements AccountService {</p>
-<pre><code>private AccountDao accountDao;
-
-public void setAccountDao(AccountDao accountDao) &#123;
-    this.accountDao = accountDao;
-&#125;
-
-@Override
-public void transfer(String outUser, String inUser, Double money) &#123;
-    accountDao.outUser(outUser,money);
-    accountDao.inUser(inUser,money);
-&#125;
-</code></pre>
-<p>}<br>编写spring的配置文件</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context" xsi:schemalocation=" http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd"></beans></p>
-<pre><code>&lt;!--加载第三方配置文件--&gt;
-&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
-
-&lt;!--druid交给ioc--&gt;
-&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
-    &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
-    &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
-    &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
-    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--jdbcTemplate交给ioc--&gt;
-&lt;bean id=&quot;jdbcTemplate&quot; class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot;&gt;
-    &lt;constructor-arg name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--dao交给ioc--&gt;
-&lt;bean id=&quot;accountDao&quot; class=&quot;com.test.dao.impl.AccountDaoImpl&quot;&gt;
-    &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将service交给ioc--&gt;
-&lt;bean id=&quot;accountService&quot; class=&quot;com.test.service.impl.AccountServiceImpl&quot;&gt;
-    &lt;property name=&quot;accountDao&quot; ref=&quot;accountDao&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--事务管理器交给ioc--&gt;
-&lt;bean id=&quot;transactionManager&quot;  class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
-    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-</code></pre>
-
-测试
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>@RunWith(SpringRunner.class)<br>@ContextConfiguration(“classpath:applicationContext.xml”)<br>public class AccountServiceTest {</p>
-<pre><code>@Autowired
-private AccountService accountService;
-
-@Test
-public void test() throws Exception&#123;
-    accountService.transfer(&quot;tom&quot;,&quot;jerry&quot;,100d);
-&#125;
-</code></pre>
-<p>}<br>1.1.3 XML配置<br>配置xml事务aop</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context" xsi:schemalocation=" http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx.xsd"></beans></p>
-<pre><code>&lt;!--加载第三方配置文件--&gt;
-&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
-
-&lt;!--druid交给ioc--&gt;
-&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
-    &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
-    &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
-    &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
-    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--jdbcTemplate交给ioc--&gt;
-&lt;bean id=&quot;jdbcTemplate&quot; class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot;&gt;
-    &lt;constructor-arg name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--dao交给ioc--&gt;
-&lt;bean id=&quot;accountDao&quot; class=&quot;com.test.dao.impl.AccountDaoImpl&quot;&gt;
-    &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将service交给ioc--&gt;
-&lt;bean id=&quot;accountService&quot; class=&quot;com.test.service.impl.AccountServiceImpl&quot;&gt;
-    &lt;property name=&quot;accountDao&quot; ref=&quot;accountDao&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--事务管理器交给ioc--&gt;
-&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
-    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将事务管理器升级为事务通知类--&gt;
-</code></pre>
-<p>  &lt;tx:advice id&#x3D;”txAdvice” transaction-manager&#x3D;”transactionManager”&gt;<br>    <a href="tx:attributes">tx:attributes</a><br>      &lt;tx:method name&#x3D;”*” &#x2F;&gt;<br>    <br>  </p>
-  <!--aop配置-->
-<p>  <a href="aop:config">aop:config</a><br>    <!-- 仅spring的事务切面配置使用此标签
-            通知+切点=切面
-        --><br>    &lt;aop:advisor advice-ref&#x3D;”txAdvice” pointcut&#x3D;”execution(* com.test.service..*.*(..))”&#x2F;&gt;<br>  <br><br>测试</p>
-<p>事务通知类细节补充</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context" xsi:schemalocation=" http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx.xsd"></beans></p>
-<pre><code>&lt;!--加载第三方配置文件--&gt;
-&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
-
-&lt;!--druid交给ioc--&gt;
-&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
-    &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
-    &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
-    &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
-    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--jdbcTemplate交给ioc--&gt;
-&lt;bean id=&quot;jdbcTemplate&quot; class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot;&gt;
-    &lt;constructor-arg name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--dao交给ioc--&gt;
-&lt;bean id=&quot;accountDao&quot; class=&quot;com.test.dao.impl.AccountDaoImpl&quot;&gt;
-    &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将service交给ioc--&gt;
-&lt;bean id=&quot;accountService&quot; class=&quot;com.test.service.impl.AccountServiceImpl&quot;&gt;
-    &lt;property name=&quot;accountDao&quot; ref=&quot;accountDao&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--事务管理器交给ioc--&gt;
-&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
-    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将事务管理器升级为事务通知类--&gt;
-</code></pre>
-<p>  &lt;tx:advice id&#x3D;”txAdvice” transaction-manager&#x3D;”transactionManager”&gt;<br>    <a href="tx:attributes">tx:attributes</a><br>      &lt;tx:method name&#x3D;”save*” isolation&#x3D;”DEFAULT” propagation&#x3D;”REQUIRED” read-only&#x3D;”false” timeout&#x3D;”-1”&#x2F;&gt;<br>      &lt;tx:method name&#x3D;”update*” isolation&#x3D;”DEFAULT” propagation&#x3D;”REQUIRED” read-only&#x3D;”false” timeout&#x3D;”-1”&#x2F;&gt;<br>      &lt;tx:method name&#x3D;”delete*” isolation&#x3D;”DEFAULT” propagation&#x3D;”REQUIRED” read-only&#x3D;”false” timeout&#x3D;”-1”&#x2F;&gt;<br>      &lt;tx:method name&#x3D;”find*” propagation&#x3D;”SUPPORTS” read-only&#x3D;”false”&#x2F;&gt;<br>      &lt;tx:method name&#x3D;”*” isolation&#x3D;”DEFAULT” propagation&#x3D;”REQUIRED” read-only&#x3D;”false” timeout&#x3D;”-1”&#x2F;&gt;<br>    <br>  </p>
-<pre><code>&lt;!--
-定义事务管理器信息 DefaultTransactionDefinition
-可以控制指定的方法，设置事务隔离级别、传播行为、是否只读、是否超时
-name=&quot;transfer&quot; 需要控制事务的方法名
-isolation=&quot;DEFAULT&quot; 设置当前方法的事务隔离界别，mysql默认级别:repeatable_read
-propagation=&quot;REQUIRED&quot; 设置当前方法的事务传播行为 ，REQUIRED:当前方法 必须有一个事务(单独使用开启，别人调用加入对方事务)
-read-only=&quot;false&quot; 当前方式为非只读(增删改用的)
-timeout=&quot;-1&quot; 事务超时时间，-1:永不超时
---&gt;
-</code></pre>
-  <!--aop配置-->
-<p>  <a href="aop:config">aop:config</a><br>    <!-- 仅spring的事务切面配置使用此标签
-            通知+切点=切面
-        --><br>    &lt;aop:advisor advice-ref&#x3D;”txAdvice” pointcut&#x3D;”execution(* com.test.service..*.*(..))”&#x2F;&gt;<br>  <br><br>1.1.4 ANNO配置<br>复制java模块</p>
-<p>删除事务的xml配置&amp;&amp;开启tx的注解支持</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context" xsi:schemalocation=" http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx.xsd"></beans></p>
-<pre><code>&lt;!--加载第三方配置文件--&gt;
-&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;
-
-&lt;!--druid交给ioc--&gt;
-&lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;&gt;
-    &lt;property name=&quot;driverClassName&quot; value=&quot;$&#123;jdbc.driver&#125;&quot;/&gt;
-    &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot;/&gt;
-    &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot;/&gt;
-    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--jdbcTemplate交给ioc--&gt;
-&lt;bean id=&quot;jdbcTemplate&quot; class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot;&gt;
-    &lt;constructor-arg name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--dao交给ioc--&gt;
-&lt;bean id=&quot;accountDao&quot; class=&quot;com.test.dao.impl.AccountDaoImpl&quot;&gt;
-    &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--将service交给ioc--&gt;
-&lt;bean id=&quot;accountService&quot; class=&quot;com.test.service.impl.AccountServiceImpl&quot;&gt;
-    &lt;property name=&quot;accountDao&quot; ref=&quot;accountDao&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!--事务管理器交给ioc--&gt;
-&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
-    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
-&lt;/bean&gt;
-
-&lt;!-- 开启tx事务注解支持 --&gt;
-&lt;tx:annotation-driven/&gt;
-</code></pre>
-
-在目标对象的上，使用事务注解
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>public class AccountServiceImpl implements AccountService {</p>
-<pre><code>private AccountDao accountDao;
-
-public void setAccountDao(AccountDao accountDao) &#123;
-    this.accountDao = accountDao;
-&#125;
-
-@Override
-@Transactional    //此方法被事务控制
-public void transfer(String outUser, String inUser, Double money) &#123;
-    accountDao.outUser(outUser,money);
-</code></pre>
-<p>&#x2F;&#x2F;        int i &#x3D; 1&#x2F;0;<br>        accountDao.inUser(inUser,money);<br>    }<br>}<br>测试</p>
-<p>注解事务细节补充(使用就近原则)</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>@Transactional &#x2F;&#x2F;当前类所有方法被事务控制<br>public class AccountServiceImpl implements AccountService {</p>
-<pre><code>private AccountDao accountDao;
-
-public void setAccountDao(AccountDao accountDao) &#123;
-    this.accountDao = accountDao;
-&#125;
-
-@Override
-//此方法被事务控制，配置单独参数,方法控制就近原则
-@Transactional(isolation = Isolation.DEFAULT,propagation = Propagation.REQUIRED,readOnly = false,timeout = -1)
-public void transfer(String outUser, String inUser, Double money) &#123;
-    accountDao.outUser(outUser,money);
-</code></pre>
-<p>&#x2F;&#x2F;        int i &#x3D; 1&#x2F;0;<br>        accountDao.inUser(inUser,money);<br>    }<br>}<br>二.Spring集成Web环境<br>2.1 Web环境搭建<br>创建Maven模块，JBLJavatoweb变更为web模块，添加Tomcat支持，配置pom.xml</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</p>
-<!--依赖管理-->
-<dependencies>
-  <!--spring-jdbc-->
-  <dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-jdbc</artifactId>
-    <version>5.1.5.RELEASE</version>
-  </dependency>
-  <!--spring核心-->
-  <dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-context</artifactId>
-    <version>5.1.5.RELEASE</version>
-  </dependency>
-  <dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>3.1.0</version>
-    <scope>provided</scope>
-  </dependency>
-  <dependency>
-    <groupId>javax.servlet.jsp</groupId>
-    <artifactId>jsp-api</artifactId>
-    <version>2.2</version>
-    <scope>provided</scope>
-  </dependency>
-</dependencies>
-UserDao
-
-<p>1<br>2<br>3<br>4<br>public interface UserDao {</p>
-<pre><code>public void save();
-</code></pre>
-<p>}<br>UserDaoImpl</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>@Repository<br>public class UserDaoImpl implements UserDao {</p>
-<pre><code>@Override
-public void save() &#123;
-    System.out.println(&quot;Saved!&quot;);
-&#125;
-</code></pre>
-<p>}<br>UserServic</p>
-<p>1<br>2<br>3<br>4<br>public interface UserService {</p>
-<pre><code>public void save();
-</code></pre>
-<p>}<br>UserServiceImpl</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>@Service<br>public class UserServiceImpl implements UserService {</p>
-<pre><code>@Autowired
-private UserDao userDao;
-
-@Override
-public void save() &#123;
-    userDao.save();
-&#125;
-</code></pre>
-<p>}<br>UserServlet</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>@WebServlet(“&#x2F;UserServlet”)<br>public class UserServlet extends HttpServlet {</p>
-<pre><code>@Override
-protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    this.doPost(req,resp);
-&#125;
-
-@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    // 获取spring容器的上下文对象
-    ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext(&quot;applicationContext.xml&quot;);
-    // 调用service，实现保存功能
-    UserService userService = app.getBean(UserService.class);
-    userService.save();
-&#125;
-</code></pre>
-<p>}<br>applicationContext</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br><?xml version="1.0" encoding="UTF-8"?><br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p" xsi:schemalocation="
-           http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-           http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd"></beans></p>
-<pre><code>&lt;!--开启注解组件扫描--&gt;
-&lt;context:component-scan base-package=&quot;com.test&quot;/&gt;
-</code></pre>
-
-测试
-
-<p><a target="_blank" rel="noopener" href="http://localhost:8080/%E9%A1%B9%E7%9B%AE%E5%90%8D/UserServlet">http://localhost:8080/项目名/UserServlet</a></p>
-<p>问题</p>
-<p>在servlet中的方法，直接创建spring容器，每一次都要创建，浪费内容空间和性能</p>
-<p>2.2 自定义监听器和工具类<br>在web阶段学的servletContextListener监听器，在项目启动时执行，就可以创建 ClassPathXmlApplicationContext ，可以将这个spring的app对象，设置到ServletContext域，所有servlet都可以从这个域中，获取此对象</p>
-<p>自定义监听器</p>
-<p>web.xml</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br><?xml version="1.0" encoding="UTF-8"?><br><web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemalocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5"></web-app></p>
-<pre><code>&lt;context-param&gt;
-    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-    &lt;param-value&gt;applicationContext.xml&lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;listener&gt;
-    &lt;listener-class&gt;com.test.web.listener.MyContextLoaderListener&lt;/listener-class&gt;
-&lt;/listener&gt;
-</code></pre>
-
-MyContextLoaderListener
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>public class MyContextLoaderListener implements ServletContextListener {</p>
-<pre><code>ClassPathXmlApplicationContext app = null;
-
-// 在web项目启动时，创建spring环境
-@Override
-public void contextInitialized(ServletContextEvent sce) &#123;
-    // 获取servletContext域对象
-    ServletContext servletContext = sce.getServletContext();
-    // 读取全局配置参数
-    String contextConfigLocation = servletContext.getInitParameter(&quot;contextConfigLocation&quot;);
-    // 创建spring环境
-    app = new ClassPathXmlApplicationContext(contextConfigLocation);
-    // 设置到域中
-    servletContext.setAttribute(&quot;app&quot;, app);
-    System.out.println(&quot;Spring Environment Init&quot;);
-&#125;
-
-// 在web项目卸载时，关闭spring环境
-@Override
-public void contextDestroyed(ServletContextEvent sce) &#123;
-    app.close();
-    System.out.println(&quot;Spring Environment Destroyed&quot;);
-&#125;
-</code></pre>
-<p>}<br>获取spring容器工具类</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>&#x2F;&#x2F; 专门从web最大的域中获取spring环境<br>public class MyWebApplicationContextUtils {</p>
-<p>  public static ApplicationContext getWebApplicationContext(ServletContext servletContext){<br>    return (ApplicationContext) servletContext.getAttribute(“app”);<br>  }<br>}<br>修改UserServlet</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>@WebServlet(“&#x2F;UserServlet”)<br>public class UserServlet extends HttpServlet {</p>
-<pre><code>@Override
-protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    this.doPost(req,resp);
-&#125;
-
-@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    // 获取spring容器的上下文对象
-</code></pre>
-<p>&#x2F;&#x2F;        ClassPathXmlApplicationContext app &#x3D; new ClassPathXmlApplicationContext(“applicationContext.xml”);<br>        &#x2F;&#x2F; 调用service，实现保存功能</p>
-<pre><code>    ApplicationContext app = MyWebApplicationContextUtils.getWebApplicationContext(req.getServletContext());
-
-    UserService userService = app.getBean(UserService.class);
-    userService.save();
-&#125;
-</code></pre>
-<p>}<br>2.3 Spring提供工具类<br>导入spring-web坐标</p>
-<p>1<br>2<br>3<br>4<br>5<br>6</p>
-<!--spring整合web容器-->
-<dependency>
-  <groupId>org.springframework</groupId>
-  <artifactId>spring-web</artifactId>
-  <version>5.1.5.RELEASE</version>
-</dependency>
-设置spring提供的监听器
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br><?xml version="1.0" encoding="UTF-8"?><br><web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemalocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5"></web-app></p>
-<pre><code>&lt;!--全局配置参数--&gt;
-&lt;context-param&gt;
-    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-    &lt;param-value&gt;classpath:applicationContext.xml&lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;listener&gt;
-    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-&lt;/listener&gt;
-</code></pre>
-
-修改UserServlet
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>@WebServlet(“&#x2F;UserServlet”)<br>public class UserServlet extends HttpServlet {</p>
-<pre><code>@Override
-protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    this.doPost(req,resp);
-&#125;
-
-@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
-    ApplicationContext app = WebApplicationContextUtils.getWebApplicationContext(req.getServletContext());
-
-    UserService userService = app.getBean(UserService.class);
-    userService.save();
-&#125;
-</code></pre>
-<p>}<br>三.Spring的MVC简介<br>3.1 回顾MVC模式<br>MVC</p>
-<p>Model</p>
-<p>模型 JavaBean(1.处理业务逻辑 2.封装数据)</p>
-<p>View</p>
-<p>视图 Jsp&#x2F;html(展示数据)</p>
-<p>Controller</p>
-<p>控制器 Servlet(1.接收请求 2.调用模型 3.转发视图)</p>
-<p>三层架构</p>
-<p>web层</p>
-<p>用户与java交互</p>
-<p>service层</p>
-<p>处理业务逻辑</p>
-<p>dao层</p>
-<p>Java与数据库交互</p>
-<p>用户		Web层		Service层(JavaBean)		Dao层(JavaBean)<br>用户	➡请求	SpringMVC:简化servlet	↔	处理业务逻辑<br>Spring:IOC,AOP	↔	封装数据<br>Mybatis,DbUtils,JdbcTemplate<br>用户		⬇				<br>用户	⬅响应	视图(jsp)				<br>3.2 SpringMVC介绍<br>SpringMVC 是一种基于 Java 的实现 MVC 设计模式的轻量级 Web 框架，它可以通过一套注解，让一个 简单的Java类成为控制器，而无须实现任何接口。</p>
-<p>SpringMVC框架本质上就是一个servlet，封装了共有的行为(请求、响应)，简化代码</p>
-<p>User	➡请求<br>⬅响应	Tomcat				<br>⬇			↗	特有行为JavaBean<br>Web.xml<br>配置Servlet<br>指定Servlet的类信息<br>指定Servlet的url地址	➡	SpringMVC框架<br>Servlet<br>共有行为		<br>↘	特有行为JavaBean<br>四.SpringMVC快速入门<br>需求</p>
-<p>访问一个URL, 可以在控制台打印一句话, 然后跳转到一个新的页面</p>
-<p>需求分析</p>
-<p>User	➡请求<br>⬅响应	Tomcat<br>一.导入SpringMVC坐标		三.编写Controller和jsp页面<br>四.将Controller交给IOC容器建立URL和方法映射		<br>⬇			↗	特有行为JavaBean<br>Web.xml<br>二.配置前端控制器DispatcherServlet<br>配置Servlet<br>指定Servlet的类信息<br>指定Servlet的url地址	➡	SpringMVC框架<br>Servlet<br>共有行为		<br>五.编写Spring-mvc.xml<br>1.开启注解组件扫描<br>2.开启MVC注解支持	↘	特有行为JavaBean<br>代码实现</p>
-<p>创建web模块，并导入坐标</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br><?xml version="1.0" encoding="UTF-8"?></p>
-<p><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"><br>    <modelVersion>4.0.0</modelVersion><br>    <groupId>org.example</groupId><br>    <artifactId>Spring_online_Day05_04_WEB_MVC</artifactId><br>    <version>1.0-SNAPSHOT</version><br>    <packaging>war</packaging><br>    <!--依赖管理--><br>    <dependencies><br>        <!--springMVC--><br>        <dependency><br>            <groupId>org.springframework</groupId><br>            <artifactId>spring-webmvc</artifactId><br>            <version>5.1.5.RELEASE</version><br>        </dependency><br>        <!--servlet--><br>        <dependency><br>            <groupId>javax.servlet</groupId><br>            <artifactId>servlet-api</artifactId><br>            <version>2.5</version><br>            <scope>provided</scope><br>        </dependency><br>        <!--jsp--><br>        <dependency><br>            <groupId>javax.servlet</groupId><br>            <artifactId>jsp-api</artifactId><br>            <version>2.0</version><br>            <scope>provided</scope><br>        </dependency><br>    </dependencies><br></project><br>配置前端控制器(servlet)</p>
-<p>web.xml</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br><?xml version="1.0" encoding="UTF-8"?><br><web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemalocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5"></web-app></p>
-<pre><code>&lt;!--前端控制器--&gt;
-&lt;servlet&gt;
-    &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
-    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-
-    &lt;!--加载指定配置文件--&gt;
-    &lt;init-param&gt;
-        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;classpath:spring-mvc.xml&lt;/param-value&gt;
-    &lt;/init-param&gt;
-    &lt;!--指定servlet在tomcat启动时创建--&gt;
-    &lt;load-on-startup&gt;4&lt;/load-on-startup&gt;
-&lt;/servlet&gt;
-
-&lt;!--拦截url规则:/(默认)--&gt;
-&lt;servlet-mapping&gt;
-    &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
-    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
-&lt;/servlet-mapping&gt;
-</code></pre>
-
-编写controller和jsp
-
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>&#x2F;&#x2F;一个模块对应一个控制器(类)<br>public class UserController {</p>
-<pre><code>//// 一个请求对应一个方法
-public String quickStart()&#123;
-    System.out.println(&quot;Quick Start&quot;);
-    // 转发给一个视图（在该路径创建该JSP即可）
-    return &quot;/WEB-INF/pages/success.jsp&quot;;
-&#125;
-</code></pre>
-<p>}<br>配置controller</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>&#x2F;&#x2F;一个模块对应一个控制器(类)<br>@Controller<br>public class UserController {</p>
-<pre><code>//// 一个请求对应一个方法
-@RequestMapping(path = &quot;/quickStart&quot;)
-public String quickStart()&#123;
-    System.out.println(&quot;Quick Start&quot;);
-    // 转发给一个视图
-    return &quot;/WEB-INF/pages/success.jsp&quot;;
-&#125;
-</code></pre>
-<p>}<br>编写spring-mvc.xml</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br><beans xmlns="http://www.springframework.org/schema/beans" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/mvc
-       http://www.springframework.org/schema/mvc/spring-mvc.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd"></beans></p>
-<pre><code>&lt;!--开启注解组件扫描--&gt;
-&lt;context:component-scan base-package=&quot;com.test.web&quot;/&gt;
-&lt;!--开启mvc注解支持--&gt;
-&lt;mvc:annotation-driven/&gt;
-</code></pre>
-
-部署并测试
-
-<p><a target="_blank" rel="noopener" href="http://localhost:8080/%E9%A1%B9%E7%9B%AE%E5%90%8D/quickStart">http://localhost:8080/项目名/quickStart</a></p>
-<p>简易流程</p>
-<p>五.SpringMVC组件概述<br>5.1 执行流程</p>
-<p>5.2 三大组件<br>处理器映射器:HandlerMapping<br>将请求url 和 处理器的方法 建立映射关系</p>
-<p>处理器适配器</p>
-<p>HandlerAdapter 从多个处理器当中，适配其中一个，调用目标执行</p>
-<p>视图解析器</p>
-<p>ViewResolver 将逻辑视图解析为物理视图</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</p>
-<h1 id="Default-implementation-classes-for-DispatcherServlet’s-strategy-interfaces"><a href="#Default-implementation-classes-for-DispatcherServlet’s-strategy-interfaces" class="headerlink" title="Default implementation classes for DispatcherServlet’s strategy interfaces."></a>Default implementation classes for DispatcherServlet’s strategy interfaces.</h1><h1 id="Used-as-fallback-when-no-matching-beans-are-found-in-the-DispatcherServlet-context"><a href="#Used-as-fallback-when-no-matching-beans-are-found-in-the-DispatcherServlet-context" class="headerlink" title="Used as fallback when no matching beans are found in the DispatcherServlet context."></a>Used as fallback when no matching beans are found in the DispatcherServlet context.</h1><h1 id="Not-meant-to-be-customized-by-application-developers"><a href="#Not-meant-to-be-customized-by-application-developers" class="headerlink" title="Not meant to be customized by application developers."></a>Not meant to be customized by application developers.</h1><p>org.springframework.web.servlet.LocaleResolver&#x3D;org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver</p>
-<p>org.springframework.web.servlet.ThemeResolver&#x3D;org.springframework.web.servlet.theme.FixedThemeResolver</p>
-<p>#处理器映射器<br>org.springframework.web.servlet.HandlerMapping&#x3D;org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping,<br>    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping</p>
-<p>#处理器适配器<br>org.springframework.web.servlet.HandlerAdapter&#x3D;org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter,<br>    org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter,<br>    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter</p>
-<p>org.springframework.web.servlet.HandlerExceptionResolver&#x3D;org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver,<br>    org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver,<br>    org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver</p>
-<p>org.springframework.web.servlet.RequestToViewNameTranslator&#x3D;org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator</p>
-<p>#视图解析器<br>org.springframework.web.servlet.ViewResolver&#x3D;org.springframework.web.servlet.view.InternalResourceViewResolver</p>
-<p>org.springframework.web.servlet.FlashMapManager&#x3D;org.springframework.web.servlet.support.SessionFlashMapManager<br>5.3 常用注解<br>@Controller</p>
-<p>SpringMVC基于Spring容器，所以在进行SpringMVC操作时，需要将Controller存储到Spring容器中， 故使用此注解</p>
-<p>@RequestMapping</p>
-<p>用于建立请求 URL 和处理请求方法之间的对应关系</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>&#x2F;&#x2F;一个模块对应一个控制器(类)<br>@Controller<br>@RequestMapping(“&#x2F;user”)<br>public class UserController {</p>
-<pre><code>/*
-     @RequestMapping
-        功能:将请求的url 和 方法 建立映射关系
-    位置:
-        类上:建立一级url访问路径
-        方法上:建立二级的url访问路径，与一级路径组成一个完整url路径
-    例:
-                /user/quickStart
-    常用属性:
-        value/path:声明url访问路径
-        method:限定请求方式，默认支持所有，共有7种(get、post、put、delete)
-        params:限定请求参数
-</code></pre>
-<p>*&#x2F;</p>
-<pre><code>@RequestMapping(value = &quot;/quickStart&quot;, method = &#123;RequestMethod.POST, RequestMethod.GET&#125;, params = &#123;&quot;username&quot;, &quot;password&quot;&#125;)
-public String quickStart() &#123;
-    System.out.println(&quot;Quick Start&quot;);
-    // 转发给一个视图
-    return &quot;success&quot;;
-&#125;
-</code></pre>
-<p>}<br>总结</p>
-<h1 id="spring05"><a href="#spring05" class="headerlink" title="spring05"></a>spring05</h1><h2 id="一-Spring的事务"><a href="#一-Spring的事务" class="headerlink" title="一 Spring的事务"></a>一 Spring的事务</h2><h3 id="声明式事务控制"><a href="#声明式事务控制" class="headerlink" title="声明式事务控制"></a>声明式事务控制</h3><ul>
-<li>xml配置</li>
-</ul>
-<p>​ - 平台事务管理器配置</p>
-<p>​ -</p>
-<p>​</p>
-<p>​ - 事务通知的配置</p>
-<p>​ - &lt;tx:advice id&#x3D;”myAdvice” transaction-manager&#x3D;”transactionManager”&gt;</p>
-<p>​<br>​ tx:attributes</p>
-<p>​ &lt;tx:method name&#x3D;”*”&#x2F;&gt;</p>
-<p>​</p>
-<p>​ - 事务aop织入的配置</p>
-<p>​ - aop:config</p>
-<p>​ &lt;aop:advisor advice-ref&#x3D;”myAdvice”</p>
-<p>​ pointcut&#x3D;”execution(* com.test.service.impl..(..))”&gt;</p>
-<p>​</p>
-<ul>
-<li>常用注解配置</li>
-</ul>
-<p>​ - 平台事务管理器配置</p>
-<p>​ -</p>
-<p>​</p>
-<p>​ - 开启注解支持</p>
-<p>​ - tx:annotation-driven&#x2F;</p>
-<p>​ - 在目标对象上使用事务注解</p>
-<p>​ - @Transactional</p>
-<h2 id="二-Spring集成web环境"><a href="#二-Spring集成web环境" class="headerlink" title="二 Spring集成web环境"></a>二 Spring集成web环境</h2><h3 id="导入Spring集成web的坐标"><a href="#导入Spring集成web的坐标" class="headerlink" title="导入Spring集成web的坐标"></a>导入Spring集成web的坐标</h3><p>​ org.springframework</p>
-<p>​ spring-web</p>
-<p>​ 5.1.5.RELEASE</p>
-<h3 id="配置ContextLoaderListener监听器"><a href="#配置ContextLoaderListener监听器" class="headerlink" title="配置ContextLoaderListener监听器"></a>配置ContextLoaderListener监听器</h3><p>​ contextConfigLocation</p>
-<p>​ classpath:applicationContext.xml</p>
-<p>​</p>
-<p>​ org.springframework.web.context.ContextLoaderListener</p>
-<h3 id="通过工具获得应用上下文对象"><a href="#通过工具获得应用上下文对象" class="headerlink" title="通过工具获得应用上下文对象"></a>通过工具获得应用上下文对象</h3><p>ApplicationContext app &#x3D;</p>
-<p>​ WebApplicationContextUtils.getWebApplicationContext(servletContext);</p>
-<p>​ Object obj &#x3D; app.getBean(“id”);</p>
-<h2 id="三-SpringMVC简介"><a href="#三-SpringMVC简介" class="headerlink" title="三 SpringMVC简介"></a>三 SpringMVC简介</h2><h3 id="MVC模式"><a href="#MVC模式" class="headerlink" title="MVC模式"></a>MVC模式</h3><ul>
-<li><p>M（model）模型：处理业务逻辑，封装实体</p>
-</li>
-<li><p>V（view） 视图：展示内容</p>
-</li>
-<li><p>C（controller）控制器：负责调度分发（1.接收请求、2.调用模型、3.转发到视图）</p>
-</li>
-</ul>
-<h3 id="springMVC"><a href="#springMVC" class="headerlink" title="springMVC"></a>springMVC</h3><ul>
-<li><p>springMVC是基于java实现MVC设计模式的轻量级web框架。封装了servlet共有的特性，使开发者关注业务本身。</p>
-</li>
-<li><p>本质上就是一个servlet</p>
-</li>
-</ul>
-<p>​ - 我们只需要写控制器（controller）</p>
-<h2 id="四-SpringMVC快速入门"><a href="#四-SpringMVC快速入门" class="headerlink" title="四 SpringMVC快速入门"></a>四 SpringMVC快速入门</h2><h3 id="1-创建web项目，导入SpringMVC相关坐标"><a href="#1-创建web项目，导入SpringMVC相关坐标" class="headerlink" title="1. 创建web项目，导入SpringMVC相关坐标"></a>1. 创建web项目，导入SpringMVC相关坐标</h3><h3 id="2-配置SpringMVC前端控制器-DispathcerServlet"><a href="#2-配置SpringMVC前端控制器-DispathcerServlet" class="headerlink" title="2. 配置SpringMVC前端控制器 DispathcerServlet"></a>2. 配置SpringMVC前端控制器 DispathcerServlet</h3><h3 id="3-编写Controller类和视图页面"><a href="#3-编写Controller类和视图页面" class="headerlink" title="3. 编写Controller类和视图页面"></a>3. 编写Controller类和视图页面</h3><h3 id="4-使用注解配置Controller类中业务方法的映射地址"><a href="#4-使用注解配置Controller类中业务方法的映射地址" class="headerlink" title="4. 使用注解配置Controller类中业务方法的映射地址"></a>4. 使用注解配置Controller类中业务方法的映射地址</h3><h3 id="5-配置SpringMVC核心文件-spring-mvc-xml"><a href="#5-配置SpringMVC核心文件-spring-mvc-xml" class="headerlink" title="5. 配置SpringMVC核心文件 spring-mvc.xml"></a>5. 配置SpringMVC核心文件 spring-mvc.xml</h3><h3 id="6-部署并测试"><a href="#6-部署并测试" class="headerlink" title="6.部署并测试"></a>6.部署并测试</h3><h2 id="五-SpringMVC组件概述"><a href="#五-SpringMVC组件概述" class="headerlink" title="五 SpringMVC组件概述"></a>五 SpringMVC组件概述</h2><h3 id="SpringMVC的执行流程"><a href="#SpringMVC的执行流程" class="headerlink" title="SpringMVC的执行流程"></a>SpringMVC的执行流程</h3><h3 id="三大组件"><a href="#三大组件" class="headerlink" title="三大组件"></a>三大组件</h3><ul>
-<li><p>HandlerMapping</p>
-</li>
-<li><p>HandlerAdapter</p>
-</li>
-<li><p>ViewResolver</p>
-</li>
-</ul>
-<p>​ - 重写视图解析器，指定前后缀</p>
-<h3 id="注解解析"><a href="#注解解析" class="headerlink" title="注解解析"></a>注解解析</h3><ul>
-<li>@Controller</li>
-</ul>
-<p>​ - 将对象交给ioc容器</p>
-<ul>
-<li>@requestMapping</li>
-</ul>
-<p>​ - 将url与方法建立映射关系</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -3382,7 +2683,7 @@ public String quickStart() &#123;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">200</span>
+          <span class="site-state-item-count">201</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

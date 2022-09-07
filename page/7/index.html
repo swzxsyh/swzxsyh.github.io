@@ -181,6 +181,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/" class="post-title-link" itemprop="url">JAVA-CAS与原子类</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 23:11:43" itemprop="dateCreated datePublished" datetime="2022-07-03T23:11:43+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><h2 id="什么是CAS"><a href="#什么是CAS" class="headerlink" title="什么是CAS"></a>什么是CAS</h2><blockquote>
+<p><code>CAS(compare and swap)</code>,字面意思比较并交换,是解决多线程并行情况下使用锁造成性能损耗的一种机制.</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">compareAndSet</span><span class="params">(<span class="type">int</span> expect, <span class="type">int</span> update)</span> &#123;        </span><br><span class="line">  <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="built_in">this</span>, valueOffset, expect, update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>CAS</code>有三个操作数,<code>valueOffset</code>内存值,<code>expect</code>期望值,<code>update</code>要更新的值。如果内存值(<code>valueOffset</code>)和期望值(<code>expect</code>)是一样的。那么处理器会将该位置的值更新为(<code>update</code>),否则不做任何操作。</p>
+<p>CAS 有效地说明了“我认为位置<code>valueOffset</code>应该包含值<code>expect</code>，如果包含该值，则将<code>update</code>放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。”在 Java 中，sun.misc.Unsafe类提供了硬件级别的原子操作来实现这个 CAS，java.util.concurrent包下的大量类都使用了这个Unsafe类的 CAS 操作</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -925,91 +1005,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/" class="post-title-link" itemprop="url">MessageQueue-面试题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 18:05:01" itemprop="dateCreated datePublished" datetime="2022-07-02T18:05:01+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-13 04:38:15" itemprop="dateModified" datetime="2022-08-13T04:38:15+08:00">2022-08-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="为什么使用MQ"><a href="#为什么使用MQ" class="headerlink" title="为什么使用MQ"></a>为什么使用MQ</h2><ul>
-<li>解耦</li>
-<li>异步</li>
-<li>削峰</li>
-</ul>
-<h2 id="MQ选型"><a href="#MQ选型" class="headerlink" title="MQ选型"></a>MQ选型</h2><p><strong>Kafka：</strong>追求高吞吐量，一开始的目的就是用于日志收集和传输，适合产生大量数据的互联网服务的数据收集业务，大型公司建议可以选用，如果有日志采集功能，肯定是首选 Kafka。</p>
-<p><strong>RocketMQ：</strong>天生为金融互联网领域而生，对于可靠性要求很高的场景，尤其是电商里面的订单扣款，以及业务削峰，在大量交易涌入时，后端可能无法及时处理的情况。</p>
-<p>RocketMQ 在稳定性上可能更值得信赖，这些业务场景在阿里双 11 已经经历了多次考验，如果你的业务有上述并发场景，建议可以选择 RocketMQ。</p>
-<p><strong>RabbitMQ：</strong>结合 erlang 语言本身的并发优势，性能较好，社区活跃度也比较高，但是不利于做二次开发和维护，不过 RabbitMQ 的社区十分活跃，可以解决开发过程中遇到的 bug。如果你的数据量没有那么大，小公司优先选择功能比较完备的 RabbitMQ。</p>
-<p><strong>ActiveMQ：</strong>官方社区现在对 ActiveMQ 5.x 维护越来越少，较少在大规模吞吐的场景中使用。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1075,7 +1074,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">200</span>
+          <span class="site-state-item-count">201</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

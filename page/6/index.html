@@ -181,6 +181,97 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">JVM-垃圾回收算法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-04 17:00:46" itemprop="dateCreated datePublished" datetime="2022-07-04T17:00:46+08:00">2022-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h1><p>枚举根节点，做可达性分析</p>
+<ul>
+<li>根节点<br>类加载器、Thread、虚拟机栈的本地变量表、static 成员、常量引用、本地方法栈的变量等等</li>
+</ul>
+<h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><h2 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h2><p><strong>JVM中没有使用</strong></p>
+<p>在创建对象和将对象赋值给某个变量时，将对象的引用计数+1，在移除对象和某个变量的引用关系时，将对象的运营计数-1，当对象的引用计数变为0时，递归地将该对象引用的子对象的引用计数器减1，并把该对象的内存块加入空闲链表中。在通过增减对象的引用计数器来判别活跃对象和非活跃对象，然后在计数器值为0的时候回收对象，这种做法可以在对象不活跃的时候立即回收它。</p>
+<ul>
+<li><p>优点</p>
+<ul>
+<li>可以立即回收垃圾。因为每个对象在被引用次数为0的时候，是立即就可以知道的。</li>
+<li>没有暂停时间。这个很容易理解，对象的回收根本不需要另外的GC线程专门去做，业务线程自己就搞定了。所以不需要stop the world，当然，在多线程的情况下，必要的同步和互斥操作还是需要的。</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>在每次赋值操作的时候都要做相当大的计算，尤其这里面还有递归调用。这是比较麻烦的。</li>
+<li>一个致命缺陷是循环引用，就是， objA引用了objB，objB也引用了objA，但是除此之外，再没有其他的地方引用这两个对象了，这两个对象的引用计数就都是1。这种情况下，这两个对象是不能被回收的。</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/04/JVM-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/JVM-%E8%B0%83%E4%BC%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1080,90 +1171,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/" class="post-title-link" itemprop="url">JAVA-CAS与原子类</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-03 23:11:43" itemprop="dateCreated datePublished" datetime="2022-07-03T23:11:43+08:00">2022-07-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><h2 id="什么是CAS"><a href="#什么是CAS" class="headerlink" title="什么是CAS"></a>什么是CAS</h2><blockquote>
-<p><code>CAS(compare and swap)</code>,字面意思比较并交换,是解决多线程并行情况下使用锁造成性能损耗的一种机制.</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">compareAndSet</span><span class="params">(<span class="type">int</span> expect, <span class="type">int</span> update)</span> &#123;        </span><br><span class="line">  <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="built_in">this</span>, valueOffset, expect, update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>CAS</code>有三个操作数,<code>valueOffset</code>内存值,<code>expect</code>期望值,<code>update</code>要更新的值。如果内存值(<code>valueOffset</code>)和期望值(<code>expect</code>)是一样的。那么处理器会将该位置的值更新为(<code>update</code>),否则不做任何操作。</p>
-<p>CAS 有效地说明了“我认为位置<code>valueOffset</code>应该包含值<code>expect</code>，如果包含该值，则将<code>update</code>放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。”在 Java 中，sun.misc.Unsafe类提供了硬件级别的原子操作来实现这个 CAS，java.util.concurrent包下的大量类都使用了这个Unsafe类的 CAS 操作</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1229,7 +1240,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">200</span>
+          <span class="site-state-item-count">201</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
