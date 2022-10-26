@@ -181,6 +181,78 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2019/03/21/Centos-8-%E6%8C%82%E8%BD%BD%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8Frepo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/03/21/Centos-8-%E6%8C%82%E8%BD%BD%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8Frepo/" class="post-title-link" itemprop="url">Centos 8 挂载本地镜像repo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-21 23:42:36" itemprop="dateCreated datePublished" datetime="2019-03-21T23:42:36+08:00">2019-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>Centos 8 挂载本地镜像repo</li>
+</ul>
+<p>安装后命令行界面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#先挂载本地镜像</span></span><br><span class="line"><span class="built_in">mkdir</span> /mnt/cdrom</span><br><span class="line">mount -t auto /dev/cdrom /mnt/cdrom</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证是否存在</span></span><br><span class="line">ll /mnt/cdrom</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /etc/yum.repo.d/</span><br><span class="line"><span class="built_in">touch</span> local.repo</span><br><span class="line"></span><br><span class="line">vi local.repo</span><br><span class="line"></span><br><span class="line">[LocalRepo_BaseOS]</span><br><span class="line">name=Centos Linux 8</span><br><span class="line">baseurl=file:///mnt/cdrom/BaseOS</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkep=file://etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</span><br><span class="line"></span><br><span class="line">[LocalRepo_AppStream]</span><br><span class="line">name=Centos Linux 8</span><br><span class="line">baseurl=file:///mnt/cdrom/AppStream</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkep=file://etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial</span><br><span class="line"></span><br><span class="line"><span class="comment">#退出 :x</span></span><br><span class="line"></span><br><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br><span class="line"></span><br><span class="line">查看grouplist有什么可以安装的</span><br><span class="line">yum grouplist</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2018/10/25/My-New-Post/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -311,7 +383,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">201</span>
+          <span class="site-state-item-count">202</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

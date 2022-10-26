@@ -181,6 +181,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/08/JAVA-Synchronized%E4%B8%8EReentrantLock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/08/JAVA-Synchronized%E4%B8%8EReentrantLock/" class="post-title-link" itemprop="url">JAVA-Synchronized与ReentrantLock</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-08 03:00:16" itemprop="dateCreated datePublished" datetime="2022-07-08T03:00:16+08:00">2022-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h1><h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="公平和非公平锁"><a href="#公平和非公平锁" class="headerlink" title="公平和非公平锁"></a>公平和非公平锁</h3><p>公平锁指的就是：在竞争环境下，先到临界区的线程比后到的线程一定更快地获取得到锁</p>
+<p>那非公平就很好理解了：先到临界区的线程未必比后到的线程更快地获取得到锁</p>
+<h3 id="怎么实现公平和非公平锁？"><a href="#怎么实现公平和非公平锁？" class="headerlink" title="怎么实现公平和非公平锁？"></a>怎么实现公平和非公平锁？</h3><p>公平锁可以把竞争的线程放在一个先进先出的队列上</p>
+<p>只要持有锁的线程执行完了，唤醒队列的下一个线程去获取锁就好了</p>
+<p>非公平锁的概念上面已经提到了：后到的线程可能比前到临界区的线程获取得到锁</p>
+<p>那实现也很简单，线程先尝试能不能获取得到锁，如果获取得到锁了就执行同步代码了</p>
+<p>如果获取不到锁，那就再把这个线程放到队列呗</p>
+<p>所以公平和非公平的区别就是：线程执行同步代码块时，是否会去尝试获取锁。</p>
+<p>如果会尝试获取锁，那就是非公平的。如果不会尝试获取锁，直接进队列，再等待唤醒，那就是公平的。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/08/JAVA-Synchronized%E4%B8%8EReentrantLock/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/08/Spring-BeanFactory/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -835,97 +915,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Tomcat-%E7%BB%84%E4%BB%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/07/Tomcat-%E7%BB%84%E4%BB%B6/" class="post-title-link" itemprop="url">Tomcat-组件</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-07 01:41:37" itemprop="dateCreated datePublished" datetime="2022-07-07T01:41:37+08:00">2022-07-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Tomcat组件"><a href="#Tomcat组件" class="headerlink" title="Tomcat组件"></a>Tomcat组件</h1><p><img src="/2022/07/07/Tomcat-%E7%BB%84%E4%BB%B6/Tomcat%E7%BB%84%E4%BB%B6.jpg"></p>
-<h2 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h2><ul>
-<li>Connector(配置端口等参数)</li>
-<li>Service<ul>
-<li>Executor</li>
-</ul>
-</li>
-<li>Engine<ul>
-<li>Host<ul>
-<li>Context1(Servlet容器)<ul>
-<li>Warpper-1</li>
-</ul>
-</li>
-<li>Context2(Servlet容器)<ul>
-<li>Wrapper-A</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
-<li>server.xml</li>
-<li>context.xml</li>
-<li>web.xml</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -995,7 +984,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">201</span>
+          <span class="site-state-item-count">202</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
