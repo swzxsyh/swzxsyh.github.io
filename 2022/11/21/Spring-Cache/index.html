@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Spring缓存为什么需要缓存 减轻服务器压力          客户端缓存 CDN对象存储   接入服务器 NGIX缓存    应用服务器Tomcat Mybatis &amp;&amp; Hibernate缓存 分布式缓存&#x2F;Redis   Spring Cache Spring Cache 是Spring 提供的一整套的缓存解决方案(JSR- 107)， 提供一整套的接口和代码规范、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-Cache">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/11/21/Spring-Cache/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Spring缓存为什么需要缓存 减轻服务器压力          客户端缓存 CDN对象存储   接入服务器 NGIX缓存    应用服务器Tomcat Mybatis &amp;&amp; Hibernate缓存 分布式缓存&#x2F;Redis   Spring Cache Spring Cache 是Spring 提供的一整套的缓存解决方案(JSR- 107)， 提供一整套的接口和代码规范、">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-20T21:32:47.000Z">
+<meta property="article:modified_time" content="2022-11-21T01:04:56.509Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2022/11/21/Spring-Cache/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring-Cache | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/11/21/Spring-Cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring-Cache
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-11-21 05:32:47 / 修改时间：09:04:56" itemprop="dateCreated datePublished" datetime="2022-11-21T05:32:47+08:00">2022-11-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Spring缓存"><a href="#Spring缓存" class="headerlink" title="Spring缓存"></a>Spring缓存</h1><h2 id="为什么需要缓存"><a href="#为什么需要缓存" class="headerlink" title="为什么需要缓存"></a>为什么需要缓存</h2><ul>
+<li>减轻服务器压力</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>客户端缓存</td>
+<td>CDN对象存储</td>
+</tr>
+<tr>
+<td>接入服务器 NGIX缓存</td>
+<td></td>
+</tr>
+<tr>
+<td>应用服务器Tomcat Mybatis &amp;&amp; Hibernate缓存</td>
+<td>分布式缓存&#x2F;Redis</td>
+</tr>
+</tbody></table>
+<h2 id="Spring-Cache"><a href="#Spring-Cache" class="headerlink" title="Spring Cache"></a>Spring Cache</h2><ul>
+<li>Spring Cache 是Spring 提供的一整套的缓存解决方案(JSR- 107)，</li>
+<li>提供一整套的接口和代码规范、配置、注解等，用于整合各种缓 存方案，如Redis、Caffeine、Guava Cache、Ehcache</li>
+</ul>
+<h3 id="不推荐原因"><a href="#不推荐原因" class="headerlink" title="不推荐原因"></a>不推荐原因</h3><ul>
+<li>无法测试：无法进行切片测试</li>
+<li>不支持复杂结构，只能进行简单对象查询存储</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="MyBatis缓存"><a href="#MyBatis缓存" class="headerlink" title="MyBatis缓存"></a>MyBatis缓存</h2><h3 id="一级缓存和二级缓存"><a href="#一级缓存和二级缓存" class="headerlink" title="一级缓存和二级缓存"></a>一级缓存和二级缓存</h3><ul>
+<li><p>在参数和 SQL 完全一样的情况下，优先命中一级缓存，避免直接对数据库进行查询，提高性能。</p>
+</li>
+<li><p>把执行的方法和参数通过算法生成缓存的键值， 将键值和结果存放在一 个 Map 中， 如果后续的键值一样， 则直接从 Map 中获取数据;</p>
+</li>
+<li><p>缓存发霉 解决方案</p>
+<p>任何的 UPDATE, INSERT, DELETE 语句都会清空缓存</p>
+</li>
+</ul>
+<h4 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h4><ul>
+<li>Mybatis强制开启一级缓存</li>
+<li>在一个事务中，若<code>同一个事务中</code>，出现相同的查询SQL，应用服务器则会将第一次查询结果进行<strong>本地缓存</strong>，后续<code>相同Hash值</code>语句返回缓存的相同结果</li>
+<li>不通事务的相同语句查询结果互不干扰</li>
+<li>若Database事务隔离级别在 Read Commited或更低时 则会导致数据异常</li>
+</ul>
+<h4 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h4><ul>
+<li><p>二级缓存需额外存储介质，查询结果会进入二级缓存，多应用服务会在第三方介质中以不同NameSpace进行隔离</p>
+</li>
+<li><p>开启二级缓存后，会将一级缓存结果存入二级缓存，后续查询优先查询二级缓存Hash数据，若没有则查询一级缓存数据。</p>
+</li>
+<li><p>可以用参数控制开启二级缓存，但是多实例应用连接会导致数据异常</p>
+<p>缓存发霉解决方案只能解决当前服务器操作的结果，当A进行修改，B服务器缓存不会被删除，此时Load Balance请求使用B服务器查询到Cache则数值异常</p>
+</li>
+<li><p>所有当前服务器前端连接 查询相同语句的 结果都会被相互共用</p>
+</li>
+<li><p>不建议开启二级缓存</p>
+</li>
+</ul>
+<h2 id="Redis缓存"><a href="#Redis缓存" class="headerlink" title="Redis缓存"></a>Redis缓存</h2><ul>
+<li>Redis 是高性能的 内存 key-value 数据库<ul>
+<li>支持数据的持久化，可以将内存中的数据保存在磁盘中，重启的时候可以再次加载进行使用(RDB&#x2F;AOF 在宕机后仍会丢弃数据)</li>
+<li>不仅支持简单的key-value类型的数据，同时还提供list，set，zset， hash等数据结构的存储。</li>
+<li>支持数据的备份，即master-slave模式的数据备份</li>
+<li>Redis采用IO多路复用，单线程结构 – 读的速度是110000次&#x2F;s, 写的速度是81000次&#x2F;s</li>
+<li>Redis的所有操作都是原子性的。多个操作也支持事务</li>
+</ul>
+</li>
+</ul>
+<h3 id="Redis的常用数据类型"><a href="#Redis的常用数据类型" class="headerlink" title="Redis的常用数据类型"></a>Redis的常用数据类型</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>简介</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>String(字符串)</td>
+<td>是 Redis 最基本的数据类型并且 是二进制安全的</td>
+<td>可以包含任何数据,比如jpg图片或者序列 化的对象,一个键最大能存储512M</td>
+</tr>
+<tr>
+<td>Hash(字典)</td>
+<td>键值对集合</td>
+<td>适合存储对象,并且可以像数据库中 update一个属性一样只修改某一项属性值</td>
+</tr>
+<tr>
+<td>List(列表)</td>
+<td>链表(双向链表)，按照插入顺序排 序。</td>
+<td>增删快,提供了操作某一段元素的API</td>
+</tr>
+<tr>
+<td>Set(集合)</td>
+<td>哈希表实现，元素不重复</td>
+<td>添加、删除,查找的复杂度都是O(1) 。为 集合提供了求交集、并集、差集等操作</td>
+</tr>
+<tr>
+<td>Bitmap</td>
+<td>是一种实现对位的操作</td>
+<td>借助字符串进行位操作</td>
+</tr>
+</tbody></table>
+<h4 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h4><ul>
+<li><p>可以是字符串、数字、二进制图片、音频等，大小不超过512MB</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SET key value [ex seconds] [px milliseconds] [nx|xx]</span></span><br><span class="line">redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS) </span><br><span class="line"><span class="comment">//GET key</span></span><br><span class="line">redisTemplate.opsForValue().get(key) </span><br><span class="line"><span class="comment">//INCRBY key delta</span></span><br><span class="line">redisTemplate.opsForValue().increment(key, delta)</span><br><span class="line"><span class="comment">//EXISTS key</span></span><br><span class="line">redisTemplate.hasKey(key)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h4><ul>
+<li><p>键值对集合,可以像数据库中update一个属性一样只修改某一项属性值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HSET key field</span></span><br><span class="line">redisTemplateopsForHash().put(key, field, value)</span><br><span class="line"><span class="comment">//HGET key field</span></span><br><span class="line">redisTemplate.opsForHash().get(key, field)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="List"><a href="#List" class="headerlink" title="List"></a>List</h4><ul>
+<li><p>链表(双向链表)，按照插入顺序排序。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//LPOP key</span></span><br><span class="line">redisTemplate.opsForList().leftPop(key) </span><br><span class="line"><span class="comment">//LLEN key</span></span><br><span class="line">redisTemplate.opsForList().size(key)</span><br><span class="line"><span class="comment">//RPUSHX key value</span></span><br><span class="line">redisTemplate.opsForList().rightPush(key, value)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h4><ul>
+<li><p>为集合提供了求交集、并集、差集等操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SADD key value1 ... valueN</span></span><br><span class="line">redisTemplate..opsForSet().add(key, values) </span><br><span class="line"><span class="comment">//SMEMBERS key</span></span><br><span class="line">redisTemplate.opsForSet().members(key) </span><br><span class="line"><span class="comment">//SUNIONSTORE destination key1 key2</span></span><br><span class="line">redisTemplate.opsForSet().unionAndStore(key1, key2, destination) <span class="comment">//SCARD key</span></span><br><span class="line">redisTemplate.opsForSet().size(key)</span><br><span class="line"><span class="comment">//SREM key value1 ... valueN</span></span><br><span class="line">redisTemplate.opsForSet().remove(key, value1, ..., valueN)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h4><ul>
+<li><p>进行位操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SETBIT key offset value</span></span><br><span class="line">redisTemplate.opsForValue().setBit(key, offset, value) </span><br><span class="line"><span class="comment">//GETBIT key offset</span></span><br><span class="line">redisTemplate.opsForValue().getBit(key, offset)</span><br><span class="line"><span class="comment">//BITCOUNT key start end</span></span><br><span class="line">redisTemplate.execute((RedisCallback&lt;Long&gt;) connection -&gt; connection.bitCount(key.getBytes(), start, end))</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="Lua操作"><a href="#Lua操作" class="headerlink" title="Lua操作"></a>Lua操作</h4><ul>
+<li>Redis内置 Lua 解释器</li>
+<li>使用 EVAL 命令对 Lua 脚本进行执行，并获取脚本的返回值</li>
+<li>Redis是单线程的，脚本也是原子性的，因此只能执行完脚本后才能执行后续命令。因此脚步不能复杂，否则会带来性能问题。</li>
+<li>不建议使用<ul>
+<li>动态语言类型定义问题</li>
+<li>无法调试</li>
+</ul>
+</li>
+</ul>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ul>
+<li><p>利用缓存存储对象，加快访问的速度（Spring事务结束前，一定要删除一次RedisCache）</p>
+</li>
+<li><p>利用Set，计算权限的并集</p>
+</li>
+<li><p>利用Redis实现库存的高并发扣减</p>
+<ul>
+<li>将库存量读入Redis中，利用Redis的原子性操作实现库存的高并发扣减</li>
+<li>不更新数据库，用带事务的消息队列 (如RocketMQ) 将库存量写回</li>
+</ul>
+</li>
+<li><p>Bloom过滤器</p>
+<ul>
+<li><p>是1970年由布隆提出的，用以判断一个元素是否在一个集合里</p>
+</li>
+<li><p>用一个固定大小的空间，记录所有的Key</p>
+</li>
+<li><p>原理</p>
+<ul>
+<li>利用多个Hash函数，针对同一个元素进行Hash计算后取模，再根据结果更改位置数值，尽量避免Hash冲突问题</li>
+</ul>
+</li>
+<li><p>有误判率，当位数容量不足以满足元素空间数量时，会导致误判(K &#x3D; <sup>m</sup>&#x2F;n ln2) ,若所有位都被填充位1时，会导致所有判断失效</p>
+</li>
+<li><p>使用场景</p>
+<ul>
+<li><p>可以避免恶意访问导致的缓存穿透、缓存雪崩问题（需定期删除避免正常访问数据查询异常）</p>
+<p>缓存穿透<br>故意去请求缓存中不存在的数据，导致所有的请求都穿透到数据库访问上，造成数据库的负载增加</p>
+<p>缓存雪崩</p>
+<p>• 缓存同一时间大面积的失效，导致所有请求同时到达数据库，造成数据 库负载增加</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h3><h4 id="惰性删除"><a href="#惰性删除" class="headerlink" title="惰性删除"></a>惰性删除</h4><ul>
+<li>当访问到该键时，如果该键值已过期，则返回空，并删除该键。</li>
+</ul>
+<h4 id="定期删除"><a href="#定期删除" class="headerlink" title="定期删除"></a>定期删除</h4><ul>
+<li>定期运行，随机中选取一些键并删除其中过期的键</li>
+</ul>
+<h4 id="内存管理机制"><a href="#内存管理机制" class="headerlink" title="内存管理机制"></a>内存管理机制</h4><ul>
+<li>volatile-lru:利用LRU算法移除有过期时间的key。<ul>
+<li>LRU(Least recently used，最近最少使用) • 随机采样一部分键值，淘汰其中最久没有访问的键</li>
+</ul>
+</li>
+<li>volatile-random:随机移除有过期时间的key。 </li>
+<li>volatile-ttl:移除即将过期的key，根据最近过期时间来删除</li>
+<li>allkeys-lru:利用LRU算法移除任何key。</li>
+<li>allkeys-random:随机移除任何key。</li>
+<li>noeviction（默认）:不移除任何key，只是返回一个写错误</li>
+</ul>
+<h1 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h1><p><a target="_blank" rel="noopener" href="https://www.icourse163.org/learn/XMU-1462056168#/learn/content">https://www.icourse163.org/learn/XMU-1462056168#/learn/content</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/MYSQL-InnoDB%E5%AD%98%E5%82%A8/" rel="prev" title="MYSQL-InnoDB存储">
+      <i class="fa fa-chevron-left"></i> MYSQL-InnoDB存储
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/21/MyBatis-Principle/" rel="next" title="MyBatis-原理">
+      MyBatis-原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E7%BC%93%E5%AD%98"><span class="nav-number">1.</span> <span class="nav-text">Spring缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BC%93%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">为什么需要缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cache"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E6%8E%A8%E8%8D%90%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.2.1.</span> <span class="nav-text">不推荐原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MyBatis%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.</span> <span class="nav-text">MyBatis缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98%E5%92%8C%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.1.</span> <span class="nav-text">一级缓存和二级缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">一级缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">二级缓存</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E7%BC%93%E5%AD%98"><span class="nav-number">1.4.</span> <span class="nav-text">Redis缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E7%9A%84%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">Redis的常用数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">字符串</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hash"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">Hash</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#List"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">List</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Set"><span class="nav-number">1.4.1.4.</span> <span class="nav-text">Set</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Bitmap"><span class="nav-number">1.4.1.5.</span> <span class="nav-text">Bitmap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Lua%E6%93%8D%E4%BD%9C"><span class="nav-number">1.4.1.6.</span> <span class="nav-text">Lua操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.4.2.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.4.3.</span> <span class="nav-text">内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%83%B0%E6%80%A7%E5%88%A0%E9%99%A4"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">惰性删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E6%9C%9F%E5%88%A0%E9%99%A4"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">定期删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">内存管理机制</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">2.</span> <span class="nav-text">来源</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">187</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/swzxsyh" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/swzxsyh" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '713a28a3ad93f2aa2323',
+      clientSecret: '39dc40bb09b422ca4c99a748b5984a4d205e91be',
+      repo        : 'swzxsyh.github.io',
+      owner       : 'swzxsyh',
+      admin       : ['swzxsyh'],
+      id          : '2ba02c5276c79efe1108b43fcf801875',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

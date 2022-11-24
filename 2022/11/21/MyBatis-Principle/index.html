@@ -21,19 +21,19 @@
     var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="PostProcessor &amp;&amp; AwareBeanDefinitionRegistiyPostProcessor 获取BeanDefinition 删除BeanDefinition 替换，BeanDefinitionBuilder.build().register.regist() 设置自己的Bean定义&#x2F;实现类  BeanFactoryPostProcessor 对B">
+  <meta name="description" content="MyBatis原理TODO 主要接口SqlSessionFactory Spring框架中&lt;&lt;FactoryBean&lt;SqlSessionFactory&gt;&gt;利用FactoryBean功能构建出SqlSessionFactoryBean。 通过SqlSessionFactoryBuilder构建出SqlSessionFactory(自带仅一个DefaultSqlSess">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring-PostProcessor &amp;&amp; Aware">
-<meta property="og:url" content="https://swzxsyh.github.io/2022/07/07/Spring-PostProcessor-Aware/index.html">
+<meta property="og:title" content="MyBatis-原理">
+<meta property="og:url" content="https://swzxsyh.github.io/2022/11/21/MyBatis-Principle/index.html">
 <meta property="og:site_name" content="swzxsyh">
-<meta property="og:description" content="PostProcessor &amp;&amp; AwareBeanDefinitionRegistiyPostProcessor 获取BeanDefinition 删除BeanDefinition 替换，BeanDefinitionBuilder.build().register.regist() 设置自己的Bean定义&#x2F;实现类  BeanFactoryPostProcessor 对B">
+<meta property="og:description" content="MyBatis原理TODO 主要接口SqlSessionFactory Spring框架中&lt;&lt;FactoryBean&lt;SqlSessionFactory&gt;&gt;利用FactoryBean功能构建出SqlSessionFactoryBean。 通过SqlSessionFactoryBuilder构建出SqlSessionFactory(自带仅一个DefaultSqlSess">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-07-06T17:14:45.000Z">
-<meta property="article:modified_time" content="2022-08-09T20:40:38.163Z">
+<meta property="article:published_time" content="2022-11-21T01:06:18.000Z">
+<meta property="article:modified_time" content="2022-11-21T01:37:10.179Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://swzxsyh.github.io/2022/07/07/Spring-PostProcessor-Aware/">
+<link rel="canonical" href="https://swzxsyh.github.io/2022/11/21/MyBatis-Principle/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>Spring-PostProcessor && Aware | swzxsyh</title>
+  <title>MyBatis-原理 | swzxsyh</title>
   
 
 
@@ -186,7 +186,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Spring-PostProcessor-Aware/">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/11/21/MyBatis-Principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -199,7 +199,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Spring-PostProcessor && Aware
+          MyBatis-原理
         </h1>
 
         <div class="post-meta">
@@ -208,16 +208,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2022-07-07 01:14:45" itemprop="dateCreated datePublished" datetime="2022-07-07T01:14:45+08:00">2022-07-07</time>
+              <time title="创建时间：2022-11-21 09:06:18 / 修改时间：09:37:10" itemprop="dateCreated datePublished" datetime="2022-11-21T09:06:18+08:00">2022-11-21</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
 
           
 
@@ -230,21 +224,26 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="PostProcessor-amp-amp-Aware"><a href="#PostProcessor-amp-amp-Aware" class="headerlink" title="PostProcessor &amp;&amp; Aware"></a>PostProcessor &amp;&amp; Aware</h1><h2 id="BeanDefinitionRegistiyPostProcessor"><a href="#BeanDefinitionRegistiyPostProcessor" class="headerlink" title="BeanDefinitionRegistiyPostProcessor"></a>BeanDefinitionRegistiyPostProcessor</h2><ul>
-<li>获取BeanDefinition</li>
-<li>删除BeanDefinition</li>
-<li>替换，BeanDefinitionBuilder.build().register.regist() 设置自己的Bean定义&#x2F;实现类</li>
+        <h1 id="MyBatis原理"><a href="#MyBatis原理" class="headerlink" title="MyBatis原理"></a>MyBatis原理</h1><p>TODO</p>
+<h2 id="主要接口"><a href="#主要接口" class="headerlink" title="主要接口"></a>主要接口</h2><h3 id="SqlSessionFactory"><a href="#SqlSessionFactory" class="headerlink" title="SqlSessionFactory"></a>SqlSessionFactory</h3><ul>
+<li>Spring框架中&lt;&lt;FactoryBean&lt;SqlSessionFactory&gt;&gt;利用FactoryBean功能构建出SqlSessionFactoryBean。</li>
+<li>通过SqlSessionFactoryBuilder构建出SqlSessionFactory(自带仅一个DefaultSqlSessionFactory实现类)</li>
+<li>之后可以通过SqlSessionFactory构造出SqlSession</li>
 </ul>
-<h2 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h2><ul>
-<li>对BeanFactory本身的设置</li>
+<h3 id="SqlSession"><a href="#SqlSession" class="headerlink" title="SqlSession"></a>SqlSession</h3><ul>
+<li>访问MyBatis门户</li>
+<li>自带仅一个DefaultSqlSession实现类</li>
 </ul>
-<h2 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h2><ul>
-<li>解析自定义注解</li>
+<h3 id="Configuration-amp-Mapper"><a href="#Configuration-amp-Mapper" class="headerlink" title="Configuration &amp; Mapper"></a>Configuration &amp; Mapper</h3><h4 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h4><ul>
+<li>MyBatis本身配置信息</li>
+<li>接口配置信息</li>
 </ul>
-<h2 id="ApplicationContextAware"><a href="#ApplicationContextAware" class="headerlink" title="ApplicationContextAware"></a>ApplicationContextAware</h2><ul>
-<li>存储全局ApplicationContext</li>
-</ul>
-<h2 id="BeanFactoryAware"><a href="#BeanFactoryAware" class="headerlink" title="BeanFactoryAware"></a>BeanFactoryAware</h2>
+<h4 id="Mapper"><a href="#Mapper" class="headerlink" title="Mapper"></a>Mapper</h4><h3 id="Executor"><a href="#Executor" class="headerlink" title="Executor"></a>Executor</h3><h3 id="Transaction"><a href="#Transaction" class="headerlink" title="Transaction"></a>Transaction</h3><p>Mapper</p>
+<p>MapperProxy</p>
+<p>selectList</p>
+<p>doQuery</p>
+<h1 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h1><p><a target="_blank" rel="noopener" href="https://www.icourse163.org/learn/XMU-1462056168#/learn/content">https://www.icourse163.org/learn/XMU-1462056168#/learn/content</a></p>
+
     </div>
 
     
@@ -259,13 +258,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/07/07/Spring-ApplicationContext/" rel="prev" title="Spring-ApplicationContext">
-      <i class="fa fa-chevron-left"></i> Spring-ApplicationContext
+    <a href="/2022/11/21/Spring-Cache/" rel="prev" title="Spring-Cache">
+      <i class="fa fa-chevron-left"></i> Spring-Cache
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/07/07/Spring-%E6%80%BB%E8%BF%B0/" rel="next" title="Spring-总述">
-      Spring-总述 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -325,7 +321,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PostProcessor-amp-amp-Aware"><span class="nav-number">1.</span> <span class="nav-text">PostProcessor &amp;&amp; Aware</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinitionRegistiyPostProcessor"><span class="nav-number">1.1.</span> <span class="nav-text">BeanDefinitionRegistiyPostProcessor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanFactoryPostProcessor"><span class="nav-number">1.2.</span> <span class="nav-text">BeanFactoryPostProcessor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanPostProcessor"><span class="nav-number">1.3.</span> <span class="nav-text">BeanPostProcessor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationContextAware"><span class="nav-number">1.4.</span> <span class="nav-text">ApplicationContextAware</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanFactoryAware"><span class="nav-number">1.5.</span> <span class="nav-text">BeanFactoryAware</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MyBatis%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">MyBatis原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">主要接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SqlSessionFactory"><span class="nav-number">1.1.1.</span> <span class="nav-text">SqlSessionFactory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SqlSession"><span class="nav-number">1.1.2.</span> <span class="nav-text">SqlSession</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Configuration-amp-Mapper"><span class="nav-number">1.1.3.</span> <span class="nav-text">Configuration &amp; Mapper</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Configuration"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">Configuration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mapper"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">Mapper</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Executor"><span class="nav-number">1.1.4.</span> <span class="nav-text">Executor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction"><span class="nav-number">1.1.5.</span> <span class="nav-text">Transaction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%A5%E6%BA%90"><span class="nav-number">2.</span> <span class="nav-text">来源</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -339,7 +335,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">189</span>
+          <span class="site-state-item-count">187</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -455,7 +451,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'swzxsyh.github.io',
       owner       : 'swzxsyh',
       admin       : ['swzxsyh'],
-      id          : '0f5520ac27e836e897507fcf3846e3fe',
+      id          : 'ddb7efc6a8f5a8295fb0032045b85146',
         language: 'zh-CN',
       distractionFreeMode: true
     });

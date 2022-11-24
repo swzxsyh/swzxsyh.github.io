@@ -181,6 +181,198 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/MySQL-MVCC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/MySQL-MVCC/" class="post-title-link" itemprop="url">MySQL-MVCC</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:09:09" itemprop="dateCreated datePublished" datetime="2022-06-30T23:09:09+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-10 09:47:26" itemprop="dateModified" datetime="2022-11-10T09:47:26+08:00">2022-11-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p>MVCC (Multiversion Concurrency Control)，多版本并发控制，是Innodb实现事务回滚与并发的重要功能</p>
+<p>目的：解决不可重复读，用于支持读已提交(RC）和可重复读(RR）隔离级别的实现</p>
+<h2 id="数据库的几种并发场景"><a href="#数据库的几种并发场景" class="headerlink" title="数据库的几种并发场景"></a>数据库的几种并发场景</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>是否存在问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读读</td>
+<td>不存在数据安全问题</td>
+</tr>
+<tr>
+<td>写写</td>
+<td>有数据安全问题，更新丢失</td>
+</tr>
+<tr>
+<td>读写</td>
+<td>有线程安全问题，脏读、幻读、不可重复读（MVCC就是为了解决这种问题而存在的）</td>
+</tr>
+</tbody></table>
+<p>如果是RC隔离级别，那么每次在进行快照读的时候都会生成一个新的readview</p>
+<p>如果是RR隔离级别，那么只有在当前事务第一次进行快照读的时候会生成readview，之后的快照读都会沿用当前的readview</p>
+<p>RC和RR之间的区别就在于生成readview的时机不同</p>
+<ul>
+<li><p>MVCC主要是用来解决【<strong>读-写</strong>】冲突的<strong>无锁并发控制</strong>，可以解决以下问题：</p>
+<ul>
+<li><strong>在并发读写数据时，可以做到在读操作时不用阻塞写操作，写操作不用阻塞读操作，提高数据库并发读写的性能</strong>。</li>
+<li><strong>可以解决脏读，幻读，不可重复读等事务隔离问题，但不能解决【写-写】引起的更新丢失问题</strong>。</li>
+</ul>
+</li>
+<li><p><strong>MVCC与锁的组合</strong></p>
+<p><strong>一般数据库中都会采用以上MVCC与锁的两种组合来解决并发场景的问题，以此最大限度的提高数据库性能</strong>。</p>
+<ul>
+<li><strong>MVCC + 悲观锁</strong>MVCC解决读-写冲突，悲观锁解决写-写冲突。</li>
+<li><strong>MVCC + 乐观锁</strong>MVCC解决读-写冲突，乐观锁解决写-写冲突。</li>
+</ul>
+</li>
+</ul>
+<p>通过上述描述，MVCC的作用可以概括为就是为了解决【读写冲突】，提高数据库性能的，而MVCC的实现又依赖【隐式字段】【undo日志】【版本链】【快照读和当前读】【读视图】。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/MySQL-MVCC/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/" class="post-title-link" itemprop="url">MySQL-索引</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 23:09:03" itemprop="dateCreated datePublished" datetime="2022-06-30T23:09:03+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-10 08:10:01" itemprop="dateModified" datetime="2022-11-10T08:10:01+08:00">2022-11-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><p>概念：索引是为了加快数据查询的一种数据结构</p>
+<h2 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h2><h3 id="存储结构维度划分"><a href="#存储结构维度划分" class="headerlink" title="存储结构维度划分"></a>存储结构维度划分</h3><p>B Tree索引、Hash索引、B + Tree索引</p>
+<h3 id="应用层次维度划分"><a href="#应用层次维度划分" class="headerlink" title="应用层次维度划分"></a>应用层次维度划分</h3><p>普通索引、唯一索引、主键索引、全文索引，空间索引</p>
+<blockquote>
+<p>空间索引基本不使用，这里不做介绍</p>
+</blockquote>
+<h3 id="索引键值类型维度划分"><a href="#索引键值类型维度划分" class="headerlink" title="索引键值类型维度划分"></a>索引键值类型维度划分</h3><p>主键索引、辅助索引（二级索引）</p>
+<h3 id="数据存储和索引键值逻辑关系维度划分"><a href="#数据存储和索引键值逻辑关系维度划分" class="headerlink" title="数据存储和索引键值逻辑关系维度划分"></a>数据存储和索引键值逻辑关系维度划分</h3><p>聚集索引（聚簇索引）、非聚集索引（非聚簇索引）</p>
+<h3 id="索引组成维度划分"><a href="#索引组成维度划分" class="headerlink" title="索引组成维度划分"></a>索引组成维度划分</h3><p>组合索引（复合索引）、单一索引</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/MySQL-%E7%B4%A2%E5%BC%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -935,177 +1127,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/29/Spring-IOC-DI-DL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/29/Spring-IOC-DI-DL/" class="post-title-link" itemprop="url">Spring IOC-DI/DL</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-29 10:27:02" itemprop="dateCreated datePublished" datetime="2022-06-29T10:27:02+08:00">2022-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h1><p>Inversion of Control 控制反转</p>
-<ul>
-<li><p>IOC是一种思想,实现程序的可插拔的核心理念就是控制反转（IoC：Inversion of Control），所谓的控制反转就是将代码的调用权（控制权）从调用放转移给被调用方（服务提供方，容器）。</p>
-<p>所谓的”控制反转”就是对组件对象控制权的转移，从程序代码本身转移到了外部容器，由容器来创建对象并管理对象之间的依赖关系。</p>
-<p><img src="/2022/06/29/Spring-IOC-DI-DL/20210526094632608.png" alt="image"></p>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/06/29/Spring-IOC-DI-DL/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2021/02/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">设计模式</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-17 00:17:37" itemprop="dateCreated datePublished" datetime="2021-02-17T00:17:37+08:00">2021-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-15 03:39:48" itemprop="dateModified" datetime="2022-11-15T03:39:48+08:00">2022-11-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="模式分类"><a href="#模式分类" class="headerlink" title="模式分类"></a>模式分类</h2><h3 id="创建型模式："><a href="#创建型模式：" class="headerlink" title="创建型模式："></a>创建型模式：</h3><p>单例模式、工厂模式，抽象工厂模式，建造者模式，原型模式</p>
-<h3 id="结构型模式"><a href="#结构型模式" class="headerlink" title="结构型模式"></a>结构型模式</h3><blockquote>
-<p>从程序的结构上实现松耦合，从而扩大整体的类结构，用来解决更大的问题</p>
-</blockquote>
-<p>适配器模式，桥接模式，装饰模式，组合模式，外观模式，享元模式，代理模式</p>
-<h3 id="行为型模式"><a href="#行为型模式" class="headerlink" title="行为型模式"></a>行为型模式</h3><p>模版方法模式，命令模式，迭代器模式，观察者模式，中介者模式，备忘录模式，解释器模式，状态模式，策略模式，职责链模式，访问者模式</p>
-<h2 id="OOP七大原则"><a href="#OOP七大原则" class="headerlink" title="OOP七大原则"></a>OOP七大原则</h2><ul>
-<li><p>开闭原则</p>
-<p>对扩展开放，对修改关闭</p>
-</li>
-<li><p>里氏替换原则</p>
-<p>继承必须确保超类所拥有的性质在子类中仍成立</p>
-</li>
-<li><p>依赖倒置原则</p>
-<p>要面向接口编程，不要面向对象编程</p>
-</li>
-<li><p>单一职责原则</p>
-<p>控制类的粒度大小，将对象解耦，提高其内聚性</p>
-</li>
-<li><p>接口隔离原则</p>
-<p>要为各个类建立它们需要的专用接口</p>
-</li>
-<li><p>迪米特法则</p>
-<p>只与直接朋友交谈，不跟“陌生人”说话</p>
-</li>
-<li><p>合成复用原则</p>
-<p>尽量先使用组合或聚合等关联关系来实现，其次才考虑使用继承关系来实现</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1175,7 +1196,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">189</span>
+          <span class="site-state-item-count">187</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
