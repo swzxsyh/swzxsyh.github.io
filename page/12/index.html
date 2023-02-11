@@ -181,6 +181,402 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/" class="post-title-link" itemprop="url">Redis-高可用与主从同步</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:20:46" itemprop="dateCreated datePublished" datetime="2022-06-30T17:20:46+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h1><h2 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h2><ul>
+<li>不具备自动容错和恢复功能,需要等机器重启或者手动切换前端IP才能恢复</li>
+<li>较难支持在线扩容</li>
+<li>存在数据丢失,以及全量复制时会降低性能</li>
+</ul>
+<h2 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h2><ul>
+<li><p>sentinal,哨兵,主要负责:<br>(1) 集群监控,负责监控redis master和salve进程是否正常工作<br>(2) 消息通知,如果某个redis有故障,哨兵负责发送消息作为报警通知管理员<br>(3) 故障转移,如果master挂掉,自动转移到salve 节点上<br>(4) 配置中心.如果故障转移发生,通知客户端新的master地址</p>
+</li>
+<li><p>哨兵本身也可以是分布式的,作为一个哨兵集群,这样当部分哨兵节点挂掉,集群依然可以正常工作</p>
+</li>
+<li><p>数据丢失</p>
+<ul>
+<li><p>主从复制导致丢失</p>
+<ul>
+<li>在master节点数据还没同步到slave的时候,master宕机了</li>
+</ul>
+</li>
+<li><p>集群脑裂导致丢失</p>
+<ul>
+<li><p>某个master所在机器突然脱离了正常的网络,跟其他slave节点不能连接,但实际上master还运行着,此时哨兵可能会认为master宕机,重新选举了master,此时集群里会存在两个master</p>
+</li>
+<li><p>在某个slave选举成为master之后,客户端还没来得及切换到新的master上面,继续向旧的master写入数据,此时旧master恢复正常,会作为一个slave挂到新的master上面,自己的数据就会被清空,重新复制数据</p>
+</li>
+</ul>
+</li>
+<li><p>解决办法<br>      min-salves-to-write<br>  min-slaves-max-lag<br>  设置要求最少数量的slave,复制和同步最大延迟不能超过多长时间.超过min-slaves-max-lag指定的时间后未收到ack则master拒绝写请求</p>
+</li>
+</ul>
+</li>
+<li><p>sdown和odown失败状态<br>            - sdown是主观宕机,即就一个哨兵自己觉得master宕机了.如果一个哨兵ping一个master,超过is-master-after-milliseconds指定的时间后,没有收到回复则主观认为master宕机了<br>- odowm,客观宕机,如果quorum数量的哨兵都觉得master宕机了.如果一个哨兵指定时间内,收到了quorum指定数量的其他哨兵也认为master宕机了,那就是客观宕机</p>
+</li>
+<li><p>自动发现<br>            - 哨兵间的相互发现是通过redis的pub&#x2F;sub机制实现的<br>    每个哨兵都会往 <em>sentinel</em>:hello这个channel发送消息,这个时候其他哨兵可以订阅这个消息感知其他哨兵的存在<br>  - 每隔两秒钟,哨兵就会往自己监控的某个master+slaves对应的 <em>sentinel</em>:hello  channel里发送一个消息,内容是自己的host ip runid 和对这个master的监控配置</p>
+</li>
+<li><p>选举算法<br>      - 如果一个master被认为odown了,而且majority哨兵都允许主备涉黄,那么某个哨兵就会执行主备切换操作<br>  - 首先需要quorum数量的哨兵认为odowm了,然后选举出来一个哨兵来做切换,这个哨兵需得到majority哨兵的授权<br>    如quorum &lt; majority ,比如有5个哨兵,majority就是3,quorum设置为2,那么需要3个哨兵授权才能执行切换<br>    如quorum &gt;&#x3D; majority, 那么必须quorum数量的哨兵授权才能执行<br>  - 执行切换的那个哨兵会从切换到的新master哪里得到一个 configuration epoch(一个版本包version),进行传播</p>
+</li>
+<li><p>优点<br>      - 基于主从模式,具有主从的有点<br>  - 故障可以转移,可用性好</p>
+</li>
+<li><p>缺点<br>      - 配置复杂<br>  - 在线扩容较难</p>
+</li>
+</ul>
+<h2 id="Cluster集群"><a href="#Cluster集群" class="headerlink" title="Cluster集群"></a>Cluster集群</h2><ul>
+<li>16384个槽</li>
+<li>crc16 对 16384 取余</li>
+<li>有任意一个master挂掉且没有可用的slaves时,集群进入fail状态,不可用</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">Redis-数据类型与数据结构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:20:20" itemprop="dateCreated datePublished" datetime="2022-06-30T17:20:20+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><ul>
+<li>基本类型<ul>
+<li>String（字符串）</li>
+<li>Hash（哈希）</li>
+<li>List（列表）</li>
+<li>Set（集合）</li>
+<li>Zset（有序集合）</li>
+</ul>
+</li>
+<li>特殊的数据结构类型<ul>
+<li>Geospatial</li>
+<li>Hyperloglog</li>
+<li>Bitmap</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">Redis-持久化方案</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 17:18:16" itemprop="dateCreated datePublished" datetime="2022-06-30T17:18:16+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis持久化方案"><a href="#Redis持久化方案" class="headerlink" title="Redis持久化方案"></a>Redis持久化方案</h1><h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><ul>
+<li>Append only File，在redis执行写命令的时，会追加该命令到日志文件中。当Redis故障重启后，读取该日志文件的命令即可恢复数据</li>
+</ul>
+<h3 id="配置："><a href="#配置：" class="headerlink" title="配置："></a>配置：</h3><ul>
+<li>默认不开启，需在配置文件中打开    appendonly &#x3D; yes</li>
+</ul>
+<h3 id="策略："><a href="#策略：" class="headerlink" title="策略："></a>策略：</h3><p><img src="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/2a0f68bc4c5a151503bd47834f69f775c48cb7ddcd832464856d8190fecf0fc1.png" alt="image"></p>
+<ul>
+<li><p>Redis先执行写命令之后才将命令记录到AOF日志中（主进程执行命令写入内存-Redis数据，再写日志到AOF缓冲，缓冲后落盘）</p>
+<ul>
+<li><p>优势：</p>
+<ul>
+<li>避免额外的检查开销。因为如果先记录日志在执行命令的话，如果当前命令语法有问题，那么如果不进行命令语法检查，那么错误的命令就会被记录到日志，Redis在使用日志恢复时可能或出错。</li>
+<li>不阻塞当前写操作命令的执行。因为写命令执行成功后才会记录到AOF日志中。</li>
+</ul>
+</li>
+<li><p>风险（AOF日志回写硬盘的时机有关）：</p>
+<ul>
+<li><p>数据丢失风险</p>
+<p>执行写操作命令和记录日志是两个过程，当Redis还没来得及将命令写入到硬盘时，服务器发生宕机，那么数据就会丢失</p>
+</li>
+<li><p>给下一个命令带来阻塞风险</p>
+<p>由于写命令执行成功后才会记录AOF日志，所以不会阻塞当前写操作的命令执行，当会给下一个命令带来阻塞风险。写日志时，服务器的硬盘IO压力太大就会导致写硬盘速度很慢进而阻塞住</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/30/Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%B9%E6%A1%88/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" class="post-title-link" itemprop="url">Redis-缓存一致性</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 16:57:09" itemprop="dateCreated datePublished" datetime="2022-06-30T16:57:09+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis缓存更新方案："><a href="#Redis缓存更新方案：" class="headerlink" title="Redis缓存更新方案："></a>Redis缓存更新方案：</h1><h2 id="先更新数据库，再更新缓存"><a href="#先更新数据库，再更新缓存" class="headerlink" title="先更新数据库，再更新缓存"></a>先更新数据库，再更新缓存</h2><h3 id="策略："><a href="#策略：" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>A请求先更新数据库的值为1，然后在更新缓存前，请求B将数据库的值更新为2，紧接着也把缓存更新为2，然后A请求更新缓存为1。于是出现数据库缓存不一致，数据库为2，缓存为1</p>
+<h3 id="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"><a href="#问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象" class="headerlink" title="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"></a>问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象</h3><h2 id="先更新缓存，再更新数据库"><a href="#先更新缓存，再更新数据库" class="headerlink" title="先更新缓存，再更新数据库"></a>先更新缓存，再更新数据库</h2><h3 id="策略：-1"><a href="#策略：-1" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>A请求先将缓存数据更新为1，然后在更新数据库前，B请求将数据库的值更新为2，紧接着将数据库更新为2，此时A请求将数据库的数据更新为1。于是出现了数据库缓存数据不一致</p>
+<h3 id="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象-1"><a href="#问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象-1" class="headerlink" title="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"></a>问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象</h3><h2 id="先删除缓存，再删除数据库-Cache-Aside-旁路更新策略①"><a href="#先删除缓存，再删除数据库-Cache-Aside-旁路更新策略①" class="headerlink" title="先删除缓存，再删除数据库(Cache Aside 旁路更新策略①)"></a>先删除缓存，再删除数据库(Cache Aside 旁路更新策略①)</h2><h3 id="策略：-2"><a href="#策略：-2" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>请求A要将数据库值更新为21,所以请求A会删除缓存，此时请求B要读取该值，它查询缓存后没有命中，会从数据库中读取原值20，并写入到缓存中，然后请求A继续更改数据值为21。此时依然会出现数据库缓存不一致的现象</p>
+<h3 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h3><p>不更新缓存，而是删除缓存，然后后读取数据时，发现缓存中没有数据，在从数据库中读取数据更新到缓存中。分为【读策略】和【写策略】<br>写策略步骤：更新数据库数据，删除缓存中的数据<br>读策略步骤：如果读取的数据命中缓存，则直接返回数据；如果没有命中则从数据库中读取数据，然后更新缓存并返回</p>
+<h2 id="先更新数据库，再删除缓存-Cache-Aside-旁路更新策略①"><a href="#先更新数据库，再删除缓存-Cache-Aside-旁路更新策略①" class="headerlink" title="先更新数据库，再删除缓存(Cache Aside 旁路更新策略①)"></a>先更新数据库，再删除缓存(Cache Aside 旁路更新策略①)</h2><h3 id="策略：-3"><a href="#策略：-3" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>请求A查询某个值（假设缓存中不存在），此时请求A从数据中查询到值为20，在未写入缓存时请求B更新该值，先将数据库更新为21，并删除缓存。这是请求A把从数据库中读取到的数据20写入缓存。最终还是可能出现数据库缓存不一致的现象。</p>
+<p>概率较低，缓存速度理论上不会出现该问题，但若删除缓存失败会导致缓存不一致。</p>
+<h3 id="问题：-1"><a href="#问题：-1" class="headerlink" title="问题："></a>问题：</h3><p>不更新缓存，而是删除缓存，然后后读取数据时，发现缓存中没有数据，在从数据库中读取数据更新到缓存中。分为【读策略】和【写策略】<br>写策略步骤：更新数据库数据，删除缓存中的数据<br>读策略步骤：如果读取的数据命中缓存，则直接返回数据；如果没有命中则从数据库中读取数据，然后更新缓存并返回</p>
+<h1 id="问题解决方案："><a href="#问题解决方案：" class="headerlink" title="问题解决方案："></a>问题解决方案：</h1><h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>两步操作，没有并发控制，因此遇到并发场景时，由于执行顺序不同导致数据不一致</p>
+<h2 id="方案："><a href="#方案：" class="headerlink" title="方案："></a>方案：</h2><ul>
+<li><p>分布式锁</p>
+<p>同一时间同一数据只由一个请求操作更新缓存</p>
+</li>
+<li><p>过期时间</p>
+<p>数据不一致 兜底方案</p>
+</li>
+<li><p>保证数据库与缓存两个操作均成功</p>
+<ul>
+<li>重试（如@Retryable）</li>
+<li>订阅MySQL binlong，异步操作缓存(Canal,MQ)</li>
+</ul>
+</li>
+</ul>
+<h6 id="注解："><a href="#注解：" class="headerlink" title="注解："></a>注解：</h6><p>①Cache Aside 旁路更新策略（不保证数据一致性）</p>
+<p>释义：更新数据时，不更新缓存，而是删除缓存中的数据，在读取数据时，发现缓存中没有，再从数据库中读取数据，更新到缓存中。</p>
+<p>来源：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1f7fa8f6cd59">https://www.jianshu.com/p/1f7fa8f6cd59</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E3%80%81%E9%9B%AA%E5%B4%A9%E3%80%81%E7%A9%BF%E9%80%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -704,633 +1100,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/16/Elasticsearch%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/16/Elasticsearch%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Elasticsearch初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-16 01:59:30" itemprop="dateCreated datePublished" datetime="2020-07-16T01:59:30+08:00">2020-07-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Single Node</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">$ docker pull elasticsearch:5.6.8</span><br><span class="line"><span class="comment">#启动，需要配置JVM，否则报OOM</span></span><br><span class="line"><span class="comment"># 9200为  ES节点 和 外部 通讯使用</span></span><br><span class="line"><span class="comment"># 9300是tcp通讯端口，集群间和TCPClient走它</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">&quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;</span> --name es -p 9200:9200 -p 9300:9300 -e <span class="string">&quot;discovery.type=single-node&quot;</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"><span class="comment">#如果要使用kibana，最好先在此开启映射，否则需要更改container内部json数据</span></span><br><span class="line"><span class="comment"># 单点模式</span></span><br><span class="line">$ docker run -d -e <span class="string">&quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;</span> --name es -p 9200:9200 -p 9300:9300 -p 5601:5601 -e <span class="string">&quot;discovery.type=single-node&quot;</span> elasticsearch:5.6.8</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 localhost:9200 可以看到JSON格式数据</span></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span> : <span class="string">&quot;wCWV0cR&quot;</span>,</span><br><span class="line">  <span class="string">&quot;cluster_name&quot;</span> : <span class="string">&quot;elasticsearch&quot;</span>,</span><br><span class="line">  <span class="string">&quot;cluster_uuid&quot;</span> : <span class="string">&quot;5krSWTgVQUuxvyQvF8LCTw&quot;</span>,</span><br><span class="line">  <span class="string">&quot;version&quot;</span> : &#123;</span><br><span class="line">    <span class="string">&quot;number&quot;</span> : <span class="string">&quot;5.6.8&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_hash&quot;</span> : <span class="string">&quot;688ecce&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_date&quot;</span> : <span class="string">&quot;2018-02-16T16:46:30.010Z&quot;</span>,</span><br><span class="line">    <span class="string">&quot;build_snapshot&quot;</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">&quot;lucene_version&quot;</span> : <span class="string">&quot;6.6.1&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;tagline&quot;</span> : <span class="string">&quot;You Know, for Search&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器，安装ik</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -it es /bin/bash     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 要安装对应版本 </span></span><br><span class="line">root@b340ba8042f5:/usr/share/elasticsearch<span class="comment"># ./bin/elasticsearch -version</span></span><br><span class="line">Version: 5.6., Build: cfe3d9f/2018-09-10T20:12:43.732Z, JVM: 1.8.0_181</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决跨域问题</span></span><br><span class="line"><span class="comment"># container没有vi，使用echo添加到最后</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch<span class="comment"># cd config/</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo &quot;http.cors.enabled: true&quot;&gt;&gt; elasticsearch.yml </span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># echo -e &quot;http.cors.allow-origin: \&quot;*\&quot;&quot;&gt;&gt; elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决宿主机无法访问问题</span></span><br><span class="line"><span class="comment"># 让所有IP都可访问</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># sed -i &#x27;s/^#\(transport.host: 0.0.0.0\)/\1/&#x27; elasticsearch.yml </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否写入成功</span></span><br><span class="line">root@a604792a79ad:/usr/share/elasticsearch/config<span class="comment"># cat elasticsearch.yml </span></span><br><span class="line">http.host: 0.0.0.0</span><br><span class="line"><span class="comment"># Uncomment the following lines for a production cluster deployment</span></span><br><span class="line">transport.host: 0.0.0.0</span><br><span class="line"><span class="comment">#discovery.zen.minimum_master_nodes: 1</span></span><br><span class="line">http.cors.enabled: <span class="literal">true</span></span><br><span class="line">http.cors.allow-origin: <span class="string">&quot;*&quot;</span></span><br><span class="line">network.host: 127.0.0.1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载对应版本的ik</span></span><br><span class="line">./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.6.8/elasticsearch-analysis-ik-5.6.8.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后面分词器用的上，先配置</span></span><br><span class="line"><span class="comment"># 配置自己的扩展字典</span></span><br><span class="line"><span class="comment"># 配置自己设置的停止词字典</span></span><br><span class="line"><span class="comment"># sed 用法 在某个单词后添加某语句</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i &#x27;s/&lt;entry key=&quot;ext_dict&quot;&gt;/&amp;ext.did/&#x27; IKAnalyzer.cfg.xmllocation&lt;/entry&gt; --&gt;</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># sed -i &#x27;s/&lt;entry key=&quot;ext_stopwords&quot;&gt;/&amp;stopword.dic/&#x27; IKAnalyzer.cfg.xml</span></span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># cat IKAnalyzer.cfg.xml</span></span><br><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE properties SYSTEM <span class="string">&quot;http://java.sun.com/dtd/properties.dtd&quot;</span>&gt;</span><br><span class="line">&lt;properties&gt;</span><br><span class="line">	&lt;comment&gt;IK Analyzer 扩展配置&lt;/comment&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span><br><span class="line">	&lt;entry key=<span class="string">&quot;ext_dict&quot;</span>&gt;ext.dic&lt;/entry&gt;</span><br><span class="line">	 &lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span><br><span class="line">	&lt;entry key=<span class="string">&quot;ext_stopwords&quot;</span>&gt;stopword.dic&lt;/entry&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">&quot;remote_ext_dict&quot;</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">	&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span><br><span class="line">	&lt;!-- &lt;entry key=<span class="string">&quot;remote_ext_stopwords&quot;</span>&gt;words_location&lt;/entry&gt; --&gt;</span><br><span class="line">&lt;/properties&gt;</span><br><span class="line">root@fa9104ef06a1:/usr/share/elasticsearch/plugins/ik/config<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置ik/config/stopword.dic，添加自定义停止词</span></span><br><span class="line"><span class="comment"># 在ik/config/目录下添加ext.dic文件，并自定义扩展词语</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启container</span></span><br><span class="line">$ docker restart es</span><br><span class="line"></span><br><span class="line"><span class="comment"># head图形化界面</span></span><br><span class="line"><span class="comment"># 下载镜像(head属于本地端，可以直接本机安装)</span></span><br><span class="line">$ docker pull mobz/elasticsearch-head:5 </span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">$ docker run -d -p 9100:9100 docker.io/mobz/elasticsearch-head:5   </span><br><span class="line"><span class="comment">#访问 localhost:9100 ，可以连接上9200的es</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># kibana数据显示页面，需要与ES版本匹配</span></span><br><span class="line"><span class="comment"># 注意，此处使用了 --network ，因安全限制无法再暴露端口，若要使用则由es暴露端口，建议在es启动时直接暴露</span></span><br><span class="line">$ docker run -it -d -e ELASTICSEARCH_URL=http://127.0.0.1:9200 --name kibana --network=container:es  kibana:5.6.8  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 若ES未暴露Port，又不想重新经历步骤，只能修改container内部json数据</span></span><br><span class="line"><span class="comment"># 停止容器-&gt;修改两个json文件-&gt;停止docker-&gt;启动docker-&gt;启动容器。否则container会恢复为旧版本</span></span><br><span class="line"><span class="comment"># macOS 需screen进入tty</span></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/hostconfig.json</span><br><span class="line"><span class="comment"># 在PortBindings中添加</span></span><br><span class="line"><span class="string">&quot;5601/tcp&quot;</span>: [&#123;<span class="string">&quot;HostIp&quot;</span>: <span class="string">&quot;&quot;</span>,<span class="string">&quot;HostPort&quot;</span>: <span class="string">&quot;5601&quot;</span>&#125;]</span><br><span class="line"></span><br><span class="line">$ vim /var/lib/docker/containers/[hash_of_the_container]/config.v2.json</span><br><span class="line"><span class="comment"># 在ExposedPorts中添加</span></span><br><span class="line"><span class="string">&quot;5601/tcp&quot;</span>: &#123;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<p><a target="_blank" rel="noopener" href="https://shipengliang.com/software-exp/docker-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F.html">https://shipengliang.com/software-exp/docker-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F.html</a></p>
-<p><a target="_blank" rel="noopener" href="http://www.amd5.cn/atang_4301.html">http://www.amd5.cn/atang_4301.html</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/15/RabbitMQ%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/15/RabbitMQ%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">RabbitMQ入门</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-15 01:58:20" itemprop="dateCreated datePublished" datetime="2020-07-15T01:58:20+08:00">2020-07-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>安装mq</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">docker pull rabbitmq</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置容器名Myrabbitmq</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置 用户名/密码 admin</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">映射网页端口 15672</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">映射 协议端口，基于此协议的客户端与消息中间件之间可以传递消息</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">docker run -dit --name Myrabbitmq -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin -p 15672:15672 -p 5672:5672 rabbitmq</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">未开启网页端口，需要进入容器开启</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">docker <span class="built_in">exec</span> -ti 75d79fb9dc6f /bin/bash</span> </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">开启网页端</span></span><br><span class="line">root@75d79fb9dc6f:/# rabbitmq-plugins enable rabbitmq_management</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">访问 http://localhost:15672 即可</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">SpringCloud入门</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-13 01:53:41" itemprop="dateCreated datePublished" datetime="2020-07-13T01:53:41+08:00">2020-07-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.SpringCloud介绍<br>1.1 介绍<br>Spring Cloud是在Spring Boot的基础上构建的，用于简化分布式系统构建的工具集。该工具集为微服务架构中所涉及的配置管理、服务发现、智能路由、熔断器、控制总线等操作提供了一种简单的开发方式。也就是说Spring Cloud把非常流行的微服务的技术（组件）整合到一起，方便开发。</p>
-<p>注册中心：Eureka<br>负载均衡：Ribbon<br>熔断器：Hystrix<br>服务通信：Feign<br>网关：Gateway<br>配置中心 ：config<br>消息总线：Bus</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/13/SpringCloud%E5%85%A5%E9%97%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Apache Dubbo 初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-19 01:52:09" itemprop="dateCreated datePublished" datetime="2020-06-19T01:52:09+08:00">2020-06-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.应用架构的演进过程<br>目标</p>
-<p>了解软件架构的演进过程</p>
-<p>学习路径</p>
-<p>主流的互联网技术特点<br>架构演变的过程<br>单体架构<br>垂直架构<br>分布式服务架构<br>SOA架构<br>微服务架构<br>1.1 主流的互联网技术特点<br>分布式 、高并发、集群、负载均衡、高可用。</p>
-<p>分布式：一件事情拆开来做。</p>
-<p>集群：一件事情所有服务器一起做。</p>
-<p>负载均衡：将请求平均分配到不同的服务器中，达到均衡的目的。</p>
-<p>高并发：同一时刻，处理同一件事情的处理能力（解决方案：分布式、集群、负载均衡）</p>
-<p>高可用：系统都是可用的。</p>
-<p>1.2. 架构演变的过程<br>1.2.1 单一应用架构（all in one）<br>当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。</p>
-<p>架构优点：</p>
-<p>架构简单，前期开发成本低、开发周期短，适合小型项目（OA、CRM、ERP 企业内部应用）。</p>
-<p>架构缺点：</p>
-<p>全部功能集成在一个工程中</p>
-<p>业务代码耦合度高，不易维护。</p>
-<p>维护成本高，不易拓展</p>
-<p>并发量大，不易解决</p>
-<p>技术栈受限，只能使用一种语言开发。</p>
-<p>1.2.2 垂直应用架构<br>当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。</p>
-<p>架构优点：</p>
-<p>业务代码相对解耦</p>
-<p>维护成本相对易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
-<p>并发量大相对易于解决（搭建集群）</p>
-<p>技术栈可扩展（不同的系统可以用不同的编程语言编写）。</p>
-<p>架构缺点：</p>
-<p>功能集中在一个项目中，不利于开发、扩展、维护。</p>
-<p>代码之间存在数据、方法的冗余</p>
-<p>1.2.3 分布式服务架构<br>当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。</p>
-<p>架构优点：</p>
-<p>业务代码完全解耦，并可实现通用</p>
-<p>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
-<p>并发量大易于解决（搭建集群）</p>
-<p>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。</p>
-<p>架构缺点：</p>
-<p>缺少统一管理资源调度的框架</p>
-<p>1.2.4 流动计算架构（SOA）<br>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。</p>
-<p>架构优点<br>业务代码完全解耦，并可实现通用<br>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）<br>并发量大易于解决（搭建集群）<br>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。<br>框架实现了服务治理，不去担心集群的使用情况(失败会尝试其它服务….)<br>1.2.5 小结<br>单体架构</p>
-<p>全部功能集中在一个项目内（All in one）。</p>
-<p>垂直架构</p>
-<p>按照业务进行切割，形成小的单体项目。</p>
-<p>分布式</p>
-<p>应用调用服务，服务挂了，有其它可用，缺少服务治理</p>
-<p>SOA架构</p>
-<p>服务的提供者（以服务为主 service调用dao-&gt;数据库），消费者。<br>服务提供者与消费都注册到中心，由中心统一管理分配，失败重试，负载均衡。。。有服务治理<br>可以使用dubbo作为调度的工具（RPC协议）, Zookeeper作为注册中心<br>微服务架构</p>
-<p>将系统服务层完全独立出来，抽取为一个一个的微服务。 以功能为主(controller-&gt;service-dao-&gt;数据库 独立)<br>特点一：抽取的粒度更细，遵循单一原则，数据可以在服务之间完成数据传输（一般使用restful请求调用资源）。<br>特点二： 采用轻量级框架协议传输。（可以使用spring cloud）（http协议 restful json）<br>特点三： 每个服务都使用不同的数据库，完全独立和解耦 (分库分表)。<br>二.RPC（远程过程调用）<br>目标</p>
-<p>了解什么是RPC</p>
-<p>学习路径</p>
-<p>RPC介绍</p>
-<p>RPC组件</p>
-<p>RPC调用</p>
-<p>2.1 RPC介绍<br>​ Remote Procedure Call 远程过程调用，是分布式架构的核心，按响应方式分如下两种：</p>
-<p> 同步调用：客户端调用服务方方法，等待直到服务方返回结果或者超时，再继续自己的操作。</p>
-<p> 异步调用：客户端把消息发送给中间件，不再等待服务端返回，直接继续自己的操作。</p>
-<p>是一种进程间的通信方式</p>
-<p>它允许应用程序调用网络上的另一个应用程序中的方法</p>
-<p>对于服务的消费者而言，无需了解远程调用的底层细节，是透明的</p>
-<p>需要注意的是RPC并不是一个具体的技术，而是指整个网络远程调用过程。</p>
-<p>RPC是一个泛化的概念，严格来说一切远程过程调用手段都属于RPC范畴。各种开发语言都有自己的RPC框架。Java中的RPC框架比较多，广泛使用的有RMI、Hessian、Dubbo、spring Cloud(restapi http)等。</p>
-<p>2.2 RPC组件<br>RPC架构里包含如下4个组件:</p>
-<p>客户端(Client)：服务调用者<br>客户端存根(Client Stub)：存放服务端地址信息，将客户端的请求参数打包成网络消息，再通过网络发送给服务方<br>服务端存根(Server Stub)：接受客户端发送过来的消息并解包，再调用本地服务<br>服务端(Server)：服务提供者。<br>2.3 RPC调用<br>服务调用方（client）调用以本地调用方式调用服务；<br>client stub接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体在Java里就是序列化的过程<br>client stub找到服务地址，并将消息通过网络发送到服务端；<br>server stub收到消息后进行解码,在Java里就是反序列化的过程；<br>server stub根据解码结果调用本地的服务；<br>本地服务执行处理逻辑；<br>本地服务将结果返回给server stub；<br>server stub将返回结果打包成消息，Java里的序列化；<br>server stub将打包后的消息通过网络并发送至消费方；<br>client stub接收到消息，并进行解码, Java里的反序列化；<br>服务调用方（client）得到最终结果。<br>2.3.1 小结<br>RPC 远程过程调用： 一台电脑调用另一台电脑上的方法<br>RPC组件及调用过程 客户端-&gt;客户端存根(序列化(发送)与反序列化(接收),服务端信息)-&gt;服务端存根(接收-反序列，返回结果-序列化)-&gt;服务端真正的方法<br>调用方式：调用方用的是接口，服务方是真正的实现<br>三.Apache Dubbo概述<br>目标</p>
-<p>了解什么是dubbo</p>
-<p>学习路径</p>
-<p>dubbo简介<br>dubbo架构<br>3.1. Dubbo简介<br>Apache Dubbo是一款高性能的Java RPC框架。其前身是阿里巴巴公司开源的一个高性能、轻量级的开源Java RPC框架，可以和Spring框架无缝集成。</p>
-<p>Dubbo官网地址：<a target="_blank" rel="noopener" href="http://dubbo.apache.org/">http://dubbo.apache.org</a></p>
-<p>Dubbo提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。</p>
-<p>3.2. Dubbo架构</p>
-<p>虚线都是异步访问，实线都是同步访问<br>蓝色:在启动时完成的功能<br>红色虚线(实线)都是程序运行过程中执行的功能</p>
-<p>节点	角色名称<br>Provider	暴露服务的服务提供方 服务方<br>Consumer	调用远程服务的服务消费方 调用方<br>Registry	服务注册与发现的注册中心<br>Monitor	统计服务的调用次数和调用时间的监控中心<br>Container	服务运行容器<br>调用关系说明:</p>
-<p>服务容器负责启动，加载，运行服务提供者。<br>服务提供者在启动时，向注册中心注册自己提供的服务。<br>服务消费者在启动时，向注册中心订阅自己所需的服务。<br>注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。<br>服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。<br>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。<br>什么是长连接</p>
-<p>长连接多用于操作频繁，点对点的通讯，而且连接数不能太多情况。每个TCP连接都需要三步握手，这需要时间，如果每个操作都是短连接，再操作的话那么处理速度会降低很多，所以每个操作完后都不断开，下次处理时直接发送数据包就OK了，不用建立TCP连接。</p>
-<p>3.3 小结<br>dubbo 远程调用框架 RPC</p>
-<p>dubbo架构</p>
-<p> 角色： 客户端与服务提供方 监控器注册中心</p>
-<p> 组员：服务消费端（调用者），服务提供方（容器）, 注册中心, 监控中心(负载均衡)</p>
-<p>四.Dubbo快速开发<br>目标</p>
-<p>使用dubbo，完成服务消费者，调用，服务提供者方法</p>
-<p>操作路径</p>
-<p>环境准备<br>创建父工程（dubbo_parent) 依赖管理<br>创建公共子模块(dubbo_common) 实体类<br>创建接口子模块(dubbo_interface)<br>创建服务提供者模块(dubbo_provider) 对接口的实现<br>创建服务消费者模块(dubbo_consumer) 引用接口<br>Zookeeper中存放Dubbo服务结构(注册中心)<br>讲解</p>
-<p>Dubbo作为一个RPC框架，其最核心的功能就是要实现跨网络的远程调用，服务提供者、服务消费者会使用共同的接口，故本小节先创建一个父工程，父工程下有4个子模块，一个是公共子模块，一个是接口模块，一个是服务提供者模块，一个是服务消费者模块。通过Dubbo来实现服务消费方远程调用服务提供方的方法。</p>
-<p>实现的业务为：根据id查询用户对象</p>
-<p>业务描述：页面发送请求：user&#x2F;findById.do?id&#x3D;1 根据id从数据库获取用户对象</p>
-<p>实现步骤：</p>
-<p>环境准备：创建数据库，创建t_user表<br>创建父工程，基于maven，打包方式为pom，工程名：dubbo_parent<br>创建公共子模块,创建user实体类，打包方式为jar，工程名:dubbo_common<br>创建接口子模块，在父工程的基础上，打包方式为jar，模块名：dubbo_interface<br>创建服务提供者子模块，在父工程的基础上，打包方式为war，模块名：dubbo_provider<br>创建服务消费者模子块，在父工程的基础上，打包方式为war，模块名：dubbo_consumer<br>4.1 环境准备</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> database itcastdubbo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_user` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `username` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;张三&quot;,<span class="number">22</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;李四&quot;,<span class="number">20</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;王五&quot;,<span class="number">25</span>);</span><br></pre></td></tr></table></figure>
-
-
-<p>4.2 创建父工程<br>父工程，不实现任何代码，主要是添加工程需要的库的依赖管理（DependencyManagement），依赖管理就是解决项目中多个模块间公共依赖的版本号、scope的控制范围。</p>
-<p>本项目需要使用spring-webmvc，使用dubbo（务必2.6.2以上版本）、zookeeper及其客户端（curator-framework）、Spring、Mybatis依赖库。</p>
-<p>创建结构</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── dubbo_common</span><br><span class="line">│   ├── dubbo_common.iml</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_consumer</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_interface</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_parent.iml</span><br><span class="line">├── dubbo_provider</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">└── pom.xml</span><br><span class="line">dubbo_parent pom.xml增加依赖</span><br></pre></td></tr></table></figure>
-
-
-
-<p>详细信息<br>4.3 公共子模块 —— dubbo-common<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>创建User实体类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> Integer id;</span><br><span class="line">  <span class="keyword">private</span> String username;</span><br><span class="line">  <span class="keyword">private</span> Integer age;</span><br><span class="line">  <span class="comment">//此处省略getter/setter/toString</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>4.4 接口子模块 —— dubbo_interface<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>UserService</p>
-<p>1<br>2<br>3<br>public interface UserService {<br>    User findById(Integer id);<br>}<br>4.5 服务提供者模块<br>此模块是服务提供者模块，需要在容器启动时，把服务注册到zookeeper,故需要引入spring-webmvc,zookeeper及客户端依赖。</p>
-<p>使用war 方式，需要依赖dubbo_interface</p>
-<p>结构</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── pom.xml</span><br><span class="line">└── src</span><br><span class="line">├── main</span><br><span class="line">│   ├── java</span><br><span class="line">│   │   └── com</span><br><span class="line">│   │       └── <span class="built_in">test</span></span><br><span class="line">│   │           ├── dao</span><br><span class="line">│   │           │   └── UserDao.java</span><br><span class="line">│   │           └── service</span><br><span class="line">│   │               └── impl</span><br><span class="line">│   │                   └── UserServiceImpl.java</span><br><span class="line">│   ├── resources</span><br><span class="line">│   │   ├── com</span><br><span class="line">│   │   │   └── <span class="built_in">test</span></span><br><span class="line">│   │   │       └── dao</span><br><span class="line">│   │   │           └── UserDao.xml</span><br><span class="line">│   │   ├── jdbc.properties</span><br><span class="line">│   │   ├── spring-dao.xml</span><br><span class="line">│   │   ├── spring-provider.xml</span><br><span class="line">│   │   └── spring-service.xml</span><br><span class="line">│   └── webapp</span><br><span class="line">│       └── WEB-INF</span><br><span class="line">│           └── web.xml</span><br><span class="line">└── <span class="built_in">test</span></span><br><span class="line">└── java</span><br></pre></td></tr></table></figure>
-
-<p>4.5.1 配置dubbo_provider依赖<br>pom.xml</p>
-<p>详细信息<br>4.5.2 初始化java资源目录<br>UserDao</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDao</span> &#123;</span><br><span class="line">  User <span class="title function_">findById</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>UserServiceImpl</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">UserService</span> &#123;<span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> UserDao userDao;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span> &#123;</span><br><span class="line"><span class="keyword">return</span> userDao.findById(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>}<br>在resource下创建com&#x2F;test&#x2F;dao目录，创建UserDao接口的映射文件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.test.dao.UserDao&quot;</span>&gt;</span></span><br><span class="line">  </span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;findById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.test.pojo.User&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;int&quot;</span>&gt;</span></span><br><span class="line">  select * from t_user where id = #&#123;id&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-4.5.3 初始化resources目录
-spring-dao.xml
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  加载jdbc配置文件   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:property-placeholder</span> <span class="attr">location</span>=<span class="string">&quot;classpath:jdbc.properties&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 数据源   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.alibaba.druid.pool.DruidDataSource&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driverClassName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.user&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 工厂 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.pojo&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- dao扫描   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;basePackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.dao&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>jdbc.properties</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jdbc.driver</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="attr">jdbc.url</span>=<span class="string">jdbc:mysql://localhost:3306/itcastdubbo</span></span><br><span class="line"><span class="attr">jdbc.user</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">jdbc.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">spring-service.xml</span></span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:tx</span>=<span class="string">&quot;http://www.springframework.org/schema/tx&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--  事务管理器  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;transactionManager&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  事务注解  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tx:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入dao  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dao.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>spring-provider.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布服务的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_provider&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心zookeeper:--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- service:  注册上去服务</span></span><br><span class="line"><span class="comment">interface： 发布服务的接口</span></span><br><span class="line"><span class="comment">ref: spring容器的bean对象</span></span><br><span class="line"><span class="comment">将来通过这个interface调用服务时，就来调用spring容器中的对象的方法</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;userService&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务真正的执行者  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入spring-service.xml  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-service.xml&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--发布dubbo协议，默认端口20880--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 超时时间 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;100000&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-log4j.properties
-
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### direct log messages to stdout ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.stdout</span>=<span class="string">org.apache.log4j.ConsoleAppender</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.Target</span>=<span class="string">System.err</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### direct messages to file mylog.log ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.file</span>=<span class="string">org.apache.log4j.FileAppender</span></span><br><span class="line"><span class="attr">log4j.appender.file.File</span>=<span class="string">c:\\mylog.log</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### set log levels - for more verbose logging change &#x27;info&#x27; to &#x27;debug&#x27; ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.rootLogger</span>=<span class="string">debug, stdout</span></span><br></pre></td></tr></table></figure>
-
-<p>4.5.4 启动项目<br>只要能启动spring的容器（加载spring的配置文件）就可以启动项目，因此有2种方式</p>
-<p>ClassPathXmlApplication</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProviderApplication</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ClassPathXmlApplicationContext</span>(<span class="string">&quot;classpath:spring-provider.xml&quot;</span>);</span><br><span class="line">    System.in.read();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>监听器与springMVC</p>
-<p>web.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式一: listener 启动spring容器</span></span><br><span class="line"><span class="comment">&lt;context-param&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-value&gt;classpath:spring-provider.xml&lt;/param-value&gt;</span></span><br><span class="line"><span class="comment">&lt;/context-param&gt;</span></span><br><span class="line"><span class="comment">&lt;listener&gt;</span></span><br><span class="line"><span class="comment">    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;</span></span><br><span class="line"><span class="comment">&lt;/listener&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式二: 启动mvc的核心控制器   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-provider.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-4.5.5 注册中心验证
-启动zookeeper，作为dubbo的注册中心
-
-<p>登录zookeeper客户端，直接查看ls &#x2F;dubbo&#x2F;com.test.service.UserService节点</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 34] <span class="built_in">ls</span> /dubbo/com.test.service.UserService</span><br><span class="line">[configurators, providers]</span><br></pre></td></tr></table></figure>
-
-
-<p>如果 &#x2F;dubbo下面没有这个节点，说明没有注册上，</p>
-<p>如果有，内容是空，说明已经掉线</p>
-<p>正常注册并连接在线</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 35] <span class="built_in">ls</span> /dubbo/com.test.service.UserService/providers</span><br><span class="line">[dubbo%3A%2F%2F10.254.4.87%3A20880%2Fcom.test.service.UserService%3Fanyhost%3Dtrue%26application%3Ddubbo_provide%26dubbo%3D2.6.2%26generic%3Dfalse%26interface%3Dcom.test.service.UserService%26methods%3DfindById%26pid%3D33771%26revision%3D1.0-SNAPSHOT%26side%3Dprovider%26timestamp%3D1592563739288]</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：</p>
-<p>消费者与提供者应用名称不能相同</p>
-<p>如果有多个服务提供者，名称不能相同，通信端口也不能相同</p>
-<p>只有服务提供者才会配置服务发布的协议，默认是dubbo协议，端口号是20880</p>
-<p>可以在spring-dubbo.xml中配置协议的端口</p>
-<p>4.6 服务消费者模块<br>此模块是服务消费者模块，此模块基于是Web应用，需要引入spring-webmvc，需要在容器启动时，去zookeeper注册中心订阅服务,需要引入dubbo、zookeeper及客户端依赖。</p>
-<p>4.6.1 子模块dubbo_consumer导包<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_consumer<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-webmvc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>servlet-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>4.6.2 初始化java资源目录<br>UserController</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>}<br>4.6.3 初始化resources资源目录<br>spring-dubbo.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_consumer&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务订阅扫包</span></span><br><span class="line"><span class="comment">      (2.6.0 事务问题)使用了服务的那controller的包, springmvc中的controller也不需要扫包了</span></span><br><span class="line"><span class="comment">      &lt;dubbo:reference&gt;就不要了</span></span><br><span class="line"><span class="comment">      在controller的服务注入使用@Reference(dubbo)</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:annotation</span> <span class="attr">package</span>=<span class="string">&quot;com.test&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  id的值必须与controller中的@autowired的属性名称要一致</span></span><br><span class="line"><span class="comment">    &lt;dubbo:reference interface=&quot;com.test.service.UserService&quot; id=&quot;userService&quot;/&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  启动时是否检查服务提供者是否存在，true: 则会检查【上线时】，没有则报错。false不检查</span></span><br><span class="line"><span class="comment">     retries: 失败后的重试次数</span></span><br><span class="line"><span class="comment">     --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;2000&quot;</span> <span class="attr">retries</span>=<span class="string">&quot;2&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>spring-mvc.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:mvc</span>=<span class="string">&quot;http://www.springframework.org/schema/mvc&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  扫controller--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.test.controller&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注解驱动  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">mvc:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  引入dubbo配置文件--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dubbo.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>log4j.properties</p>
-<p>之前的配置文件直接复制即可</p>
-<p>web.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-mvc.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>encoding<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>4.6.5 启动服务消费者并测试<br>访问：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3<br>显示：{“id”:3,”username”:”C”,”age”:25}<br>注意：因为是RPC的框架，要求传递的参数和实体类要实现序列化</p>
-<p>参数：Integer类型（实现序列化接口java.io.Serializable）</p>
-<p>返回值：User（实现序列化接口java.io.Serializable），如果不进行序列化，抛出异常</p>
-<p>4.7 Zookeeper中存放Dubbo服务结构（作为Dubbo运行的注册中心）<br>Zookeeper树型目录服务：</p>
-<p>流程说明</p>
-<p>服务提供者(Provider)启动时: 向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下写入自己的 URL 地址</p>
-<p>服务消费者(Consumer)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下的提供者 URL 地址。并向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;consumers 目录下写入自己的 URL 地址</p>
-<p>监控中心(Monitor)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService 目录下的所有提供者和消费者 URL 地址</p>
-<p>4.8 小结<br>dubbo_parent 版本控制<br>dubbo_common 实体类<br>dubbo_interface 共用接口<br>dubbo_provider 服务提供者 dao(spring-dao.xml 整合mybatis), 事务(spring-service.xml), 注册到注册中心(spring-prodvider.xml)<br>启动方式： 3种 推荐开发中用main方法类，tomcat来启动(监听器，springmvc的方式)</p>
-<p>dubbo_consumer controller接收参数调用服务接口 spring-mvc.xml, 注册到注册中心 spring-dubbo.xml web.xml dispatcherServlet tomcat来启动</p>
-<p>子模块工程间的关系</p>
-<p>dubbo_consumer依赖于dubbo_interface(依赖于common) war tomcat<br>dubbo_provider(service,dao)依赖于dubbo_interface(依赖于common) war tomcat<br>五.Dubbo管理控制台<br>我们在开发时，需要知道Zookeeper注册中心都注册了哪些服务，有哪些消费者来消费这些服务。我们可以通过部署一个管理中心来实现。其实管理中心就是一个web应用，部署到tomcat即可。</p>
-<p>目标</p>
-<p>Dubbo管理控制台的使用（即Dubbo监控中心）</p>
-<p>使用路径</p>
-<p>安装（dubbo-admin.war）<br>使用（dubbo-admin.war）</p>
-<p>5.1. 安装<br>下载dubbo-admin.war，放入Tomcat的webapps中</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find ./apache-tomcat-8.5.54 -name <span class="string">&quot;dubbo*war*&quot;</span> -<span class="built_in">type</span> f    </span><br><span class="line">./apache-tomcat-8.5.54/webapps/dubbo-admin.war</span><br></pre></td></tr></table></figure>
-
-
-<p>启动Tomcat,此war文件会自动解压</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ ./apache-tomcat-8.5.54/bin/startup.sh</span><br><span class="line">Using CATALINA_BASE:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_HOME:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_TMPDIR: /Users/swzxsyh/Program/apache-tomcat-8.5.54/temp</span><br><span class="line">Using JRE_HOME:        /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home</span><br><span class="line">Using CLASSPATH:       /Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/bootstrap.jar:/Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/tomcat-juli.jar</span><br><span class="line">Tomcat started.</span><br></pre></td></tr></table></figure>
-
-
-<p>修改WEB-INF下的dubbo.properties文件</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注意dubbo.registry.address对应的值需要对应当前使用的Zookeeper的ip地址和端口号</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dubbo.registry.address</span>=<span class="string">zookeeper://localhost:2181</span></span><br><span class="line"><span class="attr">dubbo.admin.root.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">dubbo.admin.guest.password</span>=<span class="string">guest</span></span><br><span class="line"><span class="attr">重启tomcat</span></span><br></pre></td></tr></table></figure>
-
-<p>5.2. 使用<br>访问</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localhost:8080/dubbo-admin/</span><br></pre></td></tr></table></figure>
-
-<p>账号密码都为admn或都为guest，上方配置文件中配置的</p>
-<p>启动服务提供者工程和服务消费者工程，可以在查看到对应的信息</p>
-<p>5.3 小结<br>安装（dubbo-admin.war），放置到tomcat webapp目录下，zookeeper不是本地则要修改WEB-INF下的dubbo.properties文件， 改zookeeper的ip地址。</p>
-<p>使用（dubbo-admin.war）</p>
-<p>访问localhost:8080&#x2F;dubbo-admin&#x2F;，输入用户名(root)和密码(root)</p>
-<p>六.Dubbo相关配置说明<br>目标</p>
-<p>Dubbo相关配置说明</p>
-<p>路径</p>
-<p>包扫描（dubbo注解配置）</p>
-<p>服务接口访问协议dubbo协议</p>
-<p>rmi协议</p>
-<p>启动时检查</p>
-<p>超时调用</p>
-<p>6.1. 包扫描<br>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者前面章节实现都是基于配置文件进行服务注册与订阅，如果使用包扫描，可以使用注解方式实现，推荐使用这种方式。</p>
-<p>6.1.1 服务提供者，使用注解实现<br>在spring-dubbo.xml中配置</p>
-<p>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者都需要配置，表示包扫描，作用是扫描指定包(包括子包)下的类。</p>
-<p>同时去掉以下配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--指定暴露的服务接口及实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">ref</span>=<span class="string">&quot;userSerivce&quot;</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!--配置业务类实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userSerivce&quot;</span></span></span><br><span class="line"><span class="tag">      <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>在Controller类中使用@Reference注解</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line"><span class="keyword">private</span> UserService userService;</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：其中@Reference是dubbo包下（com.alibaba.dubbo.config.annotation.Reference）的注解。表示订阅服务</p>
-<p>6.1.3 重启服务测试使用<br>重启服务提供者模块 dubbo-provider</p>
-<p>重启服务消费者模块 dubbo-consumer</p>
-<p>在浏览器输入测试URL：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3</p>
-<p>6.2 服务接口访问协议【提供方修改】<br>1<br>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;<br>一般在服务提供者一方配置，可以指定使用的协议名称和端口号。</p>
-<p>其中Dubbo支持的协议有：dubbo、rmi、hessian、http、webservice、rest、redis等。</p>
-<p>推荐使用的是dubbo协议，默认端口号：20880。</p>
-<p>dubbo 协议采用单一长连接和 NIO 异步通讯，适合于小数据量、大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。不适合传送大数据量的服务，比如传文件，传视频等，除非请求量很低。</p>
-<p>也可以在同一个工程中配置多个协议，不同服务可以使用不同的协议， 在spring-provider.xml配置文件中添加：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 多协议配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;rmi&quot;</span> <span class="attr">port</span>=<span class="string">&quot;1099&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>dubbo协议：</p>
-<p>连接个数：单连接<br>连接方式：长连接<br>传输协议：TCP<br>传输方式：NIO异步传输<br>序列化：Hessian二进制序列化<br>适用范围：传入传出参数数据包较小（建议小于100K），消费者比提供者个数多，单一消费者无法压满提供者，尽量不要用dubbo协议传输大文件或超大字符串。<br>适用场景：常规远程服务方法调用<br>rmi协议：</p>
-<p>连接个数：多连接<br>连接方式：短连接<br>传输协议：TCP<br>传输方式：同步传输<br>序列化：Java标准二进制序列化<br>适用范围：传入传出参数数据包大小混合，消费者与提供者个数差不多，可传文件。<br>适用场景：常规远程服务方法调用，与原生RMI服务互操作<br>详情使用可通过博客文章：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/duanxz/p/3555876.html%E4%BA%86%E8%A7%A3">https://www.cnblogs.com/duanxz/p/3555876.html了解</a></p>
-<p>6.3 启动时检查<br>1<br>&lt;dubbo:consumer check&#x3D;”false”&#x2F;&gt;<br>上面这个配置需要配置在服务消费者一方，如果不配置默认check值为true。Dubbo 缺省会在启动时检查依赖的服务是否可用，不可用时会抛出异常，阻止 Spring 初始化完成，以便上线时，能及早发现问题。可以通过将check值改为false来关闭检查。</p>
-<p>建议在开发阶段将check值设置为false，在生产环境下改为true。</p>
-<p>如果设置为true，启动服务消费者，会抛出异常，表示没有服务提供者</p>
-<p>6.4. 超时调用<br>默认的情况下，dubbo调用的时间为一秒钟，如果超过一秒钟就会报错，所以我们可以设置超时时间长些，保证调用不出问题，这个时间需要根据业务来进行确定。</p>
-<p>修改消费者 配置文件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--超时时间为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">修改提供者配置文件</span><br><span class="line"></span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line"><span class="comment">&lt;!--超时时间设置为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>6.5 小结<br>包扫描（dubbo注解配置）</p>
-<p>&lt;dubbo:annotation package&#x3D;”com.test”&gt;<br>服务提供方: @Service -&gt; alibaba.dubbo包<br>消费方: controller, @Autowired&#x3D;&gt; @Reference-&gt; alibaba.dubbo<br>服务接口访问协议</p>
-<p>（服务提供者）</p>
-<p>dubbo协议<br>rmi协议</p>
-<!--配置Dubbo的协议（dubbo协议，默认端口20880-->
-<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;</p>
-<!--配置rmi的协议-->
-<p>&lt;dubbo:protocol name&#x3D;”rmi” port&#x3D;”1099”&gt;<br>启动时检查</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span> 开发时。发布时一定为true超时调用</span><br><span class="line"></span><br><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">（服务提供者）</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-<p>七.负载均衡<br>目标</p>
-<p>Dubbo配置负载均衡</p>
-<p>学习路径</p>
-<p>负载均衡介绍<br>测试负载均衡效果<br>7.1. 介绍<br>负载均衡（Load Balance）：其实就是将请求分摊到多个操作单元上进行执行，从而共同完成工作任务。</p>
-<p>在集群负载均衡时，Dubbo 提供了多种均衡策略（包括随机random、轮询roundrobin、最少活跃调用数leastactive），缺省【默认】为random随机调用。</p>
-<p>配置负载均衡策略，既可以在服务提供者一方配置（@Service(loadbalance &#x3D; “roundrobin”)），也可以在服务消费者一方配置（@Reference(loadbalance &#x3D; “roundrobin”)），两者取一</p>
-<p>如下在服务消费者指定负载均衡策略，可在@Reference添加@Reference(loadbalance &#x3D; “roundrobin”)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserSerivce userService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>7.2. 测试负载均衡效果<br>增加一个提供者，提供相同的服务;</p>
-<p> 正式生产环境中，最终会把服务端部署到多台机器上，故不需要修改任何代码，只需要部署到不同机器即可测试。下面我们通过启动 ProviderApplication 类来做测试</p>
-<p>修改为轮询</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>先启动一个ProviderApplication</p>
-<p>IDEA——Edit Configuration——Add New Configuration——Application——进行配置</p>
-<p>设置可以启动多个实例</p>
-<p>勾选刚刚配置的Application中的 Allow parallel run</p>
-<p>修改spring-provider.xml 端口依次改为20881,20882,20883</p>
-<p>1<br>2</p>
-<!-- 使用Dubbo协议的服务会在初始化时建立长连接-->
-<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&#x2F;&gt;<br>启动ProviderApplication,最终有3个，分别端口为20881，20882，20883</p>
-<p>其中</p>
-<p>1<br>2<br>@Reference(loadbalance &#x3D; “roundrobin”) 		&#x2F;&#x2F; 表示轮询<br>@Reference(loadbalance &#x3D; “random”)       	&#x2F;&#x2F; 表示随机（默认）<br>访问测试</p>
-<p>启动消费者，访问：<a target="_blank" rel="noopener" href="http://localhost:92/user/findById?id=3">http://localhost:92/user/findById?id=3</a></p>
-<p>7.3 小结<br>负载均衡: 把请求均匀分配到各服务提供者上</p>
-<p>loadbalance:</p>
-<p>random 随机 默认<br>roundrobin 轮循<br>leastactive 最少活跃数<br>consistenhash 一致哈希<br>八.配置中心<br>目标</p>
-<p>Dubbo配置中心</p>
-<p>路径</p>
-<p>配置中心环境介绍</p>
-<p>实现配置中心</p>
-<p>（1）在Zookeeper中添加数据源所需配置</p>
-<p>（2）在dubbo-common中导入jar包, 在这里实现配置中心的读取与监听</p>
-<p>（3）删除数据库配置文件，数据库配置从Zookeeper上读取</p>
-<p>添加watch机制</p>
-<p>添加监听(数据库配置信息的节点， 节点数据变化时，重新设置数据库的配置信息，刷新容器)<br>获取Spring容器对象，再刷新<br>8.1. 环境介绍<br>​ 数据发布&#x2F;订阅即所谓的配置中心：发布者将数据发布到ZooKeeper一系列节点上面，订阅者进行数据订阅，当数据有变化时，可以及时得到数据的变化通知，达到动态及时获取数据的目的。</p>
-<p>现在项目中有两个提供者，配置了相同的数据源，如果此时要修改数据源，必须同时修改两个才可以。</p>
-<p> 我们可以将数据源中需要的配置信息配置存储在zookeeper中，如果修改数据源配置，使用zookeeper的watch机制，同时对提供者的数据源信息更新。</p>
-<p>8.2. 实现配置中心<br>操作路径</p>
-<p>在zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包</p>
-<p>修改数据源，读取zookeeper中数据源所需配置数据</p>
-<p>在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer<br>编写载入zookeeper中配置文件，传递到Properties属性中<br>重写processProperties方法<br>修改spring-dao.xml<br>watch机制</p>
-<p>添加监听<br>获取容器对象，刷新spring容器：SettingCenterUtil,实现ApplicationContextAware<br>8.2.1 在zookeeper中添加数据源所需配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 71] create /config <span class="string">&#x27;config&#x27;</span></span><br><span class="line">Created /config</span><br><span class="line">[zk: localhost:2181(CONNECTED) 72] create /config/jdbc.url <span class="string">&#x27;jdbc:mysql://localhost:3306/test_01&#x27;</span></span><br><span class="line">Created /config/jdbc.url</span><br><span class="line">[zk: localhost:2181(CONNECTED) 76] create /config/jdbc.user <span class="string">&#x27;root</span></span><br><span class="line"><span class="string">Created /config/jdbc.user</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 77] create /config/jdbc.password &#x27;</span>root<span class="string">&#x27; </span></span><br><span class="line"><span class="string">Created /config/jdbc.password     </span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 78] create /config/jdbc.driver &#x27;</span>com.mysql.jdbc.Driver<span class="string">&#x27;</span></span><br><span class="line"><span class="string">Created /config/jdbc.driver</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 79] </span></span><br></pre></td></tr></table></figure>
-
-<p>8.2.2 在dubbo-common中导入jar包<br>详细信息<br>8.2.3 修改数据源，读取zookeeper中数据<br>8.2.3.1 在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> dubbo_common/src/main/java   </span><br><span class="line"> ~/P/i/d/d/s/m/java</span><br><span class="line">$ tree  </span><br><span class="line">.</span><br><span class="line">└── com</span><br><span class="line">    └── <span class="built_in">test</span></span><br><span class="line">        ├── pojo</span><br><span class="line">        │   └── User.java</span><br><span class="line">        └── utils</span><br><span class="line">            └── SettingCenterUtil.java</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SettingCenterUtil</span> <span class="keyword">extends</span> <span class="title class_">PropertyPlaceholderConfigurer</span> </span><br></pre></td></tr></table></figure>
-
-<p>8.2.3.2 编写载入zookeeper中配置文件，传递到Properties属性中<br>详细信息<br>8.2.3.3 重写processProperties方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> * 处理properties内容,相当于此标签</span></span><br><span class="line"><span class="comment"> * &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;&gt;&lt;/context:property-placeholder&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> beanFactoryToProcess</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> BeansException</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  <span class="comment">// 载入zookeeper配置信息，即从Zookeeper中获取数据源的连接信息</span></span><br><span class="line">  loadZk(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>8.2.3.4 修改spring-dao.xml</li>
-</ul>
- <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--  注释  加载jdbc配置文件   --&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--    &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;--&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--  添加  加载配置中心对象   --&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;com.test.utils.SettingCenterUtil&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>8.2.4 watch机制<br>8.2.4.1 在SettingCenterUtil中添加监听</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">   * 添加对zookeeper中数据库配置的监听</span></span><br><span class="line"><span class="comment">      <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment">          */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">addWatch</span><span class="params">(Properties props)</span>&#123;</span><br><span class="line">  <span class="comment">//connectString       连接字符串 host:port</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">connectString</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1:2181&quot;</span>;</span><br><span class="line">  <span class="comment">//sessionTimeoutMs    session timeout  会话超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">sessionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//connectionTimeoutMs connection timeout 连接超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">connectionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//retryPolicy         retry policy to use  重试策略</span></span><br><span class="line">  <span class="comment">// baseSleepTimeMs  每次重试间隔时间</span></span><br><span class="line">  <span class="comment">// 1.创建重试策略</span></span><br><span class="line">  <span class="type">RetryPolicy</span> <span class="variable">retryPolicy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ExponentialBackoffRetry</span>(<span class="number">1000</span>,<span class="number">1</span>);</span><br><span class="line">  <span class="comment">// 2. 创建客户端</span></span><br><span class="line">  <span class="type">CuratorFramework</span> <span class="variable">client</span> <span class="operator">=</span> CuratorFrameworkFactory.newClient(connectString, sessionTimeoutMs, connectionTimeoutMs, retryPolicy);</span><br><span class="line">  <span class="comment">// 3. 启动</span></span><br><span class="line">  client.start();<span class="comment">// 启动</span></span><br><span class="line"></span><br><span class="line">  <span class="type">TreeCache</span> <span class="variable">treeCache</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeCache</span>(client, <span class="string">&quot;/config&quot;</span>);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    treeCache.start();</span><br><span class="line">    <span class="comment">// 添加监听</span></span><br><span class="line">    treeCache.getListenable().addListener(<span class="keyword">new</span> <span class="title class_">TreeCacheListener</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">childEvent</span><span class="params">(CuratorFramework client, TreeCacheEvent event)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span>(event.getType() == TreeCacheEvent.Type.NODE_UPDATED)&#123;</span><br><span class="line">          <span class="comment">// 如果是jdbc.url的值变更</span></span><br><span class="line">          <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.url&quot;</span>))&#123;</span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.url&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.driver&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 如果 jdbc.driver变更</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.driver&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.user&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 用户名修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.user&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.password&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 密码修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.password&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// 刷新spring容器</span></span><br><span class="line">          applicationContext.refresh();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：</p>
-<p>不要关闭client，否则无法进行监控<br>修改完成后必须刷新spring容器的对象<br>8.2.4.2 获取容器对象，刷新spring容器<br>修改SettingCenterUtil实现ApplicationContextAware接口，重写setApplicationContext方法，获取applicationContext对象。</p>
-<p>AbstractApplicationContext容器对象父类，提供了refresh方法，可以刷新容器中的对象，故强制转换。</p>
-<p>在processProperties的方法中，添加addWatch(props);</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  loadZk(props);</span><br><span class="line">  addWatch(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>修改Zookeeper的配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 79] <span class="built_in">set</span> /config/jdbc.url <span class="string">&quot;jdbc:mysql:///test&quot;</span></span><br><span class="line">[zk: localhost:2181(CONNECTED) 80] get /config/jdbc.url</span><br><span class="line">jdbc:mysql:///test</span><br></pre></td></tr></table></figure>
-
-
-<p>8.3 小结<br>配置中心环境介绍 回看zookeeper配置中心的图<br>实现配置中心<br>在Zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包<br>修改数据源,读取Zookeeper中数据,继承ProperteisPlaceHolderConfigurer.processProperties, 读取zk中的数据库配置,设置进props参数<br>watch机制<br>添加监听 TreeCache, event.type&#x3D;node_update, 注意：判断path 不要关闭客户端<br>获取容器对象且刷新</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1396,7 +1169,7 @@ log4j.properties
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">189</span>
+          <span class="site-state-item-count">192</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1435,7 +1208,7 @@ log4j.properties
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

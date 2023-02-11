@@ -181,6 +181,416 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/04/%E4%BA%8B%E5%8A%A1Transaction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/04/%E4%BA%8B%E5%8A%A1Transaction/" class="post-title-link" itemprop="url">事务Transaction</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-04 00:20:42" itemprop="dateCreated datePublished" datetime="2022-07-04T00:20:42+08:00">2022-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-09 21:50:44" itemprop="dateModified" datetime="2023-02-09T21:50:44+08:00">2023-02-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><h2 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h2><ul>
+<li><p>Atomicity</p>
+<p>原子性（Atomicity）：事务中的操作要么都做，要么都不做。</p>
+</li>
+<li><p>Consistency<br>一致性（Consistency）：系统必须始终处在强一致状态下</p>
+</li>
+<li><p>Isolation<br>隔离性（Isolation）：一个事务的执行不能被其他事务所干扰</p>
+</li>
+<li><p>Durability</p>
+<p>持续性（Durability）：一个已提交的事务对数据库中数据的改变是永久性的</p>
+</li>
+</ul>
+<h2 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><ul>
+<li>Basically Avaliable<br>基本可用（Basically&amp;nbsp;Available）：系统能够基本运行、一直提供服务</li>
+<li>Soft-state<br>状态（Soft-state）：系统不要求一直保持强一致状态</li>
+<li>Eventual consistency<br>最终一致性（Eventual&amp;nbsp;consistency）：系统需要在某一时刻后达到一致性要求</li>
+</ul>
+<h3 id="主要实现方式"><a href="#主要实现方式" class="headerlink" title="主要实现方式"></a>主要实现方式</h3><ul>
+<li>两阶段型<br>分布式事务两阶段提交，对应技术上的XA、JTA&#x2F;JTS。这是分布式环境下事务处理的典型模式</li>
+<li>补偿型<br>TCC型事务（Try&#x2F;Confirm&#x2F;Cancel）可以归为补偿型；TCC思路是:尽早释放锁；在Try成功的情况下，如果事务要回滚，Cancel将作为一个补偿机制，回滚Try操作；<br>TCC各操作事务本地化，且尽早提交&amp;nbsp;(放弃两阶段约束)；当全局事务要求回滚时，通过另一个本地事务实现“补偿”行为；<br>TCC是将资源层的两阶段提交协议转换到业务层，成为业务模型中的一部分；</li>
+<li>异步确保型<br>将一些同步阻塞的事务操作变为异步的操作，避免对数据库事务的争用，典型例子是热点账户异步记账、批量记账的处理</li>
+<li>最大努力通知型<br>交易的消息通知与失败重试（例如商户交易结果通知重试、补单重试）</li>
+</ul>
+<h3 id="模式分类"><a href="#模式分类" class="headerlink" title="模式分类"></a>模式分类</h3><ul>
+<li>异步确保</li>
+<li>重试与幂等</li>
+<li>可补偿操作</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/" class="post-title-link" itemprop="url">JAVA-CAS与原子类</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 23:11:43" itemprop="dateCreated datePublished" datetime="2022-07-03T23:11:43+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><h2 id="什么是CAS"><a href="#什么是CAS" class="headerlink" title="什么是CAS"></a>什么是CAS</h2><blockquote>
+<p><code>CAS(compare and swap)</code>,字面意思比较并交换,是解决多线程并行情况下使用锁造成性能损耗的一种机制.</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">compareAndSet</span><span class="params">(<span class="type">int</span> expect, <span class="type">int</span> update)</span> &#123;        </span><br><span class="line">  <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="built_in">this</span>, valueOffset, expect, update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>CAS</code>有三个操作数,<code>valueOffset</code>内存值,<code>expect</code>期望值,<code>update</code>要更新的值。如果内存值(<code>valueOffset</code>)和期望值(<code>expect</code>)是一样的。那么处理器会将该位置的值更新为(<code>update</code>),否则不做任何操作。</p>
+<p>CAS 有效地说明了“我认为位置<code>valueOffset</code>应该包含值<code>expect</code>，如果包含该值，则将<code>update</code>放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。”在 Java 中，sun.misc.Unsafe类提供了硬件级别的原子操作来实现这个 CAS，java.util.concurrent包下的大量类都使用了这个Unsafe类的 CAS 操作</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/JAVA-CAS%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" class="post-title-link" itemprop="url">MySQL 分库分表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 23:09:44" itemprop="dateCreated datePublished" datetime="2022-07-03T23:09:44+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MySQL-分库分表"><a href="#MySQL-分库分表" class="headerlink" title="MySQL 分库分表"></a>MySQL 分库分表</h1><h2 id="什么是分库分表"><a href="#什么是分库分表" class="headerlink" title="什么是分库分表"></a>什么是分库分表</h2><p>分库分表其实很好理解，<strong>「顾名思义，即把存于一个库的数据分散到多个库中，把存于一个表的数据分散到多个表中」</strong>。但是需要明确一点，分库分表不是一件事，而是三件事，也就是<strong>「分库分表的三种方案」</strong>：</p>
+<ul>
+<li><strong>「只分库不分表」</strong></li>
+<li><strong>「只分表不分库」</strong></li>
+<li><strong>「既分库又分表」</strong></li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/MySQL-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/Java-ThreadLocal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/Java-ThreadLocal/" class="post-title-link" itemprop="url">Java-ThreadLocal</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 17:24:02" itemprop="dateCreated datePublished" datetime="2022-07-03T17:24:02+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="ThreadLoacl的理解"><a href="#ThreadLoacl的理解" class="headerlink" title="ThreadLoacl的理解"></a>ThreadLoacl的理解</h1><p>ThreadLocal提供了线程的局部变量，每个线程都可以通过set()和get()来对这个局部变量进行操作，但不会和其他线程的局部变量发生冲突，<strong>实现了线程的数据隔离</strong>。</p>
+<p>简言之：往ThreadLoacl中填充的变量属于当前线程，该变量对其他线程而言是隔离的。</p>
+<p>ThreadLocal可以让我们拥有当前线程的变量</p>
+<h2 id="常用的方法"><a href="#常用的方法" class="headerlink" title="常用的方法"></a>常用的方法</h2><ul>
+<li>set(T value)：设置线程本地变量的内容。</li>
+<li>get()：获取线程本地变量的内容。</li>
+<li>remove()：移除线程本地变量。注意在线程池的线程复用场景中在线程执行完毕时一定要调用remove，避免在线程被重新放入线程池中时被本地变量的旧状态仍然被保存。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/Java-ThreadLocal/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/Java-Volatile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/Java-Volatile/" class="post-title-link" itemprop="url">Java-Volatile</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 17:23:20" itemprop="dateCreated datePublished" datetime="2022-07-03T17:23:20+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h1><p>volatile的中文意思是不稳定的、易变的，用volatile修饰的变量是为了<strong>保证变量的可见性</strong>。</p>
+<ul>
+<li><p>Volatile作用：用来确保将变量的更新操作通知到其他线程</p>
+</li>
+<li><p>原理：</p>
+<p>1）编译器会注意到被volatile修饰的变量是共享的，因此不会将该变量上的操作与其他内存操作一起重新排序</p>
+<p>volatile变量不会被缓存在寄存器中，因此读取volatile变量总会返回最新的值</p>
+<p>2）在访问volatile变量时，不会执行加锁操作，因此也不会阻塞线程，对非volatile变量进行读写时，每个线程先从内存拷贝变量到CPU缓存中</p>
+<p>总结：不会重排、不会缓存（永远是最新值）、不会加锁（因此不会阻塞）</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/Java-Volatile/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/DDD%E4%B8%8E%E4%B8%AD%E5%8F%B0%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%85%B3%E7%B3%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -320,78 +730,6 @@
             </div>
           <!--/noindex-->
         
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/Spring-%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/Spring-%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88/" class="post-title-link" itemprop="url">Spring-事务失效</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 19:21:01" itemprop="dateCreated datePublished" datetime="2022-07-02T19:21:01+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-20 04:35:25" itemprop="dateModified" datetime="2022-08-20T04:35:25+08:00">2022-08-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Spring-事务失效"><a href="#Spring-事务失效" class="headerlink" title="Spring-事务失效"></a>Spring-事务失效</h1><h2 id="访问权限问题"><a href="#访问权限问题" class="headerlink" title="访问权限问题"></a>访问权限问题</h2><p>例如：private修饰的方法，Spring要求被代理的方法必须是public的</p>
-<h2 id="方法用final修饰"><a href="#方法用final修饰" class="headerlink" title="方法用final修饰"></a>方法用final修饰</h2><h2 id="方法内部调用：同一个类中a方法调用有事务注解的b方法"><a href="#方法内部调用：同一个类中a方法调用有事务注解的b方法" class="headerlink" title="方法内部调用：同一个类中a方法调用有事务注解的b方法"></a>方法内部调用：同一个类中a方法调用有事务注解的b方法</h2><p>Spring在扫描Bean的时候会自动为标注了@Transactional注解的类生成一个代理类（proxy）,当有注解的方法被调用的时候，实际上是代理类调用的，代理类在调用之前会开启事务，执行事务的操作，但是同类中的方法互相调用，相当于this.B()，此时的B方法并非是代理类调用，而是直接通过原有的Bean直接调用（相当于new Bean.b()，此时不受代理类控制），所以注解会失效。</p>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><ul>
-<li>1）将B方法移到另一个service中	</li>
-<li>2）在service中注入自己	</li>
-<li>3）通过aopContent类：在该service类中调用AopContent.currentProxy ()获取代理对象</li>
-</ul>
-<h3 id="解决原理"><a href="#解决原理" class="headerlink" title="解决原理"></a>解决原理</h3><p>相当于b方法变为代理对象的方法，相当于代理对象调用，不会因new Bean导致事务失效</p>
-<h2 id="类未被spring管理"><a href="#类未被spring管理" class="headerlink" title="类未被spring管理"></a>类未被spring管理</h2><h2 id="多线程调用"><a href="#多线程调用" class="headerlink" title="多线程调用"></a>多线程调用</h2><h2 id="表不支持事务"><a href="#表不支持事务" class="headerlink" title="表不支持事务"></a>表不支持事务</h2><h2 id="未开启事务"><a href="#未开启事务" class="headerlink" title="未开启事务"></a>未开启事务</h2>
       
     </div>
 
@@ -687,402 +1025,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/" class="post-title-link" itemprop="url">MessageQueue-面试题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 18:05:01" itemprop="dateCreated datePublished" datetime="2022-07-02T18:05:01+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-13 04:38:15" itemprop="dateModified" datetime="2022-08-13T04:38:15+08:00">2022-08-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="为什么使用MQ"><a href="#为什么使用MQ" class="headerlink" title="为什么使用MQ"></a>为什么使用MQ</h2><ul>
-<li>解耦</li>
-<li>异步</li>
-<li>削峰</li>
-</ul>
-<h2 id="MQ选型"><a href="#MQ选型" class="headerlink" title="MQ选型"></a>MQ选型</h2><p><strong>Kafka：</strong>追求高吞吐量，一开始的目的就是用于日志收集和传输，适合产生大量数据的互联网服务的数据收集业务，大型公司建议可以选用，如果有日志采集功能，肯定是首选 Kafka。</p>
-<p><strong>RocketMQ：</strong>天生为金融互联网领域而生，对于可靠性要求很高的场景，尤其是电商里面的订单扣款，以及业务削峰，在大量交易涌入时，后端可能无法及时处理的情况。</p>
-<p>RocketMQ 在稳定性上可能更值得信赖，这些业务场景在阿里双 11 已经经历了多次考验，如果你的业务有上述并发场景，建议可以选择 RocketMQ。</p>
-<p><strong>RabbitMQ：</strong>结合 erlang 语言本身的并发优势，性能较好，社区活跃度也比较高，但是不利于做二次开发和维护，不过 RabbitMQ 的社区十分活跃，可以解决开发过程中遇到的 bug。如果你的数据量没有那么大，小公司优先选择功能比较完备的 RabbitMQ。</p>
-<p><strong>ActiveMQ：</strong>官方社区现在对 ActiveMQ 5.x 维护越来越少，较少在大规模吞吐的场景中使用。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/MessageQueue-%E9%9D%A2%E8%AF%95%E9%A2%98/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JAVA%E9%9D%A2%E8%AF%95%E6%80%9D%E8%B7%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/JAVA%E9%9D%A2%E8%AF%95%E6%80%9D%E8%B7%AF/" class="post-title-link" itemprop="url">JAVA面试思路</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:09:01" itemprop="dateCreated datePublished" datetime="2022-07-02T17:09:01+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="通用问题"><a href="#通用问题" class="headerlink" title="通用问题"></a>通用问题</h1><h2 id="JAVA"><a href="#JAVA" class="headerlink" title="JAVA"></a>JAVA</h2><ul>
-<li><p>提问走向 – 优点、缺点、匹配点</p>
-<ul>
-<li><p>各自优缺点，项目为何选用某一种</p>
-<ul>
-<li><p>List</p>
-<p>ArrayList、LinkedList</p>
-</li>
-<li><p>Map</p>
-<p>HashMap、LinkedHshMap、TreeMap、ConcurrentHashMap</p>
-</li>
-<li><p>JUC</p>
-</li>
-<li><p>GC</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="SQL"><a href="#SQL" class="headerlink" title="SQL"></a>SQL</h2><ul>
-<li>CURD<ul>
-<li>多次Create<ul>
-<li>幂等性</li>
-</ul>
-</li>
-<li>批量Delete<ul>
-<li>如何删除大量数据，分批次？另起Job删？</li>
-</ul>
-</li>
-<li>并发Update<ul>
-<li>保证变更顺序，避免对账异常</li>
-</ul>
-</li>
-<li>海量Require<ul>
-<li>索引相关</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h2><h3 id="Register"><a href="#Register" class="headerlink" title="Register"></a>Register</h3><h3 id="MQ"><a href="#MQ" class="headerlink" title="MQ"></a>MQ</h3><ul>
-<li>各自优缺点、为何选型</li>
-</ul>
-<h3 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h3><h3 id="Config"><a href="#Config" class="headerlink" title="Config"></a>Config</h3><h3 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h3><h3 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h3><ul>
-<li>集群、分布式特性<ul>
-<li>集群</li>
-<li>分布式<ul>
-<li>CAP</li>
-<li>不同Middleware复合CAP中的哪一部分，以及优缺点</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="SpringBoot如何与中间件集成"><a href="#SpringBoot如何与中间件集成" class="headerlink" title="SpringBoot如何与中间件集成"></a>SpringBoot如何与中间件集成</h3><h2 id="DesignPattern"><a href="#DesignPattern" class="headerlink" title="DesignPattern"></a>DesignPattern</h2><ul>
-<li><p>Spring、Middleware使用哪些设计模式</p>
-</li>
-<li><p>是否Singleton</p>
-<ul>
-<li>配置类一般是Singleton</li>
-</ul>
-</li>
-<li><p>是否线程安全</p>
-</li>
-</ul>
-<h1 id="业务问题"><a href="#业务问题" class="headerlink" title="业务问题"></a>业务问题</h1><h2 id="业务量"><a href="#业务量" class="headerlink" title="业务量"></a>业务量</h2><ul>
-<li><p>UV – 独立访问量</p>
-</li>
-<li><p>PV</p>
-</li>
-<li><p>QPS</p>
-<ul>
-<li>每小时最大UV &#x2F; 3600 &#x3D; QPS</li>
-</ul>
-</li>
-<li><p>TPS</p>
-</li>
-<li><p>访问量激增时如何搭建高并发系统</p>
-<ul>
-<li>页面缓存</li>
-<li>Nginx Cache</li>
-<li>Load Balance</li>
-<li>Server Cache</li>
-<li>读写DB</li>
-<li>分库分表</li>
-</ul>
-</li>
-</ul>
-<h2 id="链路"><a href="#链路" class="headerlink" title="链路"></a>链路</h2><ul>
-<li>上下游</li>
-<li>优化、重构<ul>
-<li>读多写少、写多读少</li>
-<li>实时性要求</li>
-</ul>
-</li>
-</ul>
-<h2 id="难点"><a href="#难点" class="headerlink" title="难点"></a>难点</h2><ul>
-<li>思路</li>
-<li>影响力</li>
-</ul>
-<h6 id="来源："><a href="#来源：" class="headerlink" title="来源："></a>来源：</h6><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1KU4y1L7JA">https://www.bilibili.com/video/BV1KU4y1L7JA</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/issues/1909">https://github.com/alibaba/spring-cloud-alibaba/issues/1909</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-ZGC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/JVM-ZGC/" class="post-title-link" itemprop="url">JVM-ZGC</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:04:39" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:39+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h6 id><a href="#" class="headerlink" title></a></h6><p><a target="_blank" rel="noopener" href="https://rumenz.com/rumenbiji/jvm-zgc.html">https://rumenz.com/rumenbiji/jvm-zgc.html</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-G1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/JVM-G1/" class="post-title-link" itemprop="url">JVM-G1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:04:33" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:33+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h1><h2 id="G1垃圾收集器简介"><a href="#G1垃圾收集器简介" class="headerlink" title="G1垃圾收集器简介"></a>G1垃圾收集器简介</h2><blockquote>
-<p>Garbage First(简称:G1)收集器是垃圾收集器技术发展历史上的一个里程碑,它开创了收集器面向局部收集的设计思路和基于Region的内存布局形式.</p>
-<p>G1是一款主要面向服务端应用的垃圾收集器,HotSpot开发团队赋予它的期望是未来可以替换掉JDK5中发布的CMS收集器. JDK9发布之日,G1宣布取代了<code>Parallel Scavenge</code>加<code>Parallel Old</code>的组合,成为服务端模式下默认的垃圾收集器,而CMS则被声明为(Deprecate)使用的收集器.</p>
-<p>G1收集器兼顾<code>低延迟</code>和<code>高吞吐</code>在服务端运行,HotSpot团队期望取代<code>CMS</code>收集器。也就是在满足停顿时间的情况下获取最大的吞度量。有两种收集模式<code>Young GC</code>和Mixed GC。G1收集器将堆内存划分成大小相等的<code>Region</code>,新生代,老年代也就成了逻辑概念。整体上采用的是<code>标记-整理</code>算法,局部采用了<code>复制算法</code>。</p>
-<p>G1实现了可控停顿时间的垃圾收集器,通过<code>-XX:MaxGCPauseMillis</code>参数进行设置，默认是200ms。</p>
-<p>G1是jdk1.9的默认垃圾收集器,-XX:+UseG1GC开启</p>
-</blockquote>
-<p><img src="/2022/07/02/JVM-G1/1606304961.png" alt="image"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/JVM-G1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1148,7 +1094,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">189</span>
+          <span class="site-state-item-count">192</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1187,7 +1133,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

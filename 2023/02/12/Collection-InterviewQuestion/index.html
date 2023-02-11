@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Java面试题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试题收集">
+<meta property="og:url" content="https://swzxsyh.github.io/2023/02/12/Collection-InterviewQuestion/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Java面试题">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-11T22:05:05.000Z">
+<meta property="article:modified_time" content="2023-02-11T22:06:00.627Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2023/02/12/Collection-InterviewQuestion/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>面试题收集 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/02/12/Collection-InterviewQuestion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          面试题收集
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-02-12 06:05:05 / 修改时间：06:06:00" itemprop="dateCreated datePublished" datetime="2023-02-12T06:05:05+08:00">2023-02-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Java面试题</p>
+<span id="more"></span>
+
+<p>Java基本数据类型</p>
+<ul>
+<li>long short int double float char byte boolean</li>
+</ul>
+<p>Java包装类型理解</p>
+<p>Java面向对象特征</p>
+<ul>
+<li>封装，继承，多态</li>
+</ul>
+<p>编程规范理解</p>
+<p>Java集合理解，map理解，hashmap关键属性</p>
+<p>IOC理解</p>
+<p>设计模式理解</p>
+<p>RestController与Controller区别</p>
+<ul>
+<li>@RestController &#x3D; @ResponseBody ＋ @Controller，无法返回指定页面</li>
+<li>@Controller可以返回指定页面，如果需要返回数据需要+ @ResponseBody辅助</li>
+</ul>
+<p>RequestBody与ResponseBody区别</p>
+<ul>
+<li>RequestBody 入参</li>
+<li>ResponseBody 出参，将数据转化为JSON等格式返回</li>
+</ul>
+<p>接口能不能实现接口 </p>
+<ul>
+<li>不能，只能继承</li>
+</ul>
+<p>String能不能有子类，为什么 String 被设计为是不可变的？</p>
+<ul>
+<li>不能，public final class String</li>
+<li>JDK 1.8 本质是final char value[]，JDK 1.9 本质是 final byte[] value;</li>
+<li></li>
+<li>实际可以通过反射变更array</li>
+<li>线程安全，不可变对象一定是线程安全的</li>
+<li>字符串常量池，节约空间</li>
+<li>Hash Code 唯一性，JVM直接缓存HashCode，对于HashMap类引用查找速度快</li>
+</ul>
+<p>synchronize锁有几种</p>
+<p>事务</p>
+<p>JVM gcroots对象</p>
+<p>什么是不可达</p>
+<p>怎么保证幂等</p>
+<p>如何自己设计一个类似 Dubbo 的 RPC 框架？</p>
+<p>为什么大厂规定不能使用Executors去创建线程池？</p>
+<p>自带线程池问题</p>
+<p>如何根据实际需要，定制自己的线程池？</p>
+<p>你知道CAS 有什么缺点？</p>
+<p>你知道线程池实现“线程复用”的原理吗？</p>
+<p>阻塞和非阻塞队列的并发安全原理是什么？</p>
+<p>你对“公平锁”了解吗？为什么会有“非公平锁”？</p>
+<p>你对“自旋锁”了解吗？优缺点分别是什么？</p>
+<p>合适的线程数量是多少？CPU 核心数和线程数的关系？</p>
+<p>CAS是一种什么样的同步机制？</p>
+<p>线程加锁有哪些方式？synchronized和lock的区别？</p>
+<p>如何实现不可变的类？</p>
+<p>抽象类和接口的区别，类可以继承多个类么，接口可以继承多个接口么,类可以实现多个接口么？</p>
+<p>描述动态代理的几种实现方式，分别说出相应的优缺点</p>
+<p>讲讲JAVA的反射机制</p>
+<p>如何使用在线调试工具Arthas？</p>
+<p>表设计原则</p>
+<p>联合索引什么时候使用</p>
+<p>Sql语句执行关键字顺序</p>
+<p>mysql体系结构</p>
+<p>我们为什么要做分库分表（业务侧）</p>
+<p>我们为什么要做分库分表（数据侧）</p>
+<p>如何拆表，优缺点</p>
+<p>分库分表之后，id 主键如何处理？</p>
+<ul>
+<li>继续使用原主键简单场景，设置步长</li>
+<li>低频场景，UUID</li>
+<li>高频场景，雪花算法</li>
+</ul>
+<p>表拆分后如何查询</p>
+<p>说说MySQL中SQL语句执行过程？</p>
+<p>MySQL存储引擎？MyISAM与InnoDB区别？</p>
+<ul>
+<li>InnoDB</li>
+<li>MyISAM 表锁，查询快，指针数据分离</li>
+<li>InnoDB 行锁 B+ Tree，事务，指针数据聚合</li>
+</ul>
+<p>你知道哪些创建索引的原则吗？</p>
+<ul>
+<li>唯一索引保证数据唯一</li>
+<li>为业务常用字段建立索引</li>
+<li>尽量使用数据内容少的字段作索引</li>
+<li>索引尽量5个以内</li>
+<li>删除不再使用的索引</li>
+</ul>
+<p>你知道B树和B+树的区别吗？MySQL为什么使用B+树而不是B树？</p>
+<p>你知道数据库设计三大范式吗？开发中应该遵守吗？</p>
+<ul>
+<li>第一范式：数据库表的每一列都是不可分割的基本数据项</li>
+<li>第二范式：<strong>确保表中的每列都和主键相关【符合1NF，同时非主属性完全依赖于主键】</strong>一个数据库表中，一个表中只能保存一种数据，不可以把多种数据保存在同一张数据库表中。</li>
+<li>第三范式：<strong>确保每列都和主键列直接相关,而不是间接相关【符合2NF，并且消除传递依赖】主键关联，没有其他数据相同，减少冗余</strong></li>
+<li>尽量满足，空间换时间（JSON查询等）</li>
+</ul>
+<p>MySQL表锁、页面锁、行锁的作用及优缺点？</p>
+<p>你知道MySQL中redo log、binlog、undo log 区别与作用？</p>
+<p>SQL优化有哪些着手点？组合索引的最左前缀原则的含义？</p>
+<ul>
+<li>慢查询日志，Explain，业务常用Key索引</li>
+<li></li>
+</ul>
+<p>说说你了解的数据库的隔离级别、MVCC</p>
+<p>IP地址如何在数据库中存储</p>
+<ul>
+<li><p>32位UNSIGNED INT类型存储</p>
+</li>
+<li><p>节省空间，不管是数据存储空间，还是索引存储空间</p>
+</li>
+<li><p>便于使用范围查询（BETWEEN…AND），且效率更高</p>
+</li>
+<li><p>Java代码中的 移位操作 和 &amp; 计算</p>
+</li>
+<li><p>MYSQL 命令 inet_aton() 命令将IP字符串转化为数字类型，inet_ntoa 命令将数字转化为字符串IP</p>
+</li>
+</ul>
+<p>如何实现 MySQL 的读写分离？MySQL 主从复制原理是啥？如何解决 MySQL 主从同</p>
+<p>项目上用过消息队列吗？用过哪些？当初选型基于什么考虑的呢？</p>
+<p>MQ部署是单机还是集群呢？你们高可用是怎么保证的呢？</p>
+<p>MQ有遇到过重复消费的问题吗？怎么解决的呢？</p>
+<p>幂等</p>
+<p>MQ有遇到过消息丢失吗？可靠性怎么保证呢？</p>
+<p>如何解决消息队列的延时以及过期失效问题？消息队列满了以后该怎么处理？</p>
+<p>如果让你写一个消息队列，该如何进行架构设计？说一下你的思路</p>
+<p>在项目里面缓存是怎么用的？</p>
+<p>你们是如何保证Redis高并发、高可用的呢？</p>
+<ul>
+<li>集群Slot</li>
+</ul>
+<p>Redis做了持久化配置吗？你们线上是如何配置的呢？</p>
+<ul>
+<li>RDB，AOF</li>
+</ul>
+<p>雪崩、穿透、击穿问题你们怎么解决的呢？</p>
+<ul>
+<li>雪崩，不同过期时间</li>
+<li>穿透，即查询不存在数据。无数据时设定假数据，有时进行更新</li>
+<li>击穿，互斥锁</li>
+</ul>
+<p>Redis的内存用完了会发生什么？</p>
+<ul>
+<li>新增报错，但旧数据可查询</li>
+<li>等待Key过期与LRU删除</li>
+</ul>
+<p>你知道CAP定理和BASE理论吗</p>
+<p>分布式锁在项目上用过吗？</p>
+<ul>
+<li>redission</li>
+<li>数据库根据数据增删</li>
+</ul>
+<p>为什么要进行系统拆分？如何进行系统拆分？</p>
+<p>什么是微服务？微服务之间是如何独立通讯的？</p>
+<p>微服务架构优缺点</p>
+<p>服务之间如何快速通信</p>
+<p>Spring Cloud 和 Dubbo 有哪些区别？</p>
+<ul>
+<li>定位不同：SpringCloud是解决方案，Dubbo作用于服务调用与治理</li>
+<li>生态不同：SpringCloud是Spring平台生态，Dubbo初始设计是SOA的RPC远程调用</li>
+<li>调用方式：SpringCloud是Http调用，通常是Rest风格。Dubbo使用Dubbo协议，接口一般是Java的Service接口，传输二进制数据，内部Netty的NIO方式，性能更好</li>
+<li>Spring Cloud注册中心Eureka（Spring Cloud Alibaba是Nacos），Dubbo采用Zookeeper</li>
+</ul>
+<p>Eureka和zookeeper都可以提供服务注册与发现的功能，请说说两个的区别？</p>
+<p>dubbo 负载均衡策略都有哪些？</p>
+<p>说一下的 dubbo 的工作原理？</p>
+<p>如何基于 dubbo 进行服务治理、服务降级、失败重试以及超时重试？</p>
+<p>Dubbo 的 SPi 和 Java 的 SPI 有什么区别？</p>
+<p>Spring Boot 和 Spring Cloud，谈谈你对它们的理解？</p>
+<ul>
+<li>Spring Boot基于Spring的脚手架</li>
+<li>Spring Cloud是一套依托于Spring生态的微服务解决方案</li>
+</ul>
+<p>分布式服务接口的幂等性如何设计（比如不能重复扣款）？</p>
+<p>如何限流？在工作中是怎么做的？说一下具体的实现？</p>
+<p>集群分布式 Session 如何实现？</p>
+<ul>
+<li>Redis存储，各服务器共享</li>
+<li>tomcat-redis-session-manager，session粘滞：强行分发session到各个服务器</li>
+</ul>
+<p>如何设计一个高并发的系统</p>
+<p>请解释一下什么是C10K问题，后来是怎么解决的？</p>
+<ul>
+<li>在同时连接到服务器的客户端数量超过 10000 个的环境中，即便硬件性能足够， 依然无法正常提供服务</li>
+<li>多路复用，非阻塞IO，减少不必要性能损耗，异步响应</li>
+</ul>
+<p>为什么 使用 Redis 而不是用 Memcached 呢？</p>
+<ul>
+<li>Redis可以持久化数据</li>
+<li>速度更快</li>
+<li>支持数据结构更多，Memcached只支持字符串，Redis支持String，Hash，List，Set，ZSet，以及BitMap、Geospatial、Hyperloglog</li>
+</ul>
+<p>HTTP和HTTPS的主要区别</p>
+<ul>
+<li>HTTP明文传输</li>
+<li>HTTPS 使用TLS (SSL) 来加密普通的HTTP 请求和响应，并对这些请求和响应进行数字签名</li>
+</ul>
+<p>进程和线程的区别，使用线程真的能节省时间？</p>
+<ul>
+<li>进程间数据独立，线程数据共享，一个进程可以包括多个线程</li>
+<li>不一定，要看设置是否合理，CPU分页调度问题</li>
+</ul>
+<p>Overload、Override、Overwrite的区别</p>
+<ul>
+<li>overload意为重载，同一个类中，存在多个方法名相同的函数，但是他们拥有不同的参数</li>
+<li>override意为覆盖，针对父类，实现类而言，参数名称相同，方法不同</li>
+<li>overwrite意为重写，Java没有</li>
+</ul>
+<p>什么是浅拷贝和深拷贝</p>
+<ul>
+<li>浅拷贝只是增加了一个指针指向已经存在的内存</li>
+<li>深拷贝就是增加一个指针并且申请一个新的内存，使这个增加的指针指向这个新的内存，采用深拷贝的情况下，释放内存的时候就不会出现在浅拷贝时重复释放同一内存的错误。</li>
+<li>浅拷贝更改数据会变更原数据</li>
+</ul>
+<p>如何找出Redis中的慢查询记录？</p>
+<ul>
+<li>redis设置slowlog-log-slower-than、 slowlog-max-len两个参数</li>
+<li>slowlog get 查看</li>
+<li>redis慢日志的删除采用 <strong>先进先出</strong> 的方式</li>
+</ul>
+<p>你们是如何对Redis进行性能优化的？</p>
+<ul>
+<li>Key尽量短</li>
+<li>数据尽量小</li>
+<li>不使用lrange之类命令查询</li>
+<li>设置Key生命周期</li>
+<li>选择默认LRU策略</li>
+</ul>
+<p>在Java中线程有几种状态？</p>
+<p>在Java中线程间有哪些通信方式？</p>
+<p>ThreadLocal是什么？你在工作中用到过ThreadLocal吗？</p>
+<p>ThreadLocal怎么实现的呢？</p>
+<ul>
+<li>entry</li>
+</ul>
+<p>ThreadLocal 内存泄露是怎么回事？</p>
+<p>ThreadLocalMap的结构了解吗？扩容机制了解吗？</p>
+<p>ThreadLocal父子线程怎么共享数据？</p>
+<p>解决hash冲突的办法有哪些？HashMap用的哪种？</p>
+<p>你知道哪几种锁？分别有什么特点？</p>
+<p>简单说说你了解的类加载器，可以打破双亲委派么？</p>
+<p>在jdk1.5中引入了泛型，泛型的存在是用来解决什么问题</p>
+<ul>
+<li><strong>泛型主要针对向下转型时所带来的安全隐患，其核心组成是在声明类或接口时，不设置参数或属性的类型</strong></li>
+<li><strong>第一是泛化。</strong>可以用T代表任意类型Java语言中引入泛型是一个较大的功能增强不仅语言、类型系统和编译器有了较大的变化，以支持泛型，而且类库也进行了大翻修，所以许多重要的类，比如集合框架，都已经成为泛型化的了，这带来了很多好处。</li>
+<li><strong>第二是类型安全。</strong>泛型的一个主要目标就是提高ava程序的类型安全，使用泛型可以使编译器知道变量的类型限制，进而可以在更高程度上验证类型假设。如果不用泛型，则必须使用强制类型转换，而强制类型转换不安全，在运行期可能发生ClassCast Exception异常，如果使用泛型，则会在编译期就能发现该错误。<strong>第三是消除强制类型转换。</strong>泛型可以消除源代码中的许多强制类型转换，这样可以使代码更加可读，并减少出错</li>
+<li>的机会。</li>
+<li><strong>第四是向后兼容。</strong>支持泛型的Java编译器（例如JDK1.5中的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/Javac/5156702">Javac</a>）可以用来编译经过泛型扩充的Java程序（Generics Java程序），但是现有的没有使用泛型扩充的Java程序仍然可以用这些编译器来编译。</li>
+<li>JAVA 泛型只存在于编译时期，在运行时期会被擦除</li>
+</ul>
+<p>有没有可能2个不相等的对象有相同的hashcode</p>
+<ul>
+<li><p>有，Hash冲突</p>
+</li>
+<li><p>拉链法:每个哈希表节点都有一个next指针,多个哈希表节点可以用next指针构成一个单向链表，被 分配到同一个索引上的多个节点可以用这个单向链表进行存储.</p>
+</li>
+<li><p>开放定址法:一旦发生了冲突,就去寻找下一个空的散列地址,只要散列表足够大,空的散列地址总能找 到,并将记录存入</p>
+</li>
+<li><p>再哈希:又叫双哈希法,有多个不同的Hash函数.当发生冲突时,使用第二个,第三个….等哈希函数计算 地址,直到无冲突.</p>
+</li>
+</ul>
+<p>Error和Exception的区别</p>
+<ul>
+<li>Error 一般是指与虚拟机相关的问题，如系统崩溃，虚拟机错误，内存空间不足，方法调用栈溢等。仅靠程序本身无法恢复</li>
+<li>Exception 是程序正常运行中，可以预料的意外情况，可能并且应该被捕获，进行相应处理。</li>
+</ul>
+<p>如果创建一个java.lang.String类，这个类是否可以被类加载器加载？</p>
+<ul>
+<li>默认不行，bootstrap默认JVM加载java.*的类（双亲委派机制保护）</li>
+<li>可以通过修改父类findClass方法加载，不建议</li>
+</ul>
+<p>什么是阻塞队列？你知道Java中有哪些阻塞队列吗？</p>
+<p>JAVA8的ConcurrentHashMap为什么放弃了分段锁</p>
+<p>Java中的HashMap内部是如何工作的</p>
+<p>你知道什么是指令重排序？为什么要重排序？</p>
+<ul>
+<li>指令重排序是指源码顺序和程序顺序不一样，或者说程序顺序和执行的顺序不一致，重排序的对象是指令。 指令重排序是编译器处于性能考虑，在不影响程序（单线程程序） 指令重排序不是必然发生的，指令重排序会导致线程安全问题。</li>
+<li>volatile（引申Singleton Pattern为什么使用）</li>
+</ul>
+<p>你知道什么是“内存可见性”问题？</p>
+<p>你知道主内存和工作内存的关系？</p>
+<p>你知道什么是 happens-before 原则吗？</p>
+<p>你知道为什么需要 AQS？AQS 的作用和重要性是什么？</p>
+<p>如何瞬间完成海量数据检索？</p>
+<ul>
+<li>ES，倒排索引</li>
+</ul>
+<p>ES如何加快分词搜索速度，倒排索引原理</p>
+<p>如何用10行代码实现一个负载均衡服务？</p>
+<ul>
+<li>Servlet 代码中调用响应重定向方法</li>
+</ul>
+<p>你知道什么是ServerLess吗？</p>
+<ul>
+<li>无状态，即方法执行结束后，不改变类的状态，不变更全局参数</li>
+</ul>
+<p>一个线程两次调用start()方法会出现什么情况？</p>
+<ul>
+<li>IllegalThreadStateException</li>
+<li>原因：start state状态已变更，if(state !&#x3D; 0) throw new IllegalThreadStateException</li>
+</ul>
+<p>用过哪些Map类，都有什么区别，HashMap是线程安全的吗？</p>
+<ul>
+<li>ConcurrentHashMap线程安全，K-V 设定为@Nullable。数组+链表+红黑树</li>
+<li>LinkedHashMap记录插入顺序</li>
+<li>TreeMap根据Key排序</li>
+<li></li>
+<li>不是,HashMap不支持线程的同步</li>
+</ul>
+<p>你知道为什么多线程会带来性能问题吗？</p>
+<ul>
+<li>CPU分页。不合理线程的设置。</li>
+</ul>
+<p>知道线程池有哪几种拒绝策略吗？</p>
+<ul>
+<li>AbortPolicy：中止策略，线程池会<strong>抛出异常</strong>并中止执行此任务;</li>
+<li>CallerRunsPolicy：把任务交给添加此任务的(main)线程来执行;</li>
+<li>DiscardPolicy：忽略此任务，忽略最新的一个任务;</li>
+<li>DiscardOldestPolicy：忽略最早的任务，最先加入队列的任务。</li>
+<li>new RejectedExecutionHandler 自定义</li>
+</ul>
+<p>你知道为什么AtomicInteger在高并发下性能不好吗？</p>
+<p>你知道有哪些解决死锁问题的策略？</p>
+<p>你知道有哪些线程安全问题吗？</p>
+<p>你知道设计模式有哪些原则吗？</p>
+<ul>
+<li>单一职责原则</li>
+<li>接口隔离原则</li>
+<li>依赖倒转(倒置)原则</li>
+<li>里氏替换原则</li>
+<li>开闭原则（OCP）</li>
+<li>迪米特法则</li>
+<li>合成复用原则</li>
+</ul>
+<p>Object 有哪些常用方法？大致说一下每个方法的含义？</p>
+<ul>
+<li>Object.equals()</li>
+<li>Object.wait()</li>
+<li>Object.toString()</li>
+</ul>
+<p>如何向面试官证明你做的系统是高可用的？</p>
+<p>RPC HTTP区别？</p>
+<ul>
+<li>不是相同类型，HTTP是通用协议，RPC是远程调用思想，主要是对底层协议封装</li>
+<li>RPC内部实现可以多种协议进行（如TCP、DUBBO），HTTP某种意义上也是RPC调用。自定义的RPC可以更高效</li>
+</ul>
+<p>IO多路复用是否是异步</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/02/09/Spring-Transaction/" rel="prev" title="Spring 事务">
+      <i class="fa fa-chevron-left"></i> Spring 事务
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">192</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/swzxsyh" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/swzxsyh" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '713a28a3ad93f2aa2323',
+      clientSecret: '39dc40bb09b422ca4c99a748b5984a4d205e91be',
+      repo        : 'swzxsyh.github.io',
+      owner       : 'swzxsyh',
+      admin       : ['swzxsyh'],
+      id          : 'a575401425808f5fa284c37e7200c0cd',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
