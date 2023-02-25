@@ -29,7 +29,7 @@
 <meta property="og:description" content="start() &amp;&amp; run() 源码 区别 Demo及Demo遇到的问题 (Method Reference)  ThreadSource CodeThread start()12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849&#x2F;**     * Cau">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-01-09T20:29:28.000Z">
-<meta property="article:modified_time" content="2023-02-25T14:48:26.013Z">
+<meta property="article:modified_time" content="2023-02-25T15:54:30.008Z">
 <meta property="article:author" content="swzxsyh">
 <meta name="twitter:card" content="summary">
 
@@ -216,7 +216,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-02-25 22:48:26" itemprop="dateModified" datetime="2023-02-25T22:48:26+08:00">2023-02-25</time>
+                <time title="修改时间：2023-02-25 23:54:30" itemprop="dateModified" datetime="2023-02-25T23:54:30+08:00">2023-02-25</time>
               </span>
 
           
@@ -260,7 +260,7 @@
 <li><p>ChatGPT回答</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Regarding your question, when you use a method reference like MyRunnable::new, you&#x27;re actually referencing a constructor method of the MyRunnable class. When you call the constructor with arguments like new MyRunnable(&quot;myRunnable start()&quot;), you&#x27;re invoking a specific constructor method that takes a string argument.</span><br><span class="line"></span><br><span class="line">In the case of new Thread(MyRunnable::new).start(), the Thread constructor that takes a Runnable argument is being invoked. The MyRunnable::new method reference is a reference to the constructor method that takes no arguments. Therefore, when the Thread object is created and started, the run() method of the MyRunnable object that was created with no arguments is executed.</span><br><span class="line"></span><br><span class="line">To make the code work as you intended, you need to provide a constructor method reference that takes a string argument, like new MyRunnable(&quot;MyRunnable with argument&quot;)::new. This will create a reference to the constructor method that takes a string argument, and when the Thread object is created and started, the run() method of the MyRunnable object that was created with the string argument is executed.</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>解析</p>
+<li><p>求证</p>
 <ul>
 <li><p>new 与 Object::new</p>
 <p>通过 <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/54072359/runnablenew-vs-new-runnable">java - Runnable::new vs new Runnable() - Stack Overflow</a> ，可知Object::new方法是创建一个实例，并不会调用内部的run方法。即如果内部有两个Runnable，之后执行最上层的那个。</p>
@@ -269,7 +269,7 @@
 <p><strong>若理解错误请帮忙指出，谢谢</strong></p>
 </li>
 <li><p>为什么 MyRunnable::new不生效</p>
-<p>由于只是创建出构造函数的实例，没有真正生成对象，导致内部产生两个Runnable，只会执行最外层方法，不调用内部run()方法，因此不生效</p>
+<p>由于只是创建出构造函数的实例，没有真正生成对象，导致内部产生两个Runnable，只会执行最外层方法，无法调用内部run()方法，因此不生效</p>
 </li>
 </ul>
 </li>
