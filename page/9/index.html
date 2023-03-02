@@ -181,6 +181,136 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/DataBase%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/02/DataBase%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" class="post-title-link" itemprop="url">DataBase分库分表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 18:35:42" itemprop="dateCreated datePublished" datetime="2022-07-02T18:35:42+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="一、分库分表"><a href="#一、分库分表" class="headerlink" title="一、分库分表"></a>一、分库分表</h1><ul>
+<li><p>分库场景：如果数据库的查询QPS过高，就要考虑拆库，比如：查询QPS为3500，假设单库可以支撑1000个连接数，那么就考虑拆分成4个库，来分散查询压力。</p>
+</li>
+<li><p>分库分表场景：</p>
+<table>
+<thead>
+<tr>
+<th>切分方案</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只分库不分表</td>
+<td>数据库读&#x2F;写 QPS过高，数据库连接数不足</td>
+</tr>
+<tr>
+<td>只分表不分库</td>
+<td>单表数据量过大，存储性能遇到瓶颈</td>
+</tr>
+<tr>
+<td>既分库又分表</td>
+<td>连接数不足+存储性能遇到瓶颈</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h1 id="二、数据切分方法"><a href="#二、数据切分方法" class="headerlink" title="二、数据切分方法"></a>二、数据切分方法</h1><ul>
+<li><p>水平切分</p>
+<p>这是一种按业务维度切分的方式，比如，常见的按会员维度进行切分，根据一定规则，把不同会员的数据散落在不同的库表中。</p>
+</li>
+<li><p>垂直切分</p>
+<p>垂直切分可以理解为：把一张表的不同字段拆分到不同的表中</p>
+</li>
+</ul>
+<h1 id="三-分库分表后会遇到哪些坑"><a href="#三-分库分表后会遇到哪些坑" class="headerlink" title="三 分库分表后会遇到哪些坑"></a>三 分库分表后会遇到哪些坑</h1><ul>
+<li><p>事务一致性</p>
+<p>解决办法：XA协议、两阶段提交、TCC，通常使用最终一致性的方案，采用事务补偿的方式</p>
+</li>
+<li><p>分页、排序问题</p>
+<p>1）如果排序字段恰好是分片字段，通过分片规则就可以定位到分片的位置；如果排序字段是非分片字段，就需要在不同的分片点中将数据进行排序再返回；然后不同分片的数据汇集到一起再进行汇总和排序，最终返回给用户。</p>
+<p>2）用ES</p>
+</li>
+<li><p>全局唯一主键问题</p>
+<p>分布式id生产方案</p>
+</li>
+</ul>
+<h1 id="四-分库分表后历史数据如何做迁移"><a href="#四-分库分表后历史数据如何做迁移" class="headerlink" title="四 分库分表后历史数据如何做迁移"></a>四 分库分表后历史数据如何做迁移</h1><p>一般采用【双写】的方式进行迁移</p>
+<p>1.增量的消息往新表和老表各写一份</p>
+<p>2.将旧表的数据迁移至新库</p>
+<p>3.迟早新表的数据会赶上旧表的数据</p>
+<p>4.校验新表数据和老表数据是否对得上</p>
+<p>5.开启双读（一部分流量走新表，一部分流量走老表），相当于灰度的过程</p>
+<p>6.读流量全部切换至新表，停止旧表的写入</p>
+<p>7.提前准备回滚机制，临时切换失败能恢复正常业务以及修复数据的相关程序</p>
+<h1 id="五-分库分表中间件对比"><a href="#五-分库分表中间件对比" class="headerlink" title="五 分库分表中间件对比"></a>五 分库分表中间件对比</h1><p>Sharding-jdbc：client层方案</p>
+<ul>
+<li><p>优点在于不用部署，运维成本低，不需要代理层的二次转发请求，性能很高（<strong>轻便，维护成本低，比较推荐中小型公司项目使用</strong>）</p>
+</li>
+<li><p>缺点：如果遇到升级，各个系统都需要重新升级版本再发布，各个系统都需要耦合Sharding-jdbc的依赖</p>
+</li>
+</ul>
+<p>Mycat：proxy层方案</p>
+<ul>
+<li>缺点：	需要部署，自己要运维一套中间件，运维成本高</li>
+<li>优点：对于各个项目都是透明的，如果遇到升级问题，自己中间件搞定就行了（推荐大型公司项目使用）。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MySQL-%E5%A0%86%E6%8E%92%E5%BA%8F%E9%97%AE%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -974,101 +1104,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-RabbitMQ/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/MessageQueue-RabbitMQ/" class="post-title-link" itemprop="url">MessageQueue-RabbitMQ</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:03:05" itemprop="dateCreated datePublished" datetime="2022-07-02T17:03:05+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>RabbitMQ 是流行的开源消息队列系统。RabbitMQ 是 AMQP（Advanced Message Queuing Protocol）的标准实现。</p>
-<p>RabbitMQ 采用 Erlang 语言开发。Erlang 是一种面向并发运行环境的通用编程语言。</p>
-<h2 id="RabbitMQ-特点"><a href="#RabbitMQ-特点" class="headerlink" title="RabbitMQ 特点"></a>RabbitMQ 特点</h2><p>根据官方介绍，RabbitMQ 是部署最广泛的消息代理，有以下特点：</p>
-<ul>
-<li><p>异步消息传递</p>
-<p>支持多种消息传递协议、消息队列、传递确认机制，灵活的路由消息到队列，多种交换类型；</p>
-</li>
-<li><p>开发人员体验</p>
-<p>可在许多操作系统及云环境中运行，并为大多数流行语言提供各种开发工具；</p>
-</li>
-<li><p>分布式部署</p>
-<p>支持集群模式、跨区域部署，以满足高可用、高吞吐量应用场景；</p>
-</li>
-<li><p>企业和云就绪</p>
-<p>可插拔身份认证授权，支持 TLS（Transport Layer Security）和 LDAP（Lightweight Directory Access Protocol）。轻量且容易部署到内部、私有云或公有云中；</p>
-</li>
-<li><p>工具和插件</p>
-<p>支持连续集成、操作度量和集成到其他企业系统的各种工具和插件阵列。可以插件方式灵活地扩展 RabbitMQ 的功能。</p>
-</li>
-<li><p>管理与监控</p>
-<p>有专门用于管理和监督的 HTTP-API、命令行工具和 UI；</p>
-</li>
-</ul>
-<p>综上所述，RabbitMQ 是一个“体系较为完善”的消息代理系统，性能好、安全、可靠、分布式，支持多种语言的客户端，且有专门的运维管理工具。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/MessageQueue-RabbitMQ/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1138,7 +1173,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">193</span>
+          <span class="site-state-item-count">194</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
