@@ -6,7 +6,7 @@
   <link href="https://swzxsyh.github.io/atom.xml" rel="self"/>
   
   <link href="https://swzxsyh.github.io/"/>
-  <updated>2023-04-06T16:56:06.464Z</updated>
+  <updated>2023-06-11T17:16:42.927Z</updated>
   <id>https://swzxsyh.github.io/</id>
   
   <author>
@@ -15,6 +15,93 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis Template 批量获取Value</title>
+    <link href="https://swzxsyh.github.io/2023/06/11/Redis-Pipeline-values/"/>
+    <id>https://swzxsyh.github.io/2023/06/11/Redis-Pipeline-values/</id>
+    <published>2023-06-10T18:31:46.000Z</published>
+    <updated>2023-06-11T17:16:42.927Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;RedisTemplate-批量获取Value&quot;&gt;&lt;a href=&quot;#RedisTemplate-批量获取Value&quot; class=&quot;headerlink&quot; title=&quot;RedisTemplate 批量获取Value&quot;&gt;&lt;/a&gt;RedisTemplate 批量获取Value&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;起因:&lt;/p&gt;
+&lt;p&gt;公司代码接口性能慢，定位问题发现是获取Value导致的问题&lt;/p&gt;
+&lt;p&gt;正常业务一般是单条获取，但这个业务一开始是Key * 再for循环获取，一批Key需请求数十次，耗费连接，且Redis单机运行，最大连接数为8，等待时间-1，导致长时间持有Redis占用&lt;/p&gt;
+&lt;p&gt;该业务其他问题，存储数据类型为String，Redis不支持分页查询，它是读取所有Key后内存分页，后期应需进行修复&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;原代码&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;type&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;variable&quot;&gt;list&lt;/span&gt; &lt;span class=&quot;operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;title class_&quot;&gt;ArrayList&lt;/span&gt;();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt;( key : keys)&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;type&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;variable&quot;&gt;obj&lt;/span&gt; &lt;span class=&quot;operator&quot;&gt;=&lt;/span&gt; redisTemplate.opsForValue().get(key);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  list.add(obj);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>WebSocker Client 重连方法</title>
+    <link href="https://swzxsyh.github.io/2023/06/11/WebSockerClient-reconnect/"/>
+    <id>https://swzxsyh.github.io/2023/06/11/WebSockerClient-reconnect/</id>
+    <published>2023-06-10T18:31:14.000Z</published>
+    <updated>2023-06-11T17:18:23.290Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;WebSocket-Client-重连&quot;&gt;&lt;a href=&quot;#WebSocket-Client-重连&quot; class=&quot;headerlink&quot; title=&quot;WebSocket Client 重连&quot;&gt;&lt;/a&gt;WebSocket Client 重连&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;起因：&lt;/p&gt;
+&lt;p&gt;公司代码新版本导致CPU占用异常增高，打到80%以上&lt;/p&gt;
+&lt;p&gt;通过Top命令获取进程ID，再通过top -p PID -H 获取线程，printf “%x” TID获取16进制&lt;/p&gt;
+&lt;p&gt;jstack PID | grep TID -A 100 查线程ThreadDump占有，发现几乎都是WebSocket占有，定位对应代码，发现@PostConstruct使用死循环无限检测是否断开&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>共识算法初识(ZAB,Raft,Paxos)</title>
+    <link href="https://swzxsyh.github.io/2023/05/25/Consensus-Algorithm/"/>
+    <id>https://swzxsyh.github.io/2023/05/25/Consensus-Algorithm/</id>
+    <published>2023-05-24T20:46:02.000Z</published>
+    <updated>2023-05-30T08:11:39.653Z</updated>
+    
+    
+    <summary type="html">&lt;h2 id=&quot;一致性&quot;&gt;&lt;a href=&quot;#一致性&quot; class=&quot;headerlink&quot; title=&quot;一致性&quot;&gt;&lt;/a&gt;一致性&lt;/h2&gt;&lt;h3 id=&quot;CAP&quot;&gt;&lt;a href=&quot;#CAP&quot; class=&quot;headerlink&quot; title=&quot;CAP&quot;&gt;&lt;/a&gt;CAP&lt;/h3&gt;&lt;h2 id=&quot;一致性模型&quot;&gt;&lt;a href=&quot;#一致性模型&quot; class=&quot;headerlink&quot; title=&quot;一致性模型&quot;&gt;&lt;/a&gt;一致性模型&lt;/h2&gt;&lt;h3 id=&quot;强一致性&quot;&gt;&lt;a href=&quot;#强一致性&quot; class=&quot;headerlink&quot; title=&quot;强一致性&quot;&gt;&lt;/a&gt;强一致性&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;同步&lt;/li&gt;
+&lt;li&gt;Paxos&lt;/li&gt;
+&lt;li&gt;Raft(multi-paxos)&lt;/li&gt;
+&lt;li&gt;ZAB(multi-paxos)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;弱一致性&quot;&gt;&lt;a href=&quot;#弱一致性&quot; class=&quot;headerlink&quot; title=&quot;弱一致性&quot;&gt;&lt;/a&gt;弱一致性&lt;/h3&gt;&lt;h4 id=&quot;最终一致性-BASE&quot;&gt;&lt;a href=&quot;#最终一致性-BASE&quot; class=&quot;headerlink&quot; title=&quot;最终一致性(BASE)&quot;&gt;&lt;/a&gt;最终一致性(BASE)&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;DNS&lt;/li&gt;
+&lt;li&gt;Gossip(Cassandra的通信协议)&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>分布式锁</title>
+    <link href="https://swzxsyh.github.io/2023/05/02/Distributed-Lock/"/>
+    <id>https://swzxsyh.github.io/2023/05/02/Distributed-Lock/</id>
+    <published>2023-05-01T20:43:04.000Z</published>
+    <updated>2023-05-15T23:07:51.585Z</updated>
+    
+    
+    <summary type="html">&lt;ul&gt;
+&lt;li&gt;Database&lt;/li&gt;
+&lt;li&gt;Redis&lt;/li&gt;
+&lt;li&gt;Zookeeper&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>水管问题-TODO</title>
@@ -63,7 +150,7 @@
     <link href="https://swzxsyh.github.io/2023/02/12/Collection-InterviewQuestion/"/>
     <id>https://swzxsyh.github.io/2023/02/12/Collection-InterviewQuestion/</id>
     <published>2023-02-11T22:05:05.000Z</published>
-    <updated>2023-04-12T06:09:34.815Z</updated>
+    <updated>2023-05-15T22:48:01.838Z</updated>
     
     
     <summary type="html">&lt;h1 id=&quot;Java面试题&quot;&gt;&lt;a href=&quot;#Java面试题&quot; class=&quot;headerlink&quot; title=&quot;Java面试题&quot;&gt;&lt;/a&gt;Java面试题&lt;/h1&gt;&lt;ul&gt;
@@ -419,152 +506,6 @@
     <summary type="html">&lt;h1 id=&quot;RPC&quot;&gt;&lt;a href=&quot;#RPC&quot; class=&quot;headerlink&quot; title=&quot;RPC&quot;&gt;&lt;/a&gt;RPC&lt;/h1&gt;&lt;p&gt;RPC-远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。&lt;/p&gt;
 &lt;h2 id=&quot;定义&quot;&gt;&lt;a href=&quot;#定义&quot; class=&quot;headerlink&quot; title=&quot;定义&quot;&gt;&lt;/a&gt;定义&lt;/h2&gt;&lt;p&gt;RPC（Remote Procedure Call）—远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。也就是说两台服务器A，B，一个应用部署在A服务器上，想要调用B服务器上应用提供的方法，由于不在一个内存空间，不能直接调用，需要通过网络来表达调用的语义和传达调用的数据。&lt;/p&gt;
 &lt;p&gt;RPC协议假定某些传输协议的存在，如TCP或UDP，为通信程序之间携带信息数据。在OSI网络通信模型中，RPC跨越了传输层和应用层。RPC使得开发包括网络分布式多程序在内的应用程序更加容易。现在业界有很多开源的优秀 RPC 框架，例如 Spring Cloud、Dubbo、Thrift 等。&lt;/p&gt;</summary>
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>数据结构 Data Structure</title>
-    <link href="https://swzxsyh.github.io/2022/08/04/Data-Structure/"/>
-    <id>https://swzxsyh.github.io/2022/08/04/Data-Structure/</id>
-    <published>2022-08-03T16:41:05.000Z</published>
-    <updated>2022-08-09T20:40:38.065Z</updated>
-    
-    
-    <summary type="html">&lt;style type=&quot;text/css&quot;&gt;
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-nrix{text-align:center;vertical-align:middle}
-&lt;/style&gt;
-&lt;table class=&quot;tg&quot;&gt;
-&lt;thead&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot; rowspan=&quot;9&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;数据结构&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot; rowspan=&quot;6&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;数据的逻辑结构&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot; rowspan=&quot;4&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;线性结构&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;线性表&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;栈（特殊线性表）&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;队列（特殊线性表）&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;字符串、数组、广义表&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot; rowspan=&quot;2&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;非线性结构&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;树形结构&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;图形结构&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot; rowspan=&quot;2&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;数据的存储结构&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot; colspan=&quot;2&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decorcolor:black&quot;&gt;顺序存储&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot; colspan=&quot;2&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decorcolor:black&quot;&gt;链式存储&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td class=&quot;tg-nrix&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;数据的运算&lt;/span&gt;&lt;/td&gt;
-    &lt;td class=&quot;tg-nrix&quot; colspan=&quot;2&quot;&gt;&lt;span style=&quot;font-weight:400;font-style:normal;text-decoration:none;&quot;&gt;插入、修改、检索、删除、排序&lt;/span&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/thead&gt;
-&lt;/table&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.tablesgenerator.com/html_tables#&quot;&gt;HTML Tables generator – TablesGenerator.com&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;TODO状态！！&lt;/p&gt;</summary>
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Docker-Kubernetes关联与演变</title>
-    <link href="https://swzxsyh.github.io/2022/08/02/Docker-K8S/"/>
-    <id>https://swzxsyh.github.io/2022/08/02/Docker-K8S/</id>
-    <published>2022-08-02T14:21:38.000Z</published>
-    <updated>2022-08-09T20:40:38.068Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;Docker-Kubernetes关联与演变&quot;&gt;&lt;a href=&quot;#Docker-Kubernetes关联与演变&quot; class=&quot;headerlink&quot; title=&quot;Docker-Kubernetes关联与演变&quot;&gt;&lt;/a&gt;Docker-Kubernetes关联与演变&lt;/h1&gt;&lt;h2 id=&quot;Docker&quot;&gt;&lt;a href=&quot;#Docker&quot; class=&quot;headerlink&quot; title=&quot;Docker&quot;&gt;&lt;/a&gt;Docker&lt;/h2&gt;&lt;h3 id=&quot;什么是Docker&quot;&gt;&lt;a href=&quot;#什么是Docker&quot; class=&quot;headerlink&quot; title=&quot;什么是Docker&quot;&gt;&lt;/a&gt;什么是Docker&lt;/h3&gt;&lt;p&gt;是指容器化技术，用于支持创建和使用 &lt;a href=&quot;https://www.redhat.com/zh/topics/containers&quot;&gt;Linux® 容器&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;为什么使用Docker&quot;&gt;&lt;a href=&quot;#为什么使用Docker&quot; class=&quot;headerlink&quot; title=&quot;为什么使用Docker&quot;&gt;&lt;/a&gt;为什么使用Docker&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;更高效的利用系统资源&lt;/li&gt;
-&lt;li&gt;更快速的启动时间&lt;/li&gt;
-&lt;li&gt;一致的运行环境&lt;/li&gt;
-&lt;li&gt;持续交付和部署&lt;/li&gt;
-&lt;li&gt;更轻松的迁移&lt;/li&gt;
-&lt;li&gt;更轻松的维护和扩展&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&quot;Docker基本概念&quot;&gt;&lt;a href=&quot;#Docker基本概念&quot; class=&quot;headerlink&quot; title=&quot;Docker基本概念&quot;&gt;&lt;/a&gt;Docker基本概念&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;镜像（&lt;code&gt;Image&lt;/code&gt;）&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;容器（&lt;code&gt;Container&lt;/code&gt;）&lt;/p&gt;
-&lt;p&gt;容器的实质是进程&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;仓库（&lt;code&gt;Repository&lt;/code&gt;）&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;</summary>
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>分布式事务</title>
-    <link href="https://swzxsyh.github.io/2022/08/02/Distributed-Transaction/"/>
-    <id>https://swzxsyh.github.io/2022/08/02/Distributed-Transaction/</id>
-    <published>2022-08-01T19:27:24.000Z</published>
-    <updated>2022-08-09T20:40:38.067Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;分布式事务&quot;&gt;&lt;a href=&quot;#分布式事务&quot; class=&quot;headerlink&quot; title=&quot;分布式事务&quot;&gt;&lt;/a&gt;分布式事务&lt;/h1&gt;&lt;h2 id=&quot;什么是分布式系统&quot;&gt;&lt;a href=&quot;#什么是分布式系统&quot; class=&quot;headerlink&quot; title=&quot;什么是分布式系统&quot;&gt;&lt;/a&gt;什么是分布式系统&lt;/h2&gt;&lt;p&gt;部署在不同结点上的系统通过网络交互来完成协同工作的系统&lt;/p&gt;
-&lt;h2 id=&quot;事务&quot;&gt;&lt;a href=&quot;#事务&quot; class=&quot;headerlink&quot; title=&quot;事务&quot;&gt;&lt;/a&gt;事务&lt;/h2&gt;&lt;h3 id=&quot;什么是事务&quot;&gt;&lt;a href=&quot;#什么是事务&quot; class=&quot;headerlink&quot; title=&quot;什么是事务&quot;&gt;&lt;/a&gt;什么是事务&lt;/h3&gt;&lt;p&gt;事务是指由一组操作组成的一个工作单元，这个工作单元具有原子性（atomicity）、一致性（consistency）、隔离性（isolation）和持久性（durability）。&lt;/p&gt;
-&lt;h3 id=&quot;什么是本地事务&quot;&gt;&lt;a href=&quot;#什么是本地事务&quot; class=&quot;headerlink&quot; title=&quot;什么是本地事务&quot;&gt;&lt;/a&gt;什么是本地事务&lt;/h3&gt;&lt;p&gt;本地事务就是用关系数据库来控制事务，关系数据库通常都具有ACID特性，传统的单体应用通常会将数据全部存储在一个数据库中，会借助关系数据库来完成事务控制。&lt;/p&gt;
-&lt;h3 id=&quot;什么是分布式事务&quot;&gt;&lt;a href=&quot;#什么是分布式事务&quot; class=&quot;headerlink&quot; title=&quot;什么是分布式事务&quot;&gt;&lt;/a&gt;什么是分布式事务&lt;/h3&gt;&lt;p&gt;在分布式系统中一次操作由多个系统协同完成，这种一次事务操作涉及多个系统通过网络协同完成的过程称为分布式事务。这里强调的是多个系统通过网络协同完成一个事务的过程，并不强调多个系统访问了不同的数据库，即使多个系统访问的是同一个数据库也是分布式事务，&lt;/p&gt;
-&lt;p&gt;另外一种分布式事务的表现是，一个应用程序使用了多个数据源连接了不同的数据库，当一次事务需要操作多个数据源，此时也属于分布式事务，当系统作了数据库拆分后会出现此种情况&lt;/p&gt;</summary>
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>布隆过滤器 与 布谷鸟过滤器</title>
-    <link href="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/"/>
-    <id>https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/</id>
-    <published>2022-07-19T15:46:54.000Z</published>
-    <updated>2022-08-09T20:40:38.059Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;布隆过滤器-Bloom-Filter&quot;&gt;&lt;a href=&quot;#布隆过滤器-Bloom-Filter&quot; class=&quot;headerlink&quot; title=&quot;布隆过滤器 Bloom Filter&quot;&gt;&lt;/a&gt;布隆过滤器 Bloom Filter&lt;/h1&gt;&lt;p&gt;大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;存入过程&lt;/p&gt;
-&lt;p&gt;通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;查询过程&lt;/p&gt;
-&lt;p&gt;通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;删除过程&lt;/p&gt;
-&lt;p&gt;不能进行删除，因为会删除掉其他数据。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;更新过程&lt;/p&gt;
-&lt;p&gt;不能进行更新。&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;原理&quot;&gt;&lt;a href=&quot;#原理&quot; class=&quot;headerlink&quot; title=&quot;原理&quot;&gt;&lt;/a&gt;原理&lt;/h2&gt;&lt;h3 id=&quot;布隆过滤器基础版&quot;&gt;&lt;a href=&quot;#布隆过滤器基础版&quot; class=&quot;headerlink&quot; title=&quot;布隆过滤器基础版&quot;&gt;&lt;/a&gt;布隆过滤器基础版&lt;/h3&gt;&lt;p&gt;原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;一个bitmap用于记录，bitmap原始数值全都是0。当一个数据存进来的时候，用三个Hash函数分别计算三次Hash值,并且将bitmap对应的位置设置为1,上图中,bitmap 的1,3,6位置被标记为1,这时候如果一个数据请求过来,依然用之前的三个Hash函数计算Hash值,如果是同一个数据的话,势必依旧是映射到1,3,6位,那么就可以判断这个数据之前存储过,如果新的数据映射的三个位置,有一个匹配不上,假如映射到1,3,7位,由于7位是0,也就是这个数据之前并没有加入进数据库,所以直接返回。&lt;/p&gt;
-&lt;p&gt;Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一，可以放下2亿左右的数据，性能高，空间占用率及小，省去了大量无效的数据库连接。&lt;/p&gt;</summary>
     
     
     

@@ -181,6 +181,295 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/01/10/JAVA-Thread-Start-Run/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/01/10/JAVA-Thread-Start-Run/" class="post-title-link" itemprop="url">JAVA Thread Start与Run调用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-10 04:29:28" itemprop="dateCreated datePublished" datetime="2023-01-10T04:29:28+08:00">2023-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-25 23:54:30" itemprop="dateModified" datetime="2023-02-25T23:54:30+08:00">2023-02-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>start() &amp;&amp; run() 源码</li>
+<li>区别</li>
+<li>Demo及Demo遇到的问题 (Method Reference)</li>
+</ul>
+<h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><h2 id="Source-Code"><a href="#Source-Code" class="headerlink" title="Source Code"></a>Source Code</h2><h3 id="Thread-start"><a href="#Thread-start" class="headerlink" title="Thread start()"></a>Thread start()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this thread to begin execution; the Java Virtual Machine</span></span><br><span class="line"><span class="comment">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * The result is that two threads are running concurrently: the</span></span><br><span class="line"><span class="comment">     * current thread (which returns from the call to the</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;start&lt;/code&gt; method) and the other thread (which executes its</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;run&lt;/code&gt; method).</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * It is never legal to start a thread more than once.</span></span><br><span class="line"><span class="comment">     * In particular, a thread may not be restarted once it has completed</span></span><br><span class="line"><span class="comment">     * execution.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@exception</span>  IllegalThreadStateException  if the thread was already</span></span><br><span class="line"><span class="comment">     *               started.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #run()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #stop()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * This method is not invoked for the main method thread or &quot;system&quot;</span></span><br><span class="line"><span class="comment">         * group threads created/set up by the VM. Any new functionality added</span></span><br><span class="line"><span class="comment">         * to this method in the future may have to also be added to the VM.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * A zero status value corresponds to state &quot;NEW&quot;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">  <span class="keyword">if</span> (threadStatus != <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalThreadStateException</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Notify the group that this thread is about to be started</span></span><br><span class="line"><span class="comment">         * so that it can be added to the group&#x27;s list of threads</span></span><br><span class="line"><span class="comment">         * and the group&#x27;s unstarted count can be decremented. */</span></span><br><span class="line">  group.add(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">  <span class="type">boolean</span> <span class="variable">started</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    start0();</span><br><span class="line">    started = <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!started) &#123;</span><br><span class="line">        group.threadStartFailed(<span class="built_in">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable ignore) &#123;</span><br><span class="line">      <span class="comment">/* do nothing. If start0 threw a Throwable then</span></span><br><span class="line"><span class="comment">                  it will be passed up the call stack */</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Thread-run"><a href="#Thread-run" class="headerlink" title="Thread run()"></a>Thread run()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * If this thread was constructed using a separate</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; run object, then that</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; object&#x27;s &lt;code&gt;run&lt;/code&gt; method is called;</span></span><br><span class="line"><span class="comment">     * otherwise, this method does nothing and returns.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * Subclasses of &lt;code&gt;Thread&lt;/code&gt; should override this method.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #start()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #stop()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #Thread(ThreadGroup, Runnable, String)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (target != <span class="literal">null</span>) &#123;</span><br><span class="line">    target.run();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h2><p>start() 方法是真正的启动方法，是并行调用的</p>
+<p>run()是Thread中的一个方法，是串行调用的</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/01/10/JAVA-Thread-Start-Run/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/12/20/Java-FunctionalInterface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/12/20/Java-FunctionalInterface/" class="post-title-link" itemprop="url">Java @FunctionalInterface</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-12-20 01:29:05" itemprop="dateCreated datePublished" datetime="2022-12-20T01:29:05+08:00">2022-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-30 02:45:43" itemprop="dateModified" datetime="2022-12-30T02:45:43+08:00">2022-12-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h1>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/12/20/Java-Generic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/12/20/Java-Generic/" class="post-title-link" itemprop="url">Java 泛型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-12-20 01:28:29" itemprop="dateCreated datePublished" datetime="2022-12-20T01:28:29+08:00">2022-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-26 04:40:45" itemprop="dateModified" datetime="2023-02-26T04:40:45+08:00">2023-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/11/21/MyBatis-Principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/21/MyBatis-Principle/" class="post-title-link" itemprop="url">MyBatis-原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-11-21 09:06:18 / 修改时间：09:37:10" itemprop="dateCreated datePublished" datetime="2022-11-21T09:06:18+08:00">2022-11-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MyBatis原理"><a href="#MyBatis原理" class="headerlink" title="MyBatis原理"></a>MyBatis原理</h1><p>TODO</p>
+<h2 id="主要接口"><a href="#主要接口" class="headerlink" title="主要接口"></a>主要接口</h2><h3 id="SqlSessionFactory"><a href="#SqlSessionFactory" class="headerlink" title="SqlSessionFactory"></a>SqlSessionFactory</h3><ul>
+<li>Spring框架中&lt;&lt;FactoryBean&lt;SqlSessionFactory&gt;&gt;利用FactoryBean功能构建出SqlSessionFactoryBean。</li>
+<li>通过SqlSessionFactoryBuilder构建出SqlSessionFactory(自带仅一个DefaultSqlSessionFactory实现类)</li>
+<li>之后可以通过SqlSessionFactory构造出SqlSession</li>
+</ul>
+<h3 id="SqlSession"><a href="#SqlSession" class="headerlink" title="SqlSession"></a>SqlSession</h3><ul>
+<li>访问MyBatis门户</li>
+<li>自带仅一个DefaultSqlSession实现类</li>
+</ul>
+<h3 id="Configuration-amp-Mapper"><a href="#Configuration-amp-Mapper" class="headerlink" title="Configuration &amp; Mapper"></a>Configuration &amp; Mapper</h3><h4 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h4><ul>
+<li>MyBatis本身配置信息</li>
+<li>接口配置信息</li>
+</ul>
+<h4 id="Mapper"><a href="#Mapper" class="headerlink" title="Mapper"></a>Mapper</h4><h3 id="Executor"><a href="#Executor" class="headerlink" title="Executor"></a>Executor</h3><h3 id="Transaction"><a href="#Transaction" class="headerlink" title="Transaction"></a>Transaction</h3><p>Mapper</p>
+<p>MapperProxy</p>
+<p>selectList</p>
+<p>doQuery</p>
+<h1 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h1><p><a target="_blank" rel="noopener" href="https://www.icourse163.org/learn/XMU-1462056168#/learn/content">https://www.icourse163.org/learn/XMU-1462056168#/learn/content</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/11/21/Spring-Cache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -657,380 +946,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/08/04/Data-Structure/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/04/Data-Structure/" class="post-title-link" itemprop="url">数据结构 Data Structure</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-08-04 00:41:05" itemprop="dateCreated datePublished" datetime="2022-08-04T00:41:05+08:00">2022-08-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-nrix{text-align:center;vertical-align:middle}
-</style>
-<table class="tg">
-<thead>
-  <tr>
-    <td class="tg-nrix" rowspan="9"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据结构</span></td>
-    <td class="tg-nrix" rowspan="6"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的逻辑结构</span></td>
-    <td class="tg-nrix" rowspan="4"><span style="font-weight:400;font-style:normal;text-decoration:none;">线性结构</span></td>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">线性表</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">栈（特殊线性表）</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">队列（特殊线性表）</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">字符串、数组、广义表</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">非线性结构</span></td>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">树形结构</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">图形结构</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的存储结构</span></td>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decorcolor:black">顺序存储</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decorcolor:black">链式存储</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的运算</span></td>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">插入、修改、检索、删除、排序</span></td>
-  </tr>
-</thead>
-</table>
-
-<p><a target="_blank" rel="noopener" href="https://www.tablesgenerator.com/html_tables#">HTML Tables generator – TablesGenerator.com</a></p>
-<p>TODO状态！！</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/04/Data-Structure/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/08/02/Docker-K8S/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/02/Docker-K8S/" class="post-title-link" itemprop="url">Docker-Kubernetes关联与演变</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-08-02 22:21:38" itemprop="dateCreated datePublished" datetime="2022-08-02T22:21:38+08:00">2022-08-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Docker-Kubernetes关联与演变"><a href="#Docker-Kubernetes关联与演变" class="headerlink" title="Docker-Kubernetes关联与演变"></a>Docker-Kubernetes关联与演变</h1><h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><h3 id="什么是Docker"><a href="#什么是Docker" class="headerlink" title="什么是Docker"></a>什么是Docker</h3><p>是指容器化技术，用于支持创建和使用 <a target="_blank" rel="noopener" href="https://www.redhat.com/zh/topics/containers">Linux® 容器</a></p>
-<h3 id="为什么使用Docker"><a href="#为什么使用Docker" class="headerlink" title="为什么使用Docker"></a>为什么使用Docker</h3><ul>
-<li>更高效的利用系统资源</li>
-<li>更快速的启动时间</li>
-<li>一致的运行环境</li>
-<li>持续交付和部署</li>
-<li>更轻松的迁移</li>
-<li>更轻松的维护和扩展</li>
-</ul>
-<h3 id="Docker基本概念"><a href="#Docker基本概念" class="headerlink" title="Docker基本概念"></a>Docker基本概念</h3><ul>
-<li><p>镜像（<code>Image</code>）</p>
-</li>
-<li><p>容器（<code>Container</code>）</p>
-<p>容器的实质是进程</p>
-</li>
-<li><p>仓库（<code>Repository</code>）</p>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/02/Docker-K8S/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/08/02/Distributed-Transaction/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/02/Distributed-Transaction/" class="post-title-link" itemprop="url">分布式事务</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-08-02 03:27:24" itemprop="dateCreated datePublished" datetime="2022-08-02T03:27:24+08:00">2022-08-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h1><h2 id="什么是分布式系统"><a href="#什么是分布式系统" class="headerlink" title="什么是分布式系统"></a>什么是分布式系统</h2><p>部署在不同结点上的系统通过网络交互来完成协同工作的系统</p>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="什么是事务"><a href="#什么是事务" class="headerlink" title="什么是事务"></a>什么是事务</h3><p>事务是指由一组操作组成的一个工作单元，这个工作单元具有原子性（atomicity）、一致性（consistency）、隔离性（isolation）和持久性（durability）。</p>
-<h3 id="什么是本地事务"><a href="#什么是本地事务" class="headerlink" title="什么是本地事务"></a>什么是本地事务</h3><p>本地事务就是用关系数据库来控制事务，关系数据库通常都具有ACID特性，传统的单体应用通常会将数据全部存储在一个数据库中，会借助关系数据库来完成事务控制。</p>
-<h3 id="什么是分布式事务"><a href="#什么是分布式事务" class="headerlink" title="什么是分布式事务"></a>什么是分布式事务</h3><p>在分布式系统中一次操作由多个系统协同完成，这种一次事务操作涉及多个系统通过网络协同完成的过程称为分布式事务。这里强调的是多个系统通过网络协同完成一个事务的过程，并不强调多个系统访问了不同的数据库，即使多个系统访问的是同一个数据库也是分布式事务，</p>
-<p>另外一种分布式事务的表现是，一个应用程序使用了多个数据源连接了不同的数据库，当一次事务需要操作多个数据源，此时也属于分布式事务，当系统作了数据库拆分后会出现此种情况</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/02/Distributed-Transaction/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/" class="post-title-link" itemprop="url">布隆过滤器 与 布谷鸟过滤器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-19 23:46:54" itemprop="dateCreated datePublished" datetime="2022-07-19T23:46:54+08:00">2022-07-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="布隆过滤器-Bloom-Filter"><a href="#布隆过滤器-Bloom-Filter" class="headerlink" title="布隆过滤器 Bloom Filter"></a>布隆过滤器 Bloom Filter</h1><p>大概的思路就是,当你请求的信息来的时候,先检查一下你查询的数据我这有没有,有的话将请求压给数据库,没有的话直接返回</p>
-<ul>
-<li><p>存入过程</p>
-<p>通过三个hash函数计算出三个哈希值，然后将三个值映射到数组中将0改成1。</p>
-</li>
-<li><p>查询过程</p>
-<p>通过三个hash函数计算出查询数据的哈希值，然后检查布隆过滤器对应位置上的值是否为1，如果有一个不为1表示该值不存在，如果都为1表示该值可能存在。（查询时间复杂度为O(k)，k为哈希函数个数）</p>
-</li>
-<li><p>删除过程</p>
-<p>不能进行删除，因为会删除掉其他数据。</p>
-</li>
-<li><p>更新过程</p>
-<p>不能进行更新。</p>
-</li>
-</ul>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="布隆过滤器基础版"><a href="#布隆过滤器基础版" class="headerlink" title="布隆过滤器基础版"></a>布隆过滤器基础版</h3><p>原理就是一个对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。</p>
-<p><img src="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/94957b79c1faedcadc033ee1528a239a.png"></p>
-<p>一个bitmap用于记录，bitmap原始数值全都是0。当一个数据存进来的时候，用三个Hash函数分别计算三次Hash值,并且将bitmap对应的位置设置为1,上图中,bitmap 的1,3,6位置被标记为1,这时候如果一个数据请求过来,依然用之前的三个Hash函数计算Hash值,如果是同一个数据的话,势必依旧是映射到1,3,6位,那么就可以判断这个数据之前存储过,如果新的数据映射的三个位置,有一个匹配不上,假如映射到1,3,7位,由于7位是0,也就是这个数据之前并没有加入进数据库,所以直接返回。</p>
-<p>Redis的bitmap只支持2^32大小，对应到内存也就是512MB，误判率万分之一，可以放下2亿左右的数据，性能高，空间占用率及小，省去了大量无效的数据库连接。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/19/Bloom-Filter-VS-Cuckoo-Filter/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1100,7 +1015,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-count">198</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
