@@ -181,6 +181,239 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2024/04/14/AWS-S3-Permission-Problem-Rcord/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/14/AWS-S3-Permission-Problem-Rcord/" class="post-title-link" itemprop="url">AWS S3 踩坑记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-04-14 21:37:55 / 修改时间：21:54:57" itemprop="dateCreated datePublished" datetime="2024-04-14T21:37:55+08:00">2024-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AWS-S3-踩坑"><a href="#AWS-S3-踩坑" class="headerlink" title="AWS S3 踩坑"></a>AWS S3 踩坑</h1><p>第一次用S3，记录一下</p>
+<h2 id="1-Key在哪里"><a href="#1-Key在哪里" class="headerlink" title="1. Key在哪里"></a>1. Key在哪里</h2><ul>
+<li>IAM 设置一个用户组，权限勾选S3 的选项</li>
+<li>生成一个专属用户， 划分到用户组</li>
+<li>用户处生成密钥，那AccessKey 和 SecretKey</li>
+</ul>
+<h2 id="2-Spring-Boot怎么连接"><a href="#2-Spring-Boot怎么连接" class="headerlink" title="2. Spring Boot怎么连接"></a>2. Spring Boot怎么连接</h2><ul>
+<li>Maven 找到AWS SDK S3 导入</li>
+<li>application 填写Region，两个Key</li>
+<li>构建单例工具类</li>
+</ul>
+<h2 id="公网访问文件，是否必须关闭网络访问"><a href="#公网访问文件，是否必须关闭网络访问" class="headerlink" title="公网访问文件，是否必须关闭网络访问"></a>公网访问文件，是否必须关闭网络访问</h2><p>可以使用预览url获取，但是有时效，每个链接最长时间7天</p>
+<h2 id="真正的坑"><a href="#真正的坑" class="headerlink" title="真正的坑"></a>真正的坑</h2><p>本来想构建几个目录，划分不同职责，之前公司华为云、阿里云上都可以这么做，但是S3 这里有问题，我可以在bucket下增删除查改数据，但是如果我新建目录 image&#x2F; 再在这个目录下进行数据CURD操作，则报 403 错误，我一直以为是我Key有问题，因为一开始我测试文件是放bucket下的，新增目录肯定是我的问题，但是后面在github上发现有人说，配置目录后就是会这样的。</p>
+<h2 id="规避方法"><a href="#规避方法" class="headerlink" title="规避方法"></a>规避方法</h2><p>文件名添加UUID前缀，放在bucket下</p>
+<h2 id="其他记录"><a href="#其他记录" class="headerlink" title="其他记录"></a>其他记录</h2><ol>
+<li>MultipartFile 中文名乱码，用ISO_8859_1 读取文件名并使用UTF8记录</li>
+<li>S3 SDK获取公网链接，最长7天</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/05/25/Consensus-Algorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/25/Consensus-Algorithm/" class="post-title-link" itemprop="url">共识算法初识(ZAB,Raft,Paxos)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-25 04:46:02" itemprop="dateCreated datePublished" datetime="2023-05-25T04:46:02+08:00">2023-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-05-30 16:11:39" itemprop="dateModified" datetime="2023-05-30T16:11:39+08:00">2023-05-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><h3 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h3><h2 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h2><h3 id="强一致性"><a href="#强一致性" class="headerlink" title="强一致性"></a>强一致性</h3><ul>
+<li>同步</li>
+<li>Paxos</li>
+<li>Raft(multi-paxos)</li>
+<li>ZAB(multi-paxos)</li>
+</ul>
+<h3 id="弱一致性"><a href="#弱一致性" class="headerlink" title="弱一致性"></a>弱一致性</h3><h4 id="最终一致性-BASE"><a href="#最终一致性-BASE" class="headerlink" title="最终一致性(BASE)"></a>最终一致性(BASE)</h4><ul>
+<li>DNS</li>
+<li>Gossip(Cassandra的通信协议)</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/05/25/Consensus-Algorithm/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/05/02/Distributed-Lock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/02/Distributed-Lock/" class="post-title-link" itemprop="url">分布式锁</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-02 04:43:04" itemprop="dateCreated datePublished" datetime="2023-05-02T04:43:04+08:00">2023-05-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-05-16 07:07:51" itemprop="dateModified" datetime="2023-05-16T07:07:51+08:00">2023-05-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>Database</li>
+<li>Redis</li>
+<li>Zookeeper</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/05/02/Distributed-Lock/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/03/09/Water-Pipe-Question/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -368,7 +601,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-12 14:09:34" itemprop="dateModified" datetime="2023-04-12T14:09:34+08:00">2023-04-12</time>
+                <time title="修改时间：2023-05-16 06:48:01" itemprop="dateModified" datetime="2023-05-16T06:48:01+08:00">2023-05-16</time>
               </span>
 
           
@@ -812,211 +1045,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/12/20/Java-FunctionalInterface/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/12/20/Java-FunctionalInterface/" class="post-title-link" itemprop="url">Java @FunctionalInterface</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-12-20 01:29:05" itemprop="dateCreated datePublished" datetime="2022-12-20T01:29:05+08:00">2022-12-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-12-30 02:45:43" itemprop="dateModified" datetime="2022-12-30T02:45:43+08:00">2022-12-30</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h1>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/12/20/Java-Generic/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/12/20/Java-Generic/" class="post-title-link" itemprop="url">Java 泛型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-12-20 01:28:29" itemprop="dateCreated datePublished" datetime="2022-12-20T01:28:29+08:00">2022-12-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-02-26 04:40:45" itemprop="dateModified" datetime="2023-02-26T04:40:45+08:00">2023-02-26</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/11/21/MyBatis-Principle/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/11/21/MyBatis-Principle/" class="post-title-link" itemprop="url">MyBatis-原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-11-21 09:06:18 / 修改时间：09:37:10" itemprop="dateCreated datePublished" datetime="2022-11-21T09:06:18+08:00">2022-11-21</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MyBatis原理"><a href="#MyBatis原理" class="headerlink" title="MyBatis原理"></a>MyBatis原理</h1><p>TODO</p>
-<h2 id="主要接口"><a href="#主要接口" class="headerlink" title="主要接口"></a>主要接口</h2><h3 id="SqlSessionFactory"><a href="#SqlSessionFactory" class="headerlink" title="SqlSessionFactory"></a>SqlSessionFactory</h3><ul>
-<li>Spring框架中&lt;&lt;FactoryBean&lt;SqlSessionFactory&gt;&gt;利用FactoryBean功能构建出SqlSessionFactoryBean。</li>
-<li>通过SqlSessionFactoryBuilder构建出SqlSessionFactory(自带仅一个DefaultSqlSessionFactory实现类)</li>
-<li>之后可以通过SqlSessionFactory构造出SqlSession</li>
-</ul>
-<h3 id="SqlSession"><a href="#SqlSession" class="headerlink" title="SqlSession"></a>SqlSession</h3><ul>
-<li>访问MyBatis门户</li>
-<li>自带仅一个DefaultSqlSession实现类</li>
-</ul>
-<h3 id="Configuration-amp-Mapper"><a href="#Configuration-amp-Mapper" class="headerlink" title="Configuration &amp; Mapper"></a>Configuration &amp; Mapper</h3><h4 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h4><ul>
-<li>MyBatis本身配置信息</li>
-<li>接口配置信息</li>
-</ul>
-<h4 id="Mapper"><a href="#Mapper" class="headerlink" title="Mapper"></a>Mapper</h4><h3 id="Executor"><a href="#Executor" class="headerlink" title="Executor"></a>Executor</h3><h3 id="Transaction"><a href="#Transaction" class="headerlink" title="Transaction"></a>Transaction</h3><p>Mapper</p>
-<p>MapperProxy</p>
-<p>selectList</p>
-<p>doQuery</p>
-<h1 id="来源"><a href="#来源" class="headerlink" title="来源"></a>来源</h1><p><a target="_blank" rel="noopener" href="https://www.icourse163.org/learn/XMU-1462056168#/learn/content">https://www.icourse163.org/learn/XMU-1462056168#/learn/content</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1086,7 +1114,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-count">197</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1125,7 +1153,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
