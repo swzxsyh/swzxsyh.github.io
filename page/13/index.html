@@ -181,6 +181,200 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" class="post-title-link" itemprop="url">Redis-缓存一致性</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 16:57:09" itemprop="dateCreated datePublished" datetime="2022-06-30T16:57:09+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis缓存更新方案："><a href="#Redis缓存更新方案：" class="headerlink" title="Redis缓存更新方案："></a>Redis缓存更新方案：</h1><h2 id="先更新数据库，再更新缓存"><a href="#先更新数据库，再更新缓存" class="headerlink" title="先更新数据库，再更新缓存"></a>先更新数据库，再更新缓存</h2><h3 id="策略："><a href="#策略：" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>A请求先更新数据库的值为1，然后在更新缓存前，请求B将数据库的值更新为2，紧接着也把缓存更新为2，然后A请求更新缓存为1。于是出现数据库缓存不一致，数据库为2，缓存为1</p>
+<h3 id="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"><a href="#问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象" class="headerlink" title="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"></a>问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象</h3><h2 id="先更新缓存，再更新数据库"><a href="#先更新缓存，再更新数据库" class="headerlink" title="先更新缓存，再更新数据库"></a>先更新缓存，再更新数据库</h2><h3 id="策略：-1"><a href="#策略：-1" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>A请求先将缓存数据更新为1，然后在更新数据库前，B请求将数据库的值更新为2，紧接着将数据库更新为2，此时A请求将数据库的数据更新为1。于是出现了数据库缓存数据不一致</p>
+<h3 id="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象-1"><a href="#问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象-1" class="headerlink" title="问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象"></a>问题：存在并发更新同一条数据时，可能会出现数据库缓存不一致现象</h3><h2 id="先删除缓存，再删除数据库-Cache-Aside-旁路更新策略①"><a href="#先删除缓存，再删除数据库-Cache-Aside-旁路更新策略①" class="headerlink" title="先删除缓存，再删除数据库(Cache Aside 旁路更新策略①)"></a>先删除缓存，再删除数据库(Cache Aside 旁路更新策略①)</h2><h3 id="策略：-2"><a href="#策略：-2" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>请求A要将数据库值更新为21,所以请求A会删除缓存，此时请求B要读取该值，它查询缓存后没有命中，会从数据库中读取原值20，并写入到缓存中，然后请求A继续更改数据值为21。此时依然会出现数据库缓存不一致的现象</p>
+<h3 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h3><p>不更新缓存，而是删除缓存，然后后读取数据时，发现缓存中没有数据，在从数据库中读取数据更新到缓存中。分为【读策略】和【写策略】<br>写策略步骤：更新数据库数据，删除缓存中的数据<br>读策略步骤：如果读取的数据命中缓存，则直接返回数据；如果没有命中则从数据库中读取数据，然后更新缓存并返回</p>
+<h2 id="先更新数据库，再删除缓存-Cache-Aside-旁路更新策略①"><a href="#先更新数据库，再删除缓存-Cache-Aside-旁路更新策略①" class="headerlink" title="先更新数据库，再删除缓存(Cache Aside 旁路更新策略①)"></a>先更新数据库，再删除缓存(Cache Aside 旁路更新策略①)</h2><h3 id="策略：-3"><a href="#策略：-3" class="headerlink" title="策略："></a>策略：</h3><p>并发请求A、B。</p>
+<p>请求A查询某个值（假设缓存中不存在），此时请求A从数据中查询到值为20，在未写入缓存时请求B更新该值，先将数据库更新为21，并删除缓存。这是请求A把从数据库中读取到的数据20写入缓存。最终还是可能出现数据库缓存不一致的现象。</p>
+<p>概率较低，缓存速度理论上不会出现该问题，但若删除缓存失败会导致缓存不一致。</p>
+<h3 id="问题：-1"><a href="#问题：-1" class="headerlink" title="问题："></a>问题：</h3><p>不更新缓存，而是删除缓存，然后后读取数据时，发现缓存中没有数据，在从数据库中读取数据更新到缓存中。分为【读策略】和【写策略】<br>写策略步骤：更新数据库数据，删除缓存中的数据<br>读策略步骤：如果读取的数据命中缓存，则直接返回数据；如果没有命中则从数据库中读取数据，然后更新缓存并返回</p>
+<h1 id="问题解决方案："><a href="#问题解决方案：" class="headerlink" title="问题解决方案："></a>问题解决方案：</h1><h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>两步操作，没有并发控制，因此遇到并发场景时，由于执行顺序不同导致数据不一致</p>
+<h2 id="方案："><a href="#方案：" class="headerlink" title="方案："></a>方案：</h2><ul>
+<li><p>分布式锁</p>
+<p>同一时间同一数据只由一个请求操作更新缓存</p>
+</li>
+<li><p>过期时间</p>
+<p>数据不一致 兜底方案</p>
+</li>
+<li><p>保证数据库与缓存两个操作均成功</p>
+<ul>
+<li>重试（如@Retryable）</li>
+<li>订阅MySQL binlong，异步操作缓存(Canal,MQ)</li>
+</ul>
+</li>
+</ul>
+<h6 id="注解："><a href="#注解：" class="headerlink" title="注解："></a>注解：</h6><p>①Cache Aside 旁路更新策略（不保证数据一致性）</p>
+<p>释义：更新数据时，不更新缓存，而是删除缓存中的数据，在读取数据时，发现缓存中没有，再从数据库中读取数据，更新到缓存中。</p>
+<p>来源：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1f7fa8f6cd59">https://www.jianshu.com/p/1f7fa8f6cd59</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E3%80%81%E9%9B%AA%E5%B4%A9%E3%80%81%E7%A9%BF%E9%80%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/Redis-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E3%80%81%E9%9B%AA%E5%B4%A9%E3%80%81%E7%A9%BF%E9%80%8F/" class="post-title-link" itemprop="url">Redis-缓存击穿、雪崩、穿透</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 16:24:05" itemprop="dateCreated datePublished" datetime="2022-06-30T16:24:05+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h1><h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>大量Key同时过期或Redis宕机，请求直接访问数据库造成巨大压力，影响数据库性能及系统稳定性</p>
+<h2 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h2><ul>
+<li><p>大量Key同时过期</p>
+<ul>
+<li>过期时间设置策略，避免Key同时全部失效</li>
+<li>互斥锁：保证同一时刻只有一个请求构建缓存，构建后是否锁，其他请求此刻阻塞或返回空</li>
+<li>双Key策略：设置主从Key，主Key设置过期时间，备用Key永不过期，主Key过期时返回备Key数据，主Key构建完数据时同步更新备Key数据</li>
+<li>后台缓存更新：将数据同步功能解耦，通过MQ或Cannal方式更新数据</li>
+</ul>
+</li>
+<li><p>redis宕机</p>
+<ul>
+<li>服务熔断或请求限流：降低请求量或直接返回空环境服务器压力</li>
+<li>构建集群：Redis集群</li>
+</ul>
+</li>
+</ul>
+<h1 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h1><h2 id="原因：-1"><a href="#原因：-1" class="headerlink" title="原因："></a>原因：</h2><p>某个热点数据过期，大量请求访问无法直接在缓存获取数据，导致直接访问数据库</p>
+<h2 id="解决方案：-1"><a href="#解决方案：-1" class="headerlink" title="解决方案："></a>解决方案：</h2><ul>
+<li>互斥锁或后台更新：不设置过期时间或快过期时通知后台线程更新</li>
+</ul>
+<h1 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h1><h2 id="原因：-2"><a href="#原因：-2" class="headerlink" title="原因："></a>原因：</h2><p>访问Redis与Database中都不存在的数据，无法根据当前请求构建缓存数据，造成应用压力</p>
+<h2 id="解决方案：-2"><a href="#解决方案：-2" class="headerlink" title="解决方案："></a>解决方案：</h2><ul>
+<li>限制非法请求<ul>
+<li>避免恶意请求专门访问增加服务器压力，通过接口API参数判断请求参数合理性</li>
+</ul>
+</li>
+<li>缓存指定默认值或设置空值<ul>
+<li>直接设置访问请求的Result为null并进行定时缓存，使后面请求可访问缓存数据</li>
+</ul>
+</li>
+<li>布隆过滤器<ul>
+<li>可快速查询数据是否存在，避免通过查询Database判断增加数据库压力。落库时使用布隆过滤器记录，确保缓存失效时查询的数据是否真实存在</li>
+<li>注：存在误判情况，结果不准确</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/06/30/Spring-Bean%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -811,952 +1005,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/19/Apache-Dubbo-%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Apache Dubbo 初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-19 01:52:09" itemprop="dateCreated datePublished" datetime="2020-06-19T01:52:09+08:00">2020-06-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.应用架构的演进过程<br>目标</p>
-<p>了解软件架构的演进过程</p>
-<p>学习路径</p>
-<p>主流的互联网技术特点<br>架构演变的过程<br>单体架构<br>垂直架构<br>分布式服务架构<br>SOA架构<br>微服务架构<br>1.1 主流的互联网技术特点<br>分布式 、高并发、集群、负载均衡、高可用。</p>
-<p>分布式：一件事情拆开来做。</p>
-<p>集群：一件事情所有服务器一起做。</p>
-<p>负载均衡：将请求平均分配到不同的服务器中，达到均衡的目的。</p>
-<p>高并发：同一时刻，处理同一件事情的处理能力（解决方案：分布式、集群、负载均衡）</p>
-<p>高可用：系统都是可用的。</p>
-<p>1.2. 架构演变的过程<br>1.2.1 单一应用架构（all in one）<br>当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。</p>
-<p>架构优点：</p>
-<p>架构简单，前期开发成本低、开发周期短，适合小型项目（OA、CRM、ERP 企业内部应用）。</p>
-<p>架构缺点：</p>
-<p>全部功能集成在一个工程中</p>
-<p>业务代码耦合度高，不易维护。</p>
-<p>维护成本高，不易拓展</p>
-<p>并发量大，不易解决</p>
-<p>技术栈受限，只能使用一种语言开发。</p>
-<p>1.2.2 垂直应用架构<br>当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。</p>
-<p>架构优点：</p>
-<p>业务代码相对解耦</p>
-<p>维护成本相对易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
-<p>并发量大相对易于解决（搭建集群）</p>
-<p>技术栈可扩展（不同的系统可以用不同的编程语言编写）。</p>
-<p>架构缺点：</p>
-<p>功能集中在一个项目中，不利于开发、扩展、维护。</p>
-<p>代码之间存在数据、方法的冗余</p>
-<p>1.2.3 分布式服务架构<br>当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。</p>
-<p>架构优点：</p>
-<p>业务代码完全解耦，并可实现通用</p>
-<p>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）</p>
-<p>并发量大易于解决（搭建集群）</p>
-<p>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。</p>
-<p>架构缺点：</p>
-<p>缺少统一管理资源调度的框架</p>
-<p>1.2.4 流动计算架构（SOA）<br>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。</p>
-<p>架构优点<br>业务代码完全解耦，并可实现通用<br>维护成本易于拓展（修改一个功能，可以直接修改一个项目，单独部署）<br>并发量大易于解决（搭建集群）<br>技术栈完全扩展（不同的系统可以用不同的编程语言编写）。<br>框架实现了服务治理，不去担心集群的使用情况(失败会尝试其它服务….)<br>1.2.5 小结<br>单体架构</p>
-<p>全部功能集中在一个项目内（All in one）。</p>
-<p>垂直架构</p>
-<p>按照业务进行切割，形成小的单体项目。</p>
-<p>分布式</p>
-<p>应用调用服务，服务挂了，有其它可用，缺少服务治理</p>
-<p>SOA架构</p>
-<p>服务的提供者（以服务为主 service调用dao-&gt;数据库），消费者。<br>服务提供者与消费都注册到中心，由中心统一管理分配，失败重试，负载均衡。。。有服务治理<br>可以使用dubbo作为调度的工具（RPC协议）, Zookeeper作为注册中心<br>微服务架构</p>
-<p>将系统服务层完全独立出来，抽取为一个一个的微服务。 以功能为主(controller-&gt;service-dao-&gt;数据库 独立)<br>特点一：抽取的粒度更细，遵循单一原则，数据可以在服务之间完成数据传输（一般使用restful请求调用资源）。<br>特点二： 采用轻量级框架协议传输。（可以使用spring cloud）（http协议 restful json）<br>特点三： 每个服务都使用不同的数据库，完全独立和解耦 (分库分表)。<br>二.RPC（远程过程调用）<br>目标</p>
-<p>了解什么是RPC</p>
-<p>学习路径</p>
-<p>RPC介绍</p>
-<p>RPC组件</p>
-<p>RPC调用</p>
-<p>2.1 RPC介绍<br>​ Remote Procedure Call 远程过程调用，是分布式架构的核心，按响应方式分如下两种：</p>
-<p> 同步调用：客户端调用服务方方法，等待直到服务方返回结果或者超时，再继续自己的操作。</p>
-<p> 异步调用：客户端把消息发送给中间件，不再等待服务端返回，直接继续自己的操作。</p>
-<p>是一种进程间的通信方式</p>
-<p>它允许应用程序调用网络上的另一个应用程序中的方法</p>
-<p>对于服务的消费者而言，无需了解远程调用的底层细节，是透明的</p>
-<p>需要注意的是RPC并不是一个具体的技术，而是指整个网络远程调用过程。</p>
-<p>RPC是一个泛化的概念，严格来说一切远程过程调用手段都属于RPC范畴。各种开发语言都有自己的RPC框架。Java中的RPC框架比较多，广泛使用的有RMI、Hessian、Dubbo、spring Cloud(restapi http)等。</p>
-<p>2.2 RPC组件<br>RPC架构里包含如下4个组件:</p>
-<p>客户端(Client)：服务调用者<br>客户端存根(Client Stub)：存放服务端地址信息，将客户端的请求参数打包成网络消息，再通过网络发送给服务方<br>服务端存根(Server Stub)：接受客户端发送过来的消息并解包，再调用本地服务<br>服务端(Server)：服务提供者。<br>2.3 RPC调用<br>服务调用方（client）调用以本地调用方式调用服务；<br>client stub接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体在Java里就是序列化的过程<br>client stub找到服务地址，并将消息通过网络发送到服务端；<br>server stub收到消息后进行解码,在Java里就是反序列化的过程；<br>server stub根据解码结果调用本地的服务；<br>本地服务执行处理逻辑；<br>本地服务将结果返回给server stub；<br>server stub将返回结果打包成消息，Java里的序列化；<br>server stub将打包后的消息通过网络并发送至消费方；<br>client stub接收到消息，并进行解码, Java里的反序列化；<br>服务调用方（client）得到最终结果。<br>2.3.1 小结<br>RPC 远程过程调用： 一台电脑调用另一台电脑上的方法<br>RPC组件及调用过程 客户端-&gt;客户端存根(序列化(发送)与反序列化(接收),服务端信息)-&gt;服务端存根(接收-反序列，返回结果-序列化)-&gt;服务端真正的方法<br>调用方式：调用方用的是接口，服务方是真正的实现<br>三.Apache Dubbo概述<br>目标</p>
-<p>了解什么是dubbo</p>
-<p>学习路径</p>
-<p>dubbo简介<br>dubbo架构<br>3.1. Dubbo简介<br>Apache Dubbo是一款高性能的Java RPC框架。其前身是阿里巴巴公司开源的一个高性能、轻量级的开源Java RPC框架，可以和Spring框架无缝集成。</p>
-<p>Dubbo官网地址：<a target="_blank" rel="noopener" href="http://dubbo.apache.org/">http://dubbo.apache.org</a></p>
-<p>Dubbo提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。</p>
-<p>3.2. Dubbo架构</p>
-<p>虚线都是异步访问，实线都是同步访问<br>蓝色:在启动时完成的功能<br>红色虚线(实线)都是程序运行过程中执行的功能</p>
-<p>节点	角色名称<br>Provider	暴露服务的服务提供方 服务方<br>Consumer	调用远程服务的服务消费方 调用方<br>Registry	服务注册与发现的注册中心<br>Monitor	统计服务的调用次数和调用时间的监控中心<br>Container	服务运行容器<br>调用关系说明:</p>
-<p>服务容器负责启动，加载，运行服务提供者。<br>服务提供者在启动时，向注册中心注册自己提供的服务。<br>服务消费者在启动时，向注册中心订阅自己所需的服务。<br>注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。<br>服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。<br>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。<br>什么是长连接</p>
-<p>长连接多用于操作频繁，点对点的通讯，而且连接数不能太多情况。每个TCP连接都需要三步握手，这需要时间，如果每个操作都是短连接，再操作的话那么处理速度会降低很多，所以每个操作完后都不断开，下次处理时直接发送数据包就OK了，不用建立TCP连接。</p>
-<p>3.3 小结<br>dubbo 远程调用框架 RPC</p>
-<p>dubbo架构</p>
-<p> 角色： 客户端与服务提供方 监控器注册中心</p>
-<p> 组员：服务消费端（调用者），服务提供方（容器）, 注册中心, 监控中心(负载均衡)</p>
-<p>四.Dubbo快速开发<br>目标</p>
-<p>使用dubbo，完成服务消费者，调用，服务提供者方法</p>
-<p>操作路径</p>
-<p>环境准备<br>创建父工程（dubbo_parent) 依赖管理<br>创建公共子模块(dubbo_common) 实体类<br>创建接口子模块(dubbo_interface)<br>创建服务提供者模块(dubbo_provider) 对接口的实现<br>创建服务消费者模块(dubbo_consumer) 引用接口<br>Zookeeper中存放Dubbo服务结构(注册中心)<br>讲解</p>
-<p>Dubbo作为一个RPC框架，其最核心的功能就是要实现跨网络的远程调用，服务提供者、服务消费者会使用共同的接口，故本小节先创建一个父工程，父工程下有4个子模块，一个是公共子模块，一个是接口模块，一个是服务提供者模块，一个是服务消费者模块。通过Dubbo来实现服务消费方远程调用服务提供方的方法。</p>
-<p>实现的业务为：根据id查询用户对象</p>
-<p>业务描述：页面发送请求：user&#x2F;findById.do?id&#x3D;1 根据id从数据库获取用户对象</p>
-<p>实现步骤：</p>
-<p>环境准备：创建数据库，创建t_user表<br>创建父工程，基于maven，打包方式为pom，工程名：dubbo_parent<br>创建公共子模块,创建user实体类，打包方式为jar，工程名:dubbo_common<br>创建接口子模块，在父工程的基础上，打包方式为jar，模块名：dubbo_interface<br>创建服务提供者子模块，在父工程的基础上，打包方式为war，模块名：dubbo_provider<br>创建服务消费者模子块，在父工程的基础上，打包方式为war，模块名：dubbo_consumer<br>4.1 环境准备</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> database itcastdubbo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_user` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `username` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;张三&quot;,<span class="number">22</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;李四&quot;,<span class="number">20</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_user(username,age) <span class="keyword">VALUES</span>(&quot;王五&quot;,<span class="number">25</span>);</span><br></pre></td></tr></table></figure>
-
-
-<p>4.2 创建父工程<br>父工程，不实现任何代码，主要是添加工程需要的库的依赖管理（DependencyManagement），依赖管理就是解决项目中多个模块间公共依赖的版本号、scope的控制范围。</p>
-<p>本项目需要使用spring-webmvc，使用dubbo（务必2.6.2以上版本）、zookeeper及其客户端（curator-framework）、Spring、Mybatis依赖库。</p>
-<p>创建结构</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── dubbo_common</span><br><span class="line">│   ├── dubbo_common.iml</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_consumer</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_interface</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">├── dubbo_parent.iml</span><br><span class="line">├── dubbo_provider</span><br><span class="line">│   ├── pom.xml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── main</span><br><span class="line">│       └── <span class="built_in">test</span></span><br><span class="line">└── pom.xml</span><br><span class="line">dubbo_parent pom.xml增加依赖</span><br></pre></td></tr></table></figure>
-
-
-
-<p>详细信息<br>4.3 公共子模块 —— dubbo-common<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>创建User实体类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> Integer id;</span><br><span class="line">  <span class="keyword">private</span> String username;</span><br><span class="line">  <span class="keyword">private</span> Integer age;</span><br><span class="line">  <span class="comment">//此处省略getter/setter/toString</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>4.4 接口子模块 —— dubbo_interface<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>UserService</p>
-<p>1<br>2<br>3<br>public interface UserService {<br>    User findById(Integer id);<br>}<br>4.5 服务提供者模块<br>此模块是服务提供者模块，需要在容器启动时，把服务注册到zookeeper,故需要引入spring-webmvc,zookeeper及客户端依赖。</p>
-<p>使用war 方式，需要依赖dubbo_interface</p>
-<p>结构</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">./</span><br><span class="line">├── pom.xml</span><br><span class="line">└── src</span><br><span class="line">├── main</span><br><span class="line">│   ├── java</span><br><span class="line">│   │   └── com</span><br><span class="line">│   │       └── <span class="built_in">test</span></span><br><span class="line">│   │           ├── dao</span><br><span class="line">│   │           │   └── UserDao.java</span><br><span class="line">│   │           └── service</span><br><span class="line">│   │               └── impl</span><br><span class="line">│   │                   └── UserServiceImpl.java</span><br><span class="line">│   ├── resources</span><br><span class="line">│   │   ├── com</span><br><span class="line">│   │   │   └── <span class="built_in">test</span></span><br><span class="line">│   │   │       └── dao</span><br><span class="line">│   │   │           └── UserDao.xml</span><br><span class="line">│   │   ├── jdbc.properties</span><br><span class="line">│   │   ├── spring-dao.xml</span><br><span class="line">│   │   ├── spring-provider.xml</span><br><span class="line">│   │   └── spring-service.xml</span><br><span class="line">│   └── webapp</span><br><span class="line">│       └── WEB-INF</span><br><span class="line">│           └── web.xml</span><br><span class="line">└── <span class="built_in">test</span></span><br><span class="line">└── java</span><br></pre></td></tr></table></figure>
-
-<p>4.5.1 配置dubbo_provider依赖<br>pom.xml</p>
-<p>详细信息<br>4.5.2 初始化java资源目录<br>UserDao</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDao</span> &#123;</span><br><span class="line">  User <span class="title function_">findById</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>UserServiceImpl</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">UserService</span> &#123;<span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> UserDao userDao;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span> &#123;</span><br><span class="line"><span class="keyword">return</span> userDao.findById(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>}<br>在resource下创建com&#x2F;test&#x2F;dao目录，创建UserDao接口的映射文件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.test.dao.UserDao&quot;</span>&gt;</span></span><br><span class="line">  </span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;findById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.test.pojo.User&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;int&quot;</span>&gt;</span></span><br><span class="line">  select * from t_user where id = #&#123;id&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-4.5.3 初始化resources目录
-spring-dao.xml
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  加载jdbc配置文件   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:property-placeholder</span> <span class="attr">location</span>=<span class="string">&quot;classpath:jdbc.properties&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 数据源   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.alibaba.druid.pool.DruidDataSource&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driverClassName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.user&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 工厂 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.pojo&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- dao扫描   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;basePackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.test.dao&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>jdbc.properties</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jdbc.driver</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="attr">jdbc.url</span>=<span class="string">jdbc:mysql://localhost:3306/itcastdubbo</span></span><br><span class="line"><span class="attr">jdbc.user</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">jdbc.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">spring-service.xml</span></span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:tx</span>=<span class="string">&quot;http://www.springframework.org/schema/tx&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--  事务管理器  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;transactionManager&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  事务注解  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tx:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入dao  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dao.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>spring-provider.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布服务的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_provider&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心zookeeper:--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- service:  注册上去服务</span></span><br><span class="line"><span class="comment">interface： 发布服务的接口</span></span><br><span class="line"><span class="comment">ref: spring容器的bean对象</span></span><br><span class="line"><span class="comment">将来通过这个interface调用服务时，就来调用spring容器中的对象的方法</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;userService&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务真正的执行者  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注入spring-service.xml  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-service.xml&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--发布dubbo协议，默认端口20880--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 超时时间 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;100000&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-log4j.properties
-
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### direct log messages to stdout ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.stdout</span>=<span class="string">org.apache.log4j.ConsoleAppender</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.Target</span>=<span class="string">System.err</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.stdout.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### direct messages to file mylog.log ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.file</span>=<span class="string">org.apache.log4j.FileAppender</span></span><br><span class="line"><span class="attr">log4j.appender.file.File</span>=<span class="string">c:\\mylog.log</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.file.layout.ConversionPattern</span>=<span class="string">%d&#123;ABSOLUTE&#125; %5p %c&#123;1&#125;:%L - %m%n</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### set log levels - for more verbose logging change &#x27;info&#x27; to &#x27;debug&#x27; ###</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.rootLogger</span>=<span class="string">debug, stdout</span></span><br></pre></td></tr></table></figure>
-
-<p>4.5.4 启动项目<br>只要能启动spring的容器（加载spring的配置文件）就可以启动项目，因此有2种方式</p>
-<p>ClassPathXmlApplication</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProviderApplication</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ClassPathXmlApplicationContext</span>(<span class="string">&quot;classpath:spring-provider.xml&quot;</span>);</span><br><span class="line">    System.in.read();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>监听器与springMVC</p>
-<p>web.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式一: listener 启动spring容器</span></span><br><span class="line"><span class="comment">&lt;context-param&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span></span><br><span class="line"><span class="comment">    &lt;param-value&gt;classpath:spring-provider.xml&lt;/param-value&gt;</span></span><br><span class="line"><span class="comment">&lt;/context-param&gt;</span></span><br><span class="line"><span class="comment">&lt;listener&gt;</span></span><br><span class="line"><span class="comment">    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;</span></span><br><span class="line"><span class="comment">&lt;/listener&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 方式二: 启动mvc的核心控制器   --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-provider.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>dispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-4.5.5 注册中心验证
-启动zookeeper，作为dubbo的注册中心
-
-<p>登录zookeeper客户端，直接查看ls &#x2F;dubbo&#x2F;com.test.service.UserService节点</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 34] <span class="built_in">ls</span> /dubbo/com.test.service.UserService</span><br><span class="line">[configurators, providers]</span><br></pre></td></tr></table></figure>
-
-
-<p>如果 &#x2F;dubbo下面没有这个节点，说明没有注册上，</p>
-<p>如果有，内容是空，说明已经掉线</p>
-<p>正常注册并连接在线</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 35] <span class="built_in">ls</span> /dubbo/com.test.service.UserService/providers</span><br><span class="line">[dubbo%3A%2F%2F10.254.4.87%3A20880%2Fcom.test.service.UserService%3Fanyhost%3Dtrue%26application%3Ddubbo_provide%26dubbo%3D2.6.2%26generic%3Dfalse%26interface%3Dcom.test.service.UserService%26methods%3DfindById%26pid%3D33771%26revision%3D1.0-SNAPSHOT%26side%3Dprovider%26timestamp%3D1592563739288]</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：</p>
-<p>消费者与提供者应用名称不能相同</p>
-<p>如果有多个服务提供者，名称不能相同，通信端口也不能相同</p>
-<p>只有服务提供者才会配置服务发布的协议，默认是dubbo协议，端口号是20880</p>
-<p>可以在spring-dubbo.xml中配置协议的端口</p>
-<p>4.6 服务消费者模块<br>此模块是服务消费者模块，此模块基于是Web应用，需要引入spring-webmvc，需要在容器启动时，去zookeeper注册中心订阅服务,需要引入dubbo、zookeeper及客户端依赖。</p>
-<p>4.6.1 子模块dubbo_consumer导包<br>pom.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_consumer<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo_interface<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-webmvc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>servlet-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>4.6.2 初始化java资源目录<br>UserController</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>}<br>4.6.3 初始化resources资源目录<br>spring-dubbo.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:dubbo</span>=<span class="string">&quot;http://dubbo.apache.org/schema/dubbo&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  发布的名称  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">&quot;dubbo_consumer&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注册中心  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">&quot;zookeeper://127.0.0.1:2181&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  服务订阅扫包</span></span><br><span class="line"><span class="comment">      (2.6.0 事务问题)使用了服务的那controller的包, springmvc中的controller也不需要扫包了</span></span><br><span class="line"><span class="comment">      &lt;dubbo:reference&gt;就不要了</span></span><br><span class="line"><span class="comment">      在controller的服务注入使用@Reference(dubbo)</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:annotation</span> <span class="attr">package</span>=<span class="string">&quot;com.test&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  id的值必须与controller中的@autowired的属性名称要一致</span></span><br><span class="line"><span class="comment">    &lt;dubbo:reference interface=&quot;com.test.service.UserService&quot; id=&quot;userService&quot;/&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  启动时是否检查服务提供者是否存在，true: 则会检查【上线时】，没有则报错。false不检查</span></span><br><span class="line"><span class="comment">     retries: 失败后的重试次数</span></span><br><span class="line"><span class="comment">     --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;2000&quot;</span> <span class="attr">retries</span>=<span class="string">&quot;2&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>spring-mvc.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:mvc</span>=<span class="string">&quot;http://www.springframework.org/schema/mvc&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  扫controller--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.test.controller&quot;</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  注解驱动  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">mvc:annotation-driven</span>/&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--  引入dubbo配置文件--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">import</span> <span class="attr">resource</span>=<span class="string">&quot;classpath:spring-dubbo.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>log4j.properties</p>
-<p>之前的配置文件直接复制即可</p>
-<p>web.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">&quot;2.5&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:spring-mvc.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>4<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>encoding<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>CharacterEncodingFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>4.6.5 启动服务消费者并测试<br>访问：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3<br>显示：{“id”:3,”username”:”C”,”age”:25}<br>注意：因为是RPC的框架，要求传递的参数和实体类要实现序列化</p>
-<p>参数：Integer类型（实现序列化接口java.io.Serializable）</p>
-<p>返回值：User（实现序列化接口java.io.Serializable），如果不进行序列化，抛出异常</p>
-<p>4.7 Zookeeper中存放Dubbo服务结构（作为Dubbo运行的注册中心）<br>Zookeeper树型目录服务：</p>
-<p>流程说明</p>
-<p>服务提供者(Provider)启动时: 向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下写入自己的 URL 地址</p>
-<p>服务消费者(Consumer)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;providers 目录下的提供者 URL 地址。并向 &#x2F;dubbo&#x2F;com.foo.BarService&#x2F;consumers 目录下写入自己的 URL 地址</p>
-<p>监控中心(Monitor)启动时: 订阅 &#x2F;dubbo&#x2F;com.foo.BarService 目录下的所有提供者和消费者 URL 地址</p>
-<p>4.8 小结<br>dubbo_parent 版本控制<br>dubbo_common 实体类<br>dubbo_interface 共用接口<br>dubbo_provider 服务提供者 dao(spring-dao.xml 整合mybatis), 事务(spring-service.xml), 注册到注册中心(spring-prodvider.xml)<br>启动方式： 3种 推荐开发中用main方法类，tomcat来启动(监听器，springmvc的方式)</p>
-<p>dubbo_consumer controller接收参数调用服务接口 spring-mvc.xml, 注册到注册中心 spring-dubbo.xml web.xml dispatcherServlet tomcat来启动</p>
-<p>子模块工程间的关系</p>
-<p>dubbo_consumer依赖于dubbo_interface(依赖于common) war tomcat<br>dubbo_provider(service,dao)依赖于dubbo_interface(依赖于common) war tomcat<br>五.Dubbo管理控制台<br>我们在开发时，需要知道Zookeeper注册中心都注册了哪些服务，有哪些消费者来消费这些服务。我们可以通过部署一个管理中心来实现。其实管理中心就是一个web应用，部署到tomcat即可。</p>
-<p>目标</p>
-<p>Dubbo管理控制台的使用（即Dubbo监控中心）</p>
-<p>使用路径</p>
-<p>安装（dubbo-admin.war）<br>使用（dubbo-admin.war）</p>
-<p>5.1. 安装<br>下载dubbo-admin.war，放入Tomcat的webapps中</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find ./apache-tomcat-8.5.54 -name <span class="string">&quot;dubbo*war*&quot;</span> -<span class="built_in">type</span> f    </span><br><span class="line">./apache-tomcat-8.5.54/webapps/dubbo-admin.war</span><br></pre></td></tr></table></figure>
-
-
-<p>启动Tomcat,此war文件会自动解压</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ ./apache-tomcat-8.5.54/bin/startup.sh</span><br><span class="line">Using CATALINA_BASE:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_HOME:   /Users/swzxsyh/Program/apache-tomcat-8.5.54</span><br><span class="line">Using CATALINA_TMPDIR: /Users/swzxsyh/Program/apache-tomcat-8.5.54/temp</span><br><span class="line">Using JRE_HOME:        /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home</span><br><span class="line">Using CLASSPATH:       /Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/bootstrap.jar:/Users/swzxsyh/Program/apache-tomcat-8.5.54/bin/tomcat-juli.jar</span><br><span class="line">Tomcat started.</span><br></pre></td></tr></table></figure>
-
-
-<p>修改WEB-INF下的dubbo.properties文件</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注意dubbo.registry.address对应的值需要对应当前使用的Zookeeper的ip地址和端口号</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dubbo.registry.address</span>=<span class="string">zookeeper://localhost:2181</span></span><br><span class="line"><span class="attr">dubbo.admin.root.password</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">dubbo.admin.guest.password</span>=<span class="string">guest</span></span><br><span class="line"><span class="attr">重启tomcat</span></span><br></pre></td></tr></table></figure>
-
-<p>5.2. 使用<br>访问</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localhost:8080/dubbo-admin/</span><br></pre></td></tr></table></figure>
-
-<p>账号密码都为admn或都为guest，上方配置文件中配置的</p>
-<p>启动服务提供者工程和服务消费者工程，可以在查看到对应的信息</p>
-<p>5.3 小结<br>安装（dubbo-admin.war），放置到tomcat webapp目录下，zookeeper不是本地则要修改WEB-INF下的dubbo.properties文件， 改zookeeper的ip地址。</p>
-<p>使用（dubbo-admin.war）</p>
-<p>访问localhost:8080&#x2F;dubbo-admin&#x2F;，输入用户名(root)和密码(root)</p>
-<p>六.Dubbo相关配置说明<br>目标</p>
-<p>Dubbo相关配置说明</p>
-<p>路径</p>
-<p>包扫描（dubbo注解配置）</p>
-<p>服务接口访问协议dubbo协议</p>
-<p>rmi协议</p>
-<p>启动时检查</p>
-<p>超时调用</p>
-<p>6.1. 包扫描<br>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者前面章节实现都是基于配置文件进行服务注册与订阅，如果使用包扫描，可以使用注解方式实现，推荐使用这种方式。</p>
-<p>6.1.1 服务提供者，使用注解实现<br>在spring-dubbo.xml中配置</p>
-<p>1<br>&lt;dubbo:annotation package&#x3D;”com.test.service” &#x2F;&gt;<br>服务提供者和服务消费者都需要配置，表示包扫描，作用是扫描指定包(包括子包)下的类。</p>
-<p>同时去掉以下配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--指定暴露的服务接口及实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">&quot;com.test.service.UserService&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">ref</span>=<span class="string">&quot;userSerivce&quot;</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!--配置业务类实例--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userSerivce&quot;</span></span></span><br><span class="line"><span class="tag">      <span class="attr">class</span>=<span class="string">&quot;com.test.service.impl.UserServiceImpl&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>在Controller类中使用@Reference注解</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line"><span class="keyword">private</span> UserService userService;</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：其中@Reference是dubbo包下（com.alibaba.dubbo.config.annotation.Reference）的注解。表示订阅服务</p>
-<p>6.1.3 重启服务测试使用<br>重启服务提供者模块 dubbo-provider</p>
-<p>重启服务消费者模块 dubbo-consumer</p>
-<p>在浏览器输入测试URL：localhost:8081&#x2F;dubbo_consumer&#x2F;user&#x2F;findById?id&#x3D;3</p>
-<p>6.2 服务接口访问协议【提供方修改】<br>1<br>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;<br>一般在服务提供者一方配置，可以指定使用的协议名称和端口号。</p>
-<p>其中Dubbo支持的协议有：dubbo、rmi、hessian、http、webservice、rest、redis等。</p>
-<p>推荐使用的是dubbo协议，默认端口号：20880。</p>
-<p>dubbo 协议采用单一长连接和 NIO 异步通讯，适合于小数据量、大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。不适合传送大数据量的服务，比如传文件，传视频等，除非请求量很低。</p>
-<p>也可以在同一个工程中配置多个协议，不同服务可以使用不同的协议， 在spring-provider.xml配置文件中添加：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 多协议配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;dubbo&quot;</span> <span class="attr">port</span>=<span class="string">&quot;20881&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">&quot;rmi&quot;</span> <span class="attr">port</span>=<span class="string">&quot;1099&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>dubbo协议：</p>
-<p>连接个数：单连接<br>连接方式：长连接<br>传输协议：TCP<br>传输方式：NIO异步传输<br>序列化：Hessian二进制序列化<br>适用范围：传入传出参数数据包较小（建议小于100K），消费者比提供者个数多，单一消费者无法压满提供者，尽量不要用dubbo协议传输大文件或超大字符串。<br>适用场景：常规远程服务方法调用<br>rmi协议：</p>
-<p>连接个数：多连接<br>连接方式：短连接<br>传输协议：TCP<br>传输方式：同步传输<br>序列化：Java标准二进制序列化<br>适用范围：传入传出参数数据包大小混合，消费者与提供者个数差不多，可传文件。<br>适用场景：常规远程服务方法调用，与原生RMI服务互操作<br>详情使用可通过博客文章：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/duanxz/p/3555876.html%E4%BA%86%E8%A7%A3">https://www.cnblogs.com/duanxz/p/3555876.html了解</a></p>
-<p>6.3 启动时检查<br>1<br>&lt;dubbo:consumer check&#x3D;”false”&#x2F;&gt;<br>上面这个配置需要配置在服务消费者一方，如果不配置默认check值为true。Dubbo 缺省会在启动时检查依赖的服务是否可用，不可用时会抛出异常，阻止 Spring 初始化完成，以便上线时，能及早发现问题。可以通过将check值改为false来关闭检查。</p>
-<p>建议在开发阶段将check值设置为false，在生产环境下改为true。</p>
-<p>如果设置为true，启动服务消费者，会抛出异常，表示没有服务提供者</p>
-<p>6.4. 超时调用<br>默认的情况下，dubbo调用的时间为一秒钟，如果超过一秒钟就会报错，所以我们可以设置超时时间长些，保证调用不出问题，这个时间需要根据业务来进行确定。</p>
-<p>修改消费者 配置文件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--超时时间为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">修改提供者配置文件</span><br><span class="line"></span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line"><span class="comment">&lt;!--超时时间设置为10秒钟--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>6.5 小结<br>包扫描（dubbo注解配置）</p>
-<p>&lt;dubbo:annotation package&#x3D;”com.test”&gt;<br>服务提供方: @Service -&gt; alibaba.dubbo包<br>消费方: controller, @Autowired&#x3D;&gt; @Reference-&gt; alibaba.dubbo<br>服务接口访问协议</p>
-<p>（服务提供者）</p>
-<p>dubbo协议<br>rmi协议</p>
-<!--配置Dubbo的协议（dubbo协议，默认端口20880-->
-<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&gt;</p>
-<!--配置rmi的协议-->
-<p>&lt;dubbo:protocol name&#x3D;”rmi” port&#x3D;”1099”&gt;<br>启动时检查</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span> 开发时。发布时一定为true超时调用</span><br><span class="line"></span><br><span class="line">（服务消费者）</span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">check</span>=<span class="string">&quot;false&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:consumer</span>&gt;</span></span><br><span class="line">（服务提供者）</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">timeout</span>=<span class="string">&quot;10000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-<p>七.负载均衡<br>目标</p>
-<p>Dubbo配置负载均衡</p>
-<p>学习路径</p>
-<p>负载均衡介绍<br>测试负载均衡效果<br>7.1. 介绍<br>负载均衡（Load Balance）：其实就是将请求分摊到多个操作单元上进行执行，从而共同完成工作任务。</p>
-<p>在集群负载均衡时，Dubbo 提供了多种均衡策略（包括随机random、轮询roundrobin、最少活跃调用数leastactive），缺省【默认】为random随机调用。</p>
-<p>配置负载均衡策略，既可以在服务提供者一方配置（@Service(loadbalance &#x3D; “roundrobin”)），也可以在服务消费者一方配置（@Reference(loadbalance &#x3D; “roundrobin”)），两者取一</p>
-<p>如下在服务消费者指定负载均衡策略，可在@Reference添加@Reference(loadbalance &#x3D; “roundrobin”)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserSerivce userService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>7.2. 测试负载均衡效果<br>增加一个提供者，提供相同的服务;</p>
-<p> 正式生产环境中，最终会把服务端部署到多台机器上，故不需要修改任何代码，只需要部署到不同机器即可测试。下面我们通过启动 ProviderApplication 类来做测试</p>
-<p>修改为轮询</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Reference(loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping(&quot;/findById&quot;)</span></span><br><span class="line">  <span class="keyword">public</span> User <span class="title function_">findById</span><span class="params">(Integer id)</span>&#123;</span><br><span class="line">    <span class="comment">// 调用服务</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userService.findById(id);</span><br><span class="line">    <span class="comment">// 返回json数据</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>先启动一个ProviderApplication</p>
-<p>IDEA——Edit Configuration——Add New Configuration——Application——进行配置</p>
-<p>设置可以启动多个实例</p>
-<p>勾选刚刚配置的Application中的 Allow parallel run</p>
-<p>修改spring-provider.xml 端口依次改为20881,20882,20883</p>
-<p>1<br>2</p>
-<!-- 使用Dubbo协议的服务会在初始化时建立长连接-->
-<p>&lt;dubbo:protocol name&#x3D;”dubbo” port&#x3D;”20881”&#x2F;&gt;<br>启动ProviderApplication,最终有3个，分别端口为20881，20882，20883</p>
-<p>其中</p>
-<p>1<br>2<br>@Reference(loadbalance &#x3D; “roundrobin”) 		&#x2F;&#x2F; 表示轮询<br>@Reference(loadbalance &#x3D; “random”)       	&#x2F;&#x2F; 表示随机（默认）<br>访问测试</p>
-<p>启动消费者，访问：<a target="_blank" rel="noopener" href="http://localhost:92/user/findById?id=3">http://localhost:92/user/findById?id=3</a></p>
-<p>7.3 小结<br>负载均衡: 把请求均匀分配到各服务提供者上</p>
-<p>loadbalance:</p>
-<p>random 随机 默认<br>roundrobin 轮循<br>leastactive 最少活跃数<br>consistenhash 一致哈希<br>八.配置中心<br>目标</p>
-<p>Dubbo配置中心</p>
-<p>路径</p>
-<p>配置中心环境介绍</p>
-<p>实现配置中心</p>
-<p>（1）在Zookeeper中添加数据源所需配置</p>
-<p>（2）在dubbo-common中导入jar包, 在这里实现配置中心的读取与监听</p>
-<p>（3）删除数据库配置文件，数据库配置从Zookeeper上读取</p>
-<p>添加watch机制</p>
-<p>添加监听(数据库配置信息的节点， 节点数据变化时，重新设置数据库的配置信息，刷新容器)<br>获取Spring容器对象，再刷新<br>8.1. 环境介绍<br>​ 数据发布&#x2F;订阅即所谓的配置中心：发布者将数据发布到ZooKeeper一系列节点上面，订阅者进行数据订阅，当数据有变化时，可以及时得到数据的变化通知，达到动态及时获取数据的目的。</p>
-<p>现在项目中有两个提供者，配置了相同的数据源，如果此时要修改数据源，必须同时修改两个才可以。</p>
-<p> 我们可以将数据源中需要的配置信息配置存储在zookeeper中，如果修改数据源配置，使用zookeeper的watch机制，同时对提供者的数据源信息更新。</p>
-<p>8.2. 实现配置中心<br>操作路径</p>
-<p>在zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包</p>
-<p>修改数据源，读取zookeeper中数据源所需配置数据</p>
-<p>在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer<br>编写载入zookeeper中配置文件，传递到Properties属性中<br>重写processProperties方法<br>修改spring-dao.xml<br>watch机制</p>
-<p>添加监听<br>获取容器对象，刷新spring容器：SettingCenterUtil,实现ApplicationContextAware<br>8.2.1 在zookeeper中添加数据源所需配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 71] create /config <span class="string">&#x27;config&#x27;</span></span><br><span class="line">Created /config</span><br><span class="line">[zk: localhost:2181(CONNECTED) 72] create /config/jdbc.url <span class="string">&#x27;jdbc:mysql://localhost:3306/test_01&#x27;</span></span><br><span class="line">Created /config/jdbc.url</span><br><span class="line">[zk: localhost:2181(CONNECTED) 76] create /config/jdbc.user <span class="string">&#x27;root</span></span><br><span class="line"><span class="string">Created /config/jdbc.user</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 77] create /config/jdbc.password &#x27;</span>root<span class="string">&#x27; </span></span><br><span class="line"><span class="string">Created /config/jdbc.password     </span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 78] create /config/jdbc.driver &#x27;</span>com.mysql.jdbc.Driver<span class="string">&#x27;</span></span><br><span class="line"><span class="string">Created /config/jdbc.driver</span></span><br><span class="line"><span class="string">[zk: localhost:2181(CONNECTED) 79] </span></span><br></pre></td></tr></table></figure>
-
-<p>8.2.2 在dubbo-common中导入jar包<br>详细信息<br>8.2.3 修改数据源，读取zookeeper中数据<br>8.2.3.1 在dubbo-common中创建工具类：SettingCenterUtil,继承PropertyPlaceholderConfigurer</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> dubbo_common/src/main/java   </span><br><span class="line"> ~/P/i/d/d/s/m/java</span><br><span class="line">$ tree  </span><br><span class="line">.</span><br><span class="line">└── com</span><br><span class="line">    └── <span class="built_in">test</span></span><br><span class="line">        ├── pojo</span><br><span class="line">        │   └── User.java</span><br><span class="line">        └── utils</span><br><span class="line">            └── SettingCenterUtil.java</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SettingCenterUtil</span> <span class="keyword">extends</span> <span class="title class_">PropertyPlaceholderConfigurer</span> </span><br></pre></td></tr></table></figure>
-
-<p>8.2.3.2 编写载入zookeeper中配置文件，传递到Properties属性中<br>详细信息<br>8.2.3.3 重写processProperties方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> * 处理properties内容,相当于此标签</span></span><br><span class="line"><span class="comment"> * &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;&gt;&lt;/context:property-placeholder&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> beanFactoryToProcess</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> BeansException</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  <span class="comment">// 载入zookeeper配置信息，即从Zookeeper中获取数据源的连接信息</span></span><br><span class="line">  loadZk(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>8.2.3.4 修改spring-dao.xml</li>
-</ul>
- <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--  注释  加载jdbc配置文件   --&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--    &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;--&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--  添加  加载配置中心对象   --&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;com.test.utils.SettingCenterUtil&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>8.2.4 watch机制<br>8.2.4.1 在SettingCenterUtil中添加监听</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">   * 添加对zookeeper中数据库配置的监听</span></span><br><span class="line"><span class="comment">      <span class="doctag">@param</span> props</span></span><br><span class="line"><span class="comment">          */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">addWatch</span><span class="params">(Properties props)</span>&#123;</span><br><span class="line">  <span class="comment">//connectString       连接字符串 host:port</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">connectString</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1:2181&quot;</span>;</span><br><span class="line">  <span class="comment">//sessionTimeoutMs    session timeout  会话超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">sessionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//connectionTimeoutMs connection timeout 连接超时时间</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">connectionTimeoutMs</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">  <span class="comment">//retryPolicy         retry policy to use  重试策略</span></span><br><span class="line">  <span class="comment">// baseSleepTimeMs  每次重试间隔时间</span></span><br><span class="line">  <span class="comment">// 1.创建重试策略</span></span><br><span class="line">  <span class="type">RetryPolicy</span> <span class="variable">retryPolicy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ExponentialBackoffRetry</span>(<span class="number">1000</span>,<span class="number">1</span>);</span><br><span class="line">  <span class="comment">// 2. 创建客户端</span></span><br><span class="line">  <span class="type">CuratorFramework</span> <span class="variable">client</span> <span class="operator">=</span> CuratorFrameworkFactory.newClient(connectString, sessionTimeoutMs, connectionTimeoutMs, retryPolicy);</span><br><span class="line">  <span class="comment">// 3. 启动</span></span><br><span class="line">  client.start();<span class="comment">// 启动</span></span><br><span class="line"></span><br><span class="line">  <span class="type">TreeCache</span> <span class="variable">treeCache</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeCache</span>(client, <span class="string">&quot;/config&quot;</span>);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    treeCache.start();</span><br><span class="line">    <span class="comment">// 添加监听</span></span><br><span class="line">    treeCache.getListenable().addListener(<span class="keyword">new</span> <span class="title class_">TreeCacheListener</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">childEvent</span><span class="params">(CuratorFramework client, TreeCacheEvent event)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span>(event.getType() == TreeCacheEvent.Type.NODE_UPDATED)&#123;</span><br><span class="line">          <span class="comment">// 如果是jdbc.url的值变更</span></span><br><span class="line">          <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.url&quot;</span>))&#123;</span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.url&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.driver&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 如果 jdbc.driver变更</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.driver&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.user&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 用户名修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.user&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;<span class="keyword">else</span> <span class="keyword">if</span>(event.getData().getPath().equals(<span class="string">&quot;/config/jdbc.password&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">// 密码修改了</span></span><br><span class="line">            props.setProperty(<span class="string">&quot;jdbc.password&quot;</span>,<span class="keyword">new</span> <span class="title class_">String</span>(event.getData().getData()));</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// 刷新spring容器</span></span><br><span class="line">          applicationContext.refresh();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>注意：</p>
-<p>不要关闭client，否则无法进行监控<br>修改完成后必须刷新spring容器的对象<br>8.2.4.2 获取容器对象，刷新spring容器<br>修改SettingCenterUtil实现ApplicationContextAware接口，重写setApplicationContext方法，获取applicationContext对象。</p>
-<p>AbstractApplicationContext容器对象父类，提供了refresh方法，可以刷新容器中的对象，故强制转换。</p>
-<p>在processProperties的方法中，添加addWatch(props);</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processProperties</span><span class="params">(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">  loadZk(props);</span><br><span class="line">  addWatch(props);</span><br><span class="line">  <span class="built_in">super</span>.processProperties(beanFactoryToProcess, props);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>修改Zookeeper的配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 79] <span class="built_in">set</span> /config/jdbc.url <span class="string">&quot;jdbc:mysql:///test&quot;</span></span><br><span class="line">[zk: localhost:2181(CONNECTED) 80] get /config/jdbc.url</span><br><span class="line">jdbc:mysql:///test</span><br></pre></td></tr></table></figure>
-
-
-<p>8.3 小结<br>配置中心环境介绍 回看zookeeper配置中心的图<br>实现配置中心<br>在Zookeeper中添加数据源所需配置<br>在dubbo-common中导入jar包<br>修改数据源,读取Zookeeper中数据,继承ProperteisPlaceHolderConfigurer.processProperties, 读取zk中的数据库配置,设置进props参数<br>watch机制<br>添加监听 TreeCache, event.type&#x3D;node_update, 注意：判断path 不要关闭客户端<br>获取容器对象且刷新</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/06/16/Zookepper-%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/16/Zookepper-%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">Zookepper 初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-16 01:51:22" itemprop="dateCreated datePublished" datetime="2020-06-16T01:51:22+08:00">2020-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 05:39:40" itemprop="dateModified" datetime="2022-08-10T05:39:40+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一. 介绍zookeeper<br>目标<br>了解Zookeeper的概念<br>了解分布式的概念<br>学习路径<br>Zookeeper概述<br>Zookeeper的发展历程<br>什么是分布式<br>Zookeeper的应用场景<br>1.1 zookeeper概述<br>Apache ZooKeeper的系统为分布式协调是构建分布式应用的高性能服务。<br>ZooKeeper 本质上是一个分布式的小文件存储系统。提供基于类似于文件系统的目录树方式的数据存储，并且可以对树中的节点进行有效管理。从而用来维护和监控你存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理。<br>ZooKeeper 适用于存储和协同相关的关键数据，不适合用于大数据量存储。</p>
-<p>1.2 zookeeper被大量使用<br>Hadoop：使用ZooKeeper 做Namenode 的高可用。<br>HBase：保证集群中只有一个master，保存hbase:meta表的位置，保存集群中的RegionServer列表。<br>Kafka：集群成员管理，controller 节点选举。<br>1.3 什么是分布式<br>1.3.1 集中式系统<br>集中式系统，集中式系统中整个项目就是一个独立的应用，整个应用也就是整个项目，所有的东西都在一个应用里面。部署到一个服务器上。<br>布署项目时，放到一个tomcat里的。也称为单体架构</p>
-<p>1.3.2 分布式系统<br>多台计算机构成<br>计算机之间通过网络进行通信<br>彼此进行交互<br>共同目标<br>1.3.3 小结<br>集中式：开发项目时都是在同一个应用里，布署到同一个tomcat，只有一个tomcat即可</p>
-<p>分布：分多个工程开发，布署多个tomcat里</p>
-<p>1.4 zookeeper的应用场景<br>1.4.1 注册中心<br>分布式应用中，通常需要有一套完整的命名规则，既能够产生唯一的名称又便于人识别和记住，通常情况下用树形的名称结构是一个理想的选择，树形的名称结构是一个有层次的目录结构。通过调用Zookeeper提供的创建节点的API，能够很容易创建一个全局唯一的path，这个path就可以作为一个名称。<br>Dubbo中使用ZooKeeper来作为其命名服务，维护全局的服务地址列表。</p>
-<p>1.4.2 配置中心<br>​ 数据发布&#x2F;订阅即所谓的配置中心：发布者将数据发布到ZooKeeper一系列节点上面，订阅者进行数据订阅，当数据有变化时，可以及时得到数据的变化通知，达到动态获取数据的目的。</p>
-<p>ZooKeeper 采用的是推拉结合的方式。</p>
-<p>推: 服务端会推给注册了监控节点的客户端 Wathcer 事件通知</p>
-<p>拉: 客户端获得通知后，然后主动到服务端拉取最新的数据</p>
-<p>1.4.3 分布式锁——非公平锁<br>分布式锁是控制分布式系统之间同步访问共享资源的一种方式。在分布式系统中，常常需要协调他们的动作。如果不同的系统或是同一个系统的不同主机之间共享了一个或一组资源，那么访问这些资源的时候，往往需要互斥来防止彼此干扰来保证一致性，在这种情况下，便需要使用到分布式锁。</p>
-<p>1.4.4 分布式队列——公平锁<br>在传统的单进程编程中，我们使用队列来存储一些数据结构，用来在多线程之间共享或传递数据。分布式环境下，我们同样需要一个类似单进程队列的组件，用来实现跨进程、跨主机、跨网络的数据共享和数据传递，这就是我们的分布式队列。</p>
-<p>1.4.5 负载均衡<br>负载均衡是通过负载均衡算法，用来把对某种资源的访问分摊给不同的设备，从而减轻单点的压力。</p>
-<p>每台工作服务器在启动时都会去ZooKeeper的servers节点下注册临时节点，每台客户端在启动时都会去servers节点下取得所有可用的工作服务器列表，并通过一定的负载均衡算法计算得出一台工作服务器，并与之建立网络连接</p>
-<p>1.4.6 小结<br>Zookeeper概述<br>Zookeeper的发展历程<br>什么是分布式 应用是布署多台服务器上(多个tomcat)<br>Zookeeper的应用场景<br>注册中心（房产中介）<br>配置中心（多台应用(服务) 修改配置文件，不需要重启）<br>分布式锁 多个应用（服务）同一时刻，只有一个服务能够执行某个操作<br>分布式队列：使得多进程、多服务间可以同步数据、传输数据、协同工作<br>负载均衡：使用多应用的调用频率比较平均<br>二.zookeeper环境搭建<br>目标</p>
-<p>安装Zookeeper</p>
-<p>学习路径</p>
-<p>Zookeeper的发展历程<br>什么是分布式<br>Zookeeper的应用场景<br>2.1 前提<br>安装Docker</p>
-<p>2.2安装zookeeper<br>2.2.1 下载</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Docker拉取镜像</span></span><br><span class="line">$ docker pull zookeeper</span><br><span class="line"><span class="comment">#查看镜像文件</span></span><br><span class="line">$ docker images  </span><br><span class="line">REPOSITORY    TAG        IMAGE ID       CREATED      SIZE</span><br><span class="line">zookeeper    latest     454af3da184c   6 days ago    252MB</span><br></pre></td></tr></table></figure>
-
-
-<p>2.2.2 修改配置文件</p>
-<h1 id="使用一个目录，创建zk配置文件-x2F-数据-x2F-日志目录"><a href="#使用一个目录，创建zk配置文件-x2F-数据-x2F-日志目录" class="headerlink" title="使用一个目录，创建zk配置文件&#x2F;数据&#x2F;日志目录"></a>使用一个目录，创建zk配置文件&#x2F;数据&#x2F;日志目录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> conf  data <span class="built_in">log</span></span><br><span class="line">$ tree zk           </span><br><span class="line">zk</span><br><span class="line">├── conf</span><br><span class="line">├── data</span><br><span class="line">└── <span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="暂时启动zookeeper"><a href="#暂时启动zookeeper" class="headerlink" title="暂时启动zookeeper"></a>暂时启动zookeeper</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --name zk --restart always zookeeper</span><br></pre></td></tr></table></figure>
-
-<h1 id="复制配置文件"><a href="#复制配置文件" class="headerlink" title="复制配置文件"></a>复制配置文件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">cp</span> -a zk:/conf/zoo.cfg ~/Program/zk/conf/zoo.cfg    </span><br><span class="line">$ <span class="built_in">cat</span> ~/Program/zk/conf/zoo.cfg    </span><br><span class="line"></span><br><span class="line">dataDir=/data</span><br><span class="line">dataLogDir=/datalog</span><br><span class="line">tickTime=2000</span><br><span class="line">initLimit=5</span><br><span class="line">syncLimit=2</span><br><span class="line">autopurge.snapRetainCount=3</span><br><span class="line">autopurge.purgeInterval=0</span><br><span class="line">maxClientCnxns=60</span><br><span class="line">standaloneEnabled=<span class="literal">true</span></span><br><span class="line">admin.enableServer=<span class="literal">true</span></span><br><span class="line">server.1=localhost:2888:3888;2181</span><br></pre></td></tr></table></figure>
-
-<h1 id="停止并删除未配置的zookeeper容器"><a href="#停止并删除未配置的zookeeper容器" class="headerlink" title="停止并删除未配置的zookeeper容器"></a>停止并删除未配置的zookeeper容器</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker stop zk &amp;&amp; docker <span class="built_in">rm</span> zk</span><br></pre></td></tr></table></figure>
-
-<h1 id="指定保存数据的目录：data目录"><a href="#指定保存数据的目录：data目录" class="headerlink" title="指定保存数据的目录：data目录"></a>指定保存数据的目录：data目录</h1><h1 id="如果需要日志，可以创建log文件夹，指定dataLogDir属性"><a href="#如果需要日志，可以创建log文件夹，指定dataLogDir属性" class="headerlink" title="如果需要日志，可以创建log文件夹，指定dataLogDir属性"></a>如果需要日志，可以创建log文件夹，指定dataLogDir属性</h1><p>2.2.3 启动zookeeper</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --name zk --restart always \  </span><br><span class="line">-p 2181:2181 -p 2888:2888 -p 3888:3888 \</span><br><span class="line">-v /Users/swzxsyh/Program/zk/conf/zoo.cfg:/conf/zoo.cfg \</span><br><span class="line">-v /Users/swzxsyh/Program/zk/data:/data \</span><br><span class="line">-v /Users/swzxsyh/Program/zk/log:/datalog \</span><br><span class="line">zookeeper</span><br><span class="line"></span><br><span class="line"><span class="comment">#zookeeper客户端端口，跟随端口，选择端口</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>2.2.4 启动客户端测试</p>
-<h1 id="下载客户端，启动"><a href="#下载客户端，启动" class="headerlink" title="下载客户端，启动"></a>下载客户端，启动</h1><p>$ .&#x2F;zkCli.sh<br>&#x2F;usr&#x2F;bin&#x2F;java<br>2020-06-16 17:13:31,750 [myid:] - INFO  [main:ClientCnxn@1653] - zookeeper.request.timeout value is 0. feature enabled&#x3D;</p>
-<h1 id="省略中间输出…"><a href="#省略中间输出…" class="headerlink" title="省略中间输出…"></a>省略中间输出…</h1><h1 id="出现此行即说明连接成功"><a href="#出现此行即说明连接成功" class="headerlink" title="出现此行即说明连接成功"></a>出现此行即说明连接成功</h1><p>Welcome to ZooKeeper!<br>2020-06-16 17:13:31,757 [myid:localhost:2181] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@1112] - Opening socket connection to server localhost&#x2F;127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)<br>JLine support is enabled<br>2020-06-16 17:13:31,834 [myid:localhost:2181] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@959] - Socket connection established, initiating session, client: &#x2F;127.0.0.1:64028, server: localhost&#x2F;127.0.0.1:2181<br>[zk: localhost:2181(CONNECTING) 0] 2020-06-16 17:13:31,896 [myid:localhost:2181] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@1394] - Session establishment complete on server localhost&#x2F;127.0.0.1:2181, sessionid &#x3D; 0x100014a6eed0000, negotiated timeout &#x3D; 30000</p>
-<p>WATCHER::</p>
-<p>WatchedEvent state:SyncConnected type:None path:null<br>[zk: localhost:2181(CONNECTED) 0]<br>2.2.5 小结<br>pull镜像<br>创建data&#x2F;conf&#x2F;log目录<br>复制zoo.cfg文件并加载启动<br>三.zookeeper基本操作<br>目标</p>
-<p>Zookeeper的客户端命令<br>Zookeeper的java的api操作<br>学习路径</p>
-<p>Zookeeper的数据结构</p>
-<p>节点的分类</p>
-<p>持久性<br>临时性<br>客户端命令（创建、查询、修改、删除）</p>
-<p>Zookeeper的java的api介绍（创建、查询、修改、删除）</p>
-<p>Zookeeper的watch机制</p>
-<p>NodeCache<br>PathChildrenCache<br>TreeCache<br>3.1 zookeeper数据结构<br>ZooKeeper 的数据模型是层次模型。层次模型常见于文件系统。</p>
-<p>每个目录下面可以创建文件，也可以创建子目录，最终构成了一个树型结构。通过这种树型结构的目录，可以将文件分门别类的进行存放，方便我们后期查找。</p>
-<p>层次模型和key-value 模型是两种主流的数据模型。ZooKeeper 使用文件系统模型主要基于以下两点考虑<br>文件系统的树形结构便于表达数据之间的层次关系。<br>文件系统的树形结构便于为不同的应用分配独立的命名空间（namespace 路径url）<br>ZooKeeper 的层次模型称作data tree。Datatree 的每个节点叫作znode（Zookeeper node）。不同于文件系统，每个节点都可以保存数据。每个节点都有一个版本(version)。版本从0 开始计数。</p>
-<p>如图所示，data tree中有两个子树，用于应用1( &#x2F;app1)和应用2（&#x2F;app2）。</p>
-<p>每个客户端进程pi 创建一个znode节点 p_i 在 &#x2F;app1下， &#x2F;app1&#x2F;p_1就代表一个客户端在运行。</p>
-<p>3.2 节点的分类<br>一个znode可以是持久性的，也可以是临时性的<br>持久性znode[PERSISTENT]，这个znode一旦创建不会丢失，无论是zookeeper宕机，还是client宕机。<br>临时性的znode[EPHEMERAL]，如果zookeeper宕机了，或者client在指定的timeout时间内没有连接server，都会被认为丢失。 -e<br>znode也可以是顺序性的，每一个顺序性的znode关联一个唯一的单调递增整数。这个单调递增整数是znode名字的后缀。<br>持久顺序性的znode(PERSISTENT_SEQUENTIAL):znode 处理具备持久性的znode的特点之外，znode的名称具备顺序性。 -s<br>临时顺序性的znode(EPHEMERAL_SEQUENTIAL):znode处理具备临时性的znode特点，znode的名称具备顺序性。-s<br>3.3 客户端命令<br>3.3.1 查询所有命令<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>[zk: localhost:2181(CONNECTED) 8] help<br>ZooKeeper -server host:port cmd args<br>addauth scheme auth<br>close<br>config [-c] [-w] [-s]<br>connect host:port<br>create [-s] [-e] [-c] [-t ttl] path [data] [acl]<br>delete [-v version] path<br>deleteall path<br>delquota [-n|-b] path<br>get [-s] [-w] path<br>getAcl [-s] path<br>history<br>listquota path<br>ls [-s] [-w] [-R] path<br>ls2 path [watch]<br>printwatches on|off<br>quit<br>reconfig [-s] [-v version] [[-file path] | [-members serverID&#x3D;host:port1:port2;port3[,…]<em>]] | [-add serverId&#x3D;host:port1:port2;port3[,…]]</em> [-remove serverId[,…]*]<br>redo cmdno<br>removewatches path [-c|-d|-a] [-l]<br>rmr path<br>set [-s] [-v version] path data<br>setAcl [-s] [-v version] [-R] path acl<br>setquota -n|-b val path<br>stat [-w] path<br>sync path<br>3.3.2 查询根路径下的节点<br>1<br>2<br>[zk: localhost:2181(CONNECTED) 9] ls &#x2F;zookeeper<br>[config, quota]<br>3.3.3 创建普通永久节点<br>1<br>2<br>3<br>4<br>5<br>#创建HelloZK节点，值为Hello,Zookeeper<br>[zk: localhost:2181(CONNECTED) 10] create &#x2F;HelloZK “Hello,Zookeeper”<br>Created &#x2F;HelloZK<br>[zk: localhost:2181(CONNECTED) 11] ls &#x2F;HelloZK<br>[]<br>3.3.4 创建带序号永久节点<br>1<br>2<br>[zk: localhost:2181(CONNECTED) 13] create -s &#x2F;HelloZK_SEQ “ZK With SEQUENCE”<br>Created &#x2F;HelloZK_SEQ0000000001<br>3.3.5 创建普通临时节点<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</p>
-<h1 id="e-表示普通临时节点"><a href="#e-表示普通临时节点" class="headerlink" title="-e:表示普通临时节点"></a>-e:表示普通临时节点</h1><p>[zk: localhost:2181(CONNECTED) 17] create -e &#x2F;Hello_ZK_Normal “Normal Node”<br>Created &#x2F;Hello_ZK_Normal<br>[zk: localhost:2181(CONNECTED) 19] ls &#x2F;<br>[HelloZK, HelloZK_SEQ0000000001, Hello_ZK_Normal, zookeeper]</p>
-<h1 id="关闭客户端，再次打开查看-Hello-ZK-Normal-节点消失"><a href="#关闭客户端，再次打开查看-Hello-ZK-Normal-节点消失" class="headerlink" title="关闭客户端，再次打开查看 Hello_ZK_Normal 节点消失"></a>关闭客户端，再次打开查看 Hello_ZK_Normal 节点消失</h1><p>[zk: localhost:2181(CONNECTED) 1] ls &#x2F;<br>[HelloZK, HelloZK_SEQ0000000001, zookeeper]<br>3.3.6 创建带序号临时节点<br>1<br>2<br>3<br>4<br>5<br>6<br>7</p>
-<h1 id="e-表示普通临时节点-1"><a href="#e-表示普通临时节点-1" class="headerlink" title="-e:表示普通临时节点"></a>-e:表示普通临时节点</h1><h1 id="s-表示带序号节点"><a href="#s-表示带序号节点" class="headerlink" title="-s:表示带序号节点"></a>-s:表示带序号节点</h1><p>[zk: localhost:2181(CONNECTED) 2] create -e -s &#x2F;Hello_ZK_SEQ_TEMP “Temp And Sequence”<br>Created &#x2F;Hello_ZK_SEQ_TEMP0000000003</p>
-<h1 id="关闭客户端，再次打开查看-Hello-ZK-SEQ-TEMP-节点消失"><a href="#关闭客户端，再次打开查看-Hello-ZK-SEQ-TEMP-节点消失" class="headerlink" title="关闭客户端，再次打开查看 Hello_ZK_SEQ_TEMP 节点消失"></a>关闭客户端，再次打开查看 Hello_ZK_SEQ_TEMP 节点消失</h1><p>[zk: localhost:2181(CONNECTED) 0] ls &#x2F;<br>[HelloZK, HelloZK_SEQ0000000001, zookeeper]<br>3.3.7 查询节点数据<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>[zk: localhost:2181(CONNECTED) 7] get -s &#x2F;HelloZK<br>Hello,Zookeeper<br>cZxid &#x3D; 0x2<br>ctime &#x3D; Tue Jun 16 17:28:46 CST 2020<br>mZxid &#x3D; 0x2<br>mtime &#x3D; Tue Jun 16 17:28:46 CST 2020<br>pZxid &#x3D; 0x2<br>cversion &#x3D; 0<br>dataVersion &#x3D; 0<br>aclVersion &#x3D; 0<br>ephemeralOwner &#x3D; 0x0<br>dataLength &#x3D; 15<br>numChildren &#x3D; 0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</p>
-<h1 id="­­­­­­­­­­­节点的状态信息，也称为stat结构体­­­­­­­­­­­­­­­­­­­"><a href="#­­­­­­­­­­­节点的状态信息，也称为stat结构体­­­­­­­­­­­­­­­­­­­" class="headerlink" title="­­­­­­­­­­­节点的状态信息，也称为stat结构体­­­­­­­­­­­­­­­­­­­"></a>­­­­­­­­­­­节点的状态信息，也称为stat结构体­­­­­­­­­­­­­­­­­­­</h1><h1 id="创建该znode的事务的zxid-ZooKeeper-Transaction-ID"><a href="#创建该znode的事务的zxid-ZooKeeper-Transaction-ID" class="headerlink" title="创建该znode的事务的zxid(ZooKeeper Transaction ID)"></a>创建该znode的事务的zxid(ZooKeeper Transaction ID)</h1><h1 id="事务ID是ZooKeeper为每次更新操作-x2F-事务操作分配一个全局唯一的id，表示zxid，值越小，表示越先执行"><a href="#事务ID是ZooKeeper为每次更新操作-x2F-事务操作分配一个全局唯一的id，表示zxid，值越小，表示越先执行" class="headerlink" title="事务ID是ZooKeeper为每次更新操作&#x2F;事务操作分配一个全局唯一的id，表示zxid，值越小，表示越先执行"></a>事务ID是ZooKeeper为每次更新操作&#x2F;事务操作分配一个全局唯一的id，表示zxid，值越小，表示越先执行</h1><p>cZxid &#x3D; 0x4454 # 0x0表示十六进制数0<br>ctime &#x3D; Thu Jan 01 08:00:00 CST 1970  # 创建时间<br>mZxid &#x3D; 0x4454 						  # 最后一次更新的zxid<br>mtime &#x3D; Thu Jan 01 08:00:00 CST 1970  # 最后一次更新的时间<br>pZxid &#x3D; 0x4454 						  # 最后更新的子节点的zxid<br>cversion &#x3D; 5 						  # 子节点的变化号，表示子节点被修改的次数<br>dataVersion &#x3D; 0 					  # 表示当前节点的数据变化号，0表示当前节点从未被修改过<br>aclVersion &#x3D; 0  					  # 访问控制列表的变化号 access control list</p>
-<h1 id="如果临时节点，表示当前节点的拥有者的sessionId"><a href="#如果临时节点，表示当前节点的拥有者的sessionId" class="headerlink" title="如果临时节点，表示当前节点的拥有者的sessionId"></a>如果临时节点，表示当前节点的拥有者的sessionId</h1><p>ephemeralOwner &#x3D; 0x0				  # 如果不是临时节点，则值为0<br>dataLength &#x3D; 13 					  # 数据长度<br>numChildren &#x3D; 1 					  # 子节点的数量<br>3.3.8 修改节点数据<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>[zk: localhost:2181(CONNECTED) 9] set  &#x2F;HelloZK “Modify HelloZK”</p>
-<p>WATCHER::</p>
-<p>WatchedEvent state:SyncConnected type:NodeDataChanged path:&#x2F;HelloZK<br>[zk: localhost:2181(CONNECTED) 10]<br>[zk: localhost:2181(CONNECTED) 10] get -s &#x2F;HelloZK<br>Modify HelloZK<br>cZxid &#x3D; 0x2<br>ctime &#x3D; Tue Jun 16 17:28:46 CST 2020<br>mZxid &#x3D; 0xc<br>mtime &#x3D; Tue Jun 16 17:40:47 CST 2020<br>pZxid &#x3D; 0x2<br>cversion &#x3D; 0<br>dataVersion &#x3D; 1<br>aclVersion &#x3D; 0<br>ephemeralOwner &#x3D; 0x0<br>dataLength &#x3D; 14<br>numChildren &#x3D; 0<br>3.3.9 创建子节点<br>1<br>2<br>3<br>4<br>5<br>[zk: localhost:2181(CONNECTED) 36] create &#x2F;TestDelete<br>Created &#x2F;TestDelete<br>[zk: localhost:2181(CONNECTED) 37] create &#x2F;TestDelete&#x2F;RMR<br>Created &#x2F;TestDelete&#x2F;RMR<br>[zk: localhost:2181(CONNECTED) 38]<br>3.3.10 删除节点<br>1<br>2<br>3<br>[zk: localhost:2181(CONNECTED) 11] delete &#x2F;HelloZK_SEQ0000000001<br>[zk: localhost:2181(CONNECTED) 12] ls &#x2F;<br>[HelloZK, zookeeper]<br>3.3.11 递归删除节点<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</p>
-<h1 id="有子节点的使用delete会提示目录非空"><a href="#有子节点的使用delete会提示目录非空" class="headerlink" title="有子节点的使用delete会提示目录非空"></a>有子节点的使用delete会提示目录非空</h1><p>[zk: localhost:2181(CONNECTED) 39] delete &#x2F;TestDelete<br>Node not empty: &#x2F;TestDelete</p>
-<h1 id="需用rmr命令删除，现已更新为deleteall"><a href="#需用rmr命令删除，现已更新为deleteall" class="headerlink" title="需用rmr命令删除，现已更新为deleteall"></a>需用rmr命令删除，现已更新为deleteall</h1><p>[zk: localhost:2181(CONNECTED) 12] rmr &#x2F;TestDelete<br>The command ‘rmr’ has been deprecated. Please use ‘deleteall’ instead.<br>[zk: localhost:2181(CONNECTED) 13] ls &#x2F;<br>[jsodjsd0000000011, sjdiosdjsoi, zookeeper]<br>3.3.12 查看节点状态<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>[zk: localhost:2181(CONNECTED) 2] stat &#x2F;zookeeper<br>cZxid &#x3D; 0x0<br>ctime &#x3D; Thu Jan 01 08:00:00 CST 1970<br>mZxid &#x3D; 0x0<br>mtime &#x3D; Thu Jan 01 08:00:00 CST 1970<br>pZxid &#x3D; 0x0<br>cversion &#x3D; -2<br>dataVersion &#x3D; 0<br>aclVersion &#x3D; 0<br>ephemeralOwner &#x3D; 0x0<br>dataLength &#x3D; 0<br>numChildren &#x3D; 2<br>3.3.13 日志的可视化<br>日志存储路径</p>
-<p>1<br>~&#x2F;Program&#x2F;zk&#x2F;log&#x2F;version-2<br>日志都是以二进制文件存储的,需要使用命令行查看</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</p>
-<h1 id="Docker拉取了最新镜像，需要4个jar包了"><a href="#Docker拉取了最新镜像，需要4个jar包了" class="headerlink" title="Docker拉取了最新镜像，需要4个jar包了"></a>Docker拉取了最新镜像，需要4个jar包了</h1><p>$ ls | grep jar<br>log4j-1.2.17.jar<br>slf4j-api-1.7.25.jar<br>zookeeper-3.6.1.jar<br>zookeeper-jute-3.6.1.jar</p>
-<h1 id="然后使用命令行查看"><a href="#然后使用命令行查看" class="headerlink" title="然后使用命令行查看"></a>然后使用命令行查看</h1><p>$ java -classpath :.&#x2F;log4j-1.2.17.jar:slf4j-api-1.7.25.jar:zookeeper-3.6.1.jar:zookeeper-jute-3.6.1.jar org.apache.zookeeper.server.LogFormatter log.1<br>3.3.14 小结<br>ls 查看<br>help查看所有命令<br>create 路径 数据 -s 代表有序 -e 代临时<br>get 路径 查询<br>set 路径 新的数据<br>delete 路径 单一路径，没有子节点<br>rmr 路径 递归删除<br>stat 路径 查看节点状态<br>日志，依赖4个jar包<br>3.4 zookeeper的Java Api介绍<br>3.4.1 ZooKeeper常用Java API<br>原生Java API</p>
-<p>ZooKeeper 原生Java API位于org.apache.ZooKeeper包中</p>
-<p>ZooKeeper-3.x.x. Jar 为官方提供的 java API</p>
-<p>Apache Curator</p>
-<p>Apache Curator是 Apache ZooKeeper的Java客户端库。</p>
-<p>Curator.项目的目标是简化ZooKeeper客户端的使用。</p>
-<p>ZkClient</p>
-<p>开源的ZooKeeper客户端,zkclient-x.x.Jar也是在原生 api 基础之上进行扩展的开源 JAVA 客户端。</p>
-<p>3.4.2 创建Java Maven工程，导入依赖<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br><?xml version="1.0" encoding="UTF-8"?><br><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"><br>  <modelVersion>4.0.0</modelVersion></project></p>
-<p>  <groupId>org.example</groupId><br>  <artifactId>zookeeper</artifactId><br>  <version>1.0-SNAPSHOT</version><br>  <!--zookeeper的依赖--></p>
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>3.4.7</version>
-    </dependency>
-    <!--	zookeeper CuratorFramework 是Netflix公司开发一款连接zookeeper服务的框架，通过封装的一套高级API 简化了ZooKeeper的操作，提供了比较全面的功能，除了基础的节点的操作，节点的监听，还有集群的连接以及重试。-->
-    <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-framework</artifactId>
-      <version>4.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-recipes</artifactId>
-      <version>4.0.1</version>
-    </dependency>
-    <!--测试-->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-    </dependency>
-  </dependencies>
-
-3.4.3 CURD节点
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
-88
-89
-90
-91
-92
-93
-94
-95
-96
-97
-98
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-public class TestZookeeper {
-  //连接地址
-  String url = "127.0.0.1:2181";
-  //会话超时时间
-  int sessionTimeoutMs = 1000;
-  //连接超时时间
-  int connectionTimeoutMs = 1000;
-  //重试策略
-  RetryPolicy retryPolicy = null;
-  //创建客户端
-  CuratorFramework client = null;
-
-<p>  String NodeName &#x3D; null;</p>
-<p>  @Before<br>  public void createLinkToZK() {<br>    &#x2F;&#x2F;重试策略<br>    &#x2F;**<br>     *  RetryPolicy： 失败的重试策略的公共接口<br>     *  ExponentialBackoffRetry是 公共接口的其中一个实现类<br>     *      参数1： 初始化sleep的时间，用于计算之后的每次重试的sleep时间<br>     *      参数2：最大重试次数<br>            参数3（可以省略）：最大sleep时间，如果上述的当前sleep计算出来比这个大，那么sleep用这个时间<br>     <em>&#x2F;<br>    retryPolicy &#x3D; new ExponentialBackoffRetry(1000, 1);<br>    &#x2F;&#x2F;创建客户端<br>    &#x2F;</em>*<br>     * 参数1：连接的ip地址和端口号<br>     * 参数2：会话超时时间，单位毫秒<br>     * 参数3：连接超时时间，单位毫秒<br>     * 参数4：失败重试策略<br>     *&#x2F;<br>    client &#x3D; CuratorFrameworkFactory.newClient(url, sessionTimeoutMs, connectionTimeoutMs, retryPolicy);<br>    &#x2F;&#x2F;启动客户端<br>    client.start();<br>  }</p>
-<p>  @After<br>  public void closeLike() throws Exception {<br>    if (NodeName !&#x3D; null) {<br>      requireNode(NodeName);<br>    } else if (NodeName &#x3D;&#x3D; null) {<br>      System.out.println(“No Node”);<br>    }<br>    &#x2F;&#x2F;关闭客户端<br>    client.close();<br>  }</p>
-<p>  &#x2F;&#x2F;1. 创建一个空节点(a)（只能创建一层节点）<br>  @Test<br>  public void createOneLevelEmptyNode() throws Exception {<br>    NodeName &#x3D; “&#x2F;OneLevelEmptyNode”;<br>    client.create().forPath(NodeName);<br>  }</p>
-<p>  &#x2F;&#x2F;2. 创建一个有内容的b节点（只能创建一层节点）<br>  @Test<br>  public void createOneLevelNodeWithMessage() throws Exception {<br>    NodeName &#x3D; “&#x2F;OneLevelNodeWithMessage”;<br>    client.create().forPath(NodeName, “OneLevelNodeWithMessage”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;3. 创建持久节点，同时创建多层节点<br>  @Test<br>  public void createMultilevelPersistentNode() throws Exception {<br>    NodeName &#x3D; “&#x2F;Multilevel&#x2F;Persistent&#x2F;Node”;<br>    client.create().creatingParentsIfNeeded().forPath(NodeName, “MultilevelPersistentNode”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;4. 创建带有的序号的持久节点<br>  @Test<br>  public void creatPersistentNode() throws Exception {<br>    &#x2F;&#x2F;        NodeName &#x3D; “&#x2F;Persistent&#x2F;Node”;<br>    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(“&#x2F;Persistent&#x2F;Node”, “PERSISTENT_SEQUENTIAL”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;5. 创建临时节点（客户端关闭，节点消失），设置延时5秒关闭（Thread.sleep(5000)）<br>  @Test<br>  public void creatTempNode() throws Exception {<br>    client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(“&#x2F;Temporary&#x2F;Node”, “Temporary Node”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;6. 创建临时带序号节点（客户端关闭，节点消失），设置延时5秒关闭（Thread.sleep(5000)）<br>  @Test<br>  public void creatTempNodeWithSequenceNode() throws Exception {<br>    client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(“&#x2F;TempNode&#x2F;With&#x2F;Sequence&#x2F;Node”, “creatTempNodeWithSequence”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;修改节点描述<br>  @Test<br>  public void updateNodeMessage() throws Exception {<br>    NodeName &#x3D; “&#x2F;OneLevelNodeWithMessage”;<br>    client.setData().forPath(NodeName, “Update Node Message”.getBytes());<br>  }</p>
-<p>  &#x2F;&#x2F;节点数据查询<br>  public void requireNode(String s) throws Exception {<br>    byte[] bytes &#x3D; client.getData().forPath(String.valueOf(s));<br>    System.out.println(new String(bytes));<br>  }</p>
-<p>  &#x2F;&#x2F;删除单个节点<br>  @Test<br>  public void deleteSingleNode() throws Exception {<br>    client.create().forPath(“&#x2F;testAddForDelete”);<br>    client.delete().forPath(“&#x2F;testAddForDelete”);<br>  }</p>
-<p>  &#x2F;&#x2F;删除多个节点<br>  @Test<br>  public void deleteMultiNode() throws Exception {<br>    client.create().creatingParentsIfNeeded().forPath(“&#x2F;DeleteMultiNode&#x2F;deleteMultiNode”, “Create Multi NodeForDelete”.getBytes());<br>    client.delete().deletingChildrenIfNeeded().forPath(“&#x2F;DeleteMultiNode”);<br>  }</p>
-<p>  &#x2F;&#x2F;强制删除<br>  @Test<br>  public void forceDelete() throws Exception {<br>    &#x2F;&#x2F;NodeName&#x3D;”&#x2F;forceDelete&#x2F;forceDelete”;<br>    client.create().creatingParentsIfNeeded().forPath(“&#x2F;forceDelete&#x2F;forceDelete”, “Create Multi NodeForDelete”.getBytes());<br>    client.delete().guaranteed().deletingChildrenIfNeeded().forPath(“&#x2F;forceDelete”);<br>  }<br>}<br>3.4.4 小结<br>Curator是Appache封装操作Zookeeper的客户端, 操作zookeer数据变得更简单</p>
-<p>使用步骤：</p>
-<p>创建重试策略</p>
-<p>创建客户端 url:port</p>
-<p>启动客户端</p>
-<p>使用客户端对节点操作</p>
-<p>– create forPath, creatingparent…….., withMode(持久，临时)</p>
-<p>– setData 修改数据</p>
-<p>– getData 查询数据</p>
-<p>– delete 删除数据， deletingChildrenIfNeeded递归删除</p>
-<p>关闭客户端</p>
-<p>3.5 watch机制</p>
-<p>3.5.1 什么是watch机制<br>​ zookeeper作为一款成熟的分布式协调框架，订阅-发布功能是很重要的一个。订阅发布功能，就是观察者模式。观察者会订阅一些感兴趣的主题，然后这些主题一旦变化了，就会自动通知到这些观察者。</p>
-<p> zookeeper的订阅发布也就是watch机制，是一个轻量级的设计。因为它采用了一种推拉结合的模式。一旦服务端感知主题变了，那么只会发送一个事件类型和节点信息给关注的客户端，而不会包括具体的变更内容，所以事件本身是轻量级的，这就是所谓的“推”部分。然后，收到变更通知的客户端需要自己去拉变更的数据，这就是“拉”部分。watche机制分为添加数据和监听节点。</p>
-<p> Curator在这方面做了优化，Curator引入了Cache的概念用来实现对ZooKeeper服务器端进行事件监听。Cache是Curator对事件监听的包装，其对事件的监听可以近似看做是一个本地缓存视图和远程ZooKeeper视图的对比过程。而且Curator会自动的再次监听，我们就不需要自己手动的重复监听了。</p>
-<p>Curator中的cache共有三种</p>
-<p>NodeCache（监听和缓存根节点变化） 只监听单一个节点(变化 添加，修改，删除)<br>PathChildrenCache（监听和缓存子节点变化） 监听这个节点下的所有子节点(变化 添加，修改，删除)<br>TreeCache（监听和缓存根节点变化和子节点变化） NodeCache+ PathChildrenCache 监听当前节点及其下的所有子节点的变化<br>3.5.2 NodeCache<br>介绍</p>
-<p>NodeCache是用来监听节点的数据变化的，当监听的节点的数据发生变化的时候就会回调对应的函数。</p>
-<p>增加监听</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>public class TestCuratorCache {<br>  &#x2F;&#x2F;连接地址<br>  String url &#x3D; “127.0.0.1:2181”;<br>  &#x2F;&#x2F;会话超时时间<br>  int sessionTimeoutMs &#x3D; 1000;<br>  &#x2F;&#x2F;连接超时时间<br>  int connectionTimeoutMs &#x3D; 1000;<br>  &#x2F;&#x2F;重试策略<br>  RetryPolicy retryPolicy &#x3D; null;<br>  &#x2F;&#x2F;创建客户端<br>  CuratorFramework client &#x3D; null;</p>
-<p>  @Before<br>  public void createLinkToZK() {<br>    &#x2F;&#x2F;重试策略<br>    retryPolicy &#x3D; new ExponentialBackoffRetry(1000, 1);<br>    &#x2F;&#x2F;创建客户端<br>    client &#x3D; CuratorFrameworkFactory.newClient(url, sessionTimeoutMs, connectionTimeoutMs, retryPolicy);<br>    &#x2F;&#x2F;启动客户端<br>    client.start();<br>  }</p>
-<p>  @After<br>  public void closeLike() throws Exception {</p>
-<pre><code>//关闭客户端
-client.close();
-</code></pre>
-<p>  }</p>
-<p>  @Test<br>  public void testNodeCache() throws Exception {<br>    client.create().forPath(“&#x2F;testNodeCache”);</p>
-<pre><code>/*
-    *NodeCache(客户端, 被监听节点);
-     */
-NodeCache nodeCache = new NodeCache(client, &quot;/testNodeCache&quot;);
-/*
-    * true  得到数据
-    * false 不能获取节点数据
-    */
-nodeCache.start(true);
-
-System.out.println(new String(nodeCache.getCurrentData().getData()));
-
-client.setData().forPath(&quot;/testNodeCache&quot;, &quot;Update Node Cache&quot;.getBytes());
-nodeCache.getListenable().addListener(new NodeCacheListener() &#123;
-  @Override
-  public void nodeChanged() throws Exception &#123;
-    String data = new String(nodeCache.getCurrentData().getData());
-    Thread.sleep(1000 * 2);
-    System.out.println(nodeCache.getCurrentData().getPath() + &quot;  \t\t &quot; + data);
-  &#125;
-&#125;);
-Thread.sleep(1000 * 4);
-client.delete().forPath(&quot;/testNodeCache&quot;);
-</code></pre>
-<p>  }<br>}<br>测试</p>
-<p>3.5.3 PathChildrenCache<br>介绍</p>
-<p>PathChildrenCache是用来监听指定节点 的子节点变化情况</p>
-<p>增加监听</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>@Test<br>public void testPathChildrenCache() throws Exception {</p>
-<p>  client.create().forPath(“&#x2F;testPathChildrenCache”);<br>  &#x2F;*<br>        * new PathChildrenCache(客户端, 节点 , 是&#x2F;否得到数据);<br>         <em>&#x2F;<br>  PathChildrenCache pathChildrenCache &#x3D; new PathChildrenCache(client, “&#x2F;testPathChildrenCache”, true);<br>  &#x2F;&#x2F;&#x2F;</em>*<br>  &#x2F;&#x2F; * NORMAL:  普通启动方式, 在启动时缓存子节点数据<br>  &#x2F;&#x2F; * POST_INITIALIZED_EVENT：在启动时缓存子节点数据，提示初始化<br>  &#x2F;&#x2F; * BUILD_INITIAL_CACHE: 在启动时什么都不会输出<br>  &#x2F;&#x2F; *  在官方解释中说是因为这种模式会在start执行执行之前先执行rebuild的方法，而rebuild的方法不会发出任何事件通知。<br>  &#x2F;&#x2F; *&#x2F;<br>  pathChildrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);</p>
-<p>  System.out.println(pathChildrenCache.getCurrentData());</p>
-<p>  client.create().forPath(“&#x2F;testPathChildrenCache&#x2F;A”);<br>  client.setData().forPath(“&#x2F;testPathChildrenCache&#x2F;A”, “Update Node Message”.getBytes());<br>  pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {<br>    @Override<br>    public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {<br>      if (pathChildrenCacheEvent.getType() &#x3D;&#x3D; PathChildrenCacheEvent.Type.CHILD_UPDATED) {</p>
-<pre><code>    System.out.println(&quot;CHILD_UPDATED Node: &quot;+pathChildrenCacheEvent.getData().getPath());
-    System.out.println(&quot;CHILD_UPDATED Node Date :&quot;+new String(pathChildrenCacheEvent.getData().getPath()));
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.INITIALIZED) &#123;
-    System.out.println(&quot;Initialization&quot;);
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_REMOVED) &#123;
-    System.out.println(&quot;CHILD_REMOVED Node: &quot;+pathChildrenCacheEvent.getData().getPath());
-    System.out.println(&quot;CHILD_REMOVED Node Date :&quot;+new String(pathChildrenCacheEvent.getData().getPath()));
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) &#123;
-    System.out.println(&quot;CHILD_ADDED Node: &quot;+pathChildrenCacheEvent.getData().getPath());
-    System.out.println(&quot;CHILD_ADDED Node Date :&quot;+new String(pathChildrenCacheEvent.getData().getPath()));
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CONNECTION_SUSPENDED) &#123;
-    System.out.println(&quot;CONNECTION_SUSPENDED&quot;);
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CONNECTION_RECONNECTED) &#123;
-    System.out.println(&quot;CONNECTION_RECONNECTED&quot;);
-  &#125; else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CONNECTION_LOST) &#123;
-    System.out.println(&quot;CONNECTION_LOST&quot;);
-  &#125;
-&#125;
-</code></pre>
-<p>  });<br>client.delete().guaranteed().deletingChildrenIfNeeded().forPath(“&#x2F;testPathChildrenCache”);<br>}<br>3.5.4 TreeCache<br>介绍</p>
-<p>TreeCache有点像上面两种Cache的结合体，NodeCache能够监听自身节点的数据变化（或者是创建该节点），PathChildrenCache能够监听自身节点下的子节点的变化，而TreeCache既能够监听自身节点的变化、也能够监听子节点的变化。</p>
-<p>添加监听</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>@Test<br>public void testTreeCache() throws Exception {</p>
-<p>  client.create().forPath(“&#x2F;testTreeCache”);<br>  &#x2F;&#x2F;监听当前Node Data Tree<br>  TreeCache treeCache &#x3D; new TreeCache(client, “&#x2F;testTreeCache”);<br>  treeCache.start();</p>
-<p>  System.out.println(treeCache.getCurrentData(“&#x2F;testTreeCache”));</p>
-<p>  treeCache.getListenable().addListener(new TreeCacheListener() {<br>    @Override<br>    public void childEvent(CuratorFramework curatorFramework, TreeCacheEvent treeCacheEvent) throws Exception {<br>      if (treeCacheEvent.getType() &#x3D;&#x3D; TreeCacheEvent.Type.NODE_ADDED) {<br>        System.out.println(“NODE_ADDED: “+treeCacheEvent.getData().getPath());</p>
-<pre><code>    client.delete().deletingChildrenIfNeeded().forPath(&quot;/testTreeCache/Test&quot;);
-
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.NODE_REMOVED) &#123;
-    System.out.println(&quot;NODE_REMOVED: &quot;+treeCacheEvent.getData().getPath());
-
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.NODE_UPDATED) &#123;
-    System.out.println(&quot;NODE_UPDATED: &quot;+treeCacheEvent.getData().getPath());
-
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.INITIALIZED) &#123;
-    System.out.println(&quot;INITIALIZED&quot;);
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.CONNECTION_SUSPENDED) &#123;
-    System.out.println(&quot;CONNECTION_SUSPENDED&quot;);
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.CONNECTION_RECONNECTED) &#123;
-    System.out.println(&quot;CONNECTION_RECONNECTED&quot;);
-  &#125; else if (treeCacheEvent.getType() == TreeCacheEvent.Type.CONNECTION_LOST) &#123;
-    System.out.println(&quot;CONNECTION_LOST&quot;);
-  &#125;
-&#125;
-</code></pre>
-<p>  });<br>  client.delete().guaranteed().deletingChildrenIfNeeded().forPath(“&#x2F;testTreeCache”);<br>}<br>3.5.5 小结<br>Zookeeper：分布小文件存储系统，树形层级数据结构，路径唯一</p>
-<p>动物管理员，管的是服务<br>应用：注册中心、配置中心、分布式锁、分布式队列、负载均衡<br>配置zoo.cfg dataPath, 2181</p>
-<p>节点类型：持久化（有序与无序 -s），临时（-e 临时， -s 有序与无序) crud</p>
-<p>api: Curator 创建重试策略-&gt;客户端(url ip:port)-&gt;启动-&gt;使用client操作crud-&gt;关闭</p>
-<p>Watch: 监听节点数据变化，一旦生变更（添加、修改、删除）时，服务端通知客户端（addListener)</p>
-<p>NodeCache: 听监听单一节点变化</p>
-<p>PathChildrenCache: 监听节点下的子节点<br>TreeCache: NodeCache+PathChildrenCache</p>
-<p>四.zookeeper集群搭建<br>目标</p>
-<p>搭建Zookeeper集群</p>
-<p>操作路径</p>
-<p>了解集群</p>
-<p>集群介绍<br>集群模式<br>集群原理及架构图</p>
-<p>搭建集群（使用linux）</p>
-<p>集群中Leader选举机制<br>测试集群</p>
-<p>4.1 了解集群<br>4.1.1 集群介绍<br>Zookeeper 集群搭建指的是 ZooKeeper 分布式模式安装。 通常由 2n+1台 servers 组成 奇数。 这是因为为了保证 Leader 选举（基于 Paxos 算法的实现） 能或得到多数的支持，所以 ZooKeeper 集群的数量一般为奇数。</p>
-<p>4.1.2 集群模式<br>伪分布式集群搭建<br>完全分布式集群搭建<br>4.2 架构图</p>
-<p>集群工作的核心<br>事务请求（写操作） 的唯一调度和处理者，保证集群事务处理的顺序性；<br>集群内部各个服务器的调度者。<br>对于 create， setData， delete 等有写操作的请求，则需要统一转发给leader 处理， leader 需要决定编号、执行操作，这个过程称为一个事务。</p>
-<p>Leader:Zookeeper(领导者):</p>
-<p>集群工作的核心<br>事务请求（写操作） 的唯一调度和处理者，保证集群事务处理的顺序性；<br>集群内部各个服务器的调度者。<br>对于 create， setData， delete 等有写操作的请求，则需要统一转发给leader 处理， leader 需要决定编号、执行操作，这个过程称为一个事务。</p>
-<p>Follower（跟随者）</p>
-<p>处理客户端非事务（读操作） 请求，转发事务请求给 Leader；参与集群 Leader 选举投票 2n-1台可以做集群投票。</p>
-<p>Observer:观察者角色</p>
-<p>针对访问量比较大的 zookeeper 集群， 还可新增观察者角色。观察 Zookeeper 集群的最新状态变化并将这些状态同步过来，其对于非事务请求可以进行独立处理，对于事务请求，则会转发给 Leader服务器进行处理。<br>不会参与任何形式的投票只提供非事务服务，通常用于在不影响集群事务处理能力的前提下提升集群的非事务处理能力。</p>
-<p>4.3 搭建过程<br>4.3.1 配置zookeeper-compose.yml<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>version: ‘2’<br>services:<br>    zoo1:<br>        image: zookeeper:3.4.14<br>        restart: always<br>        container_name: zoo1<br>        ports:<br>            - “2181:2181”<br>        environment:<br>            ZOO_MY_ID: 1<br>            ZOO_SERVERS: server.1&#x3D;zoo1:2888:3888 server.2&#x3D;zoo2:2888:3888 server.3&#x3D;zoo3:2888:3888</p>
-<pre><code>zoo2:
-    image: zookeeper:3.4.14
-    restart: always
-    container_name: zoo2
-    ports:
-        - &quot;2182:2181&quot;
-    environment:
-        ZOO_MY_ID: 2
-        ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
- 
-zoo3:
-    image: zookeeper:3.4.14
-    restart: always
-    container_name: zoo3
-    ports:
-        - &quot;2183:2181&quot;
-    environment:
-        ZOO_MY_ID: 3
-        ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
-</code></pre>
-<p>这个配置文件会告诉 Docker 分别运行三个 zookeeper 镜像, 并分别将本地的 2181, 2182, 2183 端口绑定到对应的容器的2181端口上.<br>ZOO_MY_ID 和 ZOO_SERVERS 是搭建 ZK 集群需要设置的两个环境变量, 其中 ZOO_MY_ID 表示 ZK 服务的 id, 它是1-255 之间的整数, 必须在集群中唯一. ZOO_SERVERS 是ZK 集群的主机列表.</p>
-<p>4.3.2 启动zookeeper<br>1<br>2<br>3<br>4<br>5<br>$ docker-compose -f zookeeper-compose.yml up -d<br>Creating network “program_default” with the default driver<br>Creating zoo3 … done<br>Creating zoo2 … done<br>Creating zoo1 … done<br>4.3.3 查看zookeeper状态<br>1<br>2<br>3<br>4<br>5<br>$ docker ps<br>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                        NAMES<br>63dacd015bf9        zookeeper:3.4.14    “&#x2F;docker-entrypoint.…”   6 minutes ago       Up 6 minutes        2888&#x2F;tcp, 0.0.0.0:2181-&gt;2181&#x2F;tcp, 3888&#x2F;tcp   zoo1<br>2bfaa57664f9        zookeeper:3.4.14    “&#x2F;docker-entrypoint.…”   6 minutes ago       Up 6 minutes        2888&#x2F;tcp, 3888&#x2F;tcp, 0.0.0.0:2182-&gt;2181&#x2F;tcp   zoo2<br>4ff61abb0d2f        zookeeper:3.4.14    “&#x2F;docker-entrypoint.…”   6 minutes ago       Up 6 minutes        2888&#x2F;tcp, 3888&#x2F;tcp, 0.0.0.0:2183-&gt;2181&#x2F;tcp   zoo3<br>4.4 leader选举<br>在领导者选举的过程中，如果某台ZooKeeper获得了超过半数的选票，则此ZooKeeper就可以成为Leader了。</p>
-<p>服务器1启动，给自己投票，然后发投票信息，由于其它机器还没有启动所以它收不到反馈信息，服务器1的状态一直属于Looking(选举状态)。</p>
-<p>服务器2启动，给自己投票，同时与之前启动的服务器1交换结果，</p>
-<p>每个Server发出一个投票由于是初始情况，1和2都会将自己作为Leader服务器来进行投票，每次投票会包含所推举的服务器的myid和ZXID，使用(myid, ZXID)来表示，此时1的投票为(1, 0)，2的投票为(2, 0)，然后各自将这个投票发给集群中其他机器。<br>接受来自各个服务器的投票集群的每个服务器收到投票后，首先判断该投票的有效性，如检查是否是本轮投票、是否来自LOOKING状态的服务器</p>
-<p>处理投票。针对每一个投票，服务器都需要将别人的投票和自己的投票进行PK，PK规则如下</p>
-<p>　　　　· 优先检查ZXID。ZXID比较大的服务器优先作为Leader。</p>
-<p>　　　　· 如果ZXID相同，那么就比较myid。myid较大的服务器作为Leader服务器</p>
-<p>由于服务器2的编号大，更新自己的投票为(2, 0)，然后重新投票，对于2而言，其无须更新自己的投票，只是再次向集群中所有机器发出上一次投票信息即可，此时集群节点状态为LOOKING。</p>
-<p>统计投票。每次投票后，服务器都会统计投票信息，判断是否已经有过半机器接受到相同的投票信息</p>
-<p>服务器3启动，进行统计后，判断是否已经有过半机器接受到相同的投票信息，对于1、2、3而言，已统计出集群中已经有3台机器接受了(3, 0)的投票信息，此时投票数正好大于半数，便认为已经选出了Leader，</p>
-<p>改变服务器状态。一旦确定了Leader，每个服务器就会更新自己的状态，如果是Follower，那么就变更为FOLLOWING，如果是Leader，就变更为LEADING</p>
-<p>所以服务器3成为领导者，服务器1,2成为从节点。</p>
-<p>4.5 测试集群<br>测试使用任何一个IP都可以获取</p>
-<p>测试如果有个机器宕机，（.&#x2F;zkServer.sh stop），会重新选取领导者。</p>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>public class TestZookeeperCluster {</p>
-<pre><code>CuratorFramework client = null;
-
-@After
-public void closeLike() throws Exception &#123;
-    //关闭客户端
-    client.close();
-&#125;
-
-@Test
-public void createNode() throws Exception &#123;
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
-    CuratorFramework client = CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2181&quot;, 3000, 3000, retryPolicy);
-    client.start();
-    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(&quot;/createNode/Nodes&quot;);
-&#125;
-
-@Test
-public void updateNode() throws Exception &#123;
-    //创建失败策略对象
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
-    client = CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2182&quot;, 1000, 1000, retryPolicy);
-    client.start();
-    client.setData().forPath(&quot;/createNode/Nodes&quot;, &quot;Update Node&quot;.getBytes());
-    client.close();
-&#125;
-
-@Test
-public void getData() throws Exception &#123;
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
-    client = CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2183&quot;, 1000, 1000, retryPolicy);
-    client.start();
-    byte[] bytes = client.getData().forPath(&quot;/createNode/Nodes&quot;);
-    System.out.println(new String(bytes));
-    client.close();
-&#125;
-
-@Test
-public void deleteNode() throws Exception &#123;
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
-    client = CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2183&quot;, 1000, 1000, retryPolicy);
-    client.start();
-    client.delete().deletingChildrenIfNeeded().forPath(&quot;/createNode&quot;);
-    client.close();
-&#125;
-</code></pre>
-<p>}<br>4.6 小结<br>什么是集群：把具有相同功能应用布署多个到网络中，聚集一起，实现数据的同步，一旦有应用服务挂了，集群中的其它应用服务可以顶上，保证应用的正常运作</p>
-<p>Zookeeper集群架构</p>
-<p>Leader领导者 可以进行读写，写操作成功后会同步到各个从和观察者</p>
-<p>Follower跟从者 只能读，如果有写操作时则转给Leader领导者处理 参与选举</p>
-<p>Observer观察者 只能读，有写时也会转给Leader, 不参与Leader的选举</p>
-<p>集群服务器个要为奇数2n+1，防止服务器down机，可以选举出新的leader</p>
-<p>Leader先举机制</p>
-<p>先投自己一票，票数相同时 票数&gt;zxid&gt;myid，其它zookeeper改为大者一票。集群中半数以上的票数才能成Leader</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1826,7 +1074,7 @@ public void deleteNode() throws Exception &#123;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">197</span>
+          <span class="site-state-item-count">199</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

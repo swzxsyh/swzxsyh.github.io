@@ -181,6 +181,167 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/Java-ThreadLocal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/Java-ThreadLocal/" class="post-title-link" itemprop="url">Java-ThreadLocal</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 17:24:02" itemprop="dateCreated datePublished" datetime="2022-07-03T17:24:02+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-27 16:31:57" itemprop="dateModified" datetime="2023-02-27T16:31:57+08:00">2023-02-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="ThreadLoacl的理解"><a href="#ThreadLoacl的理解" class="headerlink" title="ThreadLoacl的理解"></a>ThreadLoacl的理解</h1><p>ThreadLocal提供了线程的局部变量，每个线程都可以通过set()和get()来对这个局部变量进行操作，但不会和其他线程的局部变量发生冲突，<strong>实现了线程的数据隔离</strong>。</p>
+<p>简言之：往ThreadLoacl中填充的变量属于当前线程，该变量对其他线程而言是隔离的。</p>
+<p>ThreadLocal可以让我们拥有当前线程的变量</p>
+<h2 id="常用的方法"><a href="#常用的方法" class="headerlink" title="常用的方法"></a>常用的方法</h2><ul>
+<li>set(T value)：设置线程本地变量的内容。</li>
+<li>get()：获取线程本地变量的内容。</li>
+<li>remove()：移除线程本地变量。注意在线程池的线程复用场景中在线程执行完毕时一定要调用remove，避免在线程被重新放入线程池中时被本地变量的旧状态仍然被保存。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/Java-ThreadLocal/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/Java-Volatile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/03/Java-Volatile/" class="post-title-link" itemprop="url">Java-Volatile</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-03 17:23:20" itemprop="dateCreated datePublished" datetime="2022-07-03T17:23:20+08:00">2022-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h1><p>volatile的中文意思是不稳定的、易变的，用volatile修饰的变量是为了<strong>保证变量的可见性</strong>。</p>
+<ul>
+<li><p>Volatile作用：用来确保将变量的更新操作通知到其他线程</p>
+</li>
+<li><p>原理：</p>
+<p>1）编译器会注意到被volatile修饰的变量是共享的，因此不会将该变量上的操作与其他内存操作一起重新排序</p>
+<p>volatile变量不会被缓存在寄存器中，因此读取volatile变量总会返回最新的值</p>
+<p>2）在访问volatile变量时，不会执行加锁操作，因此也不会阻塞线程，对非volatile变量进行读写时，每个线程先从内存拷贝变量到CPU缓存中</p>
+<p>总结：不会重排、不会缓存（永远是最新值）、不会加锁（因此不会阻塞）</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/03/Java-Volatile/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/03/DDD%E4%B8%8E%E4%B8%AD%E5%8F%B0%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%85%B3%E7%B3%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -928,159 +1089,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-G1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/JVM-G1/" class="post-title-link" itemprop="url">JVM-G1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:04:33" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:33+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h1><h2 id="G1垃圾收集器简介"><a href="#G1垃圾收集器简介" class="headerlink" title="G1垃圾收集器简介"></a>G1垃圾收集器简介</h2><blockquote>
-<p>Garbage First(简称:G1)收集器是垃圾收集器技术发展历史上的一个里程碑,它开创了收集器面向局部收集的设计思路和基于Region的内存布局形式.</p>
-<p>G1是一款主要面向服务端应用的垃圾收集器,HotSpot开发团队赋予它的期望是未来可以替换掉JDK5中发布的CMS收集器. JDK9发布之日,G1宣布取代了<code>Parallel Scavenge</code>加<code>Parallel Old</code>的组合,成为服务端模式下默认的垃圾收集器,而CMS则被声明为(Deprecate)使用的收集器.</p>
-<p>G1收集器兼顾<code>低延迟</code>和<code>高吞吐</code>在服务端运行,HotSpot团队期望取代<code>CMS</code>收集器。也就是在满足停顿时间的情况下获取最大的吞度量。有两种收集模式<code>Young GC</code>和Mixed GC。G1收集器将堆内存划分成大小相等的<code>Region</code>,新生代,老年代也就成了逻辑概念。整体上采用的是<code>标记-整理</code>算法,局部采用了<code>复制算法</code>。</p>
-<p>G1实现了可控停顿时间的垃圾收集器,通过<code>-XX:MaxGCPauseMillis</code>参数进行设置，默认是200ms。</p>
-<p>G1是jdk1.9的默认垃圾收集器,-XX:+UseG1GC开启</p>
-</blockquote>
-<p><img src="/2022/07/02/JVM-G1/1606304961.png" alt="image"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/JVM-G1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/JVM-CMS/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/JVM-CMS/" class="post-title-link" itemprop="url">JVM-CMS</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:04:26" itemprop="dateCreated datePublished" datetime="2022-07-02T17:04:26+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h1><p>ConcurrentMarkSweep（并发标记清除）</p>
-<p><code>CMS</code>垃圾收集器从<code>jdk1.6</code>中开始应用,是一个老年代垃圾收集器,在<code>JVM</code>的发展过程中扮演了重要的历史作用,<code>jdk1.7</code>,<code>jdk1.8</code>中都可以开启使用。在<code>jdk9</code>中已废弃。</p>
-<p><img src="/2022/07/02/JVM-CMS/ScreenShot.png"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/02/JVM-CMS/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1150,7 +1158,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">197</span>
+          <span class="site-state-item-count">199</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
