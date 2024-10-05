@@ -181,6 +181,84 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Synchronized%E5%92%8CLock%E7%9A%84%E5%8C%BA%E5%88%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/07/Synchronized%E5%92%8CLock%E7%9A%84%E5%8C%BA%E5%88%AB/" class="post-title-link" itemprop="url">Synchronized和Lock的区别</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-07 01:54:21" itemprop="dateCreated datePublished" datetime="2022-07-07T01:54:21+08:00">2022-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>1.来源：synchironized是java的一个关键字；Lock是一个接口</p>
+<p>2.异常是否释放锁：synchronized异常会释放锁，因此不会死锁；Lock必须手动释放锁</p>
+<p>3.是否响应中断：synchronized只能等待锁释放；Lock可以用interrupt来中断</p>
+<p>4.是否知道锁状态：synchronized不能获取到；Lock可以通过tryLock来知道</p>
+<p>5.可重入：Lock可以通过ReadWriteLock来实现可重入锁</p>
+<p>6.性能：竞争不激烈，两者性能差不多；竞争激烈Lock大于Sync</p>
+<p>7.调度上：sync使用object的wait、notify、notifyall等调度；Lock使用condition进行调度</p>
+<p><strong>synchronized和lock的用法区别</strong></p>
+<p>synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。</p>
+<p>lock：一般使用ReentrantLock类做为锁。在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。</p>
+<p>synchironized实现原理</p>
+<p>1.同步方法：采用ACC_SYNCHRONIZED标记符来实现同步</p>
+<p>方法级的同步是隐式的，同步方法的常量池中会有一个ACC_SYNCHRONIZED标志。当某个线程要访问这个方法时，会检查是否有这个标志，</p>
+<p>2.作用在代码块：采用monitorenter和monitorexit两个指令实现同步</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Tomcat-%E7%BB%84%E4%BB%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1113,85 +1191,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/07/Springboot-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/07/Springboot-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/" class="post-title-link" itemprop="url">Springboot-自定义注解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-07 00:07:35" itemprop="dateCreated datePublished" datetime="2022-07-07T00:07:35+08:00">2022-07-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Springboot自定义注解"><a href="#Springboot自定义注解" class="headerlink" title="Springboot自定义注解"></a>Springboot自定义注解</h1><h2 id="BeanPostProcessor的应用案例"><a href="#BeanPostProcessor的应用案例" class="headerlink" title="BeanPostProcessor的应用案例"></a>BeanPostProcessor的应用案例</h2><ul>
-<li>使用@interface定义注解</li>
-<li>使用BeanPostProcessor处理注解</li>
-</ul>
-<blockquote>
-<p>BeanPostProcessor为bean后置处理器. Spring启动过程中,所有的bean初始化的时候会调用bean的后置处理器.</p>
-</blockquote>
-<h2 id="自定义注解类"><a href="#自定义注解类" class="headerlink" title="自定义注解类"></a>自定义注解类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target(&#123;ElementType.FIELD&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Test &#123;</span><br><span class="line">  String <span class="title function_">value</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/07/Springboot-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1261,9 +1260,13 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">202</span>
+          <span class="site-state-item-count">203</span>
           <span class="site-state-item-name">日志</span>
         </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span>
       </div>
   </nav>
 </div>
