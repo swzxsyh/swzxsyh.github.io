@@ -181,6 +181,102 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2024/10/07/CSharp-MAUI-Rider-InitConfig/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/07/CSharp-MAUI-Rider-InitConfig/" class="post-title-link" itemprop="url">macOS 环境 Rider 初始化 C# MAUI环境</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-10-07 02:20:08 / 修改时间：02:50:10" itemprop="dateCreated datePublished" datetime="2024-10-07T02:20:08+08:00">2024-10-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前开发的是Java, 这次希望通过C#编写一些程式，但是两者结构不同, 在此记录</p>
+<h2 id="本机环境"><a href="#本机环境" class="headerlink" title="本机环境"></a>本机环境</h2><p>Chip: Apple M3 Pro<br>System: macOS 15.0</p>
+<h2 id="安装基本环境"><a href="#安装基本环境" class="headerlink" title="安装基本环境"></a>安装基本环境</h2><h3 id="NET"><a href="#NET" class="headerlink" title=".NET"></a>.NET</h3><p>官方链接: <a target="_blank" rel="noopener" href="https://dotnet.microsoft.com/zh-cn/download/dotnet">https://dotnet.microsoft.com/zh-cn/download/dotnet</a><br>下载选择 macOS	Arm64 即可</p>
+<h3 id="IDE-Rider"><a href="#IDE-Rider" class="headerlink" title="IDE Rider"></a>IDE Rider</h3><p>官方链接: <a target="_blank" rel="noopener" href="https://www.jetbrains.com/rider/">https://www.jetbrains.com/rider/</a></p>
+<h2 id="项目创建"><a href="#项目创建" class="headerlink" title="项目创建"></a>项目创建</h2><ol>
+<li>创建空文件夹，使用Rider打开, New Solution &#x2F; 开启Rider, 左侧选择MAUI项目</li>
+<li>设置ProjectName 环境 net8.0 C# MAUI App</li>
+<li>自动生成template文件</li>
+</ol>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><ul>
+<li>执行如下命令, 否则项目测试启动异常  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo xcodebuild -runFirstLaunch</span><br></pre></td></tr></table></figure></li>
+<li>修改Nuget配置, 否则依赖包全部下到默认路径 <code>~/.nuget/packages</code> 下<ul>
+<li>使用VsCode或任何编辑器打开 <code>/Users/用户名/.nuget/NuGet/NuGet.Config</code></li>
+<li>我的默认样式  <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget.org&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> <span class="attr">protocolVersion</span>=<span class="string">&quot;3&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>创建自定义文件夹   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /path/to/your/floder</span><br></pre></td></tr></table></figure></li>
+<li>修改配置为  <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget.org&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> <span class="attr">protocolVersion</span>=<span class="string">&quot;3&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">config</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;globalPackagesFolder&quot;</span> <span class="attr">value</span>=<span class="string">&quot;/path/to/your/floder&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>存储后验证, 应该就是刚刚配置的自定义路径  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet nuget locals global-packages -l</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="文件基本结构"><a href="#文件基本结构" class="headerlink" title="文件基本结构"></a>文件基本结构</h2><ul>
+<li><p>这里跟Java不同, 不是src 向下, 结构如下</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ls</span> -l</span></span><br><span class="line">total 64</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   653 Oct  6 04:32 App.xaml</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   159 Oct  6 04:32 App.xaml.cs</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   420 Oct  6 04:32 AppShell.xaml</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   127 Oct  6 04:32 AppShell.xaml.cs</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff  3695 Oct  6 04:32 MyProject.csproj</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff  1316 Oct  6 04:32 MainPage.xaml</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   451 Oct  6 04:32 MainPage.xaml.cs</span><br><span class="line">-rw-r--r--   1 swzxsyh  staff   545 Oct  6 04:32 MauiProgram.cs</span><br><span class="line">drwxr-xr-x   7 swzxsyh  staff   224 Oct  6 04:32 Platforms</span><br><span class="line">drwxr-xr-x   3 swzxsyh  staff    96 Oct  6 04:32 Properties</span><br><span class="line">drwxr-xr-x   8 swzxsyh  staff   256 Oct  6 04:32 Resources</span><br><span class="line">drwxr-xr-x   3 swzxsyh  staff    96 Oct  6 04:32 bin</span><br><span class="line">drwxr-xr-x  11 swzxsyh  staff   352 Oct  7 02:30 obj</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>Platforms/</code> 包含不同平台（Android、iOS、macOS、Windows）相关的代码</p>
+<ul>
+<li>Platforms&#x2F;Android：Android 平台的特定配置和代码。</li>
+<li>Platforms&#x2F;iOS：iOS 平台的特定配置和代码。</li>
+</ul>
+</li>
+<li><p><code>App.xaml</code> 和 <code>App.xaml.cs</code><br>  NET MAUI 的入口点，类似于 Java 中的 Main 类。可以在这里定义全局资源和应用程序启动逻辑。</p>
+</li>
+<li><p><code>MainPage.xaml</code> 和 <code>MainPage.xaml.cs</code>：类似于 Java 的视图控制器，定义主页面的 UI 和逻辑。xaml 是用于定义 UI 的文件，而 cs 文件是用来处理 UI 逻辑的 C# 代码。</p>
+</li>
+<li><p>*.csproj 类似于Java中的 <code>pom.xml</code> 或 <code>build.gradle</code> 文件, 负责处理依赖</p>
+</li>
+</ul>
+<p>到这里，点击Run应该就可以正常运行</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2024/10/03/Java-Customize-PriorityTask/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -979,84 +1075,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/03/03/LeetCode-Record/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/03/03/LeetCode-Record/" class="post-title-link" itemprop="url">LeetCode 记录</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-03-03 02:44:57" itemprop="dateCreated datePublished" datetime="2023-03-03T02:44:57+08:00">2023-03-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-10-05 19:21:35" itemprop="dateModified" datetime="2024-10-05T19:21:35+08:00">2024-10-05</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>记录刷题记录相关</li>
-<li>Base Structure</li>
-<li>Algorithm</li>
-<li>LeetCode</li>
-<li>Other</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/03/03/LeetCode-Record/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1126,7 +1144,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">203</span>
+          <span class="site-state-item-count">204</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
