@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 6.2.0">
+<meta name="generator" content="Hexo 7.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -233,7 +233,7 @@
         <p>处理器：i3 4005U<br>内存： 4G<br>环境： win10</p>
 <p>需要软件：<br>UltraISO（试用版）、Esxi</p>
 <p>需要硬件：<br>U盘（1G以上），网线连接网络设备</p>
-<p>ESXI下载地址：<br>VM官网：<a target="_blank" rel="noopener" href="https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&amp;productId=742">https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&amp;productId=742</a><br>Lenovo官网：<a target="_blank" rel="noopener" href="https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/">https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/</a></p>
+<p>ESXI下载地址：<br>VM官网：<a target="_blank" rel="noopener" href="https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&productId=742">https://my.vmware.com/web/vmware/details?downloadGroup=OEM-ESXI67-LENOVO&amp;productId=742</a><br>Lenovo官网：<a target="_blank" rel="noopener" href="https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/">https://vmware.lenovo.com/content/custom_iso/6.5/6.5u1/</a></p>
 <p>这里使用的是联想官网的版本，将ISO文件刻录进U盘后，重启抹盘重装。<br>重启，Enter选择F1进入Bios，关闭安全加载，开启通用加载，在安全选项中开启虚拟化。<br>保存后再次重启，Enter选择F12使用U盘加载。</p>
 <p>接下来菜单中，选择电脑型号——等待加载，直至跳过黄色界面，进入Welcome界面后，由于内存仅有4G，实际仅剩3.75G，所以需要照如下流程操作，若内存大于4G，则跳过此流程</p>
 <p>放入光盘或U盘，开始安装，一直普通流程到Welcome画面，按ALT+F1<br>登陆界面账号：root 密码为空<br>cd &#x2F;usr&#x2F;lib&#x2F;vmware&#x2F;weasel&#x2F;util<br>rm upgrade_precheck.pyc（这个我进入时还未编译出来）<br>mv upgrade_precheck.py upgrade_precheck.py.old<br>cp upgrade_precheck.py.old upgrade_precheck.py #如果直接把这个文件备份.old<br>chmod 666 upgrade_precheck.py　　　　　　　　　　#增加权限后在原文件修改提示权限不允许<br>vi upgrade_precheck.py<br>编辑文本界面中查找 MEM_MIN<br>MEM_MIN_SIZE&#x3D; (41024) 改成 MEM_MIN_SIZE&#x3D; (21024)<br>wq! 强制保存退出<br>ps -c |grep weasel #不结束进程，直接适用ALT+F2貌似无效<br>kill -9 进程ID<br>此时正常情况下会跳回欢迎界面，如不跳回按ALT+F2返回继续安装<br>方法来源：<a target="_blank" rel="noopener" href="https://www.bbsmax.com/A/RnJW2BbOzq/">https://www.bbsmax.com/A/RnJW2BbOzq/</a></p>
