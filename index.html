@@ -376,7 +376,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2024/10/03/JDK-21-VirtualThread-Caused-RabbitMQ-limit/" class="post-title-link" itemprop="url">JDK 21 虚拟线程生产RabbitMQ消息触发 The channelMax limit is reached</a>
+            <a href="/2024/10/03/JDK-21-VirtualThread-Caused-RabbitMQ-limit/" class="post-title-link" itemprop="url">网络问题 组合 JDK 虚拟线程消息触发RabbitMQ - The channelMax limit is reached</a>
         </h2>
 
         <div class="post-meta">
@@ -393,7 +393,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-10-05 03:38:14" itemprop="dateModified" datetime="2024-10-05T03:38:14+08:00">2024-10-05</time>
+                <time title="修改时间：2024-10-27 00:09:37" itemprop="dateModified" datetime="2024-10-27T00:09:37+08:00">2024-10-27</time>
               </span>
 
           
@@ -411,6 +411,7 @@
 <li>项目JDK版本升级, 从JDK8升至JDK 21，Spring Boot设置为3.3.4</li>
 <li>JDK和Spring Boot在该版本均支持虚拟线程</li>
 <li>业务属于接收数据, 数据清洗, 存储数据库逻辑, 较轻量化</li>
+<li>开发机服务, 向SIT环境RabbitMQ发送数据</li>
 </ul>
 <h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>将原本自定义线程池, 直接替换为 ExecutorService executors &#x3D; Executors.newVirtualThreadPerTaskExecutor() 后，触发了RabbitMQ的 ChannelMax reached异常</p>
 <h3 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h3><ol>
@@ -426,24 +427,23 @@
 <ul>
 <li>Heap Dump检查几乎都是byte[]数据, 定位问题到定时抓取数据业务, 细化方法, 提前提取需要的数据, 将传入值设置为null, 触发尽快GC业务<br>  解决了OOM的问题, 但仍然会出现该错误</li>
 </ul>
-<h2 id="原因-TODO"><a href="#原因-TODO" class="headerlink" title="原因(TODO)"></a>原因(TODO)</h2><ul>
-<li>猜测为平台数据频率过高, 且每一个虚拟线程都创建Channel, 导致资源耗尽</li>
-</ul>
-<h2 id="处理"><a href="#处理" class="headerlink" title="处理"></a>处理</h2><ul>
-<li><p>RabbitMQ Server端, 配置 channel_max &#x3D; 2048<br>  MQ为多服务公用， 避免异常不进行修改</p>
-</li>
-<li><p>还原为原本的自定义ClientPoolComponent<br>  原ThreadPool本身是正常可用的, 只需优化参数提高处理效率即可</p>
-</li>
-<li><p>复用 RabbitMQ 连接和通道(未测试)</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> factory.newConnection();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Channel</span> <span class="variable">channel</span> <span class="operator">=</span> connection.createChannel();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程中复用同一个 channel</span></span><br><span class="line">channel.basicPublish(exchangeName, routingKey, <span class="literal">null</span>, messageBodyBytes);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>优化虚拟线程的任务管理</p>
+<ol start="4">
+<li>网络问题</li>
+</ol>
 <ul>
-<li>不为每条消息创建一个新的虚拟线程, 构建一个线程组?(池化技术?似乎s不推荐虚拟线程这样用)</li>
-<li>限制并发: 限制同时运行的虚拟线程数量来避免资源竞争</li>
+<li>由于是本地电脑网络, 与服务器在其他国家, 中途需要代理，所以经常出现异常  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">clean channel shutdown; protocol method: #method&lt;channel.close&gt;(reply-code=406, reply-text=TIMEOUT WAITING FOR ACK, class-id=0, method-id=0)</span><br><span class="line">Shutdown Signal: clean channel shutdown; protocol method: #method&lt;channel.close&gt;(reply-code=406, reply-text=TIMEOUT WAITING FOR ACK, class-id=0, method-id=0)</span><br><span class="line">Received a frame on an unknown channel, ignoring it</span><br></pre></td></tr></table></figure></li>
 </ul>
-</li>
-</ul>
+<h2 id="推测原因"><a href="#推测原因" class="headerlink" title="推测原因"></a>推测原因</h2><ol>
+<li>虚拟线程无限创建线程</li>
+<li>猜测为平台数据频率过高, 且每一个虚拟线程都创建Channel</li>
+<li>网络稳定性问题, 经常出现channel异常</li>
+</ol>
+<p>由于接收端频率高， 因此一直发送消息, 但与MQ网络环境不稳定问题, 导致channel经常还未成功销毁时就新建, 并且是虚拟线程, 会无限创建对应数据的新channel</p>
+<h2 id="处理"><a href="#处理" class="headerlink" title="处理"></a>处理</h2><p>由于MQ是多个服务公用的， 所以不对 channel_max 进行更改</p>
+<ol>
+<li>还原为原本的自定义ClientPoolComponent, 通过复用线程减少channel频繁创建频率</li>
+<li>优化网络环境</li>
+</ol>
 
       
     </div>
