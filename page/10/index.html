@@ -181,6 +181,75 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MySQL-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/02/MySQL-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">MySQL-主从复制原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-02 18:47:44" itemprop="dateCreated datePublished" datetime="2022-07-02T18:47:44+08:00">2022-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>mysql主从复制原理：</p>
+<p>1.从库生成两个线程，一个IO线程一个SQL线程</p>
+<p>2.IO线程会去请求主库binlog，并将得到的binlog写到本地的relay-log（中继日志）文件中</p>
+<p>3.主库会生成一个log dump线程，用来给从库IO线程传送binlog</p>
+<p>4.SQL线程会读取relay-log文件中的日志，并解析成SQL逐一执行</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/DataBase%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1006,104 +1075,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/07/02/MessageQueue-%E5%B9%82%E7%AD%89%E5%A4%84%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/02/MessageQueue-%E5%B9%82%E7%AD%89%E5%A4%84%E7%90%86/" class="post-title-link" itemprop="url">MessageQueue-幂等处理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-02 17:03:23" itemprop="dateCreated datePublished" datetime="2022-07-02T17:03:23+08:00">2022-07-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MQ幂等性方案"><a href="#MQ幂等性方案" class="headerlink" title="MQ幂等性方案"></a>MQ幂等性方案</h1><h2 id="什么是消息幂等"><a href="#什么是消息幂等" class="headerlink" title="什么是消息幂等"></a>什么是消息幂等</h2><p>当出现消费者对某条消息重复消费的情况时，重复消费的结果与消费一次的结果是相同的，并且多次消费并未对业务系统产生任何负面影响，那么这个消费者的处理过程就是幂等的。</p>
-<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>在互联网应用中，尤其在网络不稳定的情况下，MQ的消息有可能会出现重复。如果消息重复会影响业务处理，则需要对消息做幂等处理。</p>
-<p>消息重复的场景如下：</p>
-<ul>
-<li><p>发送时消息重复</p>
-<p>当一条消息已被成功发送到服务端并完成持久化，此时出现了网络闪断或者客户端宕机，导致服务端对客户端应答失败。 如果此时生产者意识到消息发送失败并尝试再次发送消息，消费者后续会收到两条内容相同但Message ID不同的消息。</p>
-</li>
-<li><p>投递时消息重复</p>
-<p>消息消费的场景下，消息已投递到消费者并完成业务处理，当客户端给服务端反馈应答的时候网络闪断。为了保证消息至少被消费一次，消息队列RocketMQ版的服务端将在网络恢复后再次尝试投递之前已被处理过的消息，消费者后续会收到两条内容相同并且Message ID也相同的消息。</p>
-</li>
-<li><p>负载均衡时消息重复（包括但不限于网络抖动、Broker重启以及消费者应用重启）</p>
-<p>当消息队列RocketMQ版的Broker或客户端重启、扩容或缩容时，会触发Rebalance，此时消费者可能会收到少量重复消息。</p>
-</li>
-</ul>
-<h2 id="处理方法"><a href="#处理方法" class="headerlink" title="处理方法"></a>处理方法</h2><ul>
-<li><p>业务操作之前进行状态查询</p>
-<blockquote>
-<p>消费端开始执行业务操作时，通过幂等id首先进行业务状态的查询，如状态已为最终状态（如已出库&#x2F;已取消），则直接ack</p>
-</blockquote>
-</li>
-<li><p>乐观锁</p>
-<blockquote>
-<p>每个数据都有一个版本号，和当前版本号相同时进行更新操作</p>
-</blockquote>
-</li>
-<li><p>去重表（缓存）</p>
-<blockquote>
-<p>唯一索引，如果已存在值，就不进行更新了</p>
-</blockquote>
-</li>
-</ul>
-<p>来源：</p>
-<p><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/44397.html">消费幂等 (aliyun.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6987195727777071135">并发情况下保证MQ幂等性方案 - 掘金 (juejin.cn)</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1173,7 +1144,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">204</span>
+          <span class="site-state-item-count">205</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
