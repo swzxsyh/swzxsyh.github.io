@@ -181,6 +181,98 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2025/03/29/Java-Strong-Random-ECS-Fail/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/29/Java-Strong-Random-ECS-Fail/" class="post-title-link" itemprop="url">Java 安全随机数在阿里云ECS卡住</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-03-29 14:49:23 / 修改时间：15:37:32" itemprop="dateCreated datePublished" datetime="2025-03-29T14:49:23+08:00">2025-03-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>业务有一个安全随机数方法，需要调用生成数据掉落区间进行结果判定。<br>最开始业务是在AWS的EC2部署, 后面业务需要迁移，选择了阿里云的ECS，系统是CentOS 8.5</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ul>
+<li>业务有一个逻辑需要生成安全随机数，但是迁移后业务会在安全随机数卡住没有后续，DEBUG级别日志也没有任何日志报错<ul>
+<li>数据、代码全部相同，本地IDEA运行，在开发机本机正常，数据库和缓存连接阿里云服务的外网地址，一切正常。</li>
+<li>尝试使用Docker image, 现象相同。</li>
+<li>查询部分说明是发行版系统在Kernel 4之后的版本关闭了安全随机数，需要重新编译内核才能开启，因此尝试将ECS退回到CentOS 7.9版本，仍未恢复。</li>
+</ul>
+</li>
+</ul>
+<h2 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h2><ul>
+<li>尝试本机连接阿里云RDS测试业务是否正常<br>  本机运行正常，代码相同，服务器业务不可用</li>
+<li>尝试统一环境，使用Docker进行<br>  相同的Docker-Compose文件，相同代码，本机正常，服务器业务不可用</li>
+<li>测试IDEA远程Debug<br>  断点进入后，到安全随机数获取方法直接没有后续</li>
+<li>尝试抽取方法，直接javac运行<br>  没有任何后续输出，命令行卡住</li>
+</ul>
+<p>由于数据库、缓存使用本地开发机连接正常，代码没有任何变化，即使使用了Docker、尝试变更系统也未解决，因此判定是ECS硬件问题。<br>由于安全随机数需要足够的熵，即足够的设备才能生成，运行如下命令查询阿里云ECS随机数值，只有25，而安全随机数需要100以上才能成功运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /proc/sys/kernel/random/entropy_avail</span></span><br><span class="line">25</span><br></pre></td></tr></table></figure>
+
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><ul>
+<li>修改安全随机数获取方法<br>  业务需要，安全随机数必须保留，因此不能使用普通Random，这里使用了SecureRandom的另一个方法，保证获取可用的工具。<br>  SecureRandom.getInstance(“SHA1PRNG”) 在部分 Linux 发行版上仍然可能阻塞，因为它可能仍然尝试访问 &#x2F;dev&#x2F;random 作为熵源（虽然概率低）。<br>  SecureRandom 需要熵（entropy），如果系统熵池不足（比如云服务器没有鼠标、键盘等设备），它可能会等到足够的熵才会返回。</li>
+<li>修改启动命令，使用 &#x2F;dev&#x2F;urandom 作为熵源<br>  新增启动参数 <code>-Djava.security.egd=file:/dev/urandom</code>, 保证业务运行</li>
+</ul>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><ul>
+<li><p>原代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.security.NoSuchAlgorithmException;</span><br><span class="line"><span class="keyword">import</span> java.security.SecureRandom;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RandomTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> SecureRandom sr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        SecureRandom temp;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取高强度安全随机数生成器</span></span><br><span class="line">            temp = SecureRandom.getInstanceStrong();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchAlgorithmException e) &#123;</span><br><span class="line">            <span class="comment">// 获取普通的安全随机数生成器</span></span><br><span class="line">            temp = <span class="keyword">new</span> <span class="title class_">SecureRandom</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        sr = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">8</span>];</span><br><span class="line">        <span class="comment">// 用安全随机数填充buffer</span></span><br><span class="line">        sr.nextBytes(buffer);</span><br><span class="line">        <span class="type">long</span> <span class="variable">randomFactor</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">byte</span> b : buffer) &#123;</span><br><span class="line">            randomFactor = (randomFactor &lt;&lt; <span class="number">8</span>) | (b &amp; <span class="number">0xFF</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">double</span> <span class="variable">randomValue</span> <span class="operator">=</span> sr.nextDouble() + (randomFactor / (<span class="type">double</span>) Long.MAX_VALUE);</span><br><span class="line">        <span class="comment">// 设置上限为max</span></span><br><span class="line">        System.out.println(Math.abs(randomValue % <span class="number">1.0</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>原代码现象</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">javac RandomTest.java</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">java RandomTest</span></span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="comment"># 没有输出手动中断</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>代码修改部分<code>SecureRandom.getInstanceStrong()</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.security.NoSuchAlgorithmException;</span><br><span class="line"><span class="keyword">import</span> java.security.SecureRandom;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RandomTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> SecureRandom sr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        SecureRandom temp;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取高强度安全随机数生成器</span></span><br><span class="line">            <span class="comment">//temp = SecureRandom.getInstanceStrong();</span></span><br><span class="line">            temp = SecureRandom.getInstance(<span class="string">&quot;SHA1PRNG&quot;</span>);</span><br><span class="line">            <span class="comment">// temp =  SecureRandom.getInstance(&quot;NativePRNGNonBlocking&quot;); // 或者使用这个, 不会阻塞</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchAlgorithmException e) &#123;</span><br><span class="line">            <span class="comment">// 获取普通的安全随机数生成器</span></span><br><span class="line">            temp = <span class="keyword">new</span> <span class="title class_">SecureRandom</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        sr = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">8</span>];</span><br><span class="line">        <span class="comment">// 用安全随机数填充buffer</span></span><br><span class="line">        sr.nextBytes(buffer);</span><br><span class="line">        <span class="type">long</span> <span class="variable">randomFactor</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">byte</span> b : buffer) &#123;</span><br><span class="line">            randomFactor = (randomFactor &lt;&lt; <span class="number">8</span>) | (b &amp; <span class="number">0xFF</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">double</span> <span class="variable">randomValue</span> <span class="operator">=</span> sr.nextDouble() + (randomFactor / (<span class="type">double</span>) Long.MAX_VALUE);</span><br><span class="line">        <span class="comment">// 设置上限为max</span></span><br><span class="line">        System.out.println(Math.abs(randomValue % <span class="number">1.0</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>启动命令添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">nohup /usr/local/java/jdk-21/bin/java \</span><br><span class="line">   -Djava.awt.headless=true \</span><br><span class="line">   -Djava.net.preferIPv4Stack=true \</span><br><span class="line">   -Djava.security.egd=file:/dev/urandom \  # 这里添加 JVM 选项，防止 SecureRandom 阻塞</span><br><span class="line">   -server \</span><br><span class="line">   -Xms1024m -Xmx2048m \</span><br><span class="line">   -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m \</span><br><span class="line">   -XX:SurvivorRatio=6 \</span><br><span class="line">   -XX:+UseG1GC \</span><br><span class="line">   -XX:MaxGCPauseMillis=200 \</span><br><span class="line">   -XX:InitiatingHeapOccupancyPercent=45 \</span><br><span class="line">   -XX:+UnlockDiagnosticVMOptions \</span><br><span class="line">   -XX:+PrintFlagsFinal \</span><br><span class="line">   -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \ # 这里是外部Debug接口, 用来IDEA远程DEBUG，需ECS开放端口</span><br><span class="line">   -jar /wls/esxd/esxd-api.jar \</span><br><span class="line">   --spring.profiles.active=sit \</span><br><span class="line"><span class="meta prompt_">   &gt;</span><span class="language-bash">&gt; /wls/esxd/stdout.log 2&gt;&amp;1 &amp;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="代码记录"><a href="#代码记录" class="headerlink" title="代码记录"></a>代码记录</h2><p>Code: <a target="_blank" rel="noopener" href="https://github.com/swzxsyh/Case">https://github.com/swzxsyh/Case</a><br>Rivision Num: 6c09f88ea4f2f41a1fd93cfb838e34ae7158a8c0</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2024/10/27/Java-DelayQueue/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -206,7 +298,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2024-10-27 00:13:10 / 修改时间：00:46:26" itemprop="dateCreated datePublished" datetime="2024-10-27T00:13:10+08:00">2024-10-27</time>
+              <time title="创建时间：2024-10-27 00:13:10 / 修改时间：00:46:36" itemprop="dateCreated datePublished" datetime="2024-10-27T00:13:10+08:00">2024-10-27</time>
             </span>
 
           
@@ -994,82 +1086,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/05/02/Distributed-Lock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/02/Distributed-Lock/" class="post-title-link" itemprop="url">分布式锁</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-02 04:43:04" itemprop="dateCreated datePublished" datetime="2023-05-02T04:43:04+08:00">2023-05-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-05-16 07:07:51" itemprop="dateModified" datetime="2023-05-16T07:07:51+08:00">2023-05-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>Database</li>
-<li>Redis</li>
-<li>Zookeeper</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/02/Distributed-Lock/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1139,7 +1155,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">205</span>
+          <span class="site-state-item-count">206</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1182,7 +1198,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

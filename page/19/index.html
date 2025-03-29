@@ -181,6 +181,191 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">Java学习基础-Collection、泛型、数据结构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-10 00:27:44" itemprop="dateCreated datePublished" datetime="2020-03-10T00:27:44+08:00">2020-03-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>集合体系结构：<br><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E9%9B%86%E5%90%88%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.svg" alt="image"></p>
+<p>一.Collection集合（所有集合的根接口）<br>是单列集合的顶层接口，它表示一组对象，这些对象也称为Collection的元素<br>JDK不提供此接口的任何直接实现，它提供了更具体的子接口(如Set和List)实现<br>创建Collection集合的对象<br>•多态的方式<br>•具体的实现类ArrayList</p>
+<p>1.集合的介绍&amp;集合和数组的区别<br>a.什么是集合<br>集合就是Java用来保存数据的容器。<br>b.学过的容器<br>数组，ArrayList<br>数组定义: 数据类型[] 变量名 &#x3D; new 数据类型[数组的长度]<br>集合定义: ArrayList&lt;数据类型&gt; 变量名 &#x3D; new ArrayList&lt;数据类型&gt;();<br>c.数组和集合区别在哪里<br>I.数组的长度固定，集合的长度可变<br>II.数组中的元素类型可以是基本类型，也可以是引用类型。<br>集合中的元素类型必须只能是引用类型，如果想保存基本类型，要写该基本类型对应的写包装类。<br>例如：<br>ArrayList arr &#x3D; new ArrayList();</p>
+<p>2.集合框架的继承体系</p>
+<p>List接口特点：<br>有序，有索引，元素可以重复</p>
+<p>Set接口特点：<br>无序，无索引，元素不可以重复</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%E7%9A%84%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.svg" alt="image"></p>
+<p>3.Collection中的通用方法<br>增：增加<br>public boolean add(E e);添加元素，返回值表示是否添加成功。<br>删：删除<br>public boolean remove(E e);删除元素，返回值表示是否删除成功。<br>改：修改<br>无修改方法。<br>查：查询<br>无查询方法。<br>其他方法：<br>public boolean contains(Object obj);判断集合中是否包含某个元素。<br>public void clear();清空集合（把集合中的元素全部删除，不是把集合置为Null）<br>public boolean isEmpty();判断集合是否为空（指集合中没有元素，而非集合是否为Null）<br>public int size();返回集合中元素的个数<br>public Object[] toArray();将集合转成数组</p>
+<p>方法名	说明<br>boolean add(E e)	添加元素<br>boolean remove(Object o)	从集合中移除指定元素<br>void clear()	清空集合中的元素<br>boolean contains(Object o)	判断集合中是否存在指定的元素<br>boolean isEmpty()	判断集合是否为空<br>int size()	集合的长度，也就是集合中的元素个数<br>public Object[] toArray();	将集合转成数组<br>二.Iterator迭代器（遍历集合）<br>1.集合迭代器的介绍与使用<br>a.迭代器（iterator）<br>用于遍历集合的对象（集合有无索引，均可使用迭代器来遍历，迭代器遍历集合时不需要索引）<br>•Iterator iterator():返回此集合中元素的迭代器，通过集合的iterator()方法得到<br>•迭代器是通过集合的iterator()方法得到的，所以说他是依赖于集合而存在的</p>
+<p>b.迭代器的使用<br>    I.获取要遍历集合的迭代器对象<br>    II.调用迭代器对象.hasNext();boolean类型<br>    III.调用迭代器对象的.next();方法<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>        Iterator<String> it &#x3D; cc.iterator();<br>&#x2F;&#x2F;        boolean b &#x3D; a.hasNext();<br>&#x2F;&#x2F;        if (b) {<br>&#x2F;&#x2F;            String next &#x3D; a.next();<br>&#x2F;&#x2F;            System.out.println(next);<br>&#x2F;&#x2F;        }<br>        while(it.hasNext()){<br>            String ss &#x3D; it.next();<br>            System.out.println(ss);<br>        }<br>•迭代器的注意事项（2个异常）<br>a.NoSuchElementException<br>出现原因：迭代器的hasNext返回false，再调用next方法，就会返回此异常<br>b.ConcurrentModificationException<br>出现原因：Java的迭代器规定，使用迭代器过程中，不能向集合中增删元素（不能影响集合的长度），否则就会抛出并发修改异常。</String></p>
+<p>结论：<br>a.使用迭代器时，必须先判断，且判断结果为true，才能调用.next()方法<br>b.使用迭代器时，应该尽量只做遍历（绝对不允许直接向集合中增删元素），即使用单纯遍历功能</p>
+<p>2.迭代器的原理<br>迭代器的底层使用指针原理，迭代器输出的是内存地址，在地址块中寻找下一个，超出后提出越界，即返回NoSuchElementException错误。同理，地址不可变，使用增删会提示ConcurrentModificationException错误</p>
+<p>3.增强for循环<br>a.什么是增强for循环<br>实际上是一种简便格式（语法糖），简化数组和Collection集合的遍历，实际上是迭代器的简便格式<br>b.增强for循环的用法<br>for(数据类型 变量名:集合&#x2F;数组){}<br>c.增强for循环本质使用的就是迭代器<br>证明：<br>a.源码<br>b.如果在使用增强for的过程中向集合添加或删除元素，和迭代器一样会抛出ConcurrentModificationException异常</p>
+<p>注意：和使用迭代器一样，增强for就是用于单纯的遍历集合，不要在遍历集合的过程中增删元素</p>
+<p>三.泛型<br>1.什么是泛型<br>泛型是JDK1.5的新特性，提供了编译时类型安全检测机制，该机制允许在编译时见到到非法到类型<br>它的本质是参数化类型，也就是说所操作的数据类型被指定为一个参数<br>参数化类型：就是将类型由原来的具体到类型参数化，然后在使用&#x2F;调用时传入具体到类型</p>
+<p>比如：<br>在JDK1.5之前，创建集合:ArrayList arr &#x3D; new ArrayList();集合中可以保存任意对象<br>在JDK1.5时，创建集合:ArrayList&lt;具体的引用类型&gt; arr &#x3D; new new ArrayList&lt;具体的引用类型&gt;();<br>这种参数类型可以用在类、方法和接口中，分别被称为泛型类，泛型方法，泛型接口</p>
+<p>什么是泛型：<br>是一种不确定的类型，程序员使用时再确定下来<br>泛型的格式：<br>,一个泛型，如Element。这里的类型可以看作形参<br>&lt;K,V&gt;,两个泛型，暂不确定类型。这里的类型可以看作形参<br>将来具体调用的适合给定的类型可以看作是实参，并且实参的类型只能是引用数据类型</p>
+<p>2.泛型的好处<br>a.避免了强制转型的麻烦<br>b.避免了类型转换的异常，将运行时期的ClassCastException，转移到了编译时期的编译失败</p>
+<p>总之：JDK1.5之后，Java强烈推荐使用泛型</p>
+<p>3.泛型的定义和使用<br>泛型可以定义在类、方法、接口上</p>
+<p>•泛型类<br>泛型可以定义在类上</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public class MyArrayList<E> {<br>    &#x2F;&#x2F;就是把E当作某种类型使用<br>    private E ee;</E></p>
+<pre><code>public E getEe() &#123;
+    return ee;
+&#125;
+
+public void setEe(E ee) &#123;
+    this.ee = ee;
+&#125;
+</code></pre>
+<p>}</p>
+<p>泛型类的使用：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>public class TestMyArrayList {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F;使用泛型类，MyArrayList<br>        MyArrayList<String> arr &#x3D; new MyArrayList<String>();<br>&#x2F;&#x2F;        此时arr中集合对象没有E了，所有E都变成了String<br>        arr.setEe(“Java”);<br>        String ee &#x3D; arr.getEe();<br>        System.out.println(ee);</String></String></p>
+<p>&#x2F;&#x2F;        使用泛型类，MyArrayList<br>        MyArrayList<Integer> arr1&#x3D; new MyArrayList<Integer>();<br>        arr1.setEe(1);<br>        System.out.println(arr1.getEe());<br>    }<br>}<br>•泛型方法<br>泛型方法的定义：</Integer></Integer></p>
+<p>1<br>2<br>3<br>4<br>5<br>public class Dog {<br>    public <E> void show(E num){<br>        System.out.println(num);<br>    }<br>}<br>泛型方法的使用：</E></p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>public static void main(String[] args) {<br>    &#x2F;&#x2F;create object<br>    Dog dd &#x3D; new Dog();<br>    &#x2F;&#x2F;use method<br>    dd.show(“Java”);<br>    dd.show(10);<br>    &#x2F;&#x2F;严格的方式<br>    dd.<String>show(“java”);<br>    dd.<Integer>show(10);<br>}<br>•泛型接口<br>泛型定义在某个接口上</Integer></String></p>
+<p>1<br>2<br>3<br>4<br>public interface MyInterface<E> {<br>    public abstract void show(E ee) ;<br>    public abstract void eat(E ee) ;<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>&#x2F;&#x2F;a.定义一个实现类，实现该接口时，可以确定E的具体类型<br>public class MyClass implements MyInterface<String>{<br>    @Override<br>    public void show(String ee) {<br>    }</String></E></p>
+<pre><code>@Override
+public void eat(String ee) &#123;
+&#125;
+</code></pre>
+<p>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class MyClass2<E> implements MyInterface<E>{<br>    @Override<br>    public void show(E ee) {<br>    }</E></E></p>
+<pre><code>@Override
+public void eat(E ee) &#123;
+&#125;
+</code></pre>
+<p>}<br>    &#x2F;&#x2F;此时实现类就是一个泛型类，创建该类对象时，可以确定泛型的具体类型</p>
+<p>丢弃泛型（不正规）,此时泛型被丢弃，所有泛型变为Object</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>public class MyClass3 implements MyInterface{<br>    @Override<br>    public void show(Object ee) {</p>
+<pre><code>&#125;
+
+@Override
+public void eat(Object ee) &#123;
+
+&#125;
+</code></pre>
+<p>}<br>总结：在开发中，很少自定义泛型类、方法、接口，大概率是使用已定义好的泛型类，自行更改类型即可</p>
+<p>4.泛型通配符<br>什么是泛型通配符：<br>当集合中泛型不确定类型时，可以使用泛型通配符，表示何种泛型均可</p>
+<p>•类型通配符: •List:表示元素类型未知的List,它的元素可以匹配任何的类型<br>•这种带通配符的List仅表示它是各种泛型List的父类，并不能把元素添加进去</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>public static void main(String[] args) {<br>    ArrayList<String> arr1 &#x3D; new ArrayList<String>();<br>    ArrayList<Integer> arr2 &#x3D; new ArrayList<Integer>();<br>    ArrayList<Double> arr3 &#x3D; new ArrayList<Double>();</Double></Double></Integer></Integer></String></String></p>
+<pre><code>method(arr1);
+method(arr2);
+method(arr3);
+</code></pre>
+<p>}</p>
+<p>public static void method(ArrayList&lt;?&gt; arr) {</p>
+<p>}<br>5.泛型的上下限<br>&lt;?&gt;什么泛型都是OK的</p>
+<p>如果不希望List&lt;?&gt;是任何泛型List的父类，只希望它代表某一类泛型List的父类，可以使用类型通配符的上线</p>
+<p>,叫泛型的上限，表示该泛型必须是Animal本类或其子类(Dog,Cat); 可以理解为”” .叫泛型的下限，表示该泛型必须是Student本类或其父类(Person，Object) 可以理解为”<br>&#x3D;Student&gt;”</p>
+<p>范例：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>    public static void main(String[] args) {<br>        Collection<Integer> list1 &#x3D; new ArrayList<Integer>();<br>        Collection<String> list2 &#x3D; new ArrayList<String>();<br>        Collection<Number> list3 &#x3D; new ArrayList<Number>();<br>        Collection<Object> list4 &#x3D; new ArrayList<Object>();<br>        &#x2F;&#x2F;Number是8种数值类型的父类<br>        &#x2F;&#x2F;SuperClass:Object—subclass（String,Number)—subclass(Integer,Number)</Object></Object></Number></Number></String></String></Integer></Integer></p>
+<pre><code>    getElement1(list1);
+</code></pre>
+<p>&#x2F;&#x2F;        getElement1(list2);String和Number不是super-sub关系，不行<br>        getElement1(list3);<br>&#x2F;&#x2F;        getElement1(list4);Object最大，不行</p>
+<p>&#x2F;&#x2F;        getElement2(list1);Integer小于Number，不行<br>&#x2F;&#x2F;        getElement2(list2);String和Number不是Super-sub关系，不行<br>        getElement2(list3);<br>        getElement2(list4);<br>    }</p>
+<pre><code>public static void getElement1(Collection&lt;? extends Number&gt; collection ) &#123;
+
+&#125;
+
+public static void getElement2(Collection&lt;? super Number&gt; collection ) &#123;
+
+&#125;
+</code></pre>
+<p>}<br>四.数据结构<br>1.什么是数据结构<br>数据结构是计算机存储、组织数据的方式(容器保存数据的方式)。是指相互之间存在一种或多种特定关系的数据元素的集合</p>
+<p>2.常见的4+1种数据结构<br>掌握前4种数据结构<br>•栈结构<br>可以看成只有一端开口的容器<br>入栈&#x2F;压栈-&gt;[栈顶U栈底]-&gt;出栈&#x2F;弹栈<br>入栈顺序：1 2 3<br>出栈顺序：3 2 1</p>
+<p>特点：先进后出</p>
+<p>•队列结构<br>两端均有开口的容器<br>入队-&gt;[队尾——队头]-&gt;出队</p>
+<p>只能从队尾进</p>
+<p>入队顺序：1 2 3 4<br>出队顺序：1 2 3 4</p>
+<p>特点：先进先出FIFO(First In First Out)</p>
+<p>•数组结构<br>数组结构是连续的一块区域，每个数组都有自己的索引</p>
+<p>获取&#x2F;修改元素：根据索引找到&#x2F;修改元素即可</p>
+<p>添加元素经过：<br>a.创建新数组<br>b.复制老数组数据<br>c.添加新的数据<br>d.销毁老的数据</p>
+<p>删除元素经过：<br>a.创建新数组<br>b.复制老数组数据<br>c.删除指定的数据<br>d.销毁老的数据</p>
+<p>特点：增删慢，查改快</p>
+<p>•链表结构<br>在链表结构中，每一个元素称为node(节点&#x2F;结点),每个node至少有两部分内容</p>
+<p>单向链表结构<br>双向链表结构</p>
+<p>数据域｜指针域（指向下一个node）<br>（指向上一个node）指针域｜数据域｜指针域 （指向下一个node）</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E9%93%BE%E8%A1%A8%E7%BB%93%E6%9E%84.svg" alt="image"></p>
+<p>获取&#x2F;修改元素:从第一个元素开始往后查找(比数组结构慢)<br>增加&#x2F;删除元素:在指针域直接添加&#x2F;删除新node</p>
+<p>特点：链表结构在内存中是可以分散的，增删快，查改慢</p>
+<p>了解另一种数据结构<br>•树结构<br>树具有的特点:</p>
+<p>每一个节点有零个或者多个子节点<br>没有父节点的节点称之为根节点，一个树最多有一个根节点。 3. 每一个非根节点有且只有一个父节点</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E6%A0%91%E7%BB%93%E6%9E%84.svg" alt="image"></p>
+<p>名词	含义<br>结点	指树中的一个元素<br>结点的度	节点拥有的子树的个数，二叉树的度不大于2<br>叶子结点	度为0的节点，也称之为终端结点<br>高度	叶子结点的高度为1，叶子结点的父节点高度为2，以此类推，根节点的高度最高<br>层	根节点在第一层，以此类推<br>父节点	若一个节点含有子节点，则这个节点称之为其子节点的父节点<br>子结点	子节点是父节点的下一层节点<br>兄弟结点	拥有共同父节点的节点互称为兄弟节点<br>二叉树：如果树中的每个节点的子节点的个数不超过2，那么该树就是一个二叉树。</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E4%BA%8C%E5%8F%89%E6%A0%91.svg" alt="image"></p>
+<p>二叉查找树：<br>二叉查找树的特点:</p>
+<p>左子树上所有的节点的值均小于等于他的根节点的值<br>右子树上所有的节点值均大于或者等于他的根节点的值<br>每一个子节点最多有两个子树</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91.svg" alt="image"></p>
+<p>遍历获取元素的时候可以按照”左中右”的顺序进行遍历;<br>注意:二叉查找树存在的问题:会出现”瘸子”的现象，影响查询效率</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98.svg" alt="image"></p>
+<p>二叉平衡树：<br>概述<br>为了避免出现”瘸子”的现象，减少树的高度，提高我们的搜素效率，又存在一种树的结构:”平衡二叉树” 规则:它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E4%BA%8C%E5%8F%89%E5%B9%B3%E8%A1%A1%E6%A0%91.svg" alt="image"></p>
+<p>如图所示，上图是一棵平衡二叉树，根节点10，左右两子树的高度差是1，而下图，虽然根节点左右两子树高度 差是0，但是右子树15的左右子树高度差为2，不符合定义，<br>所以右图不是一棵平衡二叉树。</p>
+<p><img src="/2020/03/10/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-Collection%E3%80%81%E6%B3%9B%E5%9E%8B%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/svg.svg" alt="image"></p>
+<p>红黑树：</p>
+<p>每一个节点或是红色的，或者是黑色的。<br>根节点必须是黑色<br>每个叶节点(Nil)是黑色的;(如果一个节点没有子节点或者父节点，则该节点相应的指针属性值为Nil，这些<br>Nil视为叶节点)<br>如果某一个节点是红色，那么它的子节点必须是黑色(不能出现两个红色节点相连的情况)<br>对每一个节点，从该节点到其所有后代叶节点的简单路径上，均包含相同数目的黑色节点;<br>红黑树的特点：<br>查询效率非常恐怖，增删速度非常慢</p>
+<p>总结：<br>1.Collection集合根接口<br>I.集合继承体系<br>II.Collection中定义的通用方法<br>III.明白集合和数组的区别<br>2.迭代器<br>I.迭代器使用的三个步骤：获取迭代器，判断有没有下一个，取出下一个元素<br>II.增强for循环使用（底层使用就是迭代器）<br>III.迭代器和增强for使用过程，不能增删元素</p>
+<p>3.泛型<br>I.泛型怎么写<br>II.泛型类、接口、方法怎么定义和使用<br>III.泛型通配符以及上下限<br>&lt;?&gt;代表任意泛型即可<br>&lt;? extends X &gt;上限<br>&lt;? super Xxx&gt;下限</p>
+<p>4.数据结构<br>栈结构：先进后出<br>队列结构：先进先出<br>数组结构：增删慢，查改快<br>链表结构：增删快，查询慢</p>
+<p>红黑树：查询效率非常高，增删速度非常慢</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/03/07/Java%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80-%E5%B8%B8%E7%94%A8API%E3%80%81%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%E5%B0%8F%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1217,77 +1402,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2020/02/26/Java%E9%9B%86%E5%90%88%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/26/Java%E9%9B%86%E5%90%88%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">Java集合基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-26 00:10:01" itemprop="dateCreated datePublished" datetime="2020-02-26T00:10:01+08:00">2020-02-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一.集合基础<br>1.1 集合概述<br>编程时如果要存储多个数据，使用长度固定的数组存储格式，不一定满足需求，耿适应不了变化的需求，此时应选择集合。</p>
-<p>集合类的特点：提供一种存储空间可变的 存储模型，存储的数据容量可以发生改变<br>集合类非常多，首先学习:ArrayList</p>
-<p>ArrayList:</p>
-<p>可调整大小的数组实现<br>:是一种特定的数据类型，泛型<br>使用：<br>在所有出现的地方可以使用引用数据类型替换<br>例：ArrayList,ArrayList</p>
-<p>1.2 ArrayList构造方法和添加方法</p>
-<p>方法名	说明<br>public ArrayList()	创建一个空的集合对象<br>public boolean add(E e)	将指定的元素追加到此集合的末尾<br>public void add(int index,E element)	在此集合中的指定位置插入指定的元素<br>1.3 ArrayList集合常用方法</p>
-<p>方法名	说明<br>public boolean remove(Object o)	删除指定的元素，返回删除是否成功<br>public E remove(int index)	删除指定索引处的元素，返回被删的元素<br>public E set(int index,E element)	修改指定索引处的元素，返回被修改的元素<br>public E get(int index)	返回指定索引处的元素<br>public int size()	返回集合中的元素的个数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ArrayListDemo</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">    ArrayList&lt;String&gt; array = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    Collections.addAll(array,<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>);</span><br><span class="line"></span><br><span class="line">    System.out.println(array);</span><br><span class="line"></span><br><span class="line">    System.out.println(array.remove(<span class="string">&quot;b&quot;</span>));</span><br><span class="line"></span><br><span class="line">    System.out.println(array.remove(<span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">    System.out.println(array.set(<span class="number">0</span>,<span class="string">&quot;ccc&quot;</span>));</span><br><span class="line"></span><br><span class="line">    System.out.println(array.get(<span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">    System.out.println(array.size());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1357,7 +1471,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">205</span>
+          <span class="site-state-item-count">206</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1400,7 +1514,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
