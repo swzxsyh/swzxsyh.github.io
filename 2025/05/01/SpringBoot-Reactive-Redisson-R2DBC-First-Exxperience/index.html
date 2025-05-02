@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Maven引入123456789101112131415161718192021222324252627282930313233343536373839&lt;!-- spring-webflux 用于支持 WebClient --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot Reactive Redisson &amp;&amp; R2DBC 初体验">
+<meta property="og:url" content="https://swzxsyh.github.io/2025/05/01/SpringBoot-Reactive-Redisson-R2DBC-First-Exxperience/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Maven引入123456789101112131415161718192021222324252627282930313233343536373839&lt;!-- spring-webflux 用于支持 WebClient --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-30T18:25:09.000Z">
+<meta property="article:modified_time" content="2025-05-02T19:03:38.517Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2025/05/01/SpringBoot-Reactive-Redisson-R2DBC-First-Exxperience/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring Boot Reactive Redisson && R2DBC 初体验 | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2025/05/01/SpringBoot-Reactive-Redisson-R2DBC-First-Exxperience/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Boot Reactive Redisson && R2DBC 初体验
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-05-01 02:25:09" itemprop="dateCreated datePublished" datetime="2025-05-01T02:25:09+08:00">2025-05-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-05-03 03:03:38" itemprop="dateModified" datetime="2025-05-03T03:03:38+08:00">2025-05-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Maven引入"><a href="#Maven引入" class="headerlink" title="Maven引入"></a>Maven引入</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- spring-webflux 用于支持 WebClient --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- R2DBC 核心支持 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-r2dbc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.asyncer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>r2dbc-mysql<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/io.r2dbc/r2dbc-proxy --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.r2dbc<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>r2dbc-proxy<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.r2dbc<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>r2dbc-pool<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 监控与链路追踪 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>micrometer-tracing-bridge-brave<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>context-propagation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="配置TraceId"><a href="#配置TraceId" class="headerlink" title="配置TraceId"></a>配置TraceId</h2><h3 id="添加支持-过滤器"><a href="#添加支持-过滤器" class="headerlink" title="添加支持 &amp;&amp; 过滤器"></a>添加支持 &amp;&amp; 过滤器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.slf4j.MDC;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Hooks;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Operators;</span><br><span class="line"><span class="keyword">import</span> reactor.util.context.ContextView;</span><br><span class="line"><span class="keyword">import</span> reactor.util.context.Context;</span><br><span class="line"><span class="keyword">import</span> reactor.core.CoreSubscriber;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReactorMdcSupport</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">TRACE_ID</span> <span class="operator">=</span> <span class="string">&quot;traceId&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">install</span><span class="params">()</span> &#123;</span><br><span class="line">        Hooks.onEachOperator(<span class="string">&quot;mdc&quot;</span>, Operators.lift((scannable, subscriber) -&gt; <span class="keyword">new</span> <span class="title class_">MdcContextLifter</span>&lt;&gt;(subscriber)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">MdcContextLifter</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">CoreSubscriber</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> CoreSubscriber&lt;T&gt; actual;</span><br><span class="line"></span><br><span class="line">        MdcContextLifter(CoreSubscriber&lt;T&gt; actual) &#123;</span><br><span class="line">            <span class="built_in">this</span>.actual = actual;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSubscribe</span><span class="params">(org.reactivestreams.Subscription subscription)</span> &#123;</span><br><span class="line">            actual.onSubscribe(subscription);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onNext</span><span class="params">(T t)</span> &#123;</span><br><span class="line">            copyContextToMdc();</span><br><span class="line">            actual.onNext(t);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onError</span><span class="params">(Throwable throwable)</span> &#123;</span><br><span class="line">            copyContextToMdc();</span><br><span class="line">            actual.onError(throwable);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onComplete</span><span class="params">()</span> &#123;</span><br><span class="line">            copyContextToMdc();</span><br><span class="line">            actual.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> Context <span class="title function_">currentContext</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> actual.currentContext();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">copyContextToMdc</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="type">ContextView</span> <span class="variable">contextView</span> <span class="operator">=</span> actual.currentContext();</span><br><span class="line">            <span class="keyword">if</span> (contextView.hasKey(TRACE_ID)) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">traceId</span> <span class="operator">=</span> contextView.get(TRACE_ID);</span><br><span class="line">                MDC.put(TRACE_ID, traceId);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Order(Ordered.HIGHEST_PRECEDENCE)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MDCTraceFilter</span> <span class="keyword">implements</span> <span class="title class_">WebFilter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, WebFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">traceId</span> <span class="operator">=</span> ThreadMdcUtil.getTraceId();</span><br><span class="line">        exchange.getRequest().mutate().header(ThreadMdcUtil.TRACE_ID, traceId);</span><br><span class="line">        <span class="keyword">return</span> chain.filter(exchange)</span><br><span class="line">                .contextWrite(Context.of(ThreadMdcUtil.TRACE_ID, traceId))</span><br><span class="line">                .doFirst(() -&gt; MDC.put(ThreadMdcUtil.TRACE_ID, traceId))</span><br><span class="line">                .doFinally(signal -&gt; MDC.remove(ThreadMdcUtil.TRACE_ID));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebFilterConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> WebFilter <span class="title function_">mdcTraceFilter</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MDCTraceFilter</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动类注册-traceId-和-异常"><a href="#启动类注册-traceId-和-异常" class="headerlink" title="启动类注册 traceId 和 异常"></a>启动类注册 traceId 和 异常</h3><pre><code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    Hooks.enableAutomaticContextPropagation();</span><br><span class="line">    Hooks.onErrorDropped(e -&gt; log.warn(<span class="string">&quot;Dropped error: &#123;&#125;&quot;</span>, e.toString()));</span><br><span class="line">    Hooks.onNextDropped(o -&gt; log.warn(<span class="string">&quot;Dropped value: &#123;&#125;&quot;</span>, o));</span><br><span class="line">    Hooks.onOperatorDebug();</span><br><span class="line">    <span class="comment">//  注册 Reactor 全局 Hook</span></span><br><span class="line">    ReactorMdcSupport.install();</span><br><span class="line">    SpringApplication.run(SpiderCanalApplication.class, args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h2 id="Redisson配置修改"><a href="#Redisson配置修改" class="headerlink" title="Redisson配置修改"></a>Redisson配置修改</h2><h3 id="给redisson进行相关配置"><a href="#给redisson进行相关配置" class="headerlink" title="给redisson进行相关配置"></a>给redisson进行相关配置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 序列化解码</span></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> ObjectMapper objectMapper;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义配置类, 加载yaml的配置 </span></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> CustomProperties properties;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> RedissonReactiveClient <span class="title function_">redissonReactiveClient</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">    config.setCodec(<span class="keyword">new</span> <span class="title class_">JsonJacksonCodec</span>(objectMapper));</span><br><span class="line"></span><br><span class="line">    RedissonProperties.<span class="type">ClusterServersConfig</span> <span class="variable">clusterServersConfig</span> <span class="operator">=</span> properties.getClusterServersConfig();</span><br><span class="line">    <span class="keyword">if</span> (Objects.nonNull(clusterServersConfig)) &#123;</span><br><span class="line">        config.useClusterServers()</span><br><span class="line">                .setUsername(properties.getUsername())</span><br><span class="line">                .setPassword(properties.getPassword())</span><br><span class="line">                .addNodeAddress(clusterServersConfig.getNodeAddresses())</span><br><span class="line">                .setScanInterval(clusterServersConfig.getScanInterval())</span><br><span class="line">                .setTimeout(clusterServersConfig.getTimeout())</span><br><span class="line">                .setMasterConnectionPoolSize(clusterServersConfig.getMasterConnectionPoolSize())</span><br><span class="line">                .setSlaveConnectionPoolSize(clusterServersConfig.getSlaveConnectionPoolSize());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        RedissonProperties.<span class="type">SingleServerConfig</span> <span class="variable">singleServerConfig</span> <span class="operator">=</span> properties.getSingleServerConfig();</span><br><span class="line">        <span class="keyword">if</span> (Objects.nonNull(singleServerConfig)) &#123;</span><br><span class="line">            config.useSingleServer()</span><br><span class="line">                    .setUsername(properties.getUsername())</span><br><span class="line">                    .setPassword(properties.getPassword())</span><br><span class="line">                    .setAddress(singleServerConfig.getAddress())</span><br><span class="line">                    .setDatabase(singleServerConfig.getDatabase())</span><br><span class="line">                    .setTimeout(singleServerConfig.getTimeout())</span><br><span class="line">                    .setConnectionMinimumIdleSize(singleServerConfig.getConnectionMinimumIdleSize())</span><br><span class="line">                    .setConnectionPoolSize(singleServerConfig.getConnectionPoolSize());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Redisson.create(config).reactive();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Reacive获取和存储Data"><a href="#Reacive获取和存储Data" class="headerlink" title="Reacive获取和存储Data"></a>Reacive获取和存储Data</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 读取指定 key 的值</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; Mono&lt;T&gt; <span class="title function_">get</span><span class="params">(String key, Class&lt;T&gt; clazz)</span> &#123;</span><br><span class="line">    RBucketReactive&lt;T&gt; bucket = redisson.getBucket(key, <span class="keyword">new</span> <span class="title class_">TypedJsonJacksonCodec</span>(clazz));</span><br><span class="line">    <span class="keyword">return</span> bucket.get();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 设置 key-value ，指定过期时间</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; Mono&lt;Void&gt; <span class="title function_">set</span><span class="params">(String key, T value, Duration ttl)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> redisson.getBucket(key, <span class="keyword">new</span> <span class="title class_">TypedJsonJacksonCodec</span>(value.getClass()))</span><br><span class="line">            .set(value, ttl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="R2DBC-使用中遇到的问题："><a href="#R2DBC-使用中遇到的问题：" class="headerlink" title="R2DBC 使用中遇到的问题："></a>R2DBC 使用中遇到的问题：</h2><h3 id="java-util-Date不可用"><a href="#java-util-Date不可用" class="headerlink" title="java.util.Date不可用"></a>java.util.Date不可用</h3><ul>
+<li>需要使用LocalDateTime, 旧的Date在该组件中不支持</li>
+</ul>
+<h3 id="LocalDateTime传入的的格式问题"><a href="#LocalDateTime传入的的格式问题" class="headerlink" title="LocalDateTime传入的的格式问题"></a>LocalDateTime传入的的格式问题</h3><ul>
+<li>构建自定义解析  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FlexibleLocalDateTimeDeserializer</span> <span class="keyword">extends</span> <span class="title class_">JsonDeserializer</span>&lt;LocalDateTime&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;DateTimeFormatter&gt; FORMATTERS = List.of(</span><br><span class="line">            DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss.SSSSSS&quot;</span>),</span><br><span class="line">            DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;</span>),</span><br><span class="line">            DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">deserialize</span><span class="params">(JsonParser p, DeserializationContext ctxt)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> p.getText().trim();</span><br><span class="line">        <span class="keyword">for</span> (DateTimeFormatter formatter : FORMATTERS) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> LocalDateTime.parse(text, formatter);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (DateTimeParseException ignored) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;无法解析时间: &quot;</span> + text);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>在对应entity的字段上, 配置该解析  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonDeserialize(using = FlexibleLocalDateTimeDeserializer.class)</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="之前使用JPA-现在找不到Repository"><a href="#之前使用JPA-现在找不到Repository" class="headerlink" title="之前使用JPA, 现在找不到Repository"></a>之前使用JPA, 现在找不到Repository</h3><ul>
+<li>日志错误  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Field PlatformGroupService in com.swzxsyh.components.FastQueryService required a bean of type &#x27;com.swzxsyh.repository.PlatformGroupRepository&#x27; that could not be found.</span><br></pre></td></tr></table></figure></li>
+<li>是引入包的问题,  同名称需使用R2DBC的包  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.mapping.Column;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.annotation.Id;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.mapping.Table;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="不打印语句"><a href="#不打印语句" class="headerlink" title="不打印语句"></a>不打印语句</h3><h4 id="需要自定义Listener-这里手动构建成一个像MyBatis的语句打印"><a href="#需要自定义Listener-这里手动构建成一个像MyBatis的语句打印" class="headerlink" title="需要自定义Listener, 这里手动构建成一个像MyBatis的语句打印"></a>需要自定义Listener, 这里手动构建成一个像MyBatis的语句打印</h4><pre><code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">R2dbcProxyListener</span> <span class="keyword">implements</span> <span class="title class_">ProxyExecutionListener</span>, ProxyMethodExecutionListener &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(R2dbcProxyListener.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 结果打印</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> execInfo statement</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eachQueryResult</span><span class="params">(QueryExecutionInfo execInfo)</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">currentMappedResult</span> <span class="operator">=</span> execInfo.getCurrentMappedResult();</span><br><span class="line">        logger.info(<span class="string">&quot;&lt;==  Affected Rows: &#123;&#125;&quot;</span>, currentMappedResult);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 语句打印</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> queryExecutionInfo statement</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">beforeExecuteOnStatement</span><span class="params">(<span class="meta">@NotNull</span> QueryExecutionInfo queryExecutionInfo)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.sqlPrinter(queryExecutionInfo);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sqlPrinter</span><span class="params">(QueryExecutionInfo execInfo)</span> &#123;</span><br><span class="line">        <span class="comment">// 打 SQL</span></span><br><span class="line">        <span class="keyword">for</span> (QueryInfo qi : execInfo.getQueries()) &#123;</span><br><span class="line">            logger.info(<span class="string">&quot;==&gt; Preparing: &#123;&#125;&quot;</span>, qi.getQuery());</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 打 参数</span></span><br><span class="line">            <span class="keyword">for</span> (Bindings bindings : qi.getBindingsList()) &#123;</span><br><span class="line">                <span class="comment">// 打印位置绑定参数（index-based）</span></span><br><span class="line">                <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">                bindings.getIndexBindings().forEach(b -&gt; &#123;</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">key</span> <span class="operator">=</span> b.getKey();</span><br><span class="line">                    <span class="type">BoundValue</span> <span class="variable">bv</span> <span class="operator">=</span> b.getBoundValue();</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> bv.getValue();</span><br><span class="line">                    <span class="type">String</span> <span class="variable">type</span> <span class="operator">=</span> bv.isNull() ? bv.getNullType().getSimpleName() + <span class="string">&quot; (NULL)&quot;</span> : bv.getValue().getClass().getSimpleName();</span><br><span class="line"><span class="comment">//                    logger.info(&quot;   -&gt; param[&#123;&#125;] = &#123;&#125; (&#123;&#125;)&quot;, key, value, type);</span></span><br><span class="line">                    <span class="comment">// key value type</span></span><br><span class="line">                    sb.append(value).append(<span class="string">&quot;(&quot;</span>).append(type).append(<span class="string">&quot;)&quot;</span>).append(<span class="string">&quot;, &quot;</span>);</span><br><span class="line">                &#125;);</span><br><span class="line">                logger.info(sb.substring(<span class="number">0</span>, sb.length() - <span class="number">2</span>));</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 打印命名绑定参数（name-based）</span></span><br><span class="line">                bindings.getNamedBindings().forEach(b -&gt; &#123;</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">key</span> <span class="operator">=</span> b.getKey();</span><br><span class="line">                    <span class="type">BoundValue</span> <span class="variable">bv</span> <span class="operator">=</span> b.getBoundValue();</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> bv.getValue();</span><br><span class="line">                    <span class="type">String</span> <span class="variable">type</span> <span class="operator">=</span> bv.isNull() ? bv.getNullType().getSimpleName() + <span class="string">&quot; (NULL)&quot;</span> : bv.getValue().getClass().getSimpleName();</span><br><span class="line">                    logger.info(<span class="string">&quot;   -&gt; param[&#x27;&#123;&#125;&#x27;] = &#123;&#125; (&#123;&#125;)&quot;</span>, key, value, type);</span><br><span class="line">                &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="代码注册"><a href="#代码注册" class="headerlink" title="代码注册"></a>代码注册</h4><pre><code>    <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">R2dbcConfig</span> <span class="keyword">extends</span> <span class="title class_">AbstractR2dbcConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ConnectionFactory connectionFactory;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">R2dbcConfig</span><span class="params">(ConnectionFactory connectionFactory)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.connectionFactory = connectionFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ConnectionFactory <span class="title function_">connectionFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ProxyConnectionFactory.builder(<span class="built_in">this</span>.connectionFactory).listener(<span class="keyword">new</span> <span class="title class_">R2dbcProxyListener</span>()).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> DatabaseClient <span class="title function_">databaseClient</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> DatabaseClient.builder().connectionFactory(connectionFactory()).build();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="日志配置"><a href="#日志配置" class="headerlink" title="日志配置"></a>日志配置</h4><pre><code><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logging:</span></span><br><span class="line"><span class="attr">level:</span></span><br><span class="line">    <span class="attr">com.swzxsyh:</span> <span class="string">info</span></span><br><span class="line">    <span class="attr">org.springframework:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">org.springframework.r2dbc:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">org.redisson.connection:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">io.r2dbc.proxy:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">com.swzxsyh.config.listener.R2dbcProxyListener:</span> <span class="string">info</span></span><br><span class="line">    <span class="attr">io.r2dbc.proxy.listener.DefaultQueryExecutionListener:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">io.r2dbc.proxy.observation.ObservationProxyExecutionListener:</span> <span class="string">warn</span></span><br><span class="line">    <span class="attr">io.asyncer.r2dbc.mysql.client.ReactorNettyClient:</span> <span class="string">warn</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<h3 id="repository使用语句-one-反而limit-2"><a href="#repository使用语句-one-反而limit-2" class="headerlink" title="repository使用语句.one()反而limit 2"></a>repository使用语句<code>.one()</code>反而limit 2</h3><ul>
+<li>出现这种SQL<br>  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> spider_config.<span class="operator">*</span> <span class="keyword">FROM</span> spider_config <span class="keyword">WHERE</span> spider_config.status <span class="operator">=</span> ? <span class="keyword">AND</span> spider_config.domain <span class="operator">=</span> ? LIMIT <span class="number">2</span></span><br></pre></td></tr></table></figure></li>
+<li>详见 <code>https://github.com/spring-projects/spring-data-r2dbc/issues/758</code>, 如果一定要one, 使用<code>.first()</code>语法</li>
+</ul>
+<h3 id="配置了重载转换器-仍然提示没有转换器的错误"><a href="#配置了重载转换器-仍然提示没有转换器的错误" class="headerlink" title="配置了重载转换器, 仍然提示没有转换器的错误"></a>配置了重载转换器, 仍然提示没有转换器的错误</h3><h4 id="错误日志"><a href="#错误日志" class="headerlink" title="错误日志"></a>错误日志</h4><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.core.convert.ConverterNotFoundException: No converter found capable of converting from type [java.lang.String] to type [com.swzxsyh.model.platform.PlatformScore]</span><br><span class="line">    at org.springframework.core.convert.support.GenericConversionService.handleConverterNotFound(GenericConversionService.java:294)</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="读写转换器代码"><a href="#读写转换器代码" class="headerlink" title="读写转换器代码"></a>读写转换器代码</h4><pre><code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ReadingConverter</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PlatformScoreReadConverter</span> <span class="keyword">implements</span> <span class="title class_">Converter</span>&lt;String, PlatformScore&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> PlatformScore <span class="title function_">convert</span><span class="params">(String source)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isBlank(source)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> JsonUtil.toClass(source, PlatformScore.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@WritingConverter</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PlatformScoreWriteConverter</span> <span class="keyword">implements</span> <span class="title class_">Converter</span>&lt;PlatformScore, String&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">convert</span><span class="params">(PlatformScore source)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> JsonUtil.toJson(source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="不生效的配置类代码"><a href="#不生效的配置类代码" class="headerlink" title="不生效的配置类代码"></a>不生效的配置类代码</h4><pre><code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">R2dbcConvert</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> R2dbcCustomConversions <span class="title function_">r2dbcCustomConversions</span><span class="params">()</span> &#123;</span><br><span class="line">        List&lt;Converter&lt;?, ?&gt;&gt; converters = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        converters.add(<span class="keyword">new</span> <span class="title class_">PlatformScoreWriteConverter</span>());</span><br><span class="line">        converters.add(<span class="keyword">new</span> <span class="title class_">PlatformScoreReadConverter</span>());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">R2dbcCustomConversions</span>(getStoreConversions(), converters);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="修正方法-使用继承AbstractR2dbcConfiguration的-Override进行存储"><a href="#修正方法-使用继承AbstractR2dbcConfiguration的-Override进行存储" class="headerlink" title="修正方法: 使用继承AbstractR2dbcConfiguration的@Override进行存储."></a>修正方法: 使用继承AbstractR2dbcConfiguration的@Override进行存储.</h4><ul>
+<li>该类允许Hook getCustomConverters方法, 这个方法是protected的, 一定要继承AbstractR2dbcConfiguration进行处理</li>
+<li>为什么之前的注册不生效: 它是直接调用this方法, 没有去找@Bean, 所以除非重载, 否则不会生效  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">R2dbcConfig</span> <span class="keyword">extends</span> <span class="title class_">AbstractR2dbcConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ConnectionFactory connectionFactory;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">R2dbcConfig</span><span class="params">(ConnectionFactory connectionFactory)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.connectionFactory = connectionFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ConnectionFactory <span class="title function_">connectionFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ProxyConnectionFactory.builder(<span class="built_in">this</span>.connectionFactory).listener(<span class="keyword">new</span> <span class="title class_">R2dbcProxyListener</span>()).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> DatabaseClient <span class="title function_">databaseClient</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> DatabaseClient.builder().connectionFactory(connectionFactory()).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> R2dbcEntityTemplate <span class="title function_">r2dbcEntityTemplate</span><span class="params">(DatabaseClient databaseClient, ReactiveDataAccessStrategy dataAccessStrategy)</span> &#123;</span><br><span class="line">        <span class="comment">// 通过 DialectResolver 获取 R2dbcDialect</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">R2dbcEntityTemplate</span>(databaseClient, dataAccessStrategy); <span class="comment">// 传入 ConnectionFactory</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> List&lt;Object&gt; <span class="title function_">getCustomConverters</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Arrays.asList(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">PlatformScoreWriteConverter</span>(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">PlatformScoreReadConverter</span>()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/03/29/Java-Strong-Random-ECS-Fail/" rel="prev" title="Java 安全随机数在阿里云ECS卡住">
+      <i class="fa fa-chevron-left"></i> Java 安全随机数在阿里云ECS卡住
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Maven%E5%BC%95%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">Maven引入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AETraceId"><span class="nav-number">2.</span> <span class="nav-text">配置TraceId</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%94%AF%E6%8C%81-%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">2.1.</span> <span class="nav-text">添加支持 &amp;&amp; 过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E7%B1%BB%E6%B3%A8%E5%86%8C-traceId-%E5%92%8C-%E5%BC%82%E5%B8%B8"><span class="nav-number">2.2.</span> <span class="nav-text">启动类注册 traceId 和 异常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redisson%E9%85%8D%E7%BD%AE%E4%BF%AE%E6%94%B9"><span class="nav-number">3.</span> <span class="nav-text">Redisson配置修改</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99redisson%E8%BF%9B%E8%A1%8C%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">给redisson进行相关配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reacive%E8%8E%B7%E5%8F%96%E5%92%8C%E5%AD%98%E5%82%A8Data"><span class="nav-number">3.2.</span> <span class="nav-text">Reacive获取和存储Data</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R2DBC-%E4%BD%BF%E7%94%A8%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">R2DBC 使用中遇到的问题：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#java-util-Date%E4%B8%8D%E5%8F%AF%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">java.util.Date不可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LocalDateTime%E4%BC%A0%E5%85%A5%E7%9A%84%E7%9A%84%E6%A0%BC%E5%BC%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">LocalDateTime传入的的格式问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%8B%E5%89%8D%E4%BD%BF%E7%94%A8JPA-%E7%8E%B0%E5%9C%A8%E6%89%BE%E4%B8%8D%E5%88%B0Repository"><span class="nav-number">4.3.</span> <span class="nav-text">之前使用JPA, 现在找不到Repository</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E6%89%93%E5%8D%B0%E8%AF%AD%E5%8F%A5"><span class="nav-number">4.4.</span> <span class="nav-text">不打印语句</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E8%87%AA%E5%AE%9A%E4%B9%89Listener-%E8%BF%99%E9%87%8C%E6%89%8B%E5%8A%A8%E6%9E%84%E5%BB%BA%E6%88%90%E4%B8%80%E4%B8%AA%E5%83%8FMyBatis%E7%9A%84%E8%AF%AD%E5%8F%A5%E6%89%93%E5%8D%B0"><span class="nav-number">4.4.1.</span> <span class="nav-text">需要自定义Listener, 这里手动构建成一个像MyBatis的语句打印</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%86%8C"><span class="nav-number">4.4.2.</span> <span class="nav-text">代码注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE"><span class="nav-number">4.4.3.</span> <span class="nav-text">日志配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#repository%E4%BD%BF%E7%94%A8%E8%AF%AD%E5%8F%A5-one-%E5%8F%8D%E8%80%8Climit-2"><span class="nav-number">4.5.</span> <span class="nav-text">repository使用语句.one()反而limit 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%BA%86%E9%87%8D%E8%BD%BD%E8%BD%AC%E6%8D%A2%E5%99%A8-%E4%BB%8D%E7%84%B6%E6%8F%90%E7%A4%BA%E6%B2%A1%E6%9C%89%E8%BD%AC%E6%8D%A2%E5%99%A8%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">4.6.</span> <span class="nav-text">配置了重载转换器, 仍然提示没有转换器的错误</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97"><span class="nav-number">4.6.1.</span> <span class="nav-text">错误日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E8%BD%AC%E6%8D%A2%E5%99%A8%E4%BB%A3%E7%A0%81"><span class="nav-number">4.6.2.</span> <span class="nav-text">读写转换器代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E7%94%9F%E6%95%88%E7%9A%84%E9%85%8D%E7%BD%AE%E7%B1%BB%E4%BB%A3%E7%A0%81"><span class="nav-number">4.6.3.</span> <span class="nav-text">不生效的配置类代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%AD%A3%E6%96%B9%E6%B3%95-%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BFAbstractR2dbcConfiguration%E7%9A%84-Override%E8%BF%9B%E8%A1%8C%E5%AD%98%E5%82%A8"><span class="nav-number">4.6.4.</span> <span class="nav-text">修正方法: 使用继承AbstractR2dbcConfiguration的@Override进行存储.</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">207</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/swzxsyh" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/swzxsyh" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '713a28a3ad93f2aa2323',
+      clientSecret: '39dc40bb09b422ca4c99a748b5984a4d205e91be',
+      repo        : 'swzxsyh.github.io',
+      owner       : 'swzxsyh',
+      admin       : ['swzxsyh'],
+      id          : 'b243ed46285eddeb7a41ba0034b70065',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
