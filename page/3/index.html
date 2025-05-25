@@ -181,6 +181,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/01/10/JAVA-Thread-Start-Run/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/01/10/JAVA-Thread-Start-Run/" class="post-title-link" itemprop="url">JAVA Thread Start与Run调用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-10 04:29:28" itemprop="dateCreated datePublished" datetime="2023-01-10T04:29:28+08:00">2023-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-25 23:54:30" itemprop="dateModified" datetime="2023-02-25T23:54:30+08:00">2023-02-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>start() &amp;&amp; run() 源码</li>
+<li>区别</li>
+<li>Demo及Demo遇到的问题 (Method Reference)</li>
+</ul>
+<h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><h2 id="Source-Code"><a href="#Source-Code" class="headerlink" title="Source Code"></a>Source Code</h2><h3 id="Thread-start"><a href="#Thread-start" class="headerlink" title="Thread start()"></a>Thread start()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this thread to begin execution; the Java Virtual Machine</span></span><br><span class="line"><span class="comment">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * The result is that two threads are running concurrently: the</span></span><br><span class="line"><span class="comment">     * current thread (which returns from the call to the</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;start&lt;/code&gt; method) and the other thread (which executes its</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;run&lt;/code&gt; method).</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * It is never legal to start a thread more than once.</span></span><br><span class="line"><span class="comment">     * In particular, a thread may not be restarted once it has completed</span></span><br><span class="line"><span class="comment">     * execution.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@exception</span>  IllegalThreadStateException  if the thread was already</span></span><br><span class="line"><span class="comment">     *               started.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #run()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #stop()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * This method is not invoked for the main method thread or &quot;system&quot;</span></span><br><span class="line"><span class="comment">         * group threads created/set up by the VM. Any new functionality added</span></span><br><span class="line"><span class="comment">         * to this method in the future may have to also be added to the VM.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * A zero status value corresponds to state &quot;NEW&quot;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">  <span class="keyword">if</span> (threadStatus != <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalThreadStateException</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Notify the group that this thread is about to be started</span></span><br><span class="line"><span class="comment">         * so that it can be added to the group&#x27;s list of threads</span></span><br><span class="line"><span class="comment">         * and the group&#x27;s unstarted count can be decremented. */</span></span><br><span class="line">  group.add(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">  <span class="type">boolean</span> <span class="variable">started</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    start0();</span><br><span class="line">    started = <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!started) &#123;</span><br><span class="line">        group.threadStartFailed(<span class="built_in">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable ignore) &#123;</span><br><span class="line">      <span class="comment">/* do nothing. If start0 threw a Throwable then</span></span><br><span class="line"><span class="comment">                  it will be passed up the call stack */</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Thread-run"><a href="#Thread-run" class="headerlink" title="Thread run()"></a>Thread run()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * If this thread was constructed using a separate</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; run object, then that</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; object&#x27;s &lt;code&gt;run&lt;/code&gt; method is called;</span></span><br><span class="line"><span class="comment">     * otherwise, this method does nothing and returns.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * Subclasses of &lt;code&gt;Thread&lt;/code&gt; should override this method.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #start()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #stop()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #Thread(ThreadGroup, Runnable, String)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (target != <span class="literal">null</span>) &#123;</span><br><span class="line">    target.run();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h2><p>start() 方法是真正的启动方法，是并行调用的</p>
+<p>run()是Thread中的一个方法，是串行调用的</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/01/10/JAVA-Thread-Start-Run/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/12/20/Java-FunctionalInterface/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -862,125 +946,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/08/04/Data-Structure/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/04/Data-Structure/" class="post-title-link" itemprop="url">数据结构 Data Structure</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-08-04 00:41:05" itemprop="dateCreated datePublished" datetime="2022-08-04T00:41:05+08:00">2022-08-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-10 04:40:38" itemprop="dateModified" datetime="2022-08-10T04:40:38+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-nrix{text-align:center;vertical-align:middle}
-</style>
-<table class="tg">
-<thead>
-  <tr>
-    <td class="tg-nrix" rowspan="9"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据结构</span></td>
-    <td class="tg-nrix" rowspan="6"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的逻辑结构</span></td>
-    <td class="tg-nrix" rowspan="4"><span style="font-weight:400;font-style:normal;text-decoration:none;">线性结构</span></td>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">线性表</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">栈（特殊线性表）</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">队列（特殊线性表）</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">字符串、数组、广义表</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">非线性结构</span></td>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">树形结构</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">图形结构</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的存储结构</span></td>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decorcolor:black">顺序存储</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decorcolor:black">链式存储</span></td>
-  </tr>
-  <tr>
-    <td class="tg-nrix"><span style="font-weight:400;font-style:normal;text-decoration:none;">数据的运算</span></td>
-    <td class="tg-nrix" colspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;">插入、修改、检索、删除、排序</span></td>
-  </tr>
-</thead>
-</table>
-
-<p><a target="_blank" rel="noopener" href="https://www.tablesgenerator.com/html_tables#">HTML Tables generator – TablesGenerator.com</a></p>
-<p>TODO状态！！</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/04/Data-Structure/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1050,7 +1015,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">207</span>
+          <span class="site-state-item-count">208</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

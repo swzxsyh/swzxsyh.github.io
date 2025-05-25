@@ -181,6 +181,97 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2024/04/14/AWS-S3-Permission-Problem-Rcord/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/14/AWS-S3-Permission-Problem-Rcord/" class="post-title-link" itemprop="url">AWS S3 SignatureDoesNotMatch</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-14 21:37:55" itemprop="dateCreated datePublished" datetime="2024-04-14T21:37:55+08:00">2024-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-04-20 18:33:24" itemprop="dateModified" datetime="2024-04-20T18:33:24+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AWS-S3-踩坑"><a href="#AWS-S3-踩坑" class="headerlink" title="AWS S3 踩坑"></a>AWS S3 踩坑</h1><p>第一次用S3，记录一下</p>
+<h2 id="1-Key在哪里"><a href="#1-Key在哪里" class="headerlink" title="1. Key在哪里"></a>1. Key在哪里</h2><ul>
+<li>IAM 设置一个用户组，权限勾选S3 的选项</li>
+<li>生成一个专属用户， 划分到用户组</li>
+<li>用户处生成密钥，那AccessKey 和 SecretKey</li>
+</ul>
+<h2 id="2-桶策略配置"><a href="#2-桶策略配置" class="headerlink" title="2. 桶策略配置"></a>2. 桶策略配置</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="string">&quot;*&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:GetObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::桶名称/*&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Spring-Boot怎么连接"><a href="#3-Spring-Boot怎么连接" class="headerlink" title="3. Spring Boot怎么连接"></a>3. Spring Boot怎么连接</h2><ul>
+<li>Maven 找到AWS SDK S3 导入<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.amazonaws<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aws-java-sdk-s3<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.12.696<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>application 填写Region，两个Key<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">amazon:</span></span><br><span class="line">  <span class="attr">s3:</span></span><br><span class="line">    <span class="attr">accessKey:</span> </span><br><span class="line">    <span class="attr">secretKey:</span> </span><br><span class="line">    <span class="attr">region:</span> </span><br><span class="line">    <span class="attr">bucketName:</span> </span><br></pre></td></tr></table></figure></li>
+<li>构建单例工具类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment"> * AmazonS3工具类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AmazonS3Util</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String accessKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String secretKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String region;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;amazon.s3.accessKey&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAccessKey</span><span class="params">(String accessKey)</span> &#123;</span><br><span class="line">        AmazonS3Util.accessKey = accessKey;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;amazon.s3.secretKey&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setSecretKey</span><span class="params">(String secretKey)</span> &#123;</span><br><span class="line">        AmazonS3Util.secretKey = secretKey;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;amazon.s3.region&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setRegion</span><span class="params">(String region)</span> &#123;</span><br><span class="line">        AmazonS3Util.region = region;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;amazon.s3.bucketName&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> AmazonS3 client;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * singleton</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> OkHttpClient</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> AmazonS3 <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (Objects.isNull(client)) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (AmazonS3.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (Objects.isNull(client)) &#123;</span><br><span class="line">                    <span class="type">AWSCredentials</span> <span class="variable">credentials</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BasicAWSCredentials</span>(accessKey, secretKey);</span><br><span class="line">                    <span class="type">ClientConfiguration</span> <span class="variable">conf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClientConfiguration</span>();</span><br><span class="line">                    <span class="comment">// 设置AmazonS3使用的最大连接数</span></span><br><span class="line">                    conf.setMaxConnections(<span class="number">200</span>);</span><br><span class="line">                    <span class="comment">// 设置socket超时时间</span></span><br><span class="line">                    conf.setSocketTimeout(<span class="number">10000</span>);</span><br><span class="line">                    <span class="comment">// 设置失败请求重试次数</span></span><br><span class="line">                    conf.setMaxErrorRetry(<span class="number">1</span>);</span><br><span class="line">                    <span class="comment">// 如果要用https协议，请加上下面语句</span></span><br><span class="line">                    conf.setProtocol(Protocol.HTTPS);</span><br><span class="line">                    <span class="comment">// 设置加密版本</span></span><br><span class="line">                    conf.setSignerOverride(<span class="string">&quot;AWSS3V4SignerType&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> AmazonS3ClientBuilder.standard()</span><br><span class="line">                            .withCredentials(<span class="keyword">new</span> <span class="title class_">AWSStaticCredentialsProvider</span>(credentials))</span><br><span class="line">                            .withRegion(region)</span><br><span class="line">                            .withClientConfiguration(conf)</span><br><span class="line">                            .build();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> client;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">uploadFile</span><span class="params">(String contextType, String fileName, MultipartFile file)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">InputStream</span> <span class="variable">input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(file.getBytes())) &#123;</span><br><span class="line">            <span class="type">ObjectMetadata</span> <span class="variable">metadata</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMetadata</span>();</span><br><span class="line">            metadata.setContentType(contextType);</span><br><span class="line">            metadata.setHttpExpiresDate(<span class="keyword">new</span> <span class="title class_">Date</span>(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(<span class="number">365</span>)));</span><br><span class="line">            metadata.setContentLength(input.available());</span><br><span class="line">            fileName = UUID.randomUUID().toString().replace(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;&quot;</span>) + fileName;</span><br><span class="line">            getInstance().putObject(bucketName, fileName, input, metadata);</span><br><span class="line">            <span class="keyword">return</span> fileName;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;上传文件失败&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">generateResignedUrl</span><span class="params">(String fileName)</span> &#123;</span><br><span class="line">        <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> getInstance().generatePresignedUrl(bucketName, fileName, <span class="keyword">new</span> <span class="title class_">Date</span>(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(<span class="number">7</span>)), HttpMethod.GET);</span><br><span class="line">        <span class="keyword">return</span> url.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="4-公网访问文件，是否必须关闭网络访问"><a href="#4-公网访问文件，是否必须关闭网络访问" class="headerlink" title="4. 公网访问文件，是否必须关闭网络访问"></a>4. 公网访问文件，是否必须关闭网络访问</h2><p>屏蔽公共访问权限（存储桶设置） 阻止所有公开访问，获取授权访问可以调用 generatePresignedUrl 但是有时效，S3 SDK获取公网链接，最长7天</p>
+<h2 id="5-使用时遇到的坑"><a href="#5-使用时遇到的坑" class="headerlink" title="5. 使用时遇到的坑"></a>5. 使用时遇到的坑</h2><p>本来想构建几个目录，划分不同职责，之前公司华为云、阿里云上都可以这么做，但是S3 这里有问题，我可以在bucket下增删除查改数据，但是如果我新建目录 image&#x2F; 再在这个目录下进行数据CURD操作，则报 <code>SignatureDoesNotMatch</code> 错误.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Code</span>&gt;</span>SignatureDoesNotMatch<span class="tag">&lt;/<span class="name">Code</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Message</span>&gt;</span>The request signature we calculated does not match the signature you provided. Check your key and signing method.<span class="tag">&lt;/<span class="name">Message</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我一直以为是我Key有问题，因为一开始我测试文件是放bucket下的，新增目录肯定是我的问题，但是后面在github上发现有人说，配置目录后就是会这样的。</p>
+<h2 id="规避方法"><a href="#规避方法" class="headerlink" title="规避方法"></a>规避方法</h2><p>文件名添加UUID前缀，放在bucket下。<br>如果有其他方法，请告知我，谢谢。</p>
+<h2 id="其他记录"><a href="#其他记录" class="headerlink" title="其他记录"></a>其他记录</h2><ol>
+<li>MultipartFile 中文名乱码，用ISO_8859_1 读取文件名并使用UTF8记录<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">getFileName</span><span class="params">(MultipartFile file)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 尝试解码</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>(Objects.requireNonNull(file.getOriginalFilename()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// 返回原名</span></span><br><span class="line">        <span class="keyword">return</span> file.getOriginalFilename();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/05/25/Consensus-Algorithm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -963,90 +1054,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/01/10/JAVA-Thread-Start-Run/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/01/10/JAVA-Thread-Start-Run/" class="post-title-link" itemprop="url">JAVA Thread Start与Run调用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-01-10 04:29:28" itemprop="dateCreated datePublished" datetime="2023-01-10T04:29:28+08:00">2023-01-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-02-25 23:54:30" itemprop="dateModified" datetime="2023-02-25T23:54:30+08:00">2023-02-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>start() &amp;&amp; run() 源码</li>
-<li>区别</li>
-<li>Demo及Demo遇到的问题 (Method Reference)</li>
-</ul>
-<h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><h2 id="Source-Code"><a href="#Source-Code" class="headerlink" title="Source Code"></a>Source Code</h2><h3 id="Thread-start"><a href="#Thread-start" class="headerlink" title="Thread start()"></a>Thread start()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this thread to begin execution; the Java Virtual Machine</span></span><br><span class="line"><span class="comment">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * The result is that two threads are running concurrently: the</span></span><br><span class="line"><span class="comment">     * current thread (which returns from the call to the</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;start&lt;/code&gt; method) and the other thread (which executes its</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;run&lt;/code&gt; method).</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * It is never legal to start a thread more than once.</span></span><br><span class="line"><span class="comment">     * In particular, a thread may not be restarted once it has completed</span></span><br><span class="line"><span class="comment">     * execution.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@exception</span>  IllegalThreadStateException  if the thread was already</span></span><br><span class="line"><span class="comment">     *               started.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #run()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>        #stop()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * This method is not invoked for the main method thread or &quot;system&quot;</span></span><br><span class="line"><span class="comment">         * group threads created/set up by the VM. Any new functionality added</span></span><br><span class="line"><span class="comment">         * to this method in the future may have to also be added to the VM.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * A zero status value corresponds to state &quot;NEW&quot;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">  <span class="keyword">if</span> (threadStatus != <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalThreadStateException</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Notify the group that this thread is about to be started</span></span><br><span class="line"><span class="comment">         * so that it can be added to the group&#x27;s list of threads</span></span><br><span class="line"><span class="comment">         * and the group&#x27;s unstarted count can be decremented. */</span></span><br><span class="line">  group.add(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">  <span class="type">boolean</span> <span class="variable">started</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    start0();</span><br><span class="line">    started = <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!started) &#123;</span><br><span class="line">        group.threadStartFailed(<span class="built_in">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable ignore) &#123;</span><br><span class="line">      <span class="comment">/* do nothing. If start0 threw a Throwable then</span></span><br><span class="line"><span class="comment">                  it will be passed up the call stack */</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Thread-run"><a href="#Thread-run" class="headerlink" title="Thread run()"></a>Thread run()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * If this thread was constructed using a separate</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; run object, then that</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;Runnable&lt;/code&gt; object&#x27;s &lt;code&gt;run&lt;/code&gt; method is called;</span></span><br><span class="line"><span class="comment">     * otherwise, this method does nothing and returns.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * Subclasses of &lt;code&gt;Thread&lt;/code&gt; should override this method.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #start()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #stop()</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     #Thread(ThreadGroup, Runnable, String)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (target != <span class="literal">null</span>) &#123;</span><br><span class="line">    target.run();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h2><p>start() 方法是真正的启动方法，是并行调用的</p>
-<p>run()是Thread中的一个方法，是串行调用的</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/01/10/JAVA-Thread-Start-Run/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1116,7 +1123,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">207</span>
+          <span class="site-state-item-count">208</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
