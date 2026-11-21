@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swzxsyh.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Argo Nginx keepalive Linux TCP bbr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cloudflare + AWS NLB + Nginx 偶发 520 &#x2F; 522 &#x2F; 525 &#x2F; 499 排查记录(进行中)">
+<meta property="og:url" content="https://swzxsyh.github.io/2026/11/21/Cross-border-network-investigation/index.html">
+<meta property="og:site_name" content="swzxsyh">
+<meta property="og:description" content="Argo Nginx keepalive Linux TCP bbr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-21T03:06:45.000Z">
+<meta property="article:modified_time" content="2026-11-21T03:10:26.379Z">
+<meta property="article:author" content="swzxsyh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://swzxsyh.github.io/2026/11/21/Cross-border-network-investigation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Cloudflare + AWS NLB + Nginx 偶发 520 / 522 / 525 / 499 排查记录(进行中) | swzxsyh</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="swzxsyh" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swzxsyh</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">--笔记</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2026/11/21/Cross-border-network-investigation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Cloudflare + AWS NLB + Nginx 偶发 520 / 522 / 525 / 499 排查记录(进行中)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-11-21 11:06:45 / 修改时间：11:10:26" itemprop="dateCreated datePublished" datetime="2026-11-21T11:06:45+08:00">2026-11-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>Argo</li>
+<li>Nginx keepalive</li>
+<li>Linux TCP bbr</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="1-背景与架构"><a href="#1-背景与架构" class="headerlink" title="1. 背景与架构"></a>1. 背景与架构</h2><ul>
+<li><strong>背景</strong>：服务从阿里云迁移至 <strong>AWS <code>us-east-2</code>（俄亥俄）</strong> 后，部分客户端（主要位于新加坡 SG）访问域名时偶发报错。</li>
+<li><strong>访问链路</strong>：<br><code>客户端 -&gt; Cloudflare -&gt; AWS NLB（单可用区） -&gt; EC2 (Nginx) -&gt; 后端应用 (&lt;app_port&gt;)</code></li>
+<li><strong>源站证书</strong>：使用 Cloudflare 签发的 15 年 Origin CA 证书，配置在 Nginx 上。</li>
+<li><strong>异常状态码</strong>：Cloudflare 日志中出现 <code>525</code>、<code>522</code>、<code>520</code>、<code>524</code>、<code>499</code>，且 <code>originResponseStatus</code> 均为 <code>0</code>。</li>
+</ul>
+<hr>
+<h2 id="2-排查过程"><a href="#2-排查过程" class="headerlink" title="2. 排查过程"></a>2. 排查过程</h2><h3 id="第一阶段：调整代理超时并开启耗时日志（排除应用层卡死）"><a href="#第一阶段：调整代理超时并开启耗时日志（排除应用层卡死）" class="headerlink" title="第一阶段：调整代理超时并开启耗时日志（排除应用层卡死）"></a>第一阶段：调整代理超时并开启耗时日志（排除应用层卡死）</h3><p>最初怀疑后端 Java 接口超时导致异常（CF 免费版回源等待上限为 100s，Nginx 默认等待后端超时为 60s），因此将 Nginx <code>proxy_read_timeout</code> 设为 <code>80s</code>，并新增 <code>api_timing</code> 日志监控接口耗时：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">log_format</span> api_timing <span class="string">&#x27;<span class="variable">$remote_addr</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;status=<span class="variable">$status</span> upstream_status=<span class="variable">$upstream_status</span> &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;upstream_addr=<span class="variable">$upstream_addr</span> &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;request_time=<span class="variable">$request_time</span> &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;upstream_time=<span class="variable">$upstream_response_time</span> &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;connect_time=<span class="variable">$upstream_connect_time</span>&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">location</span> /api &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://my_app/api;</span><br><span class="line">    <span class="attribute">proxy_buffers</span> <span class="number">4</span> <span class="number">32k</span>;</span><br><span class="line">    <span class="attribute">proxy_busy_buffers_size</span> <span class="number">64k</span>;</span><br><span class="line">    <span class="attribute">proxy_temp_file_write_size</span> <span class="number">64k</span>;</span><br><span class="line">    <span class="attribute">proxy_connect_timeout</span> <span class="number">30s</span>;</span><br><span class="line">    <span class="attribute">proxy_read_timeout</span> <span class="number">80s</span>;</span><br><span class="line">    <span class="attribute">proxy_send_timeout</span> <span class="number">120s</span>;</span><br><span class="line">    <span class="attribute">client_max_body_size</span> <span class="number">30M</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-Proto https;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>排查结果</strong>：</p>
+<ul>
+<li>对比 CF 报错时间点前后 <code>api_timing.log</code>：所有请求均返回 <code>status=200 upstream_status=200</code>，<code>connect_time=0.000</code>，P95 耗时 <code>0.333s</code>（最大仅 <code>2.685s</code>）。</li>
+<li>且因 <code>proxy_read_timeout</code> 为 <code>80s</code>，若后端卡死应先由 Nginx 报 <code>504</code>，而非等 CF 100s 报 <code>524</code>。<strong>基本排除 Java 应用与 Nginx 上游代理问题。</strong></li>
+</ul>
+<hr>
+<h3 id="第二阶段：调大长连接超时-开启-info-级别错误日志"><a href="#第二阶段：调大长连接超时-开启-info-级别错误日志" class="headerlink" title="第二阶段：调大长连接超时 + 开启 info 级别错误日志"></a>第二阶段：调大长连接超时 + 开启 <code>info</code> 级别错误日志</h3><p>怀疑默认 <code>keepalive_timeout 65</code> 过小导致与 Cloudflare 回源连接池复用冲突，同时原 <code>error_log</code> 为 <code>error</code> 级别会忽略连接&#x2F;握手异常，于是调整为：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">keepalive_timeout</span> <span class="number">180</span>;</span><br><span class="line"><span class="attribute">error_log</span> /var/log/nginx/gateway_error.log <span class="literal">info</span>;</span><br><span class="line"><span class="attribute">access_log</span> /var/log/nginx/api_access.log;</span><br><span class="line"><span class="attribute">access_log</span> /var/log/nginx/api_timing.log api_timing;</span><br></pre></td></tr></table></figure>
+
+<p><strong>排查结果</strong>：</p>
+<ul>
+<li>调整后 <code>520</code> &#x2F; <code>524</code> 消失，但夜间（北京时间 <code>21:00 ~ 02:00</code>）仍偶发 <code>522</code> 与 <code>525</code>，且对应时间点 Java 应用依旧无请求进入记录。</li>
+<li>检索 <code>gateway_error.log</code>（<code>info</code> 级别）终于捕获到明确现场：</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2026/11/19 18:18:25 [info] ... client timed out (110: Connection timed out) while SSL handshaking, client: 172.68.xxx.xxx, server: 0.0.0.0:443</span><br><span class="line">2026/11/19 18:48:18 [info] ... client timed out (110: Connection timed out) while SSL handshaking, client: 172.70.xxx.xxx, server: 0.0.0.0:443</span><br><span class="line">2026/11/19 20:19:11 [info] ... peer closed connection in SSL handshake (104: Connection reset by peer) while SSL handshaking, client: 162.158.xxx.xxx, server: 0.0.0.0:443</span><br><span class="line">2026/11/19 21:17:59 [info] ... client timed out (110: Connection timed out) while SSL handshaking, client: 162.158.xxx.xxx, server: 0.0.0.0:443</span><br><span class="line">2026/11/19 23:17:55 [info] ... client timed out (110: Connection timed out) while SSL handshaking, client: 104.22.xxx.xxx, server: 0.0.0.0:443</span><br><span class="line">2026/11/20 01:47:22 [info] ... client timed out (110: Connection timed out) while SSL handshaking, client: 172.68.xxx.xxx, server: 0.0.0.0:443</span><br></pre></td></tr></table></figure>
+
+<p><strong>时间线完全吻合</strong>（Nginx 默认 <code>ssl_handshake_timeout</code> 为 60 秒）：</p>
+<ul>
+<li>CF <code>21:16:53</code> 报 <code>525</code> → 60s 后 Nginx <code>21:17:59</code> 记录 SSL 握手超时</li>
+<li>CF <code>23:16:49</code> 报 <code>525</code> &#x2F; <code>23:17:00</code> 报 <code>522</code> → 60s 后 Nginx <code>23:17:55</code> 记录 SSL 握手超时</li>
+<li>CF <code>01:46:21</code> 报 <code>522</code> → 60s 后 Nginx <code>01:47:22</code> 记录 SSL 握手超时</li>
+</ul>
+<hr>
+<h3 id="第三阶段：排查-EC2-网卡与-AWS-ENA-限流"><a href="#第三阶段：排查-EC2-网卡与-AWS-ENA-限流" class="headerlink" title="第三阶段：排查 EC2 网卡与 AWS ENA 限流"></a>第三阶段：排查 EC2 网卡与 AWS ENA 限流</h3><p>检查本机主网卡丢包及 AWS ENA 突发限制指标（已脱敏）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">IFACE=$(ip route show default | awk <span class="string">&#x27;&#123;print $5; exit&#125;&#x27;</span>)</span><br><span class="line">ip -s <span class="built_in">link</span> show <span class="string">&quot;<span class="variable">$IFACE</span>&quot;</span></span><br><span class="line">ethtool -S <span class="string">&quot;<span class="variable">$IFACE</span>&quot;</span> | grep -iE <span class="string">&#x27;drop|err|exceeded|fail&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出核心指标：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RX: packets 138376345  errors 0  dropped 0  missed 0</span><br><span class="line">TX: packets 113358962  errors 0  dropped 0</span><br><span class="line">bw_in_allowance_exceeded: 0</span><br><span class="line">bw_out_allowance_exceeded: 0</span><br><span class="line">pps_allowance_exceeded: 0</span><br><span class="line">conntrack_allowance_exceeded: 0</span><br><span class="line">linklocal_allowance_exceeded: 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>结论</strong>：EC2 实例自身网卡、AWS ENA 配额、Nginx 与后端应用均完全正常，无任何丢包或限流。</p>
+<hr>
+<h2 id="3-根因总结"><a href="#3-根因总结" class="headerlink" title="3. 根因总结"></a>3. 根因总结</h2><table>
+<thead>
+<tr>
+<th align="left">状态码</th>
+<th align="left">归因分析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>522 &#x2F; 525</strong></td>
+<td align="left">主要调用方在新加坡（SG），源站在美国俄亥俄（<code>us-east-2</code>）。北京时间夜间国际公网出口拥堵时，<strong>Cloudflare 边缘节点 ↔ AWS <code>us-east-2</code> 跨太平洋回源链路出现间歇性丢包</strong>：TCP SYN 丢包触发 <code>522</code>，TLS 握手包丢包触发 <code>525</code>（Nginx 侧表现为 60s 后 <code>while SSL handshaking</code> 超时）。</td>
+</tr>
+<tr>
+<td align="left"><strong>520 &#x2F; 524</strong></td>
+<td align="left">与默认 <code>keepalive_timeout 65</code> 引起的连接复用竞争及跨洋链路抖动有关，调大至 <code>180</code> 后已消除。</td>
+</tr>
+<tr>
+<td align="left"><strong>499</strong></td>
+<td align="left">客户端在等待响应期间主动断开连接（需检查调用方 HTTP 客户端超时配置）。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-优化措施与后续方案"><a href="#4-优化措施与后续方案" class="headerlink" title="4. 优化措施与后续方案"></a>4. 优化措施与后续方案</h2><h3 id="已实施：1-开启-Cloudflare-Argo-Smart-Routing"><a href="#已实施：1-开启-Cloudflare-Argo-Smart-Routing" class="headerlink" title="已实施：1. 开启 Cloudflare Argo Smart Routing"></a>已实施：1. 开启 Cloudflare Argo Smart Routing</h3><p>在 Cloudflare 开启 <strong>Argo Smart Routing</strong>，使回源流量走 CF 私有骨干网直达源站，避开拥堵的跨洋公网链路。</p>
+<h3 id="已实施：2-开启-EC2-TCP-BBR-拥塞控制"><a href="#已实施：2-开启-EC2-TCP-BBR-拥塞控制" class="headerlink" title="已实施：2. 开启 EC2 TCP BBR 拥塞控制"></a>已实施：2. 开启 EC2 TCP BBR 拥塞控制</h3><p>Linux 默认 <code>cubic</code> 在跨洋高延迟丢包场景下恢复较慢，已切换为 <code>fq + bbr</code> 以提升跨洋重传与握手恢复能力：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sysctl net.ipv4.tcp_congestion_control   <span class="comment"># 原为 cubic</span></span><br><span class="line"></span><br><span class="line">modprobe tcp_bbr</span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF &gt; /etc/sysctl.d/99-bbr.conf</span></span><br><span class="line"><span class="string">net.core.default_qdisc = fq</span></span><br><span class="line"><span class="string">net.ipv4.tcp_congestion_control = bbr</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line">sysctl --system</span><br><span class="line">sysctl net.core.default_qdisc net.ipv4.tcp_congestion_control</span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line"><span class="comment"># net.core.default_qdisc = fq</span></span><br><span class="line"><span class="comment"># net.ipv4.tcp_congestion_control = bbr</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="后续观察与长期方案"><a href="#后续观察与长期方案" class="headerlink" title="后续观察与长期方案"></a>后续观察与长期方案</h3><ol>
+<li><strong>短期观察</strong>：观察开启 <strong>Argo + BBR</strong> 后晚高峰 <code>522 / 525</code> 出现频率；排查完成后将 Nginx <code>error_log</code> 恢复为 <code>error</code> 级别，避免 <code>info</code> 日志占用磁盘。</li>
+<li><strong>长期架构方案</strong>：若主要业务调用方长期位于亚太地区，建议将源站迁往距离更近的可用区（如 **AWS <code>ap-southeast-1</code>**）。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/05/24/Anki-ConfusingWordRecords/" rel="prev" title="Anki背诵, 易混淆单词记录">
+      <i class="fa fa-chevron-left"></i> Anki背诵, 易混淆单词记录
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%83%8C%E6%99%AF%E4%B8%8E%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">1. 背景与架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">2. 排查过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%B0%83%E6%95%B4%E4%BB%A3%E7%90%86%E8%B6%85%E6%97%B6%E5%B9%B6%E5%BC%80%E5%90%AF%E8%80%97%E6%97%B6%E6%97%A5%E5%BF%97%EF%BC%88%E6%8E%92%E9%99%A4%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%A1%E6%AD%BB%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">第一阶段：调整代理超时并开启耗时日志（排除应用层卡死）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%B0%83%E5%A4%A7%E9%95%BF%E8%BF%9E%E6%8E%A5%E8%B6%85%E6%97%B6-%E5%BC%80%E5%90%AF-info-%E7%BA%A7%E5%88%AB%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97"><span class="nav-number">2.2.</span> <span class="nav-text">第二阶段：调大长连接超时 + 开启 info 级别错误日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%8E%92%E6%9F%A5-EC2-%E7%BD%91%E5%8D%A1%E4%B8%8E-AWS-ENA-%E9%99%90%E6%B5%81"><span class="nav-number">2.3.</span> <span class="nav-text">第三阶段：排查 EC2 网卡与 AWS ENA 限流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%A0%B9%E5%9B%A0%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">3. 根因总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BC%98%E5%8C%96%E6%8E%AA%E6%96%BD%E4%B8%8E%E5%90%8E%E7%BB%AD%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">4. 优化措施与后续方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%B2%E5%AE%9E%E6%96%BD%EF%BC%9A1-%E5%BC%80%E5%90%AF-Cloudflare-Argo-Smart-Routing"><span class="nav-number">4.1.</span> <span class="nav-text">已实施：1. 开启 Cloudflare Argo Smart Routing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%B2%E5%AE%9E%E6%96%BD%EF%BC%9A2-%E5%BC%80%E5%90%AF-EC2-TCP-BBR-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="nav-number">4.2.</span> <span class="nav-text">已实施：2. 开启 EC2 TCP BBR 拥塞控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E7%BB%AD%E8%A7%82%E5%AF%9F%E4%B8%8E%E9%95%BF%E6%9C%9F%E6%96%B9%E6%A1%88"><span class="nav-number">4.3.</span> <span class="nav-text">后续观察与长期方案</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swzxsyh</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">209</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/swzxsyh" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/swzxsyh" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;swzxsyh" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swzxsyh</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '713a28a3ad93f2aa2323',
+      clientSecret: '39dc40bb09b422ca4c99a748b5984a4d205e91be',
+      repo        : 'swzxsyh.github.io',
+      owner       : 'swzxsyh',
+      admin       : ['swzxsyh'],
+      id          : 'edf91ccc5dd99739ef18599ae4b7a1dc',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

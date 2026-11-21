@@ -181,6 +181,122 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/01/29/Disruptor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="swzxsyh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swzxsyh">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/01/29/Disruptor/" class="post-title-link" itemprop="url">LMAX-Disruptor Learn</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-29 03:43:00" itemprop="dateCreated datePublished" datetime="2023-01-29T03:43:00+08:00">2023-01-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-02-03 03:17:59" itemprop="dateModified" datetime="2023-02-03T03:17:59+08:00">2023-02-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="LMAX-Disruptor"><a href="#LMAX-Disruptor" class="headerlink" title="LMAX Disruptor"></a>LMAX Disruptor</h3><p>是一个高性能的<strong>线程间</strong>消息传递库（即同一进程内线程间的内存队列）。它旨在为异步事件处理体系结构提供低延迟、高吞吐量的工作队列。</p>
+<p>Disruptor 与 Java BlockingQueue<code>类似。</code></p>
+<p><code>Disruptor</code> 与队列一样，Disruptor的目的是在同一进程内的多个线程之间移动数据（例如消息或事件）。 但是，Disruptor提供了一些关键功能，可以将其与队列区分开来。 它们是：</p>
+<ul>
+<li>向使用者发送多播事件，并带有<a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_consumer_dependency_graph">使用者依赖关系图</a>。</li>
+<li>为事件<a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_event_pre_allocation">预分配内存</a>。</li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_optionally_lock_free">可选无锁</a>。</li>
+</ul>
+<h3 id="MQ-Middleware"><a href="#MQ-Middleware" class="headerlink" title="MQ Middleware"></a>MQ Middleware</h3><p>MQ中间件使用场景一般在系统和系统间的消息传递，吞吐量高，也适用于消息流数据处理的Middleware。</p>
+<h3 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h3><ul>
+<li>Disruptor是内存数据，MQ Middleware如Kafka数据是磁盘落库</li>
+<li>Disruptor是同一台Instance内部的多线程消费数据，Kafka可以提供多分片的多节点批量消费</li>
+</ul>
+<h3 id="Why-Disruptor"><a href="#Why-Disruptor" class="headerlink" title="Why Disruptor"></a>Why Disruptor</h3><p>Java内部传统队列用锁保证线程安全，而锁需要通过操作系统上下文切换实现，会暂停线程等待锁释放。</p>
+<p>频繁切换上下文会丢失之前保存的数据和指令。由于消费者和生产者之间的速度差异，队列总是接近满或者空的状态，这种状态会导致高水平的写入争用。</p>
+<h2 id="Core-Concepts"><a href="#Core-Concepts" class="headerlink" title="Core Concepts"></a>Core Concepts</h2><h3 id="Ring-Buffer"><a href="#Ring-Buffer" class="headerlink" title="Ring Buffer"></a>Ring Buffer</h3><p>曾是核心功能，3.0版本后只负责对<code>通过Disruptor</code>进行交换的<code>数据(Event)</code>进行<strong>存储</strong>与<strong>更新</strong>。</p>
+<p>对于一些高级使用场景，可以完全由用户替换。</p>
+<h3 id="Sequence"><a href="#Sequence" class="headerlink" title="Sequence"></a>Sequence</h3><p>Disruptor 使用序列作为一种方法来识别特定组件的位置。每个消费者 (<code>Event Processor</code>)都维护一个 Sequence，Disruptor 本身也是如此。大多数并发代码都依赖于这些 Sequence 值的移动，因此 Sequence 支持 AtomicLong 的许多当前功能。事实上，两者之间唯一真正的区别是 Sequence 包含额外的功能(Padding)来防止 Sequences 和其他值之间的错误共享（伪共享）。</p>
+<h3 id="Sequencer"><a href="#Sequencer" class="headerlink" title="Sequencer"></a>Sequencer</h3><p>Disruptor的真正核心，主要是用来协调生产者。</p>
+<p>该接口的两个实现 (<code>single producer</code>, <code>multi producer</code>) 实现了所有并发算法(concurrent algorithms)，以便在生产者和消费者之间快速、正确地传递数据。</p>
+<p>在生产者生产数据的时候，Sequencer会产生一个可用的序号（Sequence），然后生产者就就知道数据放在环形队列的那个位置了。</p>
+<h3 id="Sequence-Barrier"><a href="#Sequence-Barrier" class="headerlink" title="Sequence Barrier"></a>Sequence Barrier</h3><p>Sequencer 生成一个 Sequence Barrier，其中包含对来自 Sequencer 的主要已发布<code>Sequence</code>和任何依赖消费者的<code>Sequence</code>的引用。</p>
+<p>它的功能是确定是否有任何事件可供消费者处理。</p>
+<h3 id="Wait-Strategy"><a href="#Wait-Strategy" class="headerlink" title="Wait Strategy"></a>Wait Strategy</h3><p><code>Wait Strategy</code> 决定了consumer如何等待producer把事件放入 Disruptor 中。</p>
+<p>更多细节查看 lock-free 的内容。</p>
+<h3 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h3><p>从producer传递到consumer的数据单元 (unit of data) 被称为 <code>Event</code>。</p>
+<p>并非Disruptor指定类型，由用户自定义。</p>
+<h3 id="Event-Processor"><a href="#Event-Processor" class="headerlink" title="Event Processor"></a>Event Processor</h3><p>用于处理来自 Disruptor 的事件的主事件循环，并拥有消费者序列的所有权。有一个称为 BatchEventProcessor 的表示，它包含事件循环的有效实现，并将回调到使用过的 EventHandler 接口的提供实现。</p>
+<p>The main event loop for handling events from the Disruptor and has ownership of consumer’s Sequence. There is a single representation called BatchEventProcessor that contains an efficient implementation of the event loop and will call back onto a used supplied implementation of the EventHandler interface.</p>
+<h3 id="Event-Handler"><a href="#Event-Handler" class="headerlink" title="Event Handler"></a>Event Handler</h3><p>由用户实现的 Disruptor 的消费者接口，用于处理事件，是 Consumer 的真正实现。</p>
+<h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>用户代码，调用Disruptor使生成的 <code>Event</code> s 进入队列。Disruptor没有定义特定接口或类型</p>
+<h2 id="Core-Process"><a href="#Core-Process" class="headerlink" title="Core Process"></a>Core Process</h2><p><img src="/2023/01/29/Disruptor/models.png" alt="使用 Disruptor 的示例（来自Disruptor官网）"></p>
+<ul>
+<li>Using the Disruptor<ul>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_introduction">Introduction</a></li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_getting_started">Getting Started</a></li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_advanced_techniques">Advanced Techniques</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_design_and_implementation">Design and Implementation</a></li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_known_issues">Known Issues</a></li>
+<li>Batch Rewind<ul>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_the_feature">The Feature</a></li>
+<li><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_use_case">Use Case</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="Source"><a href="#Source" class="headerlink" title="Source"></a>Source</h1><p><a target="_blank" rel="noopener" href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_use_case">LMAX Disruptor User Guide (lmax-exchange.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/266123792">比较 Kafka和disruptor？ - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/323668956">https://www.zhihu.com/question/323668956</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23235063">https://www.zhihu.com/question/23235063</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/565937436">https://zhuanlan.zhihu.com/p/565937436</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2023/01/10/JAVA-Thread-Start-Run/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -842,75 +958,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://swzxsyh.github.io/2022/08/08/RPC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="swzxsyh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swzxsyh">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/08/RPC/" class="post-title-link" itemprop="url">RPC初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-08-08 02:23:37" itemprop="dateCreated datePublished" datetime="2022-08-08T02:23:37+08:00">2022-08-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-15 04:17:35" itemprop="dateModified" datetime="2022-11-15T04:17:35+08:00">2022-11-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h1><p>RPC-远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。</p>
-<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>RPC（Remote Procedure Call）—远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。也就是说两台服务器A，B，一个应用部署在A服务器上，想要调用B服务器上应用提供的方法，由于不在一个内存空间，不能直接调用，需要通过网络来表达调用的语义和传达调用的数据。</p>
-<p>RPC协议假定某些传输协议的存在，如TCP或UDP，为通信程序之间携带信息数据。在OSI网络通信模型中，RPC跨越了传输层和应用层。RPC使得开发包括网络分布式多程序在内的应用程序更加容易。现在业界有很多开源的优秀 RPC 框架，例如 Spring Cloud、Dubbo、Thrift 等。</p>
-          <!--noindex-->
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -980,7 +1027,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">208</span>
+          <span class="site-state-item-count">209</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
